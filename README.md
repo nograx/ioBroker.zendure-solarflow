@@ -24,7 +24,7 @@ don't know why. If you have more information, feel free to contact me.
 ## Donate
 
 If you find the adapter useful for you and want to support my work, feel free to donate by Paypal. Thank You!
-(this is an personal Donate link for Nograx, in no relation to the ioBroker Project!)
+(this is an personal Donate link for Nograx, in no relation to the ioBroker Project!)<br />
 
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](http://paypal.me/peter.frommert)
 
