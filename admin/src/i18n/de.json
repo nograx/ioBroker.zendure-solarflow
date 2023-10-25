@@ -1,0 +1,22 @@
+{
+    "zendure-solarflow adapter settings": "Adaptereinstelungen für Zendure Solarflow",
+    "server": "Server",
+    "userName": "Benutzername",
+    "password": "Passwort",
+    "sn": "Seriennummer",
+    "eu": "EU",
+    "global": "Global",
+    "setOutputLimit": "Setzen des Output Limit",
+    "socSet": "Definierte SOC Obergrenze",
+    "remainOutTime": "Verbleibende Entladezeit in Sekunden",
+    "remainInputTime": "Verbleibende Ladezeit in Sekunden",
+    "solarInputPower": "Aktuelle PV-Leistung (W)",
+    "packInputPower": "Ladeleistungeistung in Akku (W)",
+    "outputPackPower": "Entnahmeleistung aus Akku (W)",
+    "outputLimit": "Max. erlaubte Leistung an Wechselrichter (W)",
+    "outputHomePower": "Aktuelle Ausgabeleistung (an Wechselrichter)",
+    "masterSwitch": "Gerätestatus (An / Aus)",
+    "buzzerSwitch": "Ton-Ausgabe am PV-HUB",
+    "electricLevel": "Ladestand des Akkus / SOC",
+    "settings": "Adaptereinstellungen für Zendure-Solarflow"
+}

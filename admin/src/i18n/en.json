@@ -1,0 +1,21 @@
+{
+  "settings": "Adapter settings for zendure-solarflow",
+  "server": "server",
+  "userName": "Username",
+  "password": "Password",
+  "sn": "Serial number",
+  "eu": "EU",
+  "global": "Global",
+  "setOutputLimit": "Set the output limit",
+  "socSet": "Defined SOC limit",
+  "remainOutTime": "Remaining output time",
+  "remainInputTime": "Remaining charge time",
+  "solarInputPower": "Current Solar power (W)",
+  "packInputPower": "Current power to battery (W)",
+  "outputPackPower": "Current power from battery (W)",
+  "outputLimit": "Max. allowed power to inverter (W)",
+  "outputHomePower": "Current power to inverter",
+  "masterSwitch": "Device status (on / off)",
+  "buzzerSwitch": "Sound output on HUB",
+  "electricLevel": "Current soc"
+}

@@ -1,0 +1,83 @@
+{
+  "common": {
+    "name": "zendure-solarflow",
+    "version": "0.0.2",
+    "news": {
+      "0.0.1": {
+        "en": "initial release",
+        "de": "Erstveröffentlichung",
+        "ru": "Начальная версия",
+        "pt": "lançamento inicial",
+        "nl": "Eerste uitgave",
+        "fr": "Première version",
+        "it": "Versione iniziale",
+        "es": "Versión inicial",
+        "pl": "Pierwsze wydanie",
+        "uk": "Початкова версія",
+        "zh-cn": "首次出版"
+      }
+    },
+    "title": "Zendure Solarflow",
+    "titleLang": {
+      "en": "Zendure Solarflow",
+      "de": "Zendure Solarflow",
+      "ru": "Зендуре Соларфлоу",
+      "pt": "Zendure Solarflow",
+      "nl": "Zendure Solarflow",
+      "fr": "Flux solaire Zendure",
+      "it": "Zendur Solarflow",
+      "es": "Zendure Solarflow",
+      "pl": "Zendure Solarflow",
+      "uk": "Zendure Solarflow",
+      "zh-cn": "Zendure Solarflow"
+    },
+    "desc": {
+      "en": "zendure-solarflow",
+      "de": "Zendure-Solarflow",
+      "ru": "Zendure-Solarflow",
+      "pt": "zendure-solarflow",
+      "nl": "zendure-solarflow",
+      "fr": "zendure-solarflow",
+      "it": "zendure-solarflow",
+      "es": "flujo-solar-zendure",
+      "pl": "zendure-solarflow",
+      "uk": "zendure-solarflow",
+      "zh-cn": "zendure-solarflow"
+    },
+    "authors": ["Peter <peter.frommert@outlook.com>"],
+    "keywords": ["Zendure", "Solarflow"],
+    "license": "MIT",
+    "platform": "Javascript/Node.js",
+    "main": "build/main.js",
+    "icon": "zendure-solarflow.png",
+    "enabled": true,
+    "extIcon": "https://raw.githubusercontent.com/nograx/ioBroker.zendure-solarflow/main/admin/zendure-solarflow.png",
+    "readme": "https://github.com/nograx/ioBroker.zendure-solarflow/blob/main/README.md",
+    "loglevel": "info",
+    "mode": "daemon",
+    "type": "energy",
+    "compact": true,
+    "connectionType": "cloud",
+    "dataSource": "poll",
+    "adminUI": {
+      "config": "materialize"
+    },
+    "eraseOnUpload": true,
+    "dependencies": [
+      {
+        "js-controller": ">=3.3.22"
+      }
+    ],
+    "globalDependencies": [
+      {
+        "admin": ">=5.0.0"
+      }
+    ]
+  },
+  "native": {
+    "username": "",
+    "password": ""
+  },
+  "objects": [],
+  "instanceObjects": []
+}
