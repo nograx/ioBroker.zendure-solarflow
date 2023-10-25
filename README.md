@@ -25,7 +25,7 @@ don't know why. If you have more information, feel free to contact me.
 
 If you find the adapter useful for you and want to support my work, feel free to donate by Paypal. Thank You!
 (this is an personal Donate link for Nograx, in no relation to the ioBroker Project!)
-[![Donate](https://github.com/nograx/ioBroker.zendure-solarflow/admin/donate-with-paypal.png)](http://paypal.me/peter.frommert)
+[![Donate](admin/donate-with-paypal.png)](http://paypal.me/peter.frommert)
 
 ## Developer manual
 
