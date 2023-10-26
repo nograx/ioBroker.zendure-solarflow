@@ -34,6 +34,10 @@ If you find the adapter useful for you and want to support my work, feel free to
 
 - Initital Release, retrieving Hub data, telemetry and setting the output limit works!
 
+### 0.0.1 (2023-10-24)
+
+- First test
+
 ### **WORK IN PROGRESS**
 
 - Get battery information

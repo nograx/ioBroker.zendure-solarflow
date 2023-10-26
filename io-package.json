@@ -15,6 +15,10 @@
                 "pl": "Pierwsze wydanie",
                 "uk": "Початкова версія",
                 "zh-cn": "首次出版"
+            },
+            "0.0.2": {
+                "en": "Bug fixes and improvements",
+               
             }
         },
         "title": "Zendure Solarflow",
