@@ -29,6 +29,10 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](http://paypal.me/peter.frommert)
 
 ## Changelog
+### 0.1.0-alpha.0 (2023-10-26)
+
+- Get battery information
+- Reset states if no new data comes in (e.g. when Hub goes offline). Currently the last value still persist when Hub goes offline, so you may have 'pseudo' data in your states.
 
 ### 0.0.2 (2023-10-25)
 
@@ -37,11 +41,6 @@ If you find the adapter useful for you and want to support my work, feel free to
 ### 0.0.1 (2023-10-24)
 
 - First test
-
-### **WORK IN PROGRESS**
-
-- Get battery information
-- Reset states if no new data comes in (e.g. when Hub goes offline). Currently the last value still persist when Hub goes offline, so you may have 'pseudo' data in your states.
 
 ## License
 
