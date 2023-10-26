@@ -21,6 +21,10 @@ Note: It is possible to control the Output limit with the state created in the p
 Note2: You will be logged out of the official iOS or Android App after logging in with the ioBroker adapter. This is a normal behavior, currently I
 don't know why. If you have more information, feel free to contact me.
 
+## Credits
+
+Credits goes to https://github.com/reinhard-brandstaedter/solarflow which helped a lot with the knowledge about the MQTT server from Zendure! Thanks!
+
 ## Donate
 
 If you find the adapter useful for you and want to support my work, feel free to donate by Paypal. Thank You!
