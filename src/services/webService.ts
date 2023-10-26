@@ -27,12 +27,12 @@ export const login = (adapter: ZendureSolarflow) => {
   const authBody = {
     password: adapter.config.password,
     account: adapter.config.userName,
-    appId: "121c83f761305d6cf7r",
+    appId: "121c83f761305d6cf7b",
     appType: "iOS",
     grantType: "password",
     tenantId: "",
   };
-
+  adapter.log.info("tokenurl: " + adapter?.paths?.solarFlowTokenUrl)
   if (adapter.paths && adapter.paths.solarFlowTokenUrl) {
     return axios
       .post(adapter.paths.solarFlowTokenUrl, authBody, config)
@@ -50,6 +50,7 @@ export const login = (adapter: ZendureSolarflow) => {
         return Promise.reject("Failed to login to Zendure REST API!");
       });
   }
+  else return Promise.reject("Path error!");
 };
 
 export const getDeviceList = (adapter: ZendureSolarflow) => {

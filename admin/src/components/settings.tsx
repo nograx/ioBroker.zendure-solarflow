@@ -140,7 +140,11 @@ class Settings extends React.Component<SettingsProps, SettingsState> {
           <div>{this.renderInput("userName", "userName", "text")}</div>
           <div>{this.renderInput("password", "password", "password")}</div>
           <div>
-            <img src={"/"}></img>
+            If you find the adapter useful for you and want to support my work, feel free to donate by Paypal. Thank You!<br />
+            (this is an personal Donate link for Nograx, in no relation to the ioBroker Project!)
+          </div>
+          <div>
+            <a href="http://paypal.me/peter.frommert" target="_blank" rel="noreferrer"></a><img src={"https://img.shields.io/badge/Donate-PayPal-green.svg"}></img>
           </div>
         </form>
       </div>

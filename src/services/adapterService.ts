@@ -239,7 +239,7 @@ export const addOrUpdatePackData = async (
             de: "Seriennummer",
             en: "Serial id",
           },
-          type: "number",
+          type: "string",
           desc: "Serial ID",
           role: "value",
           read: true,
@@ -248,11 +248,11 @@ export const addOrUpdatePackData = async (
         native: {},
       });
 
-      adapter?.setStateAsync(key + ".sn", x.sn, false);
+      await adapter?.setStateAsync(key + ".sn", x.sn, false);
 
       if (x.socLevel) {
         // State für socLevel
-        await adapter?.setObjectNotExistsAsync(key + "socLevel", {
+        await adapter?.setObjectNotExistsAsync(key + ".socLevel", {
           type: "state",
           common: {
             name: {
@@ -268,12 +268,12 @@ export const addOrUpdatePackData = async (
           native: {},
         });
 
-        adapter?.setStateAsync(key + "socLevel", x.socLevel, false);
+        await adapter?.setStateAsync(key + ".socLevel", x.socLevel, false);
       }
 
       if (x.maxTemp) {
         // State für maxTemp
-        await adapter?.setObjectNotExistsAsync(key + "maxTemp", {
+        await adapter?.setObjectNotExistsAsync(key + ".maxTemp", {
           type: "state",
           common: {
             name: {
@@ -289,11 +289,11 @@ export const addOrUpdatePackData = async (
           native: {},
         });
 
-        adapter?.setStateAsync(key + "maxTemp", x.maxTemp / 100, false);
+        await adapter?.setStateAsync(key + ".maxTemp", x.maxTemp / 100, false);
       }
 
       if (x.minVol) {
-        await adapter?.setObjectNotExistsAsync(key + "minVol", {
+        await adapter?.setObjectNotExistsAsync(key + ".minVol", {
           type: "state",
           common: {
             name: "minVol",
@@ -306,11 +306,11 @@ export const addOrUpdatePackData = async (
           native: {},
         });
 
-        adapter?.setStateAsync(key + "minVol", x.minVol / 100, false);
+        await adapter?.setStateAsync(key + ".minVol", x.minVol / 100, false);
       }
 
       if (x.maxVol) {
-        await adapter?.setObjectNotExistsAsync(key + "maxVol", {
+        await adapter?.setObjectNotExistsAsync(key + ".maxVol", {
           type: "state",
           common: {
             name: "maxVol",
@@ -323,14 +323,14 @@ export const addOrUpdatePackData = async (
           native: {},
         });
 
-        adapter?.setStateAsync(key + "maxVol", x.maxVol / 100, false);
+        await adapter?.setStateAsync(key + ".maxVol", x.maxVol / 100, false);
       }
 
       if (x.totalVol) {
-        await adapter?.setObjectNotExistsAsync(key + "totalVol", {
+        await adapter?.setObjectNotExistsAsync(key + ".totalVol", {
           type: "state",
           common: {
-            name: key + "totalVol",
+            name: "totalVol",
             type: "number",
             desc: "totalVol",
             role: "value",
@@ -340,7 +340,7 @@ export const addOrUpdatePackData = async (
           native: {},
         });
 
-        adapter?.setStateAsync(key + "totalVol", x.totalVol / 100, false);
+        await adapter?.setStateAsync(key + ".totalVol", x.totalVol / 100, false);
       }
     }
   });

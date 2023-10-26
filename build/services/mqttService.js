@@ -52,6 +52,13 @@ const onMessage = async (topic, message) => {
     const productKey = splitted[1];
     const deviceKey = splitted[2];
     const obj = JSON.parse(message.toString());
+    (0, import_adapterService.updateSolarFlowState)(
+      adapter,
+      productKey,
+      deviceKey,
+      "lastUpdate",
+      new Date().getTime()
+    );
     if (((_a = obj.properties) == null ? void 0 : _a.electricLevel) != null && ((_b = obj.properties) == null ? void 0 : _b.electricLevel) != void 0) {
       (0, import_adapterService.updateSolarFlowState)(
         adapter,
@@ -151,31 +158,41 @@ const onMessage = async (topic, message) => {
       );
     }
     if (obj.packData) {
-      console.log(obj.packData);
+      (0, import_adapterService.addOrUpdatePackData)(adapter, productKey, deviceKey, obj.packData);
     }
   }
   if (client) {
   }
 };
-const setOutputLimit = (adapter2, productKey, deviceKey, limit) => {
+const setOutputLimit = async (adapter2, productKey, deviceKey, limit) => {
+  var _a;
   if (client && productKey && deviceKey) {
-    if (limit < 100 && limit != 90 && limit != 60 && limit != 30 && limit != 0) {
-      if (limit < 100 && limit > 90) {
-        limit = 90;
-      } else if (limit < 90 && limit > 60) {
-        limit = 60;
-      } else if (limit < 60 && limit > 30) {
-        limit = 30;
-      } else if (limit < 30) {
-        limit = 30;
+    const currentLimit = (_a = await adapter2.getStateAsync(productKey + "." + deviceKey + ".outputLimit")) == null ? void 0 : _a.val;
+    if (currentLimit != null && currentLimit != void 0) {
+      if (currentLimit != limit) {
+        if (limit < 100 && limit != 90 && limit != 60 && limit != 30 && limit != 0) {
+          if (limit < 100 && limit > 90) {
+            limit = 90;
+          } else if (limit < 90 && limit > 60) {
+            limit = 60;
+          } else if (limit < 60 && limit > 30) {
+            limit = 30;
+          } else if (limit < 30) {
+            limit = 30;
+          }
+        }
+        const topic = `iot/${productKey}/${deviceKey}/properties/write`;
+        const outputlimit = { properties: { outputLimit: limit } };
+        adapter2.log.info(
+          `Setting Output Limit for device key ${deviceKey} to ${limit}!`
+        );
+        client == null ? void 0 : client.publish(topic, JSON.stringify(outputlimit));
+      } else {
+        adapter2.log.info(
+          `Output Limit for device key ${deviceKey} is already at ${limit}!`
+        );
       }
     }
-    const topic = `iot/${productKey}/${deviceKey}/properties/write`;
-    const outputlimit = { properties: { outputLimit: limit } };
-    adapter2.log.info(
-      `Setting Output Limit for device key ${deviceKey} to ${limit}!`
-    );
-    client == null ? void 0 : client.publish(topic, JSON.stringify(outputlimit));
   }
 };
 const connectMqttClient = (_adapter) => {
@@ -198,13 +215,19 @@ const connectMqttClient = (_adapter) => {
       adapter.deviceList.forEach((device) => {
         if (adapter) {
           (0, import_adapterService.createSolarFlowStates)(adapter, device.productKey, device.deviceKey);
-          console.log(
-            "Subscribing to: " + device.productKey + "/" + device.deviceKey
+          (0, import_adapterService.updateSolarFlowState)(
+            adapter,
+            device.productKey,
+            device.deviceKey,
+            "electricLevel",
+            device.electricity
           );
-          const report_topic = `/${device.productKey}/${device.deviceKey}/properties/report`;
-          const iot_topic = `iot/${device.productKey}/${device.deviceKey}/#`;
-          client == null ? void 0 : client.subscribe(report_topic, onSubscribe);
-          client == null ? void 0 : client.subscribe(iot_topic, onSubscribe);
+          const reportTopic = `/${device.productKey}/${device.deviceKey}/properties/report`;
+          const iotTopic = `iot/${device.productKey}/${device.deviceKey}/#`;
+          adapter.log.info(`Subscribing to MQTT Topic: ${reportTopic}`);
+          client == null ? void 0 : client.subscribe(reportTopic, onSubscribe);
+          adapter.log.info(`Subscribing to MQTT Topic: ${iotTopic}`);
+          client == null ? void 0 : client.subscribe(iotTopic, onSubscribe);
         }
       });
       client.on("message", onMessage);

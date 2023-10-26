@@ -3,7 +3,7 @@ import { MqttClient } from "mqtt";
 import * as mqtt from "mqtt";
 import { ZendureSolarflow } from "../main";
 import { ISolarFlowDeviceDetails } from "../models/ISolarFlowDeviceDetails";
-import { createSolarFlowStates, updateSolarFlowState } from "./adapterService";
+import { addOrUpdatePackData, createSolarFlowStates, updateSolarFlowState } from "./adapterService";
 
 let client: MqttClient | undefined = undefined;
 let adapter: ZendureSolarflow | undefined = undefined;
@@ -178,7 +178,7 @@ const onMessage = async (topic: string, message: Buffer) => {
     }
 
     if (obj.packData) {
-      console.log(obj.packData);
+      addOrUpdatePackData(adapter, productKey, deviceKey, obj.packData);
     }
   }
 

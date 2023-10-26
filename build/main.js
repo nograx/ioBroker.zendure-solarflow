@@ -31,6 +31,7 @@ var utils = __toESM(require("@iobroker/adapter-core"));
 var import_mqttService = require("./services/mqttService");
 var import_webService = require("./services/webService");
 var import_paths = require("./constants/paths");
+var import_adapterService = require("./services/adapterService");
 class ZendureSolarflow extends utils.Adapter {
   constructor(options = {}) {
     super({
@@ -40,6 +41,7 @@ class ZendureSolarflow extends utils.Adapter {
     this.accessToken = void 0;
     this.deviceList = [];
     this.paths = void 0;
+    this.timer = null;
     this.on("ready", this.onReady.bind(this));
     this.on("stateChange", this.onStateChange.bind(this));
     this.on("unload", this.onUnload.bind(this));
@@ -50,13 +52,18 @@ class ZendureSolarflow extends utils.Adapter {
     if (this.config.userName && this.config.password) {
       (_a = (0, import_webService.login)(this)) == null ? void 0 : _a.then((_accessToken) => {
         this.accessToken = _accessToken;
-        console.log("AccessToken: " + this.accessToken);
         (0, import_webService.getDeviceList)(this).then((result) => {
           if (result) {
             this.deviceList = result;
             (0, import_mqttService.connectMqttClient)(this);
+            (0, import_adapterService.startCheckStatesTimer)(this);
           }
+        }).catch(() => {
+          var _a2;
+          (_a2 = this.log) == null ? void 0 : _a2.error("Retrieving device failed!");
         });
+      }).catch((err) => {
+        this.log.error("Logon error at Zendure cloud service!");
       });
     } else {
       this.log.error("No Login Information provided!");
@@ -65,6 +72,9 @@ class ZendureSolarflow extends utils.Adapter {
   }
   onUnload(callback) {
     try {
+      if (this.timer) {
+        this.timer = null;
+      }
       callback();
     } catch (e) {
       callback();
@@ -73,7 +83,7 @@ class ZendureSolarflow extends utils.Adapter {
   onStateChange(id, state) {
     if (state) {
       this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
-      if (id.includes("setOutputLimit") && state.val) {
+      if (id.includes("setOutputLimit") && state.val != void 0 && state.val != null) {
         const splitted = id.split(".");
         const productKey = splitted[2];
         const deviceKey = splitted[3];
