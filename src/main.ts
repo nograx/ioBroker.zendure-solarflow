@@ -11,6 +11,7 @@ import { getDeviceList, login } from "./services/webService";
 import { ISolarFlowDeviceDetails } from "./models/ISolarFlowDeviceDetails";
 import { ISolarFlowPaths } from "./models/ISolarFlowPaths";
 import { pathsGlobal } from "./constants/paths";
+import { startCheckStatesTimer } from "./services/adapterService";
 
 export class ZendureSolarflow extends utils.Adapter {
   public constructor(options: Partial<utils.AdapterOptions> = {}) {
@@ -26,6 +27,7 @@ export class ZendureSolarflow extends utils.Adapter {
   public accessToken: string | undefined = undefined; // Access Token for Zendure Rest API
   public deviceList: ISolarFlowDeviceDetails[] = [];
   public paths: ISolarFlowPaths | undefined = undefined;
+  public timer: NodeJS.Timeout | null = null;
 
   /**
    * Is called when databases are connected and adapter received configuration.
@@ -40,13 +42,18 @@ export class ZendureSolarflow extends utils.Adapter {
         this.accessToken = _accessToken;
 
         // Try to get the device list
-        getDeviceList(this).then((result: ISolarFlowDeviceDetails[]) => {
-          if (result) {
-            // Device List found. Save in the adapter properties and connect to MQTT
-            this.deviceList = result;
-            connectMqttClient(this);
-          }
-        });
+        getDeviceList(this)
+          .then((result: ISolarFlowDeviceDetails[]) => {
+            if (result) {
+              // Device List found. Save in the adapter properties and connect to MQTT
+              this.deviceList = result;
+              connectMqttClient(this);
+              startCheckStatesTimer(this);
+            }
+          })
+          .catch(() => {
+            this.log?.error("Retrieving device failed!");
+          });
       });
     } else {
       this.log.error("No Login Information provided!");
@@ -59,6 +66,9 @@ export class ZendureSolarflow extends utils.Adapter {
    */
   private onUnload(callback: () => void): void {
     try {
+      if (this.timer) {
+        this.timer = null;
+      }
       callback();
     } catch (e) {
       callback();

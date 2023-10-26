@@ -32,6 +32,15 @@ const onMessage = async (topic: string, message: Buffer) => {
 
     const obj = JSON.parse(message.toString());
 
+    // lastUpdate für den deviceKey setzen
+    updateSolarFlowState(
+      adapter,
+      productKey,
+      deviceKey,
+      "lastUpdate",
+      new Date().getTime(),
+    );
+
     if (
       obj.properties?.electricLevel != null &&
       obj.properties?.electricLevel != undefined
@@ -178,7 +187,7 @@ const onMessage = async (topic: string, message: Buffer) => {
   }
 };
 
-export const setOutputLimit = (
+export const setOutputLimit = async (
   adapter: ZendureSolarflow,
   productKey: string,
   deviceKey: string,
@@ -186,32 +195,44 @@ export const setOutputLimit = (
 ) => {
   if (client && productKey && deviceKey) {
     // Das Limit kann unter 100 nur in 30er Schritten gesetzt werden, dH. 30/60/90/100, wir rechnen das also um
-    if (
-      limit < 100 &&
-      limit != 90 &&
-      limit != 60 &&
-      limit != 30 &&
-      limit != 0
-    ) {
-      if (limit < 100 && limit > 90) {
-        limit = 90;
-      } else if (limit < 90 && limit > 60) {
-        limit = 60;
-      } else if (limit < 60 && limit > 30) {
-        limit = 30;
-      } else if (limit < 30) {
-        limit = 30;
+    const currentLimit = (
+      await adapter.getStateAsync(productKey + "." + deviceKey + ".outputLimit")
+    )?.val;
+
+    if (currentLimit != null && currentLimit != undefined) {
+      if (currentLimit != limit) {
+        if (
+          limit < 100 &&
+          limit != 90 &&
+          limit != 60 &&
+          limit != 30 &&
+          limit != 0
+        ) {
+          if (limit < 100 && limit > 90) {
+            limit = 90;
+          } else if (limit < 90 && limit > 60) {
+            limit = 60;
+          } else if (limit < 60 && limit > 30) {
+            limit = 30;
+          } else if (limit < 30) {
+            limit = 30;
+          }
+        }
+
+        // 'iot/{auth.productKey}/{auth.deviceKey}/properties/write' == Topic? Oder productKey,deviceKey aus Device Details?
+        const topic = `iot/${productKey}/${deviceKey}/properties/write`;
+
+        const outputlimit = { properties: { outputLimit: limit } };
+        adapter.log.info(
+          `Setting Output Limit for device key ${deviceKey} to ${limit}!`,
+        );
+        client?.publish(topic, JSON.stringify(outputlimit));
+      } else {
+        adapter.log.info(
+          `Output Limit for device key ${deviceKey} is already at ${limit}!`,
+        );
       }
     }
-
-    // 'iot/{auth.productKey}/{auth.deviceKey}/properties/write' == Topic? Oder productKey,deviceKey aus Device Details?
-    const topic = `iot/${productKey}/${deviceKey}/properties/write`;
-
-    const outputlimit = { properties: { outputLimit: limit } };
-    adapter.log.info(
-      `Setting Output Limit for device key ${deviceKey} to ${limit}!`,
-    );
-    client?.publish(topic, JSON.stringify(outputlimit));
   }
 };
 
@@ -242,14 +263,21 @@ export const connectMqttClient = (_adapter: ZendureSolarflow) => {
         if (adapter) {
           createSolarFlowStates(adapter, device.productKey, device.deviceKey);
 
+          // Set electricLevel (soc) from device details.
+          updateSolarFlowState(
+            adapter,
+            device.productKey,
+            device.deviceKey,
+            "electricLevel",
+            device.electricity,
+          );
+
           const reportTopic = `/${device.productKey}/${device.deviceKey}/properties/report`;
           const iotTopic = `iot/${device.productKey}/${device.deviceKey}/#`;
 
           adapter.log.info(`Subscribing to MQTT Topic: ${reportTopic}`);
-
-          adapter.log.info(`Subscribing to MQTT Topic: ${iotTopic}`);
-
           client?.subscribe(reportTopic, onSubscribe);
+          adapter.log.info(`Subscribing to MQTT Topic: ${iotTopic}`);
           client?.subscribe(iotTopic, onSubscribe);
         }
       });

@@ -16,7 +16,7 @@
 This project is an ioBroker Adapter to read data from the Zendure Solarflow Cloud API. It uses the official API provided by Zendure.
 You can read more about the API here: https://github.com/Zendure/developer-device-data-report
 
-Note: Controlling the Output Limit is currently not supported by Zendure, hopefully there will an option to control it in the (near) future.
+Note: It is possible to control the Output limit with the state created in the productId/deviceKey/control subfolder.
 
 Note2: You will be logged out of the official iOS or Android App after logging in with the ioBroker adapter. This is a normal behavior, currently I
 don't know why. If you have more information, feel free to contact me.
@@ -37,13 +37,13 @@ If you find the adapter useful for you and want to support my work, feel free to
 ### **WORK IN PROGRESS**
 
 - Get battery information
-- Reset states if no new data comes in (e.g. when Hub goes offline)
+- Reset states if no new data comes in (e.g. when Hub goes offline). Currently the last value still persist when Hub goes offline, so you may have 'pseudo' data in your states.
 
 ## License
 
 MIT License
 
-Copyright (c) 2023 Peter <peter.frommert@outlook.com>
+Copyright (c) 2023 Peter Frommert
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

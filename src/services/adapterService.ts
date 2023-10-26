@@ -1,4 +1,7 @@
 import { ZendureSolarflow } from "../main";
+import { IPackData } from "../models/IPackData";
+import { ISolarFlowDeviceDetails } from "../models/ISolarFlowDeviceDetails";
+import { getDeviceList } from "./webService";
 
 /* eslint-disable @typescript-eslint/indent */
 export const createSolarFlowStates = async (
@@ -7,11 +10,27 @@ export const createSolarFlowStates = async (
   deviceKey: string,
 ) => {
   await adapter?.setObjectNotExistsAsync(
+    productKey + "." + deviceKey + "." + "lastUpdate",
+    {
+      type: "state",
+      common: {
+        name: { de: "Letztes Update", en: "Last Update" },
+        type: "number",
+        desc: "lastUpdate",
+        role: "value.time",
+        read: true,
+        write: true,
+      },
+      native: {},
+    },
+  );
+
+  await adapter?.setObjectNotExistsAsync(
     productKey + "." + deviceKey + "." + "electricLevel",
     {
       type: "state",
       common: {
-        name: productKey + "." + deviceKey + "." + "electricLevel",
+        name: { de: "SOC Gesamtsystem", en: "SOC of the system" },
         type: "number",
         desc: "electricLevel",
         role: "value.battery",
@@ -28,7 +47,7 @@ export const createSolarFlowStates = async (
     {
       type: "state",
       common: {
-        name: productKey + "." + deviceKey + "." + "outputHomePower",
+        name: { de: "Ausgangsleistung", en: "output power" },
         type: "number",
         desc: "outputHomePower",
         role: "value.power",
@@ -45,7 +64,7 @@ export const createSolarFlowStates = async (
     {
       type: "state",
       common: {
-        name: productKey + "." + deviceKey + "." + "outputLimit",
+        name: { de: "Limit der Ausgangsleistung", en: "limit of output power" },
         type: "number",
         desc: "outputLimit",
         role: "value.power",
@@ -62,7 +81,7 @@ export const createSolarFlowStates = async (
     {
       type: "state",
       common: {
-        name: productKey + "." + deviceKey + "." + "outputPackPower",
+        name: { de: "Ladeleistung zum Akku", en: "charge power" },
         type: "number",
         desc: "outputPackPower",
         role: "value.power",
@@ -79,7 +98,7 @@ export const createSolarFlowStates = async (
     {
       type: "state",
       common: {
-        name: productKey + "." + deviceKey + "." + "packInputPower",
+        name: { de: "Entladeleistung zum Akku", en: "discharge power" },
         type: "number",
         desc: "packInputPower",
         role: "value.power",
@@ -96,7 +115,7 @@ export const createSolarFlowStates = async (
     {
       type: "state",
       common: {
-        name: productKey + "." + deviceKey + "." + "solarInputPower",
+        name: { de: "Leistung der Solarmodule", en: "solar power" },
         type: "number",
         desc: "solarInputPower",
         role: "value.power.produced",
@@ -113,7 +132,7 @@ export const createSolarFlowStates = async (
     {
       type: "state",
       common: {
-        name: productKey + "." + deviceKey + "." + "remainInputTime",
+        name: { de: "Erwartete Ladedauer", en: "remaining charge time" },
         type: "number",
         desc: "remainInputTime",
         role: "value.interval",
@@ -129,7 +148,7 @@ export const createSolarFlowStates = async (
     {
       type: "state",
       common: {
-        name: productKey + "." + deviceKey + "." + "remainOutTime",
+        name: { de: "Erwartete Entladedauer", en: "remaining discharge time" },
         type: "number",
         desc: "remainOutTime",
         role: "value.interval",
@@ -145,7 +164,7 @@ export const createSolarFlowStates = async (
     {
       type: "state",
       common: {
-        name: productKey + "." + deviceKey + "." + "socSet",
+        name: { de: "Max. SOC", en: "max. SOC" },
         type: "number",
         desc: "socSet",
         role: "value.battery",
@@ -162,7 +181,7 @@ export const createSolarFlowStates = async (
     {
       type: "state",
       common: {
-        name: productKey + "." + deviceKey + "." + "minSoc",
+        name: { de: "Min. SOC", en: "min. SOC" },
         type: "number",
         desc: "minSoc",
         role: "value.battery",
@@ -180,7 +199,10 @@ export const createSolarFlowStates = async (
     {
       type: "state",
       common: {
-        name: productKey + "." + deviceKey + ".control." + "setOutputLimit",
+        name: {
+          de: "Einzustellende Ausgangsleistung",
+          en: "Control of the output limit",
+        },
         type: "number",
         desc: "setOutputLimit",
         role: "value.power",
@@ -197,6 +219,188 @@ export const createSolarFlowStates = async (
   adapter?.subscribeStates(
     productKey + "." + deviceKey + ".control." + "setOutputLimit",
   );
+};
+
+export const addOrUpdatePackData = async (
+  adapter: ZendureSolarflow,
+  productKey: string,
+  deviceKey: string,
+  packData: IPackData[],
+) => {
+  await packData.forEach(async (x) => {
+    // Daten nur verarbeiten wenn eine SN mitgesendet wird!
+    if (x.sn) {
+      // State für SN
+      const key = productKey + "." + deviceKey + ".packData." + x.sn;
+      await adapter?.setObjectNotExistsAsync(key + ".sn", {
+        type: "state",
+        common: {
+          name: {
+            de: "Seriennummer",
+            en: "Serial id",
+          },
+          type: "number",
+          desc: "Serial ID",
+          role: "value",
+          read: true,
+          write: true,
+        },
+        native: {},
+      });
+
+      adapter?.setStateAsync(key + ".sn", x.sn, false);
+
+      if (x.socLevel) {
+        // State für socLevel
+        await adapter?.setObjectNotExistsAsync(key + "socLevel", {
+          type: "state",
+          common: {
+            name: {
+              de: "SOC der Batterie",
+              en: "soc of battery",
+            },
+            type: "number",
+            desc: "SOC Level",
+            role: "value",
+            read: true,
+            write: true,
+          },
+          native: {},
+        });
+
+        adapter?.setStateAsync(key + "socLevel", x.socLevel, false);
+      }
+
+      if (x.maxTemp) {
+        // State für maxTemp
+        await adapter?.setObjectNotExistsAsync(key + "maxTemp", {
+          type: "state",
+          common: {
+            name: {
+              de: "Max. Temperatur der Batterie",
+              en: "max temp. of battery",
+            },
+            type: "number",
+            desc: "Max. Temp",
+            role: "value",
+            read: true,
+            write: true,
+          },
+          native: {},
+        });
+
+        adapter?.setStateAsync(key + "maxTemp", x.maxTemp / 100, false);
+      }
+
+      if (x.minVol) {
+        await adapter?.setObjectNotExistsAsync(key + "minVol", {
+          type: "state",
+          common: {
+            name: "minVol",
+            type: "number",
+            desc: "minVol",
+            role: "value",
+            read: true,
+            write: true,
+          },
+          native: {},
+        });
+
+        adapter?.setStateAsync(key + "minVol", x.minVol / 100, false);
+      }
+
+      if (x.maxVol) {
+        await adapter?.setObjectNotExistsAsync(key + "maxVol", {
+          type: "state",
+          common: {
+            name: "maxVol",
+            type: "number",
+            desc: "maxVol",
+            role: "value",
+            read: true,
+            write: true,
+          },
+          native: {},
+        });
+
+        adapter?.setStateAsync(key + "maxVol", x.maxVol / 100, false);
+      }
+
+      if (x.totalVol) {
+        await adapter?.setObjectNotExistsAsync(key + "totalVol", {
+          type: "state",
+          common: {
+            name: key + "totalVol",
+            type: "number",
+            desc: "totalVol",
+            role: "value",
+            read: true,
+            write: true,
+          },
+          native: {},
+        });
+
+        adapter?.setStateAsync(key + "totalVol", x.totalVol / 100, false);
+      }
+    }
+  });
+};
+
+export const startCheckStatesTimer = async (adapter: ZendureSolarflow) => {
+  // Check for states that has no updates in the last 5 minutes and set them to 0
+  const statesToReset: string[] = [
+    "outputHomePower",
+    "outputPackPower",
+    "packInputPower",
+    "solarInputPower",
+  ];
+
+  // Timer starten
+  if (adapter && adapter.timer) {
+    adapter.timer = null;
+  }
+
+  adapter.timer = setTimeout(async () => {
+    getDeviceList(adapter)
+      .then((deviceList: ISolarFlowDeviceDetails[]) => {
+        deviceList.forEach(async (device: ISolarFlowDeviceDetails) => {
+          const lastUpdate = await adapter?.getStateAsync(
+            device.productKey + "." + device.deviceKey + ".lastUpdate",
+          );
+
+          const tenMinutesAgo = Date.now() / 1000 - 10 * 60; // Ten minutes ago
+          if (
+            lastUpdate &&
+            lastUpdate.val &&
+            Number(lastUpdate.val) < tenMinutesAgo
+          ) {
+            adapter.log.info(
+              `Last update for deviceKey ${device.deviceKey} was at ${new Date(
+                Number(lastUpdate),
+              )}, checking for pseudo power values!`,
+            );
+            // State was not updated in the last 10 minutes... set states to 0
+            await statesToReset.forEach(async (stateName: string) => {
+              await adapter?.setStateAsync(
+                device.productKey + "." + device.deviceKey + "." + stateName,
+                0,
+                false,
+              );
+            });
+
+            // set electricLevel from deviceList
+            await adapter?.setStateAsync(
+              device.productKey + "." + device.deviceKey + ".electricLevel",
+              device.electricity,
+              false,
+            );
+          }
+        });
+      })
+      .catch(() => {
+        adapter.log?.error("Retrieving device failed!");
+      });
+  }, 50000);
 };
 
 export const updateSolarFlowState = async (
