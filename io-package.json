@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "0.1.0-alpha.1",
+    "version": "0.1.0-alpha.2",
     "news": {
+      "0.1.0-alpha.2": {
+        "en": "Don't stop the adapter when no login information is provided!",
+        "de": "Stoppen Sie den Adapter nicht, wenn keine Anmeldeinformationen zur Verfügung gestellt werden!",
+        "ru": "Не останавливайте адаптер, когда не предоставляется информация для входа!",
+        "pt": "Não pare o adaptador quando nenhuma informação de login é fornecida!",
+        "nl": "Stop de adapter niet als er geen login informatie wordt verstrekt!",
+        "fr": "Ne pas arrêter l'adaptateur quand aucune information de connexion n'est fournie!",
+        "it": "Non interrompere l'adattatore quando non sono fornite informazioni di login!",
+        "es": "No detenga el adaptador cuando no se proporciona información de inicio de sesión!",
+        "pl": "Don't stop the adapter when no login information is available!",
+        "uk": "Не зупиняйте адаптер при відсутності інформації про логін!",
+        "zh-cn": "当没有提供伐木信息时,捐赠者停止适应。!"
+      },
       "0.1.0-alpha.1": {
         "en": "Fix Typescript typos",
         "de": "Typescript-Typos reparieren",

@@ -47,7 +47,7 @@ class ZendureSolarflow extends utils.Adapter {
     this.on("unload", this.onUnload.bind(this));
   }
   async onReady() {
-    var _a, _b;
+    var _a;
     this.paths = import_paths.pathsGlobal;
     if (this.config.userName && this.config.password) {
       (_a = (0, import_webService.login)(this)) == null ? void 0 : _a.then((_accessToken) => {
@@ -67,7 +67,6 @@ class ZendureSolarflow extends utils.Adapter {
       });
     } else {
       this.log.error("No Login Information provided!");
-      (_b = this.stop) == null ? void 0 : _b.call(this);
     }
   }
   onUnload(callback) {
