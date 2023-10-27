@@ -8,7 +8,7 @@ export const createSolarFlowStates = async (
   adapter: ZendureSolarflow,
   productKey: string,
   deviceKey: string,
-) => {
+): Promise<void> => {
   await adapter?.setObjectNotExistsAsync(
     productKey + "." + deviceKey + "." + "lastUpdate",
     {
@@ -226,7 +226,7 @@ export const addOrUpdatePackData = async (
   productKey: string,
   deviceKey: string,
   packData: IPackData[],
-) => {
+): Promise<void> => {
   await packData.forEach(async (x) => {
     // Daten nur verarbeiten wenn eine SN mitgesendet wird!
     if (x.sn) {
@@ -346,7 +346,7 @@ export const addOrUpdatePackData = async (
   });
 };
 
-export const startCheckStatesTimer = async (adapter: ZendureSolarflow) => {
+export const startCheckStatesTimer = async (adapter: ZendureSolarflow): Promise<void> => {
   // Check for states that has no updates in the last 5 minutes and set them to 0
   const statesToReset: string[] = [
     "outputHomePower",
@@ -409,7 +409,7 @@ export const updateSolarFlowState = async (
   deviceKey: string,
   state: string,
   val: number | string,
-) => {
+): Promise<void> => {
   adapter?.setStateAsync(
     productKey + "." + deviceKey + "." + state,
     val,

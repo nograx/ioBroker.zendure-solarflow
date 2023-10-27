@@ -30,7 +30,7 @@ Credits goes to https://github.com/reinhard-brandstaedter/solarflow which helped
 If you find the adapter useful for you and want to support my work, feel free to donate by Paypal. Thank You!
 (this is an personal Donate link for Nograx, in no relation to the ioBroker Project!)<br />
 
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](http://paypal.me/peter.frommert)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
 ### 0.1.0-alpha.0 (2023-10-26)

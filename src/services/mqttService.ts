@@ -8,23 +8,23 @@ import { addOrUpdatePackData, createSolarFlowStates, updateSolarFlowState } from
 let client: MqttClient | undefined = undefined;
 let adapter: ZendureSolarflow | undefined = undefined;
 
-const onConnected = () => {
+const onConnected = (): void => {
   adapter?.log.info("Connected with MQTT!");
 };
 
-const onError = (error: any) => {
+const onError = (error: any): void => {
   adapter?.log.error("Connection to MQTT failed! Error: " + error);
 };
 
-const onSubscribe = (err: Error | null) => {
-  if (err) {
-    adapter?.log.error("Subscription to MQTT failed! Error: " + err);
+const onSubscribe: any = (error: Error | null) => {
+  if (error) {
+    adapter?.log.error("Subscription to MQTT failed! Error: " + error);
   } else {
     adapter?.log.info("Subscription successful!");
   }
 };
 
-const onMessage = async (topic: string, message: Buffer) => {
+const onMessage = async (topic: string, message: Buffer): Promise<void> => {
   if (adapter) {
     const splitted = topic.split("/");
     const productKey = splitted[1];
@@ -192,7 +192,7 @@ export const setOutputLimit = async (
   productKey: string,
   deviceKey: string,
   limit: number,
-) => {
+): Promise<void> => {
   if (client && productKey && deviceKey) {
     // Das Limit kann unter 100 nur in 30er Schritten gesetzt werden, dH. 30/60/90/100, wir rechnen das also um
     const currentLimit = (
@@ -236,7 +236,7 @@ export const setOutputLimit = async (
   }
 };
 
-export const connectMqttClient = (_adapter: ZendureSolarflow) => {
+export const connectMqttClient = (_adapter: ZendureSolarflow): void => {
   adapter = _adapter;
 
   const options: mqtt.IClientOptions = {

@@ -17,7 +17,7 @@ const config = {
 };
 
 /* eslint-disable @typescript-eslint/indent */
-export const login = (adapter: ZendureSolarflow) => {
+export const login = (adapter: ZendureSolarflow): Promise<string> => {
   const auth = Buffer.from(
     `${adapter.config.userName}:${adapter.config.password}`,
   ).toString("base64");
@@ -40,7 +40,7 @@ export const login = (adapter: ZendureSolarflow) => {
         if (response.data.success) {
           adapter.log.info("Login to Rest API successful!");
 
-          if (response.data.data.accessToken) {
+          if (response.data?.data?.accessToken) {
             return response.data.data.accessToken;
           }
         }
@@ -53,7 +53,7 @@ export const login = (adapter: ZendureSolarflow) => {
   else return Promise.reject("Path error!");
 };
 
-export const getDeviceList = (adapter: ZendureSolarflow) => {
+export const getDeviceList = (adapter: ZendureSolarflow): Promise<ISolarFlowDeviceDetails[]> => {
   adapter.setState("errorMessage", "");
   adapter.log.info("Getting device list from Zendure Rest API!");
 
