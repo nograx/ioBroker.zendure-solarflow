@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "0.1.0-alpha.0",
+    "version": "0.1.0-alpha.1",
     "news": {
+      "0.1.0-alpha.1": {
+        "en": "Fix Typescript typos",
+        "de": "Typescript-Typos reparieren",
+        "ru": "Fix Типскрипт typos",
+        "pt": "Corrigir erros de digitação",
+        "nl": "Vertaling:",
+        "fr": "Typescript typos",
+        "it": "Risolvere i tipi di scrittura",
+        "es": "Tipos de tipo fijo",
+        "pl": "Fix Typescript typ",
+        "uk": "Фіксація Typescript",
+        "zh-cn": "定 义"
+      },
       "0.1.0-alpha.0": {
         "en": "Get battery information\nReset states if no new data comes in (e.g. when Hub goes offline). Currently the last value still persist when Hub goes offline, so you may have 'pseudo' data in your states.",
         "de": "Batterieinformationen erhalten\nRücksetzen von Zuständen, wenn keine neuen Daten einkommen (z.B. wenn Hub offline geht). Derzeit bleibt der letzte Wert immer noch bestehen, wenn Hub offline geht, so dass Sie möglicherweise Pseudodaten in Ihren Staaten haben.",

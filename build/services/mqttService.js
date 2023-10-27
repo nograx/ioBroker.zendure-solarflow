@@ -38,9 +38,9 @@ const onConnected = () => {
 const onError = (error) => {
   adapter == null ? void 0 : adapter.log.error("Connection to MQTT failed! Error: " + error);
 };
-const onSubscribe = (err) => {
-  if (err) {
-    adapter == null ? void 0 : adapter.log.error("Subscription to MQTT failed! Error: " + err);
+const onSubscribe = (error) => {
+  if (error) {
+    adapter == null ? void 0 : adapter.log.error("Subscription to MQTT failed! Error: " + error);
   } else {
     adapter == null ? void 0 : adapter.log.info("Subscription successful!");
   }

@@ -58,9 +58,10 @@ const login = (adapter) => {
   adapter.log.info("tokenurl: " + ((_a = adapter == null ? void 0 : adapter.paths) == null ? void 0 : _a.solarFlowTokenUrl));
   if (adapter.paths && adapter.paths.solarFlowTokenUrl) {
     return import_axios.default.post(adapter.paths.solarFlowTokenUrl, authBody, config).then(function(response) {
+      var _a2, _b;
       if (response.data.success) {
         adapter.log.info("Login to Rest API successful!");
-        if (response.data.data.accessToken) {
+        if ((_b = (_a2 = response.data) == null ? void 0 : _a2.data) == null ? void 0 : _b.accessToken) {
           return response.data.data.accessToken;
         }
       }
