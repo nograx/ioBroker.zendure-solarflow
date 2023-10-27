@@ -46,6 +46,9 @@ If you find the adapter useful for you and want to support my work, feel free to
 
 - First test
 
+### **WORK IN PROGRESS**
+- Fix Typescript typos
+
 ## License
 
 MIT License
