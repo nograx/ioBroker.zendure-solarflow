@@ -59,7 +59,7 @@ export class ZendureSolarflow extends utils.Adapter {
       });
     } else {
       this.log.error("No Login Information provided!");
-      this.stop?.();
+      //this.stop?.();
     }
   }
 

@@ -49,6 +49,9 @@ If you find the adapter useful for you and want to support my work, feel free to
 
 - First test
 
+### **WORK IN PROGRESS**
+- Don't stop the adapter when no login information is provided!
+
 ## License
 
 MIT License
