@@ -26,7 +26,7 @@ __export(adapterService_exports, {
 module.exports = __toCommonJS(adapterService_exports);
 var import_webService = require("./webService");
 const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
-  await (adapter == null ? void 0 : adapter.setObjectNotExistsAsync(
+  await (adapter == null ? void 0 : adapter.extendObjectAsync(
     productKey + "." + deviceKey + ".lastUpdate",
     {
       type: "state",
@@ -41,7 +41,7 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
       native: {}
     }
   ));
-  await (adapter == null ? void 0 : adapter.setObjectNotExistsAsync(
+  await (adapter == null ? void 0 : adapter.extendObjectAsync(
     productKey + "." + deviceKey + ".electricLevel",
     {
       type: "state",
@@ -57,7 +57,7 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
       native: {}
     }
   ));
-  await (adapter == null ? void 0 : adapter.setObjectNotExistsAsync(
+  await (adapter == null ? void 0 : adapter.extendObjectAsync(
     productKey + "." + deviceKey + ".outputHomePower",
     {
       type: "state",
@@ -73,7 +73,7 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
       native: {}
     }
   ));
-  await (adapter == null ? void 0 : adapter.setObjectNotExistsAsync(
+  await (adapter == null ? void 0 : adapter.extendObjectAsync(
     productKey + "." + deviceKey + ".outputLimit",
     {
       type: "state",
@@ -89,7 +89,7 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
       native: {}
     }
   ));
-  await (adapter == null ? void 0 : adapter.setObjectNotExistsAsync(
+  await (adapter == null ? void 0 : adapter.extendObjectAsync(
     productKey + "." + deviceKey + ".outputPackPower",
     {
       type: "state",
@@ -105,7 +105,7 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
       native: {}
     }
   ));
-  await (adapter == null ? void 0 : adapter.setObjectNotExistsAsync(
+  await (adapter == null ? void 0 : adapter.extendObjectAsync(
     productKey + "." + deviceKey + ".packInputPower",
     {
       type: "state",
@@ -121,7 +121,7 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
       native: {}
     }
   ));
-  await (adapter == null ? void 0 : adapter.setObjectNotExistsAsync(
+  await (adapter == null ? void 0 : adapter.extendObjectAsync(
     productKey + "." + deviceKey + ".solarInputPower",
     {
       type: "state",
@@ -137,7 +137,7 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
       native: {}
     }
   ));
-  await (adapter == null ? void 0 : adapter.setObjectNotExistsAsync(
+  await (adapter == null ? void 0 : adapter.extendObjectAsync(
     productKey + "." + deviceKey + ".remainInputTime",
     {
       type: "state",
@@ -152,7 +152,7 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
       native: {}
     }
   ));
-  await (adapter == null ? void 0 : adapter.setObjectNotExistsAsync(
+  await (adapter == null ? void 0 : adapter.extendObjectAsync(
     productKey + "." + deviceKey + ".remainOutTime",
     {
       type: "state",
@@ -167,7 +167,7 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
       native: {}
     }
   ));
-  await (adapter == null ? void 0 : adapter.setObjectNotExistsAsync(
+  await (adapter == null ? void 0 : adapter.extendObjectAsync(
     productKey + "." + deviceKey + ".socSet",
     {
       type: "state",
@@ -183,7 +183,7 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
       native: {}
     }
   ));
-  await (adapter == null ? void 0 : adapter.setObjectNotExistsAsync(
+  await (adapter == null ? void 0 : adapter.extendObjectAsync(
     productKey + "." + deviceKey + ".minSoc",
     {
       type: "state",
@@ -199,7 +199,7 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
       native: {}
     }
   ));
-  await (adapter == null ? void 0 : adapter.setObjectNotExistsAsync(
+  await (adapter == null ? void 0 : adapter.extendObjectAsync(
     productKey + "." + deviceKey + ".control.setOutputLimit",
     {
       type: "state",
@@ -227,7 +227,7 @@ const addOrUpdatePackData = async (adapter, productKey, deviceKey, packData) => 
   await packData.forEach(async (x) => {
     if (x.sn) {
       const key = productKey + "." + deviceKey + ".packData." + x.sn;
-      await (adapter == null ? void 0 : adapter.setObjectNotExistsAsync(key + ".sn", {
+      await (adapter == null ? void 0 : adapter.extendObjectAsync(key + ".sn", {
         type: "state",
         common: {
           name: {
@@ -244,7 +244,7 @@ const addOrUpdatePackData = async (adapter, productKey, deviceKey, packData) => 
       }));
       await (adapter == null ? void 0 : adapter.setStateAsync(key + ".sn", x.sn, false));
       if (x.socLevel) {
-        await (adapter == null ? void 0 : adapter.setObjectNotExistsAsync(key + ".socLevel", {
+        await (adapter == null ? void 0 : adapter.extendObjectAsync(key + ".socLevel", {
           type: "state",
           common: {
             name: {
@@ -262,7 +262,7 @@ const addOrUpdatePackData = async (adapter, productKey, deviceKey, packData) => 
         await (adapter == null ? void 0 : adapter.setStateAsync(key + ".socLevel", x.socLevel, false));
       }
       if (x.maxTemp) {
-        await (adapter == null ? void 0 : adapter.setObjectNotExistsAsync(key + ".maxTemp", {
+        await (adapter == null ? void 0 : adapter.extendObjectAsync(key + ".maxTemp", {
           type: "state",
           common: {
             name: {
@@ -280,7 +280,7 @@ const addOrUpdatePackData = async (adapter, productKey, deviceKey, packData) => 
         await (adapter == null ? void 0 : adapter.setStateAsync(key + ".maxTemp", x.maxTemp / 100, false));
       }
       if (x.minVol) {
-        await (adapter == null ? void 0 : adapter.setObjectNotExistsAsync(key + ".minVol", {
+        await (adapter == null ? void 0 : adapter.extendObjectAsync(key + ".minVol", {
           type: "state",
           common: {
             name: "minVol",
@@ -295,7 +295,7 @@ const addOrUpdatePackData = async (adapter, productKey, deviceKey, packData) => 
         await (adapter == null ? void 0 : adapter.setStateAsync(key + ".minVol", x.minVol / 100, false));
       }
       if (x.maxVol) {
-        await (adapter == null ? void 0 : adapter.setObjectNotExistsAsync(key + ".maxVol", {
+        await (adapter == null ? void 0 : adapter.extendObjectAsync(key + ".maxVol", {
           type: "state",
           common: {
             name: "maxVol",
@@ -310,7 +310,7 @@ const addOrUpdatePackData = async (adapter, productKey, deviceKey, packData) => 
         await (adapter == null ? void 0 : adapter.setStateAsync(key + ".maxVol", x.maxVol / 100, false));
       }
       if (x.totalVol) {
-        await (adapter == null ? void 0 : adapter.setObjectNotExistsAsync(key + ".totalVol", {
+        await (adapter == null ? void 0 : adapter.extendObjectAsync(key + ".totalVol", {
           type: "state",
           common: {
             name: "totalVol",
@@ -322,7 +322,11 @@ const addOrUpdatePackData = async (adapter, productKey, deviceKey, packData) => 
           },
           native: {}
         }));
-        await (adapter == null ? void 0 : adapter.setStateAsync(key + ".totalVol", x.totalVol / 100, false));
+        await (adapter == null ? void 0 : adapter.setStateAsync(
+          key + ".totalVol",
+          x.totalVol / 100,
+          false
+        ));
       }
     }
   });

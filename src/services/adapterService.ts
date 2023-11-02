@@ -9,7 +9,7 @@ export const createSolarFlowStates = async (
   productKey: string,
   deviceKey: string,
 ): Promise<void> => {
-  await adapter?.setObjectNotExistsAsync(
+  await adapter?.extendObjectAsync(
     productKey + "." + deviceKey + "." + "lastUpdate",
     {
       type: "state",
@@ -25,7 +25,7 @@ export const createSolarFlowStates = async (
     },
   );
 
-  await adapter?.setObjectNotExistsAsync(
+  await adapter?.extendObjectAsync(
     productKey + "." + deviceKey + "." + "electricLevel",
     {
       type: "state",
@@ -42,7 +42,7 @@ export const createSolarFlowStates = async (
     },
   );
 
-  await adapter?.setObjectNotExistsAsync(
+  await adapter?.extendObjectAsync(
     productKey + "." + deviceKey + "." + "outputHomePower",
     {
       type: "state",
@@ -59,7 +59,7 @@ export const createSolarFlowStates = async (
     },
   );
 
-  await adapter?.setObjectNotExistsAsync(
+  await adapter?.extendObjectAsync(
     productKey + "." + deviceKey + "." + "outputLimit",
     {
       type: "state",
@@ -76,7 +76,7 @@ export const createSolarFlowStates = async (
     },
   );
 
-  await adapter?.setObjectNotExistsAsync(
+  await adapter?.extendObjectAsync(
     productKey + "." + deviceKey + "." + "outputPackPower",
     {
       type: "state",
@@ -93,7 +93,7 @@ export const createSolarFlowStates = async (
     },
   );
 
-  await adapter?.setObjectNotExistsAsync(
+  await adapter?.extendObjectAsync(
     productKey + "." + deviceKey + "." + "packInputPower",
     {
       type: "state",
@@ -110,7 +110,7 @@ export const createSolarFlowStates = async (
     },
   );
 
-  await adapter?.setObjectNotExistsAsync(
+  await adapter?.extendObjectAsync(
     productKey + "." + deviceKey + "." + "solarInputPower",
     {
       type: "state",
@@ -127,7 +127,7 @@ export const createSolarFlowStates = async (
     },
   );
 
-  await adapter?.setObjectNotExistsAsync(
+  await adapter?.extendObjectAsync(
     productKey + "." + deviceKey + "." + "remainInputTime",
     {
       type: "state",
@@ -143,7 +143,7 @@ export const createSolarFlowStates = async (
     },
   );
 
-  await adapter?.setObjectNotExistsAsync(
+  await adapter?.extendObjectAsync(
     productKey + "." + deviceKey + "." + "remainOutTime",
     {
       type: "state",
@@ -159,7 +159,7 @@ export const createSolarFlowStates = async (
     },
   );
 
-  await adapter?.setObjectNotExistsAsync(
+  await adapter?.extendObjectAsync(
     productKey + "." + deviceKey + "." + "socSet",
     {
       type: "state",
@@ -176,7 +176,7 @@ export const createSolarFlowStates = async (
     },
   );
 
-  await adapter?.setObjectNotExistsAsync(
+  await adapter?.extendObjectAsync(
     productKey + "." + deviceKey + "." + "minSoc",
     {
       type: "state",
@@ -194,7 +194,7 @@ export const createSolarFlowStates = async (
   );
 
   // State zum Setzen des Output Limit
-  await adapter?.setObjectNotExistsAsync(
+  await adapter?.extendObjectAsync(
     productKey + "." + deviceKey + ".control." + "setOutputLimit",
     {
       type: "state",
@@ -232,7 +232,7 @@ export const addOrUpdatePackData = async (
     if (x.sn) {
       // State für SN
       const key = productKey + "." + deviceKey + ".packData." + x.sn;
-      await adapter?.setObjectNotExistsAsync(key + ".sn", {
+      await adapter?.extendObjectAsync(key + ".sn", {
         type: "state",
         common: {
           name: {
@@ -252,7 +252,7 @@ export const addOrUpdatePackData = async (
 
       if (x.socLevel) {
         // State für socLevel
-        await adapter?.setObjectNotExistsAsync(key + ".socLevel", {
+        await adapter?.extendObjectAsync(key + ".socLevel", {
           type: "state",
           common: {
             name: {
@@ -273,7 +273,7 @@ export const addOrUpdatePackData = async (
 
       if (x.maxTemp) {
         // State für maxTemp
-        await adapter?.setObjectNotExistsAsync(key + ".maxTemp", {
+        await adapter?.extendObjectAsync(key + ".maxTemp", {
           type: "state",
           common: {
             name: {
@@ -293,7 +293,7 @@ export const addOrUpdatePackData = async (
       }
 
       if (x.minVol) {
-        await adapter?.setObjectNotExistsAsync(key + ".minVol", {
+        await adapter?.extendObjectAsync(key + ".minVol", {
           type: "state",
           common: {
             name: "minVol",
@@ -310,7 +310,7 @@ export const addOrUpdatePackData = async (
       }
 
       if (x.maxVol) {
-        await adapter?.setObjectNotExistsAsync(key + ".maxVol", {
+        await adapter?.extendObjectAsync(key + ".maxVol", {
           type: "state",
           common: {
             name: "maxVol",
@@ -327,7 +327,7 @@ export const addOrUpdatePackData = async (
       }
 
       if (x.totalVol) {
-        await adapter?.setObjectNotExistsAsync(key + ".totalVol", {
+        await adapter?.extendObjectAsync(key + ".totalVol", {
           type: "state",
           common: {
             name: "totalVol",
@@ -340,13 +340,19 @@ export const addOrUpdatePackData = async (
           native: {},
         });
 
-        await adapter?.setStateAsync(key + ".totalVol", x.totalVol / 100, false);
+        await adapter?.setStateAsync(
+          key + ".totalVol",
+          x.totalVol / 100,
+          false,
+        );
       }
     }
   });
 };
 
-export const startCheckStatesTimer = async (adapter: ZendureSolarflow): Promise<void> => {
+export const startCheckStatesTimer = async (
+  adapter: ZendureSolarflow,
+): Promise<void> => {
   // Check for states that has no updates in the last 5 minutes and set them to 0
   const statesToReset: string[] = [
     "outputHomePower",

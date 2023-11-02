@@ -20,5 +20,8 @@
     "outputHomePower": "Potencia actual al inversor",
     "masterSwitch": "Estado del dispositivo (encendido/apagado)",
     "buzzerSwitch": "Salida de sonido en HUB",
-    "electricLevel": "sociedad actual"
+    "electricLevel": "sociedad actual",
+    "settingsDesc": "Proporcione la información de inicio de sesión para Zendure Cloud (la misma que ingresó en la aplicación oficial).",
+    "donate1": "Si encuentra útil el adaptador y desea apoyar mi trabajo, no dude en hacer una donación mediante Paypal. ¡Gracias!",
+    "donate2": "(¡Este es un enlace de donación personal para Nograx, sin relación con el Proyecto ioBroker!)"
 }

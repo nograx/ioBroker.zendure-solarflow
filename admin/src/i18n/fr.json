@@ -20,5 +20,8 @@
     "outputHomePower": "Puissance actuelle vers l'onduleur",
     "masterSwitch": "État de l'appareil (activé/éteint)",
     "buzzerSwitch": "Sortie sonore sur HUB",
-    "electricLevel": "Société actuelle"
+    "electricLevel": "Société actuelle",
+    "settingsDesc": "Veuillez fournir les informations de connexion pour Zendure Cloud (les mêmes que vous avez saisies dans l'application officielle).",
+    "donate1": "Si vous trouvez l'adaptateur utile et souhaitez soutenir mon travail, n'hésitez pas à faire un don via Paypal. Merci!",
+    "donate2": "(il s'agit d'un lien de don personnel pour Nograx, sans rapport avec le projet ioBroker !)"
 }

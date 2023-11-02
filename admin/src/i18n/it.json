@@ -20,5 +20,8 @@
     "outputHomePower": "Potenza attuale all'inverter",
     "masterSwitch": "Stato del dispositivo (acceso/spento)",
     "buzzerSwitch": "Uscita audio su HUB",
-    "electricLevel": "L'attuale soc"
+    "electricLevel": "L'attuale soc",
+    "settingsDesc": "Fornisci le informazioni di accesso per Zendure Cloud (le stesse che hai inserito nell'app ufficiale).",
+    "donate1": "Se trovi utile l'adattatore per te e vuoi sostenere il mio lavoro, sentiti libero di donare tramite Paypal. Grazie!",
+    "donate2": "(questo è un collegamento personale per una donazione per Nograx, in nessuna relazione con il progetto ioBroker!)"
 }

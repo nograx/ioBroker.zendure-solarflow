@@ -38,25 +38,29 @@ export class ZendureSolarflow extends utils.Adapter {
 
     // If Username and Password is provided, try to login and get the access token.
     if (this.config.userName && this.config.password) {
-      login(this)?.then((_accessToken: string) => {
-        this.accessToken = _accessToken;
+      login(this)
+        ?.then((_accessToken: string) => {
+          this.accessToken = _accessToken;
 
-        // Try to get the device list
-        getDeviceList(this)
-          .then((result: ISolarFlowDeviceDetails[]) => {
-            if (result) {
-              // Device List found. Save in the adapter properties and connect to MQTT
-              this.deviceList = result;
-              connectMqttClient(this);
-              startCheckStatesTimer(this);
-            }
-          })
-          .catch(() => {
-            this.log?.error("Retrieving device failed!");
-          });
-      }).catch((error) => {
-        this.log.error("Logon error at Zendure cloud service! Error: " + error.toString())
-      });
+          // Try to get the device list
+          getDeviceList(this)
+            .then((result: ISolarFlowDeviceDetails[]) => {
+              if (result) {
+                // Device List found. Save in the adapter properties and connect to MQTT
+                this.deviceList = result;
+                connectMqttClient(this);
+                startCheckStatesTimer(this);
+              }
+            })
+            .catch(() => {
+              this.log?.error("Retrieving device failed!");
+            });
+        })
+        .catch((error) => {
+          this.log.error(
+            "Logon error at Zendure cloud service! Error: " + error.toString(),
+          );
+        });
     } else {
       this.log.error("No Login Information provided!");
       //this.stop?.();

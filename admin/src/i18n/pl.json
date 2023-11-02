@@ -20,5 +20,8 @@
     "outputHomePower": "Aktualne zasilanie falownika",
     "masterSwitch": "Stan urządzenia (wł./wył.)",
     "buzzerSwitch": "Wyjście dźwięku na HUB-ie",
-    "electricLevel": "Obecne społeczeństwo"
+    "electricLevel": "Obecne społeczeństwo",
+    "settingsDesc": "Podaj dane logowania do Zendure Cloud (te same, które podałeś w oficjalnej aplikacji).",
+    "donate1": "Jeśli uznasz, że adapter jest dla Ciebie przydatny i chcesz wesprzeć moją pracę, możesz przekazać darowiznę za pośrednictwem systemu PayPal. Dziękuję!",
+    "donate2": "(jest to osobisty link do przekazania darowizny na rzecz Nograx, niezwiązany z projektem ioBroker!)"
 }

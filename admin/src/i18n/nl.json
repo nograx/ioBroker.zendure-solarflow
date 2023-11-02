@@ -20,5 +20,8 @@
     "outputHomePower": "Huidig ​​vermogen naar omvormer",
     "masterSwitch": "Apparaatstatus (aan / uit)",
     "buzzerSwitch": "Geluidsuitvoer op HUB",
-    "electricLevel": "Huidige soc"
+    "electricLevel": "Huidige soc",
+    "settingsDesc": "Geef de inloggegevens voor de Zendure Cloud op (dezelfde die u in de officiële app heeft ingevoerd).",
+    "donate1": "Als u de adapter nuttig voor u vindt en mijn werk wilt steunen, kunt u een donatie doen via Paypal. Bedankt!",
+    "donate2": "(dit is een persoonlijke donatielink voor Nograx, in geen verband met het ioBroker-project!)"
 }

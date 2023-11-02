@@ -33,10 +33,13 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
+
 ### 0.1.0-alpha.2 (2023-10-27)
+
 - Don't stop the adapter when no login information is provided!
 
 ### 0.1.0-alpha.1 (2023-10-27)
+
 - Fix Typescript typos
 
 ### 0.1.0-alpha.0 (2023-10-26)
@@ -51,6 +54,12 @@ If you find the adapter useful for you and want to support my work, feel free to
 ### 0.0.1 (2023-10-24)
 
 - First test
+
+### WORK IN PROGRESS
+
+- Fix translations
+- Use 'extendObjectAsync' instead of 'setObjectNotExistsAsync'
+- First official release version
 
 ## License
 

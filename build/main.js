@@ -63,7 +63,9 @@ class ZendureSolarflow extends utils.Adapter {
           (_a2 = this.log) == null ? void 0 : _a2.error("Retrieving device failed!");
         });
       }).catch((error) => {
-        this.log.error("Logon error at Zendure cloud service! Error: " + error.toString());
+        this.log.error(
+          "Logon error at Zendure cloud service! Error: " + error.toString()
+        );
       });
     } else {
       this.log.error("No Login Information provided!");
