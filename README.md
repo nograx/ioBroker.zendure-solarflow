@@ -55,7 +55,7 @@ If you find the adapter useful for you and want to support my work, feel free to
 
 - First test
 
-### WORK IN PROGRESS
+### **WORK IN PROGRESS**
 
 - Fix translations
 - Use 'extendObjectAsync' instead of 'setObjectNotExistsAsync'
