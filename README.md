@@ -33,6 +33,11 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
+### 1.0.1 (2023-11-03)
+
+- Fix translations
+- Use 'extendObjectAsync' instead of 'setObjectNotExistsAsync'
+- First official release version
 
 ### 0.1.0-alpha.2 (2023-10-27)
 
@@ -54,12 +59,6 @@ If you find the adapter useful for you and want to support my work, feel free to
 ### 0.0.1 (2023-10-24)
 
 - First test
-
-### **WORK IN PROGRESS**
-
-- Fix translations
-- Use 'extendObjectAsync' instead of 'setObjectNotExistsAsync'
-- First official release version
 
 ## License
 

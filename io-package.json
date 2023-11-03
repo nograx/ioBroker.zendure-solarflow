@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "news": {
+      "1.0.1": {
+        "en": "Fix translations\nUse 'extendObjectAsync' instead of 'setObjectNotExistsAsync'\nFirst official release version",
+        "de": "Übersetzungen löschen\nErweiterung ObjectAsync statt Set Gegenstand NichtExistsAsync\nErste offizielle Version",
+        "ru": "Fix переводы\nИспользуйте удлинить ObjectAsync вместо набора Объект NotExistsAsync\nПервая официальная версия релиза",
+        "pt": "Corrigir traduções\nUso de extensão ObjectAsync em vez de set Objeto NotExistsAsync\nPrimeira versão oficial do lançamento",
+        "nl": "Vertaling:\nGebruik verlenging ObjectAsync in plaats van Object NCIS Los Angeles\nEerste officiële vrijlating",
+        "fr": "Traductions fixes\nExtension d ' utilisation ObjectAsync au lieu de set Objet NotExistsAsync\nPremière version officielle",
+        "it": "Fissare le traduzioni\nEsterni di utilizzo ObjectAsync invece di set Oggetto Non esiste\nPrima versione ufficiale di rilascio",
+        "es": "Traducción fija\nAmpliación de uso ObjectAsync en lugar de set Objeto NoExistsAsync\nPrimera versión oficial",
+        "pl": "Tłumaczenia Fix\nRozszerzenie ObjectAsync zamiast zbioru obiekt NotExsAsync\nOficjalna wersja",
+        "uk": "Виправлення перекладів\nВикористання розширення Об'єктАсинхрон замість набору Об'єкт НеExistsAsync\nПерша офіційна версія випуску",
+        "zh-cn": "固定翻译\n使用 反对 目 录 专家\n第一次正式释放"
+      },
       "1.0.0": {
         "en": "Fix translations\nUse 'extendObjectAsync' instead of 'setObjectNotExistsAsync'\nFirst official release version",
         "de": "Übersetzungen löschen\nErweiterung ObjectAsync statt Set Gegenstand NichtExistsAsync\nErste offizielle Version",
