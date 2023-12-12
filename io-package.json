@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "news": {
+      "1.0.3": {
+        "en": "Password is now encrypted. NOTE: You have to re-enter the password after adapter update!",
+        "de": "Passwort ist jetzt verschlüsselt. HINWEIS: Sie müssen das Passwort nach dem Update des Adapters neu eingeben!",
+        "ru": "Пароль теперь зашифрован. ПРИМЕЧАНИЕ: Вы должны повторно ввести пароль после обновления адаптера!",
+        "pt": "A senha é agora criptografada. NOTA: Você tem que reinserir a senha após a atualização do adaptador!",
+        "nl": "Het wachtwoord is nu versleuteld. Je moet het wachtwoord herstellen na de update van de adapter!",
+        "fr": "Le mot de passe est désormais crypté. REMARQUE: Vous devez retourner le mot de passe après la mise à jour de l'adaptateur!",
+        "it": "La password è ora crittografata. NOTA: Devi reinserire la password dopo l'aggiornamento dell'adattatore!",
+        "es": "La contraseña está ahora encriptada. NOTA: ¡Tienes que volver a introducir la contraseña después de la actualización del adaptador!",
+        "pl": "Obecnie hasło jest szyfrowane. NOTE: Musisz wrócić do hasła po adapteru!",
+        "uk": "Пароль тепер зашифрований. ОНОВЛЕННЯ: Ви повинні повторно реєструвати пароль після оновлення адаптера!",
+        "zh-cn": "护照现在加密。 注:你必须在适应者更新之后重新加入文字。!"
+      },
       "1.0.2": {
         "en": "Adapter improvements suggested by iobroker team\nFixed battery pack temperature (data is in kelvin, so now converting to celcius)",
         "de": "Adapter Verbesserungen vorgeschlagen von iobroker team\nFeste Akku-Pack-Temperatur (Daten sind in Kelvin, also jetzt in celcius umwandeln)",
@@ -80,19 +93,6 @@
         "pl": "Informacje o baterie\nReset stwierdza, że nie ma żadnych nowych danych (np. gdy Hub odchodzi z linii). Obecnie ostatnia wartość nadal utrzymuje się, gdy Hub odchodzi z linii, więc może mieć dane w swoich stanach.",
         "uk": "Отримати інформацію про акумулятор\nОновити стани, якщо нові дані не надходять (наприклад, коли Hub вимкнено.) В даний час останнє значення все ще зберігається, коли Hub йде в автономному режимі, тому ви можете мати псевдо дані в ваших штатах.",
         "zh-cn": "Get电池信息\n如果没有新的数据(例如,在Herb流落线时)出现新的数据,则重新确定。 目前,在Hhub偏离线时仍存在最后价值,因此,你可能在贵国有假的数据。."
-      },
-      "0.0.1": {
-        "en": "initial release",
-        "de": "Erstveröffentlichung",
-        "ru": "Начальная версия",
-        "pt": "lançamento inicial",
-        "nl": "Eerste uitgave",
-        "fr": "Première version",
-        "it": "Versione iniziale",
-        "es": "Versión inicial",
-        "pl": "Pierwsze wydanie",
-        "uk": "Початкова версія",
-        "zh-cn": "首次出版"
       }
     },
     "title": "Zendure Solarflow",

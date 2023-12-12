@@ -33,6 +33,10 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
+### 1.0.3 (2023-12-12)
+
+- Password is now encrypted. NOTE: You have to re-enter the password after adapter update!
+
 ### 1.0.2 (2023-12-12)
 
 - Adapter improvements suggested by iobroker team
@@ -64,10 +68,6 @@ If you find the adapter useful for you and want to support my work, feel free to
 ### 0.0.1 (2023-10-24)
 
 - First test
-
-### **WORK IN PROGRESS**
-
-- Password is now encrypted. NOTE: You have to re-enter the password after adapter update!
 
 ## License
 
