@@ -26,6 +26,42 @@ __export(adapterService_exports, {
 module.exports = __toCommonJS(adapterService_exports);
 var import_webService = require("./webService");
 const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
+  productKey = productKey.replace(adapter.FORBIDDEN_CHARS, "");
+  deviceKey = deviceKey.replace(adapter.FORBIDDEN_CHARS, "");
+  await (adapter == null ? void 0 : adapter.extendObjectAsync(productKey, {
+    type: "device",
+    common: {
+      name: { de: "Produkt " + productKey, en: "Product " + productKey }
+    },
+    native: {}
+  }));
+  await (adapter == null ? void 0 : adapter.extendObjectAsync(productKey + "." + deviceKey, {
+    type: "channel",
+    common: {
+      name: { de: "Device Key " + deviceKey, en: "Device Key " + deviceKey }
+    },
+    native: {}
+  }));
+  await (adapter == null ? void 0 : adapter.extendObjectAsync(productKey + "." + deviceKey + ".control", {
+    type: "channel",
+    common: {
+      name: {
+        de: "Steuerung Device " + deviceKey,
+        en: "Control Device " + deviceKey
+      }
+    },
+    native: {}
+  }));
+  await (adapter == null ? void 0 : adapter.extendObjectAsync(productKey + "." + deviceKey + ".packData", {
+    type: "channel",
+    common: {
+      name: {
+        de: "Akku Packs",
+        en: "Battery packs"
+      }
+    },
+    native: {}
+  }));
   await (adapter == null ? void 0 : adapter.extendObjectAsync(
     productKey + "." + deviceKey + ".lastUpdate",
     {
@@ -36,7 +72,7 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
         desc: "lastUpdate",
         role: "value.time",
         read: true,
-        write: true
+        write: false
       },
       native: {}
     }
@@ -51,7 +87,7 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
         desc: "electricLevel",
         role: "value.battery",
         read: true,
-        write: true,
+        write: false,
         unit: "%"
       },
       native: {}
@@ -67,7 +103,7 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
         desc: "outputHomePower",
         role: "value.power",
         read: true,
-        write: true,
+        write: false,
         unit: "W"
       },
       native: {}
@@ -83,7 +119,7 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
         desc: "outputLimit",
         role: "value.power",
         read: true,
-        write: true,
+        write: false,
         unit: "W"
       },
       native: {}
@@ -99,7 +135,7 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
         desc: "outputPackPower",
         role: "value.power",
         read: true,
-        write: true,
+        write: false,
         unit: "W"
       },
       native: {}
@@ -115,7 +151,7 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
         desc: "packInputPower",
         role: "value.power",
         read: true,
-        write: true,
+        write: false,
         unit: "W"
       },
       native: {}
@@ -131,7 +167,7 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
         desc: "solarInputPower",
         role: "value.power.produced",
         read: true,
-        write: true,
+        write: false,
         unit: "W"
       },
       native: {}
@@ -147,7 +183,7 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
         desc: "remainInputTime",
         role: "value.interval",
         read: true,
-        write: true
+        write: false
       },
       native: {}
     }
@@ -162,7 +198,7 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
         desc: "remainOutTime",
         role: "value.interval",
         read: true,
-        write: true
+        write: false
       },
       native: {}
     }
@@ -177,7 +213,7 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
         desc: "socSet",
         role: "value.battery",
         read: true,
-        write: true,
+        write: false,
         unit: "%"
       },
       native: {}
@@ -193,7 +229,7 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
         desc: "minSoc",
         role: "value.battery",
         read: true,
-        write: true,
+        write: false,
         unit: "%"
       },
       native: {}
@@ -226,7 +262,10 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
 const addOrUpdatePackData = async (adapter, productKey, deviceKey, packData) => {
   await packData.forEach(async (x) => {
     if (x.sn) {
-      const key = productKey + "." + deviceKey + ".packData." + x.sn;
+      const key = (productKey + "." + deviceKey + ".packData." + x.sn).replace(
+        adapter.FORBIDDEN_CHARS,
+        ""
+      );
       await (adapter == null ? void 0 : adapter.extendObjectAsync(key + ".sn", {
         type: "state",
         common: {
@@ -238,11 +277,11 @@ const addOrUpdatePackData = async (adapter, productKey, deviceKey, packData) => 
           desc: "Serial ID",
           role: "value",
           read: true,
-          write: true
+          write: false
         },
         native: {}
       }));
-      await (adapter == null ? void 0 : adapter.setStateAsync(key + ".sn", x.sn, false));
+      await (adapter == null ? void 0 : adapter.setStateAsync(key + ".sn", x.sn, true));
       if (x.socLevel) {
         await (adapter == null ? void 0 : adapter.extendObjectAsync(key + ".socLevel", {
           type: "state",
@@ -255,11 +294,11 @@ const addOrUpdatePackData = async (adapter, productKey, deviceKey, packData) => 
             desc: "SOC Level",
             role: "value",
             read: true,
-            write: true
+            write: false
           },
           native: {}
         }));
-        await (adapter == null ? void 0 : adapter.setStateAsync(key + ".socLevel", x.socLevel, false));
+        await (adapter == null ? void 0 : adapter.setStateAsync(key + ".socLevel", x.socLevel, true));
       }
       if (x.maxTemp) {
         await (adapter == null ? void 0 : adapter.extendObjectAsync(key + ".maxTemp", {
@@ -273,11 +312,15 @@ const addOrUpdatePackData = async (adapter, productKey, deviceKey, packData) => 
             desc: "Max. Temp",
             role: "value",
             read: true,
-            write: true
+            write: false
           },
           native: {}
         }));
-        await (adapter == null ? void 0 : adapter.setStateAsync(key + ".maxTemp", x.maxTemp / 100, false));
+        await (adapter == null ? void 0 : adapter.setStateAsync(
+          key + ".maxTemp",
+          x.maxTemp / 10 - 273.15,
+          true
+        ));
       }
       if (x.minVol) {
         await (adapter == null ? void 0 : adapter.extendObjectAsync(key + ".minVol", {
@@ -288,11 +331,11 @@ const addOrUpdatePackData = async (adapter, productKey, deviceKey, packData) => 
             desc: "minVol",
             role: "value",
             read: true,
-            write: true
+            write: false
           },
           native: {}
         }));
-        await (adapter == null ? void 0 : adapter.setStateAsync(key + ".minVol", x.minVol / 100, false));
+        await (adapter == null ? void 0 : adapter.setStateAsync(key + ".minVol", x.minVol / 100, true));
       }
       if (x.maxVol) {
         await (adapter == null ? void 0 : adapter.extendObjectAsync(key + ".maxVol", {
@@ -303,11 +346,11 @@ const addOrUpdatePackData = async (adapter, productKey, deviceKey, packData) => 
             desc: "maxVol",
             role: "value",
             read: true,
-            write: true
+            write: false
           },
           native: {}
         }));
-        await (adapter == null ? void 0 : adapter.setStateAsync(key + ".maxVol", x.maxVol / 100, false));
+        await (adapter == null ? void 0 : adapter.setStateAsync(key + ".maxVol", x.maxVol / 100, true));
       }
       if (x.totalVol) {
         await (adapter == null ? void 0 : adapter.extendObjectAsync(key + ".totalVol", {
@@ -318,14 +361,14 @@ const addOrUpdatePackData = async (adapter, productKey, deviceKey, packData) => 
             desc: "totalVol",
             role: "value",
             read: true,
-            write: true
+            write: false
           },
           native: {}
         }));
         await (adapter == null ? void 0 : adapter.setStateAsync(
           key + ".totalVol",
           x.totalVol / 100,
-          false
+          true
         ));
       }
     }
@@ -338,10 +381,7 @@ const startCheckStatesTimer = async (adapter) => {
     "packInputPower",
     "solarInputPower"
   ];
-  if (adapter && adapter.timer) {
-    adapter.timer = null;
-  }
-  adapter.timer = setTimeout(async () => {
+  adapter.interval = adapter.setInterval(async () => {
     (0, import_webService.getDeviceList)(adapter).then((deviceList) => {
       deviceList.forEach(async (device) => {
         const lastUpdate = await (adapter == null ? void 0 : adapter.getStateAsync(
@@ -349,7 +389,7 @@ const startCheckStatesTimer = async (adapter) => {
         ));
         const tenMinutesAgo = Date.now() / 1e3 - 10 * 60;
         if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < tenMinutesAgo) {
-          adapter.log.info(
+          adapter.log.debug(
             `Last update for deviceKey ${device.deviceKey} was at ${new Date(
               Number(lastUpdate)
             )}, checking for pseudo power values!`
@@ -358,19 +398,20 @@ const startCheckStatesTimer = async (adapter) => {
             await (adapter == null ? void 0 : adapter.setStateAsync(
               device.productKey + "." + device.deviceKey + "." + stateName,
               0,
-              false
+              true
             ));
           });
           await (adapter == null ? void 0 : adapter.setStateAsync(
             device.productKey + "." + device.deviceKey + ".electricLevel",
             device.electricity,
-            false
+            true
           ));
         }
       });
     }).catch(() => {
       var _a;
       (_a = adapter.log) == null ? void 0 : _a.error("Retrieving device failed!");
+      return null;
     });
   }, 5e4);
 };
@@ -378,7 +419,7 @@ const updateSolarFlowState = async (adapter, productKey, deviceKey, state, val) 
   adapter == null ? void 0 : adapter.setStateAsync(
     productKey + "." + deviceKey + "." + state,
     val,
-    false
+    true
   );
 };
 // Annotate the CommonJS export names for ESM import in node:

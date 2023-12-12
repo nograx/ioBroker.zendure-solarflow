@@ -14,7 +14,6 @@ const config: AxiosRequestConfig = {
     Authorization: "Basic Q29uc3VtZXJBcHA6NX4qUmRuTnJATWg0WjEyMw==",
     "Blade-Auth": "bearer (null)",
   },
-  timeout: 300,
 };
 
 /* eslint-disable @typescript-eslint/indent */
@@ -37,7 +36,7 @@ export const login = (adapter: ZendureSolarflow): Promise<string> => {
     grantType: "password",
     tenantId: "",
   };
-  adapter.log.info("tokenurl: " + adapter?.paths?.solarFlowTokenUrl);
+
   if (adapter.paths && adapter.paths.solarFlowTokenUrl) {
     return axios
       .post(adapter.paths.solarFlowTokenUrl, authBody, config)
@@ -60,8 +59,8 @@ export const login = (adapter: ZendureSolarflow): Promise<string> => {
 export const getDeviceList = (
   adapter: ZendureSolarflow,
 ): Promise<ISolarFlowDeviceDetails[]> => {
-  adapter.setState("errorMessage", "");
-  adapter.log.info("Getting device list from Zendure Rest API!");
+  adapter.setState("errorMessage", "no_error");
+  adapter.log.debug("Getting device list from Zendure Rest API!");
 
   if (adapter.accessToken && config && config.headers) {
     config.headers["Blade-Auth"] = "bearer " + adapter.accessToken;

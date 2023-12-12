@@ -20,7 +20,7 @@ const onSubscribe: any = (error: Error | null) => {
   if (error) {
     adapter?.log.error("Subscription to MQTT failed! Error: " + error);
   } else {
-    adapter?.log.info("Subscription successful!");
+    adapter?.log.debug("Subscription successful!");
   }
 };
 
@@ -223,12 +223,12 @@ export const setOutputLimit = async (
         const topic = `iot/${productKey}/${deviceKey}/properties/write`;
 
         const outputlimit = { properties: { outputLimit: limit } };
-        adapter.log.info(
+        adapter.log.debug(
           `Setting Output Limit for device key ${deviceKey} to ${limit}!`,
         );
         client?.publish(topic, JSON.stringify(outputlimit));
       } else {
-        adapter.log.info(
+        adapter.log.debug(
           `Output Limit for device key ${deviceKey} is already at ${limit}!`,
         );
       }
@@ -275,9 +275,9 @@ export const connectMqttClient = (_adapter: ZendureSolarflow): void => {
           const reportTopic = `/${device.productKey}/${device.deviceKey}/properties/report`;
           const iotTopic = `iot/${device.productKey}/${device.deviceKey}/#`;
 
-          adapter.log.info(`Subscribing to MQTT Topic: ${reportTopic}`);
+          adapter.log.debug(`Subscribing to MQTT Topic: ${reportTopic}`);
           client?.subscribe(reportTopic, onSubscribe);
-          adapter.log.info(`Subscribing to MQTT Topic: ${iotTopic}`);
+          adapter.log.debug(`Subscribing to MQTT Topic: ${iotTopic}`);
           client?.subscribe(iotTopic, onSubscribe);
         }
       });

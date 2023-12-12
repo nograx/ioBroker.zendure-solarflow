@@ -41,7 +41,7 @@ class ZendureSolarflow extends utils.Adapter {
     this.accessToken = void 0;
     this.deviceList = [];
     this.paths = void 0;
-    this.timer = null;
+    this.interval = void 0;
     this.on("ready", this.onReady.bind(this));
     this.on("stateChange", this.onStateChange.bind(this));
     this.on("unload", this.onUnload.bind(this));
@@ -73,8 +73,8 @@ class ZendureSolarflow extends utils.Adapter {
   }
   onUnload(callback) {
     try {
-      if (this.timer) {
-        this.timer = null;
+      if (this.interval) {
+        this.clearInterval(this.interval);
       }
       callback();
     } catch (e) {
@@ -82,8 +82,8 @@ class ZendureSolarflow extends utils.Adapter {
     }
   }
   onStateChange(id, state) {
-    if (state) {
-      this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
+    if (state && !state.ack) {
+      this.log.debug(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
       if (id.includes("setOutputLimit") && state.val != void 0 && state.val != null) {
         const splitted = id.split(".");
         const productKey = splitted[2];
@@ -91,7 +91,7 @@ class ZendureSolarflow extends utils.Adapter {
         (0, import_mqttService.setOutputLimit)(this, productKey, deviceKey, Number(state.val));
       }
     } else {
-      this.log.info(`state ${id} deleted`);
+      this.log.debug(`state ${id} deleted`);
     }
   }
 }

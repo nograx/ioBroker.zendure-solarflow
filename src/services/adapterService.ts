@@ -297,7 +297,7 @@ export const addOrUpdatePackData = async (
         native: {},
       });
 
-      await adapter?.setStateAsync(key + ".sn", x.sn, false);
+      await adapter?.setStateAsync(key + ".sn", x.sn, true);
 
       if (x.socLevel) {
         // State für socLevel
@@ -317,7 +317,7 @@ export const addOrUpdatePackData = async (
           native: {},
         });
 
-        await adapter?.setStateAsync(key + ".socLevel", x.socLevel, false);
+        await adapter?.setStateAsync(key + ".socLevel", x.socLevel, true);
       }
 
       if (x.maxTemp) {
@@ -342,7 +342,7 @@ export const addOrUpdatePackData = async (
         await adapter?.setStateAsync(
           key + ".maxTemp",
           x.maxTemp / 10 - 273.15,
-          false,
+          true,
         );
       }
 
@@ -360,7 +360,7 @@ export const addOrUpdatePackData = async (
           native: {},
         });
 
-        await adapter?.setStateAsync(key + ".minVol", x.minVol / 100, false);
+        await adapter?.setStateAsync(key + ".minVol", x.minVol / 100, true);
       }
 
       if (x.maxVol) {
@@ -377,7 +377,7 @@ export const addOrUpdatePackData = async (
           native: {},
         });
 
-        await adapter?.setStateAsync(key + ".maxVol", x.maxVol / 100, false);
+        await adapter?.setStateAsync(key + ".maxVol", x.maxVol / 100, true);
       }
 
       if (x.totalVol) {
@@ -397,7 +397,7 @@ export const addOrUpdatePackData = async (
         await adapter?.setStateAsync(
           key + ".totalVol",
           x.totalVol / 100,
-          false,
+          true,
         );
       }
     }
@@ -429,7 +429,7 @@ export const startCheckStatesTimer = async (
             lastUpdate.val &&
             Number(lastUpdate.val) < tenMinutesAgo
           ) {
-            adapter.log.info(
+            adapter.log.debug(
               `Last update for deviceKey ${device.deviceKey} was at ${new Date(
                 Number(lastUpdate),
               )}, checking for pseudo power values!`,
@@ -439,7 +439,7 @@ export const startCheckStatesTimer = async (
               await adapter?.setStateAsync(
                 device.productKey + "." + device.deviceKey + "." + stateName,
                 0,
-                false,
+                true,
               );
             });
 
@@ -447,7 +447,7 @@ export const startCheckStatesTimer = async (
             await adapter?.setStateAsync(
               device.productKey + "." + device.deviceKey + ".electricLevel",
               device.electricity,
-              false,
+              true,
             );
           }
         });
@@ -469,6 +469,6 @@ export const updateSolarFlowState = async (
   adapter?.setStateAsync(
     productKey + "." + deviceKey + "." + state,
     val,
-    false,
+    true,
   );
 };

@@ -42,7 +42,7 @@ const onSubscribe = (error) => {
   if (error) {
     adapter == null ? void 0 : adapter.log.error("Subscription to MQTT failed! Error: " + error);
   } else {
-    adapter == null ? void 0 : adapter.log.info("Subscription successful!");
+    adapter == null ? void 0 : adapter.log.debug("Subscription successful!");
   }
 };
 const onMessage = async (topic, message) => {
@@ -183,12 +183,12 @@ const setOutputLimit = async (adapter2, productKey, deviceKey, limit) => {
         }
         const topic = `iot/${productKey}/${deviceKey}/properties/write`;
         const outputlimit = { properties: { outputLimit: limit } };
-        adapter2.log.info(
+        adapter2.log.debug(
           `Setting Output Limit for device key ${deviceKey} to ${limit}!`
         );
         client == null ? void 0 : client.publish(topic, JSON.stringify(outputlimit));
       } else {
-        adapter2.log.info(
+        adapter2.log.debug(
           `Output Limit for device key ${deviceKey} is already at ${limit}!`
         );
       }
@@ -224,9 +224,9 @@ const connectMqttClient = (_adapter) => {
           );
           const reportTopic = `/${device.productKey}/${device.deviceKey}/properties/report`;
           const iotTopic = `iot/${device.productKey}/${device.deviceKey}/#`;
-          adapter.log.info(`Subscribing to MQTT Topic: ${reportTopic}`);
+          adapter.log.debug(`Subscribing to MQTT Topic: ${reportTopic}`);
           client == null ? void 0 : client.subscribe(reportTopic, onSubscribe);
-          adapter.log.info(`Subscribing to MQTT Topic: ${iotTopic}`);
+          adapter.log.debug(`Subscribing to MQTT Topic: ${iotTopic}`);
           client == null ? void 0 : client.subscribe(iotTopic, onSubscribe);
         }
       });

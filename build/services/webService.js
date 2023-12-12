@@ -42,10 +42,12 @@ const config = {
   }
 };
 const login = (adapter) => {
-  var _a;
   const auth = Buffer.from(
     `${adapter.config.userName}:${adapter.config.password}`
   ).toString("base64");
+  if (!config || !config.headers) {
+    return Promise.reject("No axios config!");
+  }
   config.headers.Authorization = "Basic " + auth;
   const authBody = {
     password: adapter.config.password,
@@ -55,13 +57,12 @@ const login = (adapter) => {
     grantType: "password",
     tenantId: ""
   };
-  adapter.log.info("tokenurl: " + ((_a = adapter == null ? void 0 : adapter.paths) == null ? void 0 : _a.solarFlowTokenUrl));
   if (adapter.paths && adapter.paths.solarFlowTokenUrl) {
     return import_axios.default.post(adapter.paths.solarFlowTokenUrl, authBody, config).then(function(response) {
-      var _a2, _b;
+      var _a, _b;
       if (response.data.success) {
         adapter.log.info("Login to Rest API successful!");
-        if ((_b = (_a2 = response.data) == null ? void 0 : _a2.data) == null ? void 0 : _b.accessToken) {
+        if ((_b = (_a = response.data) == null ? void 0 : _a.data) == null ? void 0 : _b.accessToken) {
           return response.data.data.accessToken;
         }
       }
@@ -73,9 +74,9 @@ const login = (adapter) => {
     return Promise.reject("Path error!");
 };
 const getDeviceList = (adapter) => {
-  adapter.setState("errorMessage", "");
-  adapter.log.info("Getting device list from Zendure Rest API!");
-  if (adapter.accessToken) {
+  adapter.setState("errorMessage", "no_error");
+  adapter.log.debug("Getting device list from Zendure Rest API!");
+  if (adapter.accessToken && config && config.headers) {
     config.headers["Blade-Auth"] = "bearer " + adapter.accessToken;
     const body = {};
     let paths = void 0;
