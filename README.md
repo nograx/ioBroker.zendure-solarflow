@@ -65,6 +65,10 @@ If you find the adapter useful for you and want to support my work, feel free to
 
 - First test
 
+### **WORK IN PROGRESS**
+
+- Password is now encrypted. NOTE: You have to re-enter the password after adapter update!
+
 ## License
 
 MIT License

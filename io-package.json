@@ -158,9 +158,14 @@
     ]
   },
   "native": {
-    "username": "",
-    "password": ""
+    "username": ""
   },
+  "encryptedNative": [
+    "password"
+  ],
+  "protectedNative": [
+    "password"
+  ],
   "objects": [],
   "instanceObjects": []
 }
