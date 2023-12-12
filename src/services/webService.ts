@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/indent */
 import { pathsEu, pathsGlobal } from "../constants/paths";
 import { ZendureSolarflow } from "../main";
-import axios from "axios";
+import axios, { AxiosRequestConfig } from "axios";
 import { ISolarFlowDeviceDetails } from "../models/ISolarFlowDeviceDetails";
 
-const config = {
+const config: AxiosRequestConfig = {
   headers: {
     "Content-Type": "application/json",
     "Accept-Language": "de-DE",
@@ -14,6 +14,7 @@ const config = {
     Authorization: "Basic Q29uc3VtZXJBcHA6NX4qUmRuTnJATWg0WjEyMw==",
     "Blade-Auth": "bearer (null)",
   },
+  timeout: 300,
 };
 
 /* eslint-disable @typescript-eslint/indent */
@@ -21,6 +22,10 @@ export const login = (adapter: ZendureSolarflow): Promise<string> => {
   const auth = Buffer.from(
     `${adapter.config.userName}:${adapter.config.password}`,
   ).toString("base64");
+
+  if (!config || !config.headers) {
+    return Promise.reject("No axios config!");
+  }
 
   config.headers.Authorization = "Basic " + auth;
 
@@ -32,7 +37,7 @@ export const login = (adapter: ZendureSolarflow): Promise<string> => {
     grantType: "password",
     tenantId: "",
   };
-  adapter.log.info("tokenurl: " + adapter?.paths?.solarFlowTokenUrl)
+  adapter.log.info("tokenurl: " + adapter?.paths?.solarFlowTokenUrl);
   if (adapter.paths && adapter.paths.solarFlowTokenUrl) {
     return axios
       .post(adapter.paths.solarFlowTokenUrl, authBody, config)
@@ -49,15 +54,16 @@ export const login = (adapter: ZendureSolarflow): Promise<string> => {
         adapter.log.error(error);
         return Promise.reject("Failed to login to Zendure REST API!");
       });
-  }
-  else return Promise.reject("Path error!");
+  } else return Promise.reject("Path error!");
 };
 
-export const getDeviceList = (adapter: ZendureSolarflow): Promise<ISolarFlowDeviceDetails[]> => {
+export const getDeviceList = (
+  adapter: ZendureSolarflow,
+): Promise<ISolarFlowDeviceDetails[]> => {
   adapter.setState("errorMessage", "");
   adapter.log.info("Getting device list from Zendure Rest API!");
 
-  if (adapter.accessToken) {
+  if (adapter.accessToken && config && config.headers) {
     config.headers["Blade-Auth"] = "bearer " + adapter.accessToken;
 
     const body = {};

@@ -9,6 +9,51 @@ export const createSolarFlowStates = async (
   productKey: string,
   deviceKey: string,
 ): Promise<void> => {
+  productKey = productKey.replace(adapter.FORBIDDEN_CHARS, "");
+  deviceKey = deviceKey.replace(adapter.FORBIDDEN_CHARS, "");
+
+  // Create device (e.g. the product type -> SolarFlow)
+  await adapter?.extendObjectAsync(productKey, {
+    type: "device",
+    common: {
+      name: { de: "Produkt " + productKey, en: "Product " + productKey },
+    },
+    native: {},
+  });
+
+  // Create channel (e.g. the device specific key)
+  await adapter?.extendObjectAsync(productKey + "." + deviceKey, {
+    type: "channel",
+    common: {
+      name: { de: "Device Key " + deviceKey, en: "Device Key " + deviceKey },
+    },
+    native: {},
+  });
+
+  // Create control folder
+  await adapter?.extendObjectAsync(productKey + "." + deviceKey + ".control", {
+    type: "channel",
+    common: {
+      name: {
+        de: "Steuerung Device " + deviceKey,
+        en: "Control Device " + deviceKey,
+      },
+    },
+    native: {},
+  });
+
+  // Create pack data folder
+  await adapter?.extendObjectAsync(productKey + "." + deviceKey + ".packData", {
+    type: "channel",
+    common: {
+      name: {
+        de: "Akku Packs",
+        en: "Battery packs",
+      },
+    },
+    native: {},
+  });
+
   await adapter?.extendObjectAsync(
     productKey + "." + deviceKey + "." + "lastUpdate",
     {
@@ -19,7 +64,7 @@ export const createSolarFlowStates = async (
         desc: "lastUpdate",
         role: "value.time",
         read: true,
-        write: true,
+        write: false,
       },
       native: {},
     },
@@ -35,7 +80,7 @@ export const createSolarFlowStates = async (
         desc: "electricLevel",
         role: "value.battery",
         read: true,
-        write: true,
+        write: false,
         unit: "%",
       },
       native: {},
@@ -52,7 +97,7 @@ export const createSolarFlowStates = async (
         desc: "outputHomePower",
         role: "value.power",
         read: true,
-        write: true,
+        write: false,
         unit: "W",
       },
       native: {},
@@ -69,7 +114,7 @@ export const createSolarFlowStates = async (
         desc: "outputLimit",
         role: "value.power",
         read: true,
-        write: true,
+        write: false,
         unit: "W",
       },
       native: {},
@@ -86,7 +131,7 @@ export const createSolarFlowStates = async (
         desc: "outputPackPower",
         role: "value.power",
         read: true,
-        write: true,
+        write: false,
         unit: "W",
       },
       native: {},
@@ -103,7 +148,7 @@ export const createSolarFlowStates = async (
         desc: "packInputPower",
         role: "value.power",
         read: true,
-        write: true,
+        write: false,
         unit: "W",
       },
       native: {},
@@ -120,7 +165,7 @@ export const createSolarFlowStates = async (
         desc: "solarInputPower",
         role: "value.power.produced",
         read: true,
-        write: true,
+        write: false,
         unit: "W",
       },
       native: {},
@@ -137,7 +182,7 @@ export const createSolarFlowStates = async (
         desc: "remainInputTime",
         role: "value.interval",
         read: true,
-        write: true,
+        write: false,
       },
       native: {},
     },
@@ -153,7 +198,7 @@ export const createSolarFlowStates = async (
         desc: "remainOutTime",
         role: "value.interval",
         read: true,
-        write: true,
+        write: false,
       },
       native: {},
     },
@@ -169,7 +214,7 @@ export const createSolarFlowStates = async (
         desc: "socSet",
         role: "value.battery",
         read: true,
-        write: true,
+        write: false,
         unit: "%",
       },
       native: {},
@@ -186,7 +231,7 @@ export const createSolarFlowStates = async (
         desc: "minSoc",
         role: "value.battery",
         read: true,
-        write: true,
+        write: false,
         unit: "%",
       },
       native: {},
@@ -228,10 +273,14 @@ export const addOrUpdatePackData = async (
   packData: IPackData[],
 ): Promise<void> => {
   await packData.forEach(async (x) => {
-    // Daten nur verarbeiten wenn eine SN mitgesendet wird!
+    // Process data only with a serial id!
     if (x.sn) {
-      // State für SN
-      const key = productKey + "." + deviceKey + ".packData." + x.sn;
+      // create a state for the serial id
+      const key = (productKey + "." + deviceKey + ".packData." + x.sn).replace(
+        adapter.FORBIDDEN_CHARS,
+        "",
+      );
+
       await adapter?.extendObjectAsync(key + ".sn", {
         type: "state",
         common: {
@@ -243,7 +292,7 @@ export const addOrUpdatePackData = async (
           desc: "Serial ID",
           role: "value",
           read: true,
-          write: true,
+          write: false,
         },
         native: {},
       });
@@ -263,7 +312,7 @@ export const addOrUpdatePackData = async (
             desc: "SOC Level",
             role: "value",
             read: true,
-            write: true,
+            write: false,
           },
           native: {},
         });
@@ -284,12 +333,17 @@ export const addOrUpdatePackData = async (
             desc: "Max. Temp",
             role: "value",
             read: true,
-            write: true,
+            write: false,
           },
           native: {},
         });
 
-        await adapter?.setStateAsync(key + ".maxTemp", x.maxTemp / 100, false);
+        // Convert Kelvin to Celsius
+        await adapter?.setStateAsync(
+          key + ".maxTemp",
+          x.maxTemp / 10 - 273.15,
+          false,
+        );
       }
 
       if (x.minVol) {
@@ -301,7 +355,7 @@ export const addOrUpdatePackData = async (
             desc: "minVol",
             role: "value",
             read: true,
-            write: true,
+            write: false,
           },
           native: {},
         });
@@ -318,7 +372,7 @@ export const addOrUpdatePackData = async (
             desc: "maxVol",
             role: "value",
             read: true,
-            write: true,
+            write: false,
           },
           native: {},
         });
@@ -335,7 +389,7 @@ export const addOrUpdatePackData = async (
             desc: "totalVol",
             role: "value",
             read: true,
-            write: true,
+            write: false,
           },
           native: {},
         });
@@ -361,12 +415,7 @@ export const startCheckStatesTimer = async (
     "solarInputPower",
   ];
 
-  // Timer starten
-  if (adapter && adapter.timer) {
-    adapter.timer = null;
-  }
-
-  adapter.timer = setTimeout(async () => {
+  adapter.interval = adapter.setInterval(async () => {
     getDeviceList(adapter)
       .then((deviceList: ISolarFlowDeviceDetails[]) => {
         deviceList.forEach(async (device: ISolarFlowDeviceDetails) => {
@@ -405,6 +454,7 @@ export const startCheckStatesTimer = async (
       })
       .catch(() => {
         adapter.log?.error("Retrieving device failed!");
+        return null;
       });
   }, 50000);
 };

@@ -27,7 +27,7 @@ export class ZendureSolarflow extends utils.Adapter {
   public accessToken: string | undefined = undefined; // Access Token for Zendure Rest API
   public deviceList: ISolarFlowDeviceDetails[] = [];
   public paths: ISolarFlowPaths | undefined = undefined;
-  public timer: NodeJS.Timeout | null = null;
+  public interval: ioBroker.Interval | undefined = undefined;
 
   /**
    * Is called when databases are connected and adapter received configuration.
@@ -72,8 +72,8 @@ export class ZendureSolarflow extends utils.Adapter {
    */
   private onUnload(callback: () => void): void {
     try {
-      if (this.timer) {
-        this.timer = null;
+      if (this.interval) {
+        this.clearInterval(this.interval);
       }
       callback();
     } catch (e) {
@@ -88,9 +88,9 @@ export class ZendureSolarflow extends utils.Adapter {
     id: string,
     state: ioBroker.State | null | undefined,
   ): void {
-    if (state) {
+    if (state && !state.ack) {
       // The state was changed
-      this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
+      this.log.debug(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
       if (
         id.includes("setOutputLimit") &&
         state.val != undefined &&
@@ -103,7 +103,7 @@ export class ZendureSolarflow extends utils.Adapter {
       }
     } else {
       // The state was deleted
-      this.log.info(`state ${id} deleted`);
+      this.log.debug(`state ${id} deleted`);
     }
   }
 }
