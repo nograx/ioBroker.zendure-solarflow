@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "news": {
+      "1.0.2": {
+        "en": "Adapter improvements suggested by iobroker team\nFixed battery pack temperature (data is in kelvin, so now converting to celcius)",
+        "de": "Adapter Verbesserungen vorgeschlagen von iobroker team\nFeste Akku-Pack-Temperatur (Daten sind in Kelvin, also jetzt in celcius umwandeln)",
+        "ru": "Улучшения адаптера, предложенные командой iobroker\nФиксированная температура аккумулятора (данные находятся в kelvin, поэтому теперь преобразование в celcius)",
+        "pt": "Melhorias do adaptador sugeridas pela equipe iobroker\nTemperatura do pacote de bateria fixa (os dados estão em kelvin, então agora convertendo em celcius)",
+        "nl": "Adapter verbetering suggereert\nGerepareerde batterijttemperatuur (data is in kelvin, dus nu omkeren naar Cecius)",
+        "fr": "Amélioration de l'adaptateur suggérée par l'équipe iobroker\nTempérature de la batterie fixe (les données sont dans kelvin, donc maintenant convertir en celcius)",
+        "it": "Miglioramenti dell'adattatore suggeriti dal team di iobroker\nTemperatura del pacchetto batterie fissa (i dati sono in kelvin, quindi ora convertiti in celcius)",
+        "es": "Mejoras del adaptador sugeridas por el equipo de iobroker\nTemperatura de paquete de batería fija (data está en kelvin, por lo que ahora se convierte en celcio)",
+        "pl": "Adapter ulepszenia sugerowały zespół iobroker\nFixed battery pack temperature (data jest w kelvinu, więc teraz przekształca się w celcius)",
+        "uk": "Покращення адаптерів, запропонованих командою iobroker\nФіксована температура пакета акумулятора (data is in kelvin, тому тепер перетворюється в celcius)",
+        "zh-cn": "气雾器组建议的改进\n固定电池的包装温度(数据是镍vin,因此现在转换为管道)。"
+      },
       "1.0.1": {
         "en": "Fix translations\nUse 'extendObjectAsync' instead of 'setObjectNotExistsAsync'\nFirst official release version",
         "de": "Übersetzungen löschen\nErweiterung ObjectAsync statt Set Gegenstand NichtExistsAsync\nErste offizielle Version",
@@ -80,19 +93,6 @@
         "pl": "Pierwsze wydanie",
         "uk": "Початкова версія",
         "zh-cn": "首次出版"
-      },
-      "0.0.2": {
-        "en": "Bug fixes and improvements",
-        "de": "Fehlerbehebungen und Verbesserungen",
-        "ru": "Исправления ошибок и улучшения",
-        "pt": "Correções de bugs e melhorias",
-        "nl": "Bugfixes en verbeteringen",
-        "fr": "Corrections de bugs et améliorations",
-        "it": "Correzioni di bug e miglioramenti",
-        "es": "Corrección de errores y mejoras.",
-        "pl": "Poprawki błędów i ulepszenia",
-        "uk": "Виправлення помилок і покращення",
-        "zh-cn": "错误修复和改进"
       }
     },
     "title": "Zendure Solarflow",

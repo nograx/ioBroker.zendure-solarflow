@@ -33,6 +33,10 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
+### 1.0.2 (2023-12-12)
+
+- Adapter improvements suggested by iobroker team
+- Fixed battery pack temperature (data is in kelvin, so now converting to celcius)
 
 ### 1.0.1 (2023-11-03)
 
@@ -60,11 +64,6 @@ If you find the adapter useful for you and want to support my work, feel free to
 ### 0.0.1 (2023-10-24)
 
 - First test
-
-### **WORK IN PROGRESS**
-
-- Adapter improvements suggested by iobroker team
-- Fixed battery pack temperature (data is in kelvin, so now converting to celcius)
 
 ## License
 
