@@ -39,7 +39,8 @@ const config = {
     Accept: "*/*",
     Authorization: "Basic Q29uc3VtZXJBcHA6NX4qUmRuTnJATWg0WjEyMw==",
     "Blade-Auth": "bearer (null)"
-  }
+  },
+  timeout: 5e3
 };
 const login = (adapter) => {
   const auth = Buffer.from(
@@ -74,7 +75,6 @@ const login = (adapter) => {
     return Promise.reject("Path error!");
 };
 const getDeviceList = (adapter) => {
-  adapter.setState("errorMessage", "no_error");
   adapter.log.debug("Getting device list from Zendure Rest API!");
   if (adapter.accessToken && config && config.headers) {
     config.headers["Blade-Auth"] = "bearer " + adapter.accessToken;

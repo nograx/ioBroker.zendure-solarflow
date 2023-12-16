@@ -25,6 +25,7 @@ const onSubscribe: any = (error: Error | null) => {
 };
 
 const onMessage = async (topic: string, message: Buffer): Promise<void> => {
+  //adapter?.log.info(message.toString())
   if (adapter) {
     const splitted = topic.split("/");
     const productKey = splitted[1];
