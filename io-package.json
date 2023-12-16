@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "news": {
+      "1.0.4": {
+        "en": "Added Timeout for axios",
+        "de": "Timeout für Axios hinzugefügt",
+        "ru": "Добавлено Timeout для axios",
+        "pt": "Adicionado Timeout para axios",
+        "nl": "Axios",
+        "fr": "Ajout du timeout pour axios",
+        "it": "Aggiunto Timeout per assios",
+        "es": "Tiempo añadido para el eje",
+        "pl": "Added Timeout",
+        "uk": "Додано час для axios",
+        "zh-cn": "增加焦虑时间"
+      },
       "1.0.3": {
         "en": "Password is now encrypted. NOTE: You have to re-enter the password after adapter update!",
         "de": "Passwort ist jetzt verschlüsselt. HINWEIS: Sie müssen das Passwort nach dem Update des Adapters neu eingeben!",
@@ -80,19 +93,6 @@
         "pl": "Fix Typescript typ",
         "uk": "Фіксація Typescript",
         "zh-cn": "定 义"
-      },
-      "0.1.0-alpha.0": {
-        "en": "Get battery information\nReset states if no new data comes in (e.g. when Hub goes offline). Currently the last value still persist when Hub goes offline, so you may have 'pseudo' data in your states.",
-        "de": "Batterieinformationen erhalten\nRücksetzen von Zuständen, wenn keine neuen Daten einkommen (z.B. wenn Hub offline geht). Derzeit bleibt der letzte Wert immer noch bestehen, wenn Hub offline geht, so dass Sie möglicherweise Pseudodaten in Ihren Staaten haben.",
-        "ru": "Получить информацию о аккумуляторе\nСброс состояния, если нет новых данных в (например, когда Hub выходит в оффлайн.) В настоящее время последнее значение по-прежнему сохраняется, когда Hub идет оффлайн, так что вы можете иметь данные pseudo в ваших штатах.",
-        "pt": "Obtenha informações da bateria\nRepor estados se nenhum novo dado entrar (por exemplo, quando o Hub estiver offline.) Atualmente, o último valor ainda persiste quando o Hub fica offline, então você pode ter pseudo dados em seus estados.",
-        "nl": "Haal batterij informatie\nReset staat als er geen nieuwe data binnenkomt als Hub offline gaat. Momenteel houdt de laatste waarde nog vol als Hub offline gaat, dus je hebt misschien pseudo gegevens in je staat.",
-        "fr": "Obtenir des informations de batterie\nRéinitialiser les états s'il n'y a pas de nouvelles données (p. ex. lorsque Hub va hors ligne.) Actuellement, la dernière valeur persiste quand Hub va hors ligne, de sorte que vous pouvez avoir des données pseudo dans vos états.",
-        "it": "Ottieni informazioni sulla batteria\nRipristina gli stati se non entrano nuovi dati (ad esempio quando Hub va offline.) Attualmente l'ultimo valore persiste ancora quando Hub va offline, quindi potresti avere dati pseudo nei tuoi stati.",
-        "es": "Obtener información de la batería\nReiniciar estados si no hay nuevos datos entra (por ejemplo, cuando el Hub se desconecta). Actualmente el último valor todavía persiste cuando Hub va fuera de línea, por lo que puede tener datos pseudo en sus estados.",
-        "pl": "Informacje o baterie\nReset stwierdza, że nie ma żadnych nowych danych (np. gdy Hub odchodzi z linii). Obecnie ostatnia wartość nadal utrzymuje się, gdy Hub odchodzi z linii, więc może mieć dane w swoich stanach.",
-        "uk": "Отримати інформацію про акумулятор\nОновити стани, якщо нові дані не надходять (наприклад, коли Hub вимкнено.) В даний час останнє значення все ще зберігається, коли Hub йде в автономному режимі, тому ви можете мати псевдо дані в ваших штатах.",
-        "zh-cn": "Get电池信息\n如果没有新的数据(例如,在Herb流落线时)出现新的数据,则重新确定。 目前,在Hhub偏离线时仍存在最后价值,因此,你可能在贵国有假的数据。."
       }
     },
     "title": "Zendure Solarflow",

@@ -33,6 +33,10 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
+### 1.0.4 (2023-12-16)
+
+- Added Timeout for axios
+
 ### 1.0.3 (2023-12-12)
 
 - Password is now encrypted. NOTE: You have to re-enter the password after adapter update!
@@ -68,10 +72,6 @@ If you find the adapter useful for you and want to support my work, feel free to
 ### 0.0.1 (2023-10-24)
 
 - First test
-
-### **WORK IN PROGRESS**
-
-- Added Timeout for axios
 
 ## License
 
