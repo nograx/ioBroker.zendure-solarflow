@@ -82,7 +82,7 @@ If you find the adapter useful for you and want to support my work, feel free to
 
 MIT License
 
-Copyright (c) 2023 Peter Frommert
+Copyright (c) 2024 Peter Frommert
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
