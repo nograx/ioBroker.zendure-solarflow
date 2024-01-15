@@ -25,7 +25,7 @@ const onSubscribe: any = (error: Error | null) => {
 };
 
 const onMessage = async (topic: string, message: Buffer): Promise<void> => {
-  //adapter?.log.info(message.toString())
+  adapter?.log.info(message.toString())
   if (adapter) {
     const splitted = topic.split("/");
     const productKey = splitted[1];
@@ -129,6 +129,32 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         deviceKey,
         "solarInputPower",
         obj.properties.solarInputPower,
+      );
+    }
+
+    if (
+      obj.properties?.pvPower1 != null &&
+      obj.properties?.pvPower1 != undefined
+    ) {
+      updateSolarFlowState(
+        adapter,
+        productKey,
+        deviceKey,
+        "pvPower1",
+        obj.properties.pvPower1,
+      );
+    }
+
+    if (
+      obj.properties?.pvPower2 != null &&
+      obj.properties?.pvPower2 != undefined
+    ) {
+      updateSolarFlowState(
+        adapter,
+        productKey,
+        deviceKey,
+        "pvPower2",
+        obj.properties.pvPower2,
       );
     }
 

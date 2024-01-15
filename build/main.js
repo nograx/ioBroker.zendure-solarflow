@@ -52,6 +52,7 @@ class ZendureSolarflow extends utils.Adapter {
     if (this.config.userName && this.config.password) {
       (_a = (0, import_webService.login)(this)) == null ? void 0 : _a.then((_accessToken) => {
         this.accessToken = _accessToken;
+        this.connected = true;
         (0, import_webService.getDeviceList)(this).then((result) => {
           if (result) {
             this.deviceList = result;
@@ -60,14 +61,17 @@ class ZendureSolarflow extends utils.Adapter {
           }
         }).catch(() => {
           var _a2;
+          this.connected = false;
           (_a2 = this.log) == null ? void 0 : _a2.error("Retrieving device failed!");
         });
       }).catch((error) => {
+        this.connected = false;
         this.log.error(
           "Logon error at Zendure cloud service! Error: " + error.toString()
         );
       });
     } else {
+      this.connected = false;
       this.log.error("No Login Information provided!");
     }
   }

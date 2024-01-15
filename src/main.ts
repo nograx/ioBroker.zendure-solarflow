@@ -42,6 +42,8 @@ export class ZendureSolarflow extends utils.Adapter {
         ?.then((_accessToken: string) => {
           this.accessToken = _accessToken;
 
+          this.connected = true;
+
           // Try to get the device list
           getDeviceList(this)
             .then((result: ISolarFlowDeviceDetails[]) => {
@@ -53,15 +55,18 @@ export class ZendureSolarflow extends utils.Adapter {
               }
             })
             .catch(() => {
+              this.connected = false;
               this.log?.error("Retrieving device failed!");
             });
         })
         .catch((error) => {
+          this.connected = false;
           this.log.error(
             "Logon error at Zendure cloud service! Error: " + error.toString(),
           );
         });
     } else {
+      this.connected = false;
       this.log.error("No Login Information provided!");
       //this.stop?.();
     }

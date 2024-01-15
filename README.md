@@ -16,10 +16,11 @@
 This project is an ioBroker Adapter to read data from the Zendure Solarflow Cloud API. It uses the official API provided by Zendure.
 You can read more about the API here: https://github.com/Zendure/developer-device-data-report
 
-Note: It is possible to control the Output limit with the state created in the productId/deviceKey/control subfolder.
+Note: It is possible to control the Output limit with the state created in the productId/deviceKey/control subfolder. Please deactivate/uncheck all modes in the Zendure App, otherwise it is not possible to set the output limit!
 
-Note2: You will be logged out of the official iOS or Android App after logging in with the ioBroker adapter. This is a normal behavior, currently I
-don't know why. If you have more information, feel free to contact me.
+![Solarflow Setings Window](https://raw.github.com/nograx/ioBroker.zendure-solarflow/master/Screenshots/ZendureSolarflowSettings.png)
+
+Note2: You will be logged out of the official iOS or Android App after logging in with the ioBroker adapter. This is a normal behavior. As a workaround you can create an second Zendure account with another e-mail and grant access to your Solarflow HUB to this account. Then use the second account for ioBroker / the Zendure Solarflow adapter.
 
 ## Credits
 
@@ -33,6 +34,10 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+- Added state for both Solarflow PV inputs
+
 ### 1.0.4 (2023-12-16)
 
 - Added Timeout for axios

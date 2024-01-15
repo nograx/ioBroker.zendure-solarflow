@@ -163,7 +163,41 @@ export const createSolarFlowStates = async (
         name: { de: "Leistung der Solarmodule", en: "solar power" },
         type: "number",
         desc: "solarInputPower",
-        role: "value.power.produced",
+        role: "value.power",
+        read: true,
+        write: false,
+        unit: "W",
+      },
+      native: {},
+    },
+  );
+
+  await adapter?.extendObjectAsync(
+    productKey + "." + deviceKey + "." + "pvPower1",
+    {
+      type: "state",
+      common: {
+        name: { de: "Leistung PV 1", en: "solar power channel 1" },
+        type: "number",
+        desc: "pvPower1",
+        role: "value.power",
+        read: true,
+        write: false,
+        unit: "W",
+      },
+      native: {},
+    },
+  );
+
+  await adapter?.extendObjectAsync(
+    productKey + "." + deviceKey + "." + "pvPower2",
+    {
+      type: "state",
+      common: {
+        name: { de: "Leistung PV 2", en: "solar power channel 2" },
+        type: "number",
+        desc: "pvPower2",
+        role: "value.power",
         read: true,
         write: false,
         unit: "W",
