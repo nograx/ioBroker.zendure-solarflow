@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "news": {
+      "1.0.5": {
+        "en": "Added state for both Solarflow PV inputs",
+        "de": "Zusätzlicher Zustand für beide Solarflow PV-Eingänge",
+        "ru": "Добавленное состояние для обоих компонентов Solarflow PV",
+        "pt": "Estado adicionado para ambas as entradas Solarflow PV",
+        "nl": "Toegevoegde toestand voor beide Solarflow PV-inputs",
+        "fr": "État ajouté pour les deux entrées Solarflow PV",
+        "it": "Stato aggiunto per entrambi gli ingressi Solarflow PV",
+        "es": "Estado añadido para ambas entradas de PV de flujo solar",
+        "pl": "Dodano stan dla obu wejść Solarflow PV",
+        "uk": "Додано стан для обох вхідних сонячних батарей",
+        "zh-cn": "两种太阳流光电输入的添加状态"
+      },
       "1.0.4": {
         "en": "Added Timeout for axios",
         "de": "Timeout für Axios hinzugefügt",
@@ -80,19 +93,6 @@
         "pl": "Don't stop the adapter when no login information is available!",
         "uk": "Не зупиняйте адаптер при відсутності інформації про логін!",
         "zh-cn": "当没有提供伐木信息时,捐赠者停止适应。!"
-      },
-      "0.1.0-alpha.1": {
-        "en": "Fix Typescript typos",
-        "de": "Typescript-Typos reparieren",
-        "ru": "Fix Типскрипт typos",
-        "pt": "Corrigir erros de digitação",
-        "nl": "Vertaling:",
-        "fr": "Typescript typos",
-        "it": "Risolvere i tipi di scrittura",
-        "es": "Tipos de tipo fijo",
-        "pl": "Fix Typescript typ",
-        "uk": "Фіксація Typescript",
-        "zh-cn": "定 义"
       }
     },
     "title": "Zendure Solarflow",

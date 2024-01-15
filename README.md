@@ -34,8 +34,7 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 1.0.5 (2024-01-15)
 - Added state for both Solarflow PV inputs
 
 ### 1.0.4 (2023-12-16)
