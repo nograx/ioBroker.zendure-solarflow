@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "news": {
+      "1.0.6": {
+        "en": "Update Readme",
+        "de": "Update Reader",
+        "ru": "Readme",
+        "pt": "Atualizar o Readme",
+        "nl": "Readme bijwerken",
+        "fr": "Mettre à jour Readme",
+        "it": "Aggiornamento",
+        "es": "Actualización Readme",
+        "pl": "Aktualizacja Readme",
+        "uk": "Оновлення Readme",
+        "zh-cn": "更新读取器"
+      },
       "1.0.5": {
         "en": "Added state for both Solarflow PV inputs",
         "de": "Zusätzlicher Zustand für beide Solarflow PV-Eingänge",
@@ -80,19 +93,6 @@
         "pl": "Tłumaczenia Fix\nRozszerzenie ObjectAsync zamiast zbioru obiekt NotExsAsync\nOficjalna wersja",
         "uk": "Виправлення перекладів\nВикористання розширення Об'єктАсинхрон замість набору Об'єкт НеExistsAsync\nПерша офіційна версія випуску",
         "zh-cn": "固定翻译\n使用 反对 目 录 专家\n第一次正式释放"
-      },
-      "0.1.0-alpha.2": {
-        "en": "Don't stop the adapter when no login information is provided!",
-        "de": "Stoppen Sie den Adapter nicht, wenn keine Anmeldeinformationen zur Verfügung gestellt werden!",
-        "ru": "Не останавливайте адаптер, когда не предоставляется информация для входа!",
-        "pt": "Não pare o adaptador quando nenhuma informação de login é fornecida!",
-        "nl": "Stop de adapter niet als er geen login informatie wordt verstrekt!",
-        "fr": "Ne pas arrêter l'adaptateur quand aucune information de connexion n'est fournie!",
-        "it": "Non interrompere l'adattatore quando non sono fornite informazioni di login!",
-        "es": "No detenga el adaptador cuando no se proporciona información de inicio de sesión!",
-        "pl": "Don't stop the adapter when no login information is available!",
-        "uk": "Не зупиняйте адаптер при відсутності інформації про логін!",
-        "zh-cn": "当没有提供伐木信息时,捐赠者停止适应。!"
       }
     },
     "title": "Zendure Solarflow",

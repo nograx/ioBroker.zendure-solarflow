@@ -47,7 +47,6 @@ const onSubscribe = (error) => {
 };
 const onMessage = async (topic, message) => {
   var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x;
-  adapter == null ? void 0 : adapter.log.info(message.toString());
   if (adapter) {
     const splitted = topic.split("/");
     const productKey = splitted[1];
