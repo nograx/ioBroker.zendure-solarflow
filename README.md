@@ -38,6 +38,7 @@ If you find the adapter useful for you and want to support my work, feel free to
 
 ## Changelog
 ### **WORK IN PROGRESS**
+- Add control for charge and discharge limit
 - Update Readme Screenshot
 
 ### 1.0.6 (2024-01-16)

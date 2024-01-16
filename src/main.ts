@@ -6,7 +6,7 @@
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
 import * as utils from "@iobroker/adapter-core";
-import { connectMqttClient, setOutputLimit } from "./services/mqttService";
+import { connectMqttClient, setChargeLimit, setDischargeLimit, setOutputLimit } from "./services/mqttService";
 import { getDeviceList, login } from "./services/webService";
 import { ISolarFlowDeviceDetails } from "./models/ISolarFlowDeviceDetails";
 import { ISolarFlowPaths } from "./models/ISolarFlowPaths";
@@ -105,6 +105,26 @@ export class ZendureSolarflow extends utils.Adapter {
         const productKey = splitted[2];
         const deviceKey = splitted[3];
         setOutputLimit(this, productKey, deviceKey, Number(state.val));
+      }
+      else if (
+        id.includes("dischargeLimit") &&
+        state.val != undefined &&
+        state.val != null
+      ) {
+        const splitted = id.split(".");
+        const productKey = splitted[2];
+        const deviceKey = splitted[3];
+        setDischargeLimit(this, productKey, deviceKey, Number(state.val));
+      }
+      else if (
+        id.includes("chargeLimit") &&
+        state.val != undefined &&
+        state.val != null
+      ) {
+        const splitted = id.split(".");
+        const productKey = splitted[2];
+        const deviceKey = splitted[3];
+        setChargeLimit(this, productKey, deviceKey, Number(state.val));
       }
     } else {
       // The state was deleted

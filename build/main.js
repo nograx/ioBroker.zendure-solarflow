@@ -93,6 +93,16 @@ class ZendureSolarflow extends utils.Adapter {
         const productKey = splitted[2];
         const deviceKey = splitted[3];
         (0, import_mqttService.setOutputLimit)(this, productKey, deviceKey, Number(state.val));
+      } else if (id.includes("dischargeLimit") && state.val != void 0 && state.val != null) {
+        const splitted = id.split(".");
+        const productKey = splitted[2];
+        const deviceKey = splitted[3];
+        (0, import_mqttService.setDischargeLimit)(this, productKey, deviceKey, Number(state.val));
+      } else if (id.includes("chargeLimit") && state.val != void 0 && state.val != null) {
+        const splitted = id.split(".");
+        const productKey = splitted[2];
+        const deviceKey = splitted[3];
+        (0, import_mqttService.setChargeLimit)(this, productKey, deviceKey, Number(state.val));
       }
     } else {
       this.log.debug(`state ${id} deleted`);

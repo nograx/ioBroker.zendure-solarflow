@@ -25,6 +25,8 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 var mqttService_exports = {};
 __export(mqttService_exports, {
   connectMqttClient: () => connectMqttClient,
+  setChargeLimit: () => setChargeLimit,
+  setDischargeLimit: () => setDischargeLimit,
   setOutputLimit: () => setOutputLimit
 });
 module.exports = __toCommonJS(mqttService_exports);
@@ -182,6 +184,38 @@ const onMessage = async (topic, message) => {
   if (client) {
   }
 };
+const setChargeLimit = async (adapter2, productKey, deviceKey, socSet) => {
+  if (client && productKey && deviceKey) {
+    if (socSet > 40 && socSet <= 100) {
+      const topic = `iot/${productKey}/${deviceKey}/properties/write`;
+      const socSetLimit = { properties: { socSet: socSet * 10 } };
+      adapter2.log.debug(
+        `Setting ChargeLimit for device key ${deviceKey} to ${socSet}!`
+      );
+      client == null ? void 0 : client.publish(topic, JSON.stringify(socSetLimit));
+    } else {
+      adapter2.log.debug(
+        `Charge limit is not in range 40<>100!`
+      );
+    }
+  }
+};
+const setDischargeLimit = async (adapter2, productKey, deviceKey, minSoc) => {
+  if (client && productKey && deviceKey) {
+    if (minSoc > 0 && minSoc < 90) {
+      const topic = `iot/${productKey}/${deviceKey}/properties/write`;
+      const socSetLimit = { properties: { minSoc: minSoc * 10 } };
+      adapter2.log.debug(
+        `Setting Discharge Limit for device key ${deviceKey} to ${minSoc}!`
+      );
+      client == null ? void 0 : client.publish(topic, JSON.stringify(socSetLimit));
+    } else {
+      adapter2.log.debug(
+        `Discharge limit is not in range 0<>90!`
+      );
+    }
+  }
+};
 const setOutputLimit = async (adapter2, productKey, deviceKey, limit) => {
   var _a;
   if (client && productKey && deviceKey) {
@@ -255,6 +289,8 @@ const connectMqttClient = (_adapter) => {
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   connectMqttClient,
+  setChargeLimit,
+  setDischargeLimit,
   setOutputLimit
 });
 //# sourceMappingURL=mqttService.js.map

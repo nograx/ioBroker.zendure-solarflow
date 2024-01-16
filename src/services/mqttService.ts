@@ -214,6 +214,54 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
   }
 };
 
+export const setChargeLimit = async (
+  adapter: ZendureSolarflow,
+  productKey: string,
+  deviceKey: string,
+  socSet: number,
+): Promise<void> => {
+  if (client && productKey && deviceKey) {
+    if (socSet > 40 && socSet <= 100) {
+      const topic = `iot/${productKey}/${deviceKey}/properties/write`;
+
+      const socSetLimit = { properties: { socSet: socSet * 10 } };
+      adapter.log.debug(
+        `Setting ChargeLimit for device key ${deviceKey} to ${socSet}!`,
+      );
+      client?.publish(topic, JSON.stringify(socSetLimit));
+    }
+    else {
+      adapter.log.debug(
+        `Charge limit is not in range 40<>100!`,
+      );
+    }
+  }
+};
+
+export const setDischargeLimit = async (
+  adapter: ZendureSolarflow,
+  productKey: string,
+  deviceKey: string,
+  minSoc: number,
+): Promise<void> => {
+  if (client && productKey && deviceKey) {
+    if (minSoc > 0 && minSoc < 90) {
+      const topic = `iot/${productKey}/${deviceKey}/properties/write`;
+
+      const socSetLimit = { properties: { minSoc: minSoc * 10 } };
+      adapter.log.debug(
+        `Setting Discharge Limit for device key ${deviceKey} to ${minSoc}!`,
+      );
+      client?.publish(topic, JSON.stringify(socSetLimit));
+    }
+    else{
+      adapter.log.debug(
+        `Discharge limit is not in range 0<>90!`,
+      );
+    }
+  }
+};
+
 export const setOutputLimit = async (
   adapter: ZendureSolarflow,
   productKey: string,

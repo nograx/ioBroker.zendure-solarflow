@@ -294,9 +294,63 @@ export const createSolarFlowStates = async (
     },
   );
 
+  // State zum Setzen des Output Limit
+  await adapter?.extendObjectAsync(
+    productKey + "." + deviceKey + ".control." + "chargeLimit",
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Setzen des Lade-Limits",
+          en: "Control of the charge limit",
+        },
+        type: "number",
+        desc: "chargeLimit",
+        role: "value.battery",
+        read: true,
+        write: true,
+        min: 40,
+        max: 100,
+        unit: "%",
+      },
+      native: {},
+    },
+  );
+
+  // State zum Setzen des Output Limit
+  await adapter?.extendObjectAsync(
+    productKey + "." + deviceKey + ".control." + "dischargeLimit",
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Setzen des Entlade-Limits",
+          en: "Control of the discharge limit",
+        },
+        type: "number",
+        desc: "dischargeLimit",
+        role: "value.battery",
+        read: true,
+        write: true,
+        min: 0,
+        max: 90,
+        unit: "%",
+      },
+      native: {},
+    },
+  );
+
   // Subscibe to State updates to listen to changes
   adapter?.subscribeStates(
     productKey + "." + deviceKey + ".control." + "setOutputLimit",
+  );
+
+  adapter?.subscribeStates(
+    productKey + "." + deviceKey + ".control." + "chargeLimit",
+  );
+
+  adapter?.subscribeStates(
+    productKey + "." + deviceKey + ".control." + "dischargeLimit",
   );
 };
 
