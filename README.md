@@ -37,7 +37,7 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.0.7 (2024-01-16)
 - Add control for charge and discharge limit
 - Update Readme Screenshot
 
