@@ -46,8 +46,18 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
     type: "channel",
     common: {
       name: {
-        de: "Steuerung Device " + deviceKey,
-        en: "Control Device " + deviceKey
+        de: "Steuerung f\xFCr Ger\xE4t " + deviceKey,
+        en: "Control for device " + deviceKey
+      }
+    },
+    native: {}
+  }));
+  await (adapter == null ? void 0 : adapter.extendObjectAsync(productKey + "." + deviceKey + ".calculations", {
+    type: "channel",
+    common: {
+      name: {
+        de: "Berechnungen f\xFCr Ger\xE4t " + deviceKey,
+        en: "Calculations for Device " + deviceKey
       }
     },
     native: {}
@@ -225,7 +235,7 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
     {
       type: "state",
       common: {
-        name: { de: "Erwartete Entladedauer", en: "remaining discharge time" },
+        name: { de: "Erwartete Entladedauer (Minuten)", en: "remaining discharge time (minutes)" },
         type: "number",
         desc: "remainOutTime",
         role: "value.interval",
@@ -325,6 +335,36 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
         min: 0,
         max: 90,
         unit: "%"
+      },
+      native: {}
+    }
+  ));
+  await (adapter == null ? void 0 : adapter.extendObjectAsync(
+    productKey + "." + deviceKey + ".calculations.remainInputTime",
+    {
+      type: "state",
+      common: {
+        name: { de: "Erwartete Ladedauer (hh:mm)", en: "remaining charge time (hh:mm)" },
+        type: "string",
+        desc: "remainInputTime",
+        role: "value",
+        read: true,
+        write: false
+      },
+      native: {}
+    }
+  ));
+  await (adapter == null ? void 0 : adapter.extendObjectAsync(
+    productKey + "." + deviceKey + ".calculations.remainOutTime",
+    {
+      type: "state",
+      common: {
+        name: { de: "Erwartete Entladedauer (hh:mm)", en: "remaining discharge time (hh:mm)" },
+        type: "string",
+        desc: "remainInputTime",
+        role: "value",
+        read: true,
+        write: false
       },
       native: {}
     }
@@ -464,10 +504,25 @@ const startCheckStatesTimer = async (adapter) => {
   adapter.interval = adapter.setInterval(async () => {
     (0, import_webService.getDeviceList)(adapter).then((deviceList) => {
       deviceList.forEach(async (device) => {
+        var _a;
         const lastUpdate = await (adapter == null ? void 0 : adapter.getStateAsync(
           device.productKey + "." + device.deviceKey + ".lastUpdate"
         ));
         const tenMinutesAgo = Date.now() / 1e3 - 10 * 60;
+        const oneDayAgo = new Date(new Date().getTime() - 1 * 24 * 60 * 60 * 1e3);
+        if (adapter.lastLogin && adapter.lastLogin < oneDayAgo) {
+          adapter.log.debug(
+            `Last login for deviceKey ${device.deviceKey} was at ${adapter.lastLogin}, refreshing accessToken!`
+          );
+          if (adapter.config.userName && adapter.config.password) {
+            (_a = (0, import_webService.login)(adapter)) == null ? void 0 : _a.then(
+              (_accessToken) => {
+                adapter.accessToken = _accessToken;
+                adapter.connected = true;
+              }
+            );
+          }
+        }
         if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < tenMinutesAgo) {
           adapter.log.debug(
             `Last update for deviceKey ${device.deviceKey} was at ${new Date(

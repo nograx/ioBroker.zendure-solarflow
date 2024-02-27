@@ -1,6 +1,6 @@
 {
   "settings": "Adapter settings for Zendure Solarflow",
-  "settingsDesc": "Please provide the login information for the Zendure Cloud (the same you entered in the official app).",
+  "settingsDesc": "Please provide the login information for the Zendure Cloud (the same you entered in the official app). Works only with the global server!",
   "server": "Server",
   "userName": "Username",
   "password": "Password",

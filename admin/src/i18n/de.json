@@ -19,7 +19,7 @@
   "buzzerSwitch": "Ton-Ausgabe am PV-HUB",
   "electricLevel": "Ladestand des Akkus / SOC",
   "settings": "Adaptereinstellungen für Zendure-Solarflow",
-  "settingsDesc": "Bitte geben Sie die Anmeldeinformationen für die Zendure Cloud an (die gleichen, die Sie in der offiziellen App eingegeben haben).",
+  "settingsDesc": "Bitte geben Sie die Anmeldeinformationen für die Zendure Cloud an (die gleichen, die Sie in der offiziellen App eingegeben haben). Funktioniert nur mit dem globalen Server!",
   "donate1": "Wenn Sie den Adapter nützlich finden und meine Arbeit unterstützen möchten, können Sie gerne per Paypal spenden. Danke schön!",
   "donate2": "(Dies ist ein persönlicher Spendenlink für Nograx, der in keiner Verbindung zum ioBroker-Projekt steht!)"
 }

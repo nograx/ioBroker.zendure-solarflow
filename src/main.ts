@@ -28,6 +28,7 @@ export class ZendureSolarflow extends utils.Adapter {
   public deviceList: ISolarFlowDeviceDetails[] = [];
   public paths: ISolarFlowPaths | undefined = undefined;
   public interval: ioBroker.Interval | undefined = undefined;
+  public lastLogin: Date | undefined = undefined;
 
   /**
    * Is called when databases are connected and adapter received configuration.
@@ -43,6 +44,7 @@ export class ZendureSolarflow extends utils.Adapter {
           this.accessToken = _accessToken;
 
           this.connected = true;
+          this.lastLogin = new Date();
 
           // Try to get the device list
           getDeviceList(this)

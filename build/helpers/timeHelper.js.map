@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/helpers/timeHelper.ts"],
+  "sourcesContent": ["export const toHoursAndMinutes = (totalMinutes: number) => {\n\tconst hours = Math.floor(totalMinutes / 60);\n\tconst minutes = totalMinutes % 60;\n\treturn hours + \":\" + minutes;\n}"],
+  "mappings": ";;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAO,MAAM,oBAAoB,CAAC,iBAAyB;AAC1D,QAAM,QAAQ,KAAK,MAAM,eAAe,EAAE;AAC1C,QAAM,UAAU,eAAe;AAC/B,SAAO,QAAQ,MAAM;AACtB;",
+  "names": []
+}

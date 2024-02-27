@@ -42,6 +42,7 @@ class ZendureSolarflow extends utils.Adapter {
     this.deviceList = [];
     this.paths = void 0;
     this.interval = void 0;
+    this.lastLogin = void 0;
     this.on("ready", this.onReady.bind(this));
     this.on("stateChange", this.onStateChange.bind(this));
     this.on("unload", this.onUnload.bind(this));
@@ -53,6 +54,7 @@ class ZendureSolarflow extends utils.Adapter {
       (_a = (0, import_webService.login)(this)) == null ? void 0 : _a.then((_accessToken) => {
         this.accessToken = _accessToken;
         this.connected = true;
+        this.lastLogin = new Date();
         (0, import_webService.getDeviceList)(this).then((result) => {
           if (result) {
             this.deviceList = result;

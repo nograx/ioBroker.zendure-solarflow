@@ -1,7 +1,7 @@
 import { ZendureSolarflow } from "../main";
 import { IPackData } from "../models/IPackData";
 import { ISolarFlowDeviceDetails } from "../models/ISolarFlowDeviceDetails";
-import { getDeviceList } from "./webService";
+import { getDeviceList, login } from "./webService";
 
 /* eslint-disable @typescript-eslint/indent */
 export const createSolarFlowStates = async (
@@ -35,8 +35,20 @@ export const createSolarFlowStates = async (
     type: "channel",
     common: {
       name: {
-        de: "Steuerung Device " + deviceKey,
-        en: "Control Device " + deviceKey,
+        de: "Steuerung für Gerät " + deviceKey,
+        en: "Control for device " + deviceKey,
+      },
+    },
+    native: {},
+  });
+
+  // Create calculations folder
+  await adapter?.extendObjectAsync(productKey + "." + deviceKey + ".calculations", {
+    type: "channel",
+    common: {
+      name: {
+        de: "Berechnungen für Gerät " + deviceKey,
+        en: "Calculations for Device " + deviceKey,
       },
     },
     native: {},
@@ -227,7 +239,7 @@ export const createSolarFlowStates = async (
     {
       type: "state",
       common: {
-        name: { de: "Erwartete Entladedauer", en: "remaining discharge time" },
+        name: { de: "Erwartete Entladedauer (Minuten)", en: "remaining discharge time (minutes)" },
         type: "number",
         desc: "remainOutTime",
         role: "value.interval",
@@ -335,6 +347,40 @@ export const createSolarFlowStates = async (
         min: 0,
         max: 90,
         unit: "%",
+      },
+      native: {},
+    },
+  );
+
+  // Calculation input time
+  await adapter?.extendObjectAsync(
+    productKey + "." + deviceKey  + ".calculations.remainInputTime",
+    {
+      type: "state",
+      common: {
+        name: { de: "Erwartete Ladedauer (hh:mm)", en: "remaining charge time (hh:mm)" },
+        type: "string",
+        desc: "remainInputTime",
+        role: "value",
+        read: true,
+        write: false,
+      },
+      native: {},
+    },
+  );
+
+  // Calculation remainOutTime
+  await adapter?.extendObjectAsync(
+    productKey + "." + deviceKey + ".calculations.remainOutTime",
+    {
+      type: "state",
+      common: {
+        name: { de: "Erwartete Entladedauer (hh:mm)", en: "remaining discharge time (hh:mm)" },
+        type: "string",
+        desc: "remainInputTime",
+        role: "value",
+        read: true,
+        write: false,
       },
       native: {},
     },
@@ -512,6 +558,23 @@ export const startCheckStatesTimer = async (
           );
 
           const tenMinutesAgo = Date.now() / 1000 - 10 * 60; // Ten minutes ago
+          const oneDayAgo = new Date(new Date().getTime() - (1 * 24 * 60 * 60 * 1000));
+
+          if (adapter.lastLogin && adapter.lastLogin < oneDayAgo) {
+            adapter.log.debug(
+              `Last login for deviceKey ${device.deviceKey} was at ${adapter.lastLogin}, refreshing accessToken!`,
+            );
+            if (adapter.config.userName && adapter.config.password) {
+              login(adapter)
+                ?.then((_accessToken: string) => {
+                  adapter.accessToken = _accessToken;
+
+                  adapter.connected = true;
+                }
+              )
+            }
+          }
+
           if (
             lastUpdate &&
             lastUpdate.val &&

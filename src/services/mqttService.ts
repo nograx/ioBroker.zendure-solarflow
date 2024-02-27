@@ -4,6 +4,7 @@ import * as mqtt from "mqtt";
 import { ZendureSolarflow } from "../main";
 import { ISolarFlowDeviceDetails } from "../models/ISolarFlowDeviceDetails";
 import { addOrUpdatePackData, createSolarFlowStates, updateSolarFlowState } from "./adapterService";
+import { toHoursAndMinutes } from "../helpers/timeHelper";
 
 let client: MqttClient | undefined = undefined;
 let adapter: ZendureSolarflow | undefined = undefined;
@@ -140,7 +141,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         adapter,
         productKey,
         deviceKey,
-        "pvPower1",
+        "pvPower2", // Reversed to adjust like offical app
         obj.properties.pvPower1,
       );
     }
@@ -153,7 +154,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         adapter,
         productKey,
         deviceKey,
-        "pvPower2",
+        "pvPower1", // Reversed to adjust like offical app
         obj.properties.pvPower2,
       );
     }
@@ -169,6 +170,15 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         "remainInputTime",
         obj.properties.remainInputTime,
       );
+
+      // Calculate minutes to format hh:mm
+      updateSolarFlowState(
+        adapter,
+        productKey,
+        deviceKey,
+        "calculations.remainInputTime",
+        obj.properties.remainInputTime < 59940 ? toHoursAndMinutes(obj.properties.remainInputTime) : "",
+      );
     }
 
     if (
@@ -181,6 +191,15 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         deviceKey,
         "remainOutTime",
         obj.properties.remainOutTime,
+      );
+
+      // Calculate minutes to format hh:mm
+      updateSolarFlowState(
+        adapter,
+        productKey,
+        deviceKey,
+        "calculations.remainOutTime",
+        obj.properties.remainOutTime < 59940 ? toHoursAndMinutes(obj.properties.remainOutTime) : "",
       );
     }
 

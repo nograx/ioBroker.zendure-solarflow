@@ -14,7 +14,7 @@ const config: AxiosRequestConfig = {
     Authorization: "Basic Q29uc3VtZXJBcHA6NX4qUmRuTnJATWg0WjEyMw==",
     "Blade-Auth": "bearer (null)",
   },
-  timeout: 5000
+  timeout: 10000
 };
 
 /* eslint-disable @typescript-eslint/indent */

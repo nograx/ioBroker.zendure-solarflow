@@ -32,6 +32,7 @@ __export(mqttService_exports, {
 module.exports = __toCommonJS(mqttService_exports);
 var mqtt = __toESM(require("mqtt"));
 var import_adapterService = require("./adapterService");
+var import_timeHelper = require("../helpers/timeHelper");
 let client = void 0;
 let adapter = void 0;
 const onConnected = () => {
@@ -128,7 +129,7 @@ const onMessage = async (topic, message) => {
         adapter,
         productKey,
         deviceKey,
-        "pvPower1",
+        "pvPower2",
         obj.properties.pvPower1
       );
     }
@@ -137,7 +138,7 @@ const onMessage = async (topic, message) => {
         adapter,
         productKey,
         deviceKey,
-        "pvPower2",
+        "pvPower1",
         obj.properties.pvPower2
       );
     }
@@ -149,6 +150,13 @@ const onMessage = async (topic, message) => {
         "remainInputTime",
         obj.properties.remainInputTime
       );
+      (0, import_adapterService.updateSolarFlowState)(
+        adapter,
+        productKey,
+        deviceKey,
+        "calculations.remainInputTime",
+        obj.properties.remainInputTime < 59940 ? (0, import_timeHelper.toHoursAndMinutes)(obj.properties.remainInputTime) : ""
+      );
     }
     if (((_s = obj.properties) == null ? void 0 : _s.remainOutTime) != null && ((_t = obj.properties) == null ? void 0 : _t.remainOutTime) != void 0) {
       (0, import_adapterService.updateSolarFlowState)(
@@ -157,6 +165,13 @@ const onMessage = async (topic, message) => {
         deviceKey,
         "remainOutTime",
         obj.properties.remainOutTime
+      );
+      (0, import_adapterService.updateSolarFlowState)(
+        adapter,
+        productKey,
+        deviceKey,
+        "calculations.remainOutTime",
+        obj.properties.remainOutTime < 59940 ? (0, import_timeHelper.toHoursAndMinutes)(obj.properties.remainOutTime) : ""
       );
     }
     if (((_u = obj.properties) == null ? void 0 : _u.socSet) != null && ((_v = obj.properties) == null ? void 0 : _v.socSet) != void 0) {
