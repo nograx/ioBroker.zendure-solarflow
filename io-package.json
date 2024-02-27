@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.0.7",
+    "version": "1.1.0",
     "news": {
+      "1.1.0": {
+        "en": "Switched solar input 1 und 2 to adjust the behavior like the offical app\nAdded Calculations folder, remaining charge and discharge time is now available as formatted time\nAdded a note in the settings that this adapter only works with the global server",
+        "de": "Solareingang 1 und 2 zum Einstellen des Verhaltens wie die Offical App\nHinzufügen Berechnungsordner, Restladung und Entladung Zeit ist jetzt als formatierte Zeit verfügbar\nFügen Sie eine Notiz in den Einstellungen hinzu, die dieser Adapter nur mit dem globalen Server funktioniert",
+        "ru": "Переключение солнечного ввода 1 und 2 для корректировки поведения, как оффическое приложение\nДобавить папку расчета, оставшееся время заряда и выгрузки теперь доступно как отформатированное время\nДобавлена нота в настройках, что этот адаптер работает только с глобальным сервером",
+        "pt": "Entrada solar comutada 1 und 2 para ajustar o comportamento como o aplicativo offical\nAdicionado pasta Cálculos, restante carga e tempo de descarga está agora disponível como tempo formatado\nAdicionado uma nota nas configurações que este adaptador só funciona com o servidor global",
+        "nl": "Schakelde zonne-input 1 und 2 om het gedrag aan te passen zoals de officale app\nToegevoegde rekenmap, resterende lading en ontladingstijd is nu beschikbaar als geformatteerde tijd\nEen opmerking toegevoegd in de instellingen dat deze adapter alleen werkt met de globale server",
+        "fr": "Entrée solaire commutée 1 et 2 pour ajuster le comportement comme l'application offical\nAjout du dossier Calculs, la charge restante et le temps de décharge sont maintenant disponibles en formatage\nAjout d'une note dans les paramètres que cet adaptateur ne fonctionne qu'avec le serveur global",
+        "it": "Ingresso solare commutato 1 und 2 per regolare il comportamento come l'app offical\nAggiunta cartella Calculazioni, carica rimanente e tempo di scarico è ora disponibile come tempo formattato\nAggiunto una nota nelle impostazioni che questo adattatore funziona solo con il server globale",
+        "es": "Interrupción de entrada solar 1 und 2 para ajustar el comportamiento como la aplicación offical\nCarpeta de cálculos añadidos, tiempo de carga y descarga restante está disponible ahora como tiempo formateado\nSe agregó una nota en la configuración que este adaptador sólo funciona con el servidor global",
+        "pl": "Switched solar input 1 und 2 to adjustic the behavior like the official app\nDodano folder Obliczeń, pozostały czas ładowania i rozładowania jest teraz dostępny jako sformatowany czas\nDodano notatkę w ustawieniach, że ten adapter działa tylko z globalnym serwerem",
+        "uk": "Переключений сонячний вхід 1 унд 2 для регулювання поведінки, як офичний додаток\nДодано папку Розрахунок, що залишився заряд і час розряду тепер доступний як форматований час\nДодано замітку в налаштуваннях, які цей адаптер працює тільки з глобальним сервером",
+        "zh-cn": "切换太阳输入 1 und 2 以调整类似外科应用的行为\n已添加计算文件夹、剩余充电和放电时间已作为格式化时间提供\n在设置中添加了一个注释, 该适配器只与全局服务器工作"
+      },
       "1.0.7": {
         "en": "Add control for charge and discharge limit\nUpdate Readme Screenshot",
         "de": "Steuerung für Lade- und Entladegrenzen hinzufügen\nUpdate Readme Screenshot",
@@ -80,19 +93,6 @@
         "pl": "Adapter ulepszenia sugerowały zespół iobroker\nFixed battery pack temperature (data jest w kelvinu, więc teraz przekształca się w celcius)",
         "uk": "Покращення адаптерів, запропонованих командою iobroker\nФіксована температура пакета акумулятора (data is in kelvin, тому тепер перетворюється в celcius)",
         "zh-cn": "气雾器组建议的改进\n固定电池的包装温度(数据是镍vin,因此现在转换为管道)。"
-      },
-      "1.0.1": {
-        "en": "Fix translations\nUse 'extendObjectAsync' instead of 'setObjectNotExistsAsync'\nFirst official release version",
-        "de": "Übersetzungen löschen\nErweiterung ObjectAsync statt Set Gegenstand NichtExistsAsync\nErste offizielle Version",
-        "ru": "Fix переводы\nИспользуйте удлинить ObjectAsync вместо набора Объект NotExistsAsync\nПервая официальная версия релиза",
-        "pt": "Corrigir traduções\nUso de extensão ObjectAsync em vez de set Objeto NotExistsAsync\nPrimeira versão oficial do lançamento",
-        "nl": "Vertaling:\nGebruik verlenging ObjectAsync in plaats van Object NCIS Los Angeles\nEerste officiële vrijlating",
-        "fr": "Traductions fixes\nExtension d ' utilisation ObjectAsync au lieu de set Objet NotExistsAsync\nPremière version officielle",
-        "it": "Fissare le traduzioni\nEsterni di utilizzo ObjectAsync invece di set Oggetto Non esiste\nPrima versione ufficiale di rilascio",
-        "es": "Traducción fija\nAmpliación de uso ObjectAsync en lugar de set Objeto NoExistsAsync\nPrimera versión oficial",
-        "pl": "Tłumaczenia Fix\nRozszerzenie ObjectAsync zamiast zbioru obiekt NotExsAsync\nOficjalna wersja",
-        "uk": "Виправлення перекладів\nВикористання розширення Об'єктАсинхрон замість набору Об'єкт НеExistsAsync\nПерша офіційна версія випуску",
-        "zh-cn": "固定翻译\n使用 反对 目 录 专家\n第一次正式释放"
       }
     },
     "title": "Zendure Solarflow",

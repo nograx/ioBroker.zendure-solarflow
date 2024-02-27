@@ -37,7 +37,7 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.1.0 (2024-02-27)
 - Switched solar input 1 und 2 to adjust the behavior like the offical app
 - Added Calculations folder, remaining charge and discharge time is now available as formatted time
 - Added a note in the settings that this adapter only works with the global server
