@@ -17,7 +17,7 @@
     "url": "https://github.com/nograx/ioBroker.zendure-solarflow.git"
   },
   "engines": {
-    "node": ">= 16"
+    "node": ">= 18"
   },
   "dependencies": {
     "@iobroker/adapter-core": "^3.0.4",
