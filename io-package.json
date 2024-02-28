@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.1.2",
+    "version": "1.1.3",
     "news": {
+      "1.1.3": {
+        "en": "Fix timeout issues",
+        "de": "Timeout Probleme beheben",
+        "ru": "Вопросы таймаута",
+        "pt": "Corrigir problemas de tempo limite",
+        "nl": "Timeout-problemen oplossen",
+        "fr": "Correction des problèmes de délai",
+        "it": "Risolvere i problemi di timeout",
+        "es": "Arreglar los problemas de tiempo",
+        "pl": "Popraw problemy z czasem",
+        "uk": "Фіксація термінів",
+        "zh-cn": "解决超时问题"
+      },
       "1.1.2": {
         "en": "Fix timeout issues",
         "de": "Timeout Probleme beheben",
@@ -80,19 +93,6 @@
         "pl": "Dodano stan dla obu wejść Solarflow PV",
         "uk": "Додано стан для обох вхідних сонячних батарей",
         "zh-cn": "两种太阳流光电输入的添加状态"
-      },
-      "1.0.4": {
-        "en": "Added Timeout for axios",
-        "de": "Timeout für Axios hinzugefügt",
-        "ru": "Добавлено Timeout для axios",
-        "pt": "Adicionado Timeout para axios",
-        "nl": "Axios",
-        "fr": "Ajout du timeout pour axios",
-        "it": "Aggiunto Timeout per assios",
-        "es": "Tiempo añadido para el eje",
-        "pl": "Added Timeout",
-        "uk": "Додано час для axios",
-        "zh-cn": "增加焦虑时间"
       }
     },
     "title": "Zendure Solarflow",
