@@ -43,6 +43,13 @@ const config = {
   timeout: 1e4
 };
 const login = (adapter) => {
+  if (adapter.accessToken) {
+    return new Promise((resolve) => {
+      if (adapter.accessToken) {
+        resolve(adapter.accessToken);
+      }
+    });
+  }
   const auth = Buffer.from(
     `${adapter.config.userName}:${adapter.config.password}`
   ).toString("base64");

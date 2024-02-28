@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "news": {
+      "1.1.1": {
+        "en": "Fix timeout issues",
+        "de": "Timeout Probleme beheben",
+        "ru": "Вопросы таймаута",
+        "pt": "Corrigir problemas de tempo limite",
+        "nl": "Timeout-problemen oplossen",
+        "fr": "Correction des problèmes de délai",
+        "it": "Risolvere i problemi di timeout",
+        "es": "Arreglar los problemas de tiempo",
+        "pl": "Popraw problemy z czasem",
+        "uk": "Фіксація термінів",
+        "zh-cn": "解决超时问题"
+      },
       "1.1.0": {
         "en": "Switched solar input 1 und 2 to adjust the behavior like the offical app\nAdded Calculations folder, remaining charge and discharge time is now available as formatted time\nAdded a note in the settings that this adapter only works with the global server",
         "de": "Solareingang 1 und 2 zum Einstellen des Verhaltens wie die Offical App\nHinzufügen Berechnungsordner, Restladung und Entladung Zeit ist jetzt als formatierte Zeit verfügbar\nFügen Sie eine Notiz in den Einstellungen hinzu, die dieser Adapter nur mit dem globalen Server funktioniert",
@@ -80,19 +93,6 @@
         "pl": "Obecnie hasło jest szyfrowane. NOTE: Musisz wrócić do hasła po adapteru!",
         "uk": "Пароль тепер зашифрований. ОНОВЛЕННЯ: Ви повинні повторно реєструвати пароль після оновлення адаптера!",
         "zh-cn": "护照现在加密。 注:你必须在适应者更新之后重新加入文字。!"
-      },
-      "1.0.2": {
-        "en": "Adapter improvements suggested by iobroker team\nFixed battery pack temperature (data is in kelvin, so now converting to celcius)",
-        "de": "Adapter Verbesserungen vorgeschlagen von iobroker team\nFeste Akku-Pack-Temperatur (Daten sind in Kelvin, also jetzt in celcius umwandeln)",
-        "ru": "Улучшения адаптера, предложенные командой iobroker\nФиксированная температура аккумулятора (данные находятся в kelvin, поэтому теперь преобразование в celcius)",
-        "pt": "Melhorias do adaptador sugeridas pela equipe iobroker\nTemperatura do pacote de bateria fixa (os dados estão em kelvin, então agora convertendo em celcius)",
-        "nl": "Adapter verbetering suggereert\nGerepareerde batterijttemperatuur (data is in kelvin, dus nu omkeren naar Cecius)",
-        "fr": "Amélioration de l'adaptateur suggérée par l'équipe iobroker\nTempérature de la batterie fixe (les données sont dans kelvin, donc maintenant convertir en celcius)",
-        "it": "Miglioramenti dell'adattatore suggeriti dal team di iobroker\nTemperatura del pacchetto batterie fissa (i dati sono in kelvin, quindi ora convertiti in celcius)",
-        "es": "Mejoras del adaptador sugeridas por el equipo de iobroker\nTemperatura de paquete de batería fija (data está en kelvin, por lo que ahora se convierte en celcio)",
-        "pl": "Adapter ulepszenia sugerowały zespół iobroker\nFixed battery pack temperature (data jest w kelvinu, więc teraz przekształca się w celcius)",
-        "uk": "Покращення адаптерів, запропонованих командою iobroker\nФіксована температура пакета акумулятора (data is in kelvin, тому тепер перетворюється в celcius)",
-        "zh-cn": "气雾器组建议的改进\n固定电池的包装温度(数据是镍vin,因此现在转换为管道)。"
       }
     },
     "title": "Zendure Solarflow",
