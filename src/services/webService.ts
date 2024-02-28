@@ -14,11 +14,19 @@ const config: AxiosRequestConfig = {
     Authorization: "Basic Q29uc3VtZXJBcHA6NX4qUmRuTnJATWg0WjEyMw==",
     "Blade-Auth": "bearer (null)",
   },
-  timeout: 10000
+  timeout: 10000,
 };
 
 /* eslint-disable @typescript-eslint/indent */
 export const login = (adapter: ZendureSolarflow): Promise<string> => {
+  if (adapter.accessToken) {
+    return new Promise((resolve) => {
+      if (adapter.accessToken) {
+        resolve(adapter.accessToken);
+      }
+    });
+  }
+
   const auth = Buffer.from(
     `${adapter.config.userName}:${adapter.config.password}`,
   ).toString("base64");
