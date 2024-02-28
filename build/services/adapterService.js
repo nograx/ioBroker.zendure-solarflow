@@ -509,7 +509,7 @@ const startCheckStatesTimer = async (adapter) => {
           device.productKey + "." + device.deviceKey + ".lastUpdate"
         ));
         const tenMinutesAgo = Date.now() / 1e3 - 10 * 60;
-        const oneDayAgo = new Date(new Date().getTime() - 1 * 24 * 60 * 60 * 1e3);
+        const oneDayAgo = new Date((/* @__PURE__ */ new Date()).getTime() - 1 * 24 * 60 * 60 * 1e3);
         if (adapter.lastLogin && adapter.lastLogin < oneDayAgo) {
           adapter.log.debug(
             `Last login for deviceKey ${device.deviceKey} was at ${adapter.lastLogin}, refreshing accessToken!`

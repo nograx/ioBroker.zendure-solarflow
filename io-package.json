@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "news": {
+      "1.1.2": {
+        "en": "Fix timeout issues",
+        "de": "Timeout Probleme beheben",
+        "ru": "Вопросы таймаута",
+        "pt": "Corrigir problemas de tempo limite",
+        "nl": "Timeout-problemen oplossen",
+        "fr": "Correction des problèmes de délai",
+        "it": "Risolvere i problemi di timeout",
+        "es": "Arreglar los problemas de tiempo",
+        "pl": "Popraw problemy z czasem",
+        "uk": "Фіксація термінів",
+        "zh-cn": "解决超时问题"
+      },
       "1.1.1": {
         "en": "Fix timeout issues",
         "de": "Timeout Probleme beheben",
@@ -80,19 +93,6 @@
         "pl": "Added Timeout",
         "uk": "Додано час для axios",
         "zh-cn": "增加焦虑时间"
-      },
-      "1.0.3": {
-        "en": "Password is now encrypted. NOTE: You have to re-enter the password after adapter update!",
-        "de": "Passwort ist jetzt verschlüsselt. HINWEIS: Sie müssen das Passwort nach dem Update des Adapters neu eingeben!",
-        "ru": "Пароль теперь зашифрован. ПРИМЕЧАНИЕ: Вы должны повторно ввести пароль после обновления адаптера!",
-        "pt": "A senha é agora criptografada. NOTA: Você tem que reinserir a senha após a atualização do adaptador!",
-        "nl": "Het wachtwoord is nu versleuteld. Je moet het wachtwoord herstellen na de update van de adapter!",
-        "fr": "Le mot de passe est désormais crypté. REMARQUE: Vous devez retourner le mot de passe après la mise à jour de l'adaptateur!",
-        "it": "La password è ora crittografata. NOTA: Devi reinserire la password dopo l'aggiornamento dell'adattatore!",
-        "es": "La contraseña está ahora encriptada. NOTA: ¡Tienes que volver a introducir la contraseña después de la actualización del adaptador!",
-        "pl": "Obecnie hasło jest szyfrowane. NOTE: Musisz wrócić do hasła po adapteru!",
-        "uk": "Пароль тепер зашифрований. ОНОВЛЕННЯ: Ви повинні повторно реєструвати пароль після оновлення адаптера!",
-        "zh-cn": "护照现在加密。 注:你必须在适应者更新之后重新加入文字。!"
       }
     },
     "title": "Zendure Solarflow",

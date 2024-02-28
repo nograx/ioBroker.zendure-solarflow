@@ -18,6 +18,10 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
   isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
   mod
 ));
@@ -39,6 +43,7 @@ class ZendureSolarflow extends utils.Adapter {
       name: "zendure-solarflow"
     });
     this.accessToken = void 0;
+    // Access Token for Zendure Rest API
     this.deviceList = [];
     this.paths = void 0;
     this.interval = void 0;
@@ -47,6 +52,9 @@ class ZendureSolarflow extends utils.Adapter {
     this.on("stateChange", this.onStateChange.bind(this));
     this.on("unload", this.onUnload.bind(this));
   }
+  /**
+   * Is called when databases are connected and adapter received configuration.
+   */
   async onReady() {
     var _a;
     this.paths = import_paths.pathsGlobal;
@@ -54,7 +62,7 @@ class ZendureSolarflow extends utils.Adapter {
       (_a = (0, import_webService.login)(this)) == null ? void 0 : _a.then((_accessToken) => {
         this.accessToken = _accessToken;
         this.connected = true;
-        this.lastLogin = new Date();
+        this.lastLogin = /* @__PURE__ */ new Date();
         (0, import_webService.getDeviceList)(this).then((result) => {
           if (result) {
             this.deviceList = result;
@@ -77,6 +85,9 @@ class ZendureSolarflow extends utils.Adapter {
       this.log.error("No Login Information provided!");
     }
   }
+  /**
+   * Is called when adapter shuts down - callback has to be called under any circumstances!
+   */
   onUnload(callback) {
     try {
       if (this.interval) {
@@ -87,6 +98,9 @@ class ZendureSolarflow extends utils.Adapter {
       callback();
     }
   }
+  /**
+   * Is called if a subscribed state changes
+   */
   onStateChange(id, state) {
     if (state && !state.ack) {
       this.log.debug(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
