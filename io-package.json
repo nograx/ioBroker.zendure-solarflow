@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.1.3",
+    "version": "1.1.4",
     "news": {
+      "1.1.4": {
+        "en": "Fix timeout issues",
+        "de": "Timeout Probleme beheben",
+        "ru": "Вопросы таймаута",
+        "pt": "Corrigir problemas de tempo limite",
+        "nl": "Timeout-problemen oplossen",
+        "fr": "Correction des problèmes de délai",
+        "it": "Risolvere i problemi di timeout",
+        "es": "Arreglar los problemas de tiempo",
+        "pl": "Popraw problemy z czasem",
+        "uk": "Фіксація термінів",
+        "zh-cn": "解决超时问题"
+      },
       "1.1.3": {
         "en": "Fix timeout issues",
         "de": "Timeout Probleme beheben",
@@ -80,19 +93,6 @@
         "pl": "Aktualizacja Readme",
         "uk": "Оновлення Readme",
         "zh-cn": "更新读取器"
-      },
-      "1.0.5": {
-        "en": "Added state for both Solarflow PV inputs",
-        "de": "Zusätzlicher Zustand für beide Solarflow PV-Eingänge",
-        "ru": "Добавленное состояние для обоих компонентов Solarflow PV",
-        "pt": "Estado adicionado para ambas as entradas Solarflow PV",
-        "nl": "Toegevoegde toestand voor beide Solarflow PV-inputs",
-        "fr": "État ajouté pour les deux entrées Solarflow PV",
-        "it": "Stato aggiunto per entrambi gli ingressi Solarflow PV",
-        "es": "Estado añadido para ambas entradas de PV de flujo solar",
-        "pl": "Dodano stan dla obu wejść Solarflow PV",
-        "uk": "Додано стан для обох вхідних сонячних батарей",
-        "zh-cn": "两种太阳流光电输入的添加状态"
       }
     },
     "title": "Zendure Solarflow",
