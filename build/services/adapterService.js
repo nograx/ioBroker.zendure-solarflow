@@ -721,7 +721,7 @@ const calculateEnergy = async (adapter, productKey, deviceKey, stateKey, state) 
   const currentVal = await (adapter == null ? void 0 : adapter.getStateAsync(stateNameWh));
   if (currentVal && currentVal.lc && state.val) {
     const timeFrame = state.lc - (currentVal == null ? void 0 : currentVal.lc);
-    const newVal = Number(currentVal.val) + Number(state.val) * timeFrame / 36e8;
+    const newVal = Number(currentVal.val) + Number(state.val) * timeFrame / 36e5;
     adapter == null ? void 0 : adapter.setStateAsync(stateNameWh, newVal, true);
     adapter == null ? void 0 : adapter.setStateAsync(stateNamekWh, (newVal / 1e3).toFixed(2), true);
   } else {

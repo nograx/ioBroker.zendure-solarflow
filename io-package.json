@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.1.7",
+    "version": "1.1.8",
     "news": {
+      "1.1.8": {
+        "en": "Fix calculation error",
+        "de": "Fehler bei der Berechnung",
+        "ru": "Ошибка расчета",
+        "pt": "Corrigir erro de cálculo",
+        "nl": "Fix rekenfout",
+        "fr": "Correction de l'erreur de calcul",
+        "it": "Correzione dell'errore di calcolo",
+        "es": "Error de cálculo fijo",
+        "pl": "Błąd obliczenia",
+        "uk": "Виправлення помилки розрахунку",
+        "zh-cn": "修正计算错误"
+      },
       "1.1.7": {
         "en": "Add energy calculations for 'today'\nFix minutes display bug for remaining charge and discharge time",
         "de": "Energieberechnungen für heute hinzufügen '\nFehler der Minutenanzeige für die verbleibende Lade- und Entladezeit",
@@ -69,19 +82,6 @@
         "zh-cn": "解决超时问题"
       },
       "1.1.2": {
-        "en": "Fix timeout issues",
-        "de": "Timeout Probleme beheben",
-        "ru": "Вопросы таймаута",
-        "pt": "Corrigir problemas de tempo limite",
-        "nl": "Timeout-problemen oplossen",
-        "fr": "Correction des problèmes de délai",
-        "it": "Risolvere i problemi di timeout",
-        "es": "Arreglar los problemas de tiempo",
-        "pl": "Popraw problemy z czasem",
-        "uk": "Фіксація термінів",
-        "zh-cn": "解决超时问题"
-      },
-      "1.1.1": {
         "en": "Fix timeout issues",
         "de": "Timeout Probleme beheben",
         "ru": "Вопросы таймаута",
