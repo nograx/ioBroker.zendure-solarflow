@@ -132,7 +132,7 @@ export class ZendureSolarflow extends utils.Adapter {
   ): void {
     if (state) {
       // The state was changed
-      this.log.debug(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
+      //this.log.debug(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
 
       // Read product and device key from string
       const splitted = id.split(".");
