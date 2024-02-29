@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.1.4",
+    "version": "1.1.5",
     "news": {
+      "1.1.5": {
+        "en": "Add energy calculations for 'today'\nFix minutes display bug for remaining charge and discharge time",
+        "de": "Energieberechnungen für heute hinzufügen '\nFehler der Minutenanzeige für die verbleibende Lade- und Entladezeit",
+        "ru": "Добавить расчеты энергии для \"сегодня\" \"\n6 минут дисплей клоп для оставшегося заряда и времени выгрузки",
+        "pt": "Adicionar cálculos de energia para 'hoje '\nCorrigir minutos exibir bug para o tempo restante de carga e descarga",
+        "nl": "Energieberekeningen toevoegen voor 'vandaag' '\nFix minuten weergave bug voor resterende lading en ontladingstijd",
+        "fr": "Ajouter le calcul de l'énergie pour «aujourd'hui» '\nCorrection minutes affichage bug pour la charge restante et le temps de décharge",
+        "it": "Aggiungere calcoli energetici per 'oggi '\nFissare il bug di visualizzazione dei minuti per il tempo di carica e di scarico rimanenti",
+        "es": "Añadir cálculos energéticos para 'hoy '\nError de visualización de minutos fijo para el tiempo de carga y descarga restante",
+        "pl": "Dodaj obliczenia energii na dziś '\nNapraw błąd wyświetlania minut dla pozostałego czasu ładowania i rozładowania",
+        "uk": "Додавання енергорозрахунків за добу Р\nВиправлення хвилин відображення помилок для решти часу заряду та розряду",
+        "zh-cn": "为今天添加能量计算  '\n为剩余充电和放电时间修正分钟显示错误"
+      },
       "1.1.4": {
         "en": "Fix timeout issues",
         "de": "Timeout Probleme beheben",
@@ -80,19 +93,6 @@
         "pl": "Dodawanie kontroli dla doładowania i rozładowania\nAktualizacja zrzutu ekranu Readme",
         "uk": "Додати контроль за лімітом заряду та розряду\nUpdate Readme Скріншот",
         "zh-cn": "添加充电和放电限制的控制\n更新 Readme 屏幕截图"
-      },
-      "1.0.6": {
-        "en": "Update Readme",
-        "de": "Update Reader",
-        "ru": "Readme",
-        "pt": "Atualizar o Readme",
-        "nl": "Readme bijwerken",
-        "fr": "Mettre à jour Readme",
-        "it": "Aggiornamento",
-        "es": "Actualización Readme",
-        "pl": "Aktualizacja Readme",
-        "uk": "Оновлення Readme",
-        "zh-cn": "更新读取器"
       }
     },
     "title": "Zendure Solarflow",
