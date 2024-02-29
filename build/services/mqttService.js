@@ -215,9 +215,7 @@ const setChargeLimit = async (adapter2, productKey, deviceKey, socSet) => {
       );
       client == null ? void 0 : client.publish(topic, JSON.stringify(socSetLimit));
     } else {
-      adapter2.log.debug(
-        `Charge limit is not in range 40<>100!`
-      );
+      adapter2.log.debug(`Charge limit is not in range 40<>100!`);
     }
   }
 };
@@ -231,9 +229,7 @@ const setDischargeLimit = async (adapter2, productKey, deviceKey, minSoc) => {
       );
       client == null ? void 0 : client.publish(topic, JSON.stringify(socSetLimit));
     } else {
-      adapter2.log.debug(
-        `Discharge limit is not in range 0<>90!`
-      );
+      adapter2.log.debug(`Discharge limit is not in range 0<>90!`);
     }
   }
 };

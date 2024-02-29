@@ -36,6 +36,7 @@ var import_mqttService = require("./services/mqttService");
 var import_webService = require("./services/webService");
 var import_paths = require("./constants/paths");
 var import_adapterService = require("./services/adapterService");
+var import_node_schedule = require("node-schedule");
 class ZendureSolarflow extends utils.Adapter {
   constructor(options = {}) {
     super({
@@ -48,6 +49,7 @@ class ZendureSolarflow extends utils.Adapter {
     this.paths = void 0;
     this.interval = void 0;
     this.lastLogin = void 0;
+    this.resetValuesJob = void 0;
     this.on("ready", this.onReady.bind(this));
     this.on("stateChange", this.onStateChange.bind(this));
     this.on("unload", this.onUnload.bind(this));
@@ -63,6 +65,18 @@ class ZendureSolarflow extends utils.Adapter {
         this.accessToken = _accessToken;
         this.connected = true;
         this.lastLogin = /* @__PURE__ */ new Date();
+        this.resetValuesJob = (0, import_node_schedule.scheduleJob)("0 0 * * *", () => {
+          var _a2;
+          this.log.debug(`Refreshing accessToken!`);
+          if (this.config.userName && this.config.password) {
+            (_a2 = (0, import_webService.login)(this)) == null ? void 0 : _a2.then((_accessToken2) => {
+              this.accessToken = _accessToken2;
+              this.lastLogin = /* @__PURE__ */ new Date();
+              this.connected = true;
+            });
+          }
+          (0, import_adapterService.resetTodaysValues)(this);
+        });
         (0, import_webService.getDeviceList)(this).then((result) => {
           if (result) {
             this.deviceList = result;
@@ -93,6 +107,9 @@ class ZendureSolarflow extends utils.Adapter {
       if (this.interval) {
         this.clearInterval(this.interval);
       }
+      if (this.resetValuesJob) {
+        this.resetValuesJob.cancel();
+      }
       callback();
     } catch (e) {
       callback();
@@ -102,23 +119,25 @@ class ZendureSolarflow extends utils.Adapter {
    * Is called if a subscribed state changes
    */
   onStateChange(id, state) {
-    if (state && !state.ack) {
+    if (state) {
       this.log.debug(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
+      const splitted = id.split(".");
+      const productKey = splitted[2];
+      const deviceKey = splitted[3];
       if (id.includes("setOutputLimit") && state.val != void 0 && state.val != null) {
-        const splitted = id.split(".");
-        const productKey = splitted[2];
-        const deviceKey = splitted[3];
         (0, import_mqttService.setOutputLimit)(this, productKey, deviceKey, Number(state.val));
       } else if (id.includes("dischargeLimit") && state.val != void 0 && state.val != null) {
-        const splitted = id.split(".");
-        const productKey = splitted[2];
-        const deviceKey = splitted[3];
         (0, import_mqttService.setDischargeLimit)(this, productKey, deviceKey, Number(state.val));
       } else if (id.includes("chargeLimit") && state.val != void 0 && state.val != null) {
-        const splitted = id.split(".");
-        const productKey = splitted[2];
-        const deviceKey = splitted[3];
         (0, import_mqttService.setChargeLimit)(this, productKey, deviceKey, Number(state.val));
+      } else if (id.includes("solarInput") && state.val != void 0 && state.val != null) {
+        (0, import_adapterService.calculateEnergy)(this, productKey, deviceKey, "solarInput", state);
+      } else if (id.includes("outputPackPower") && state.val != void 0 && state.val != null) {
+        (0, import_adapterService.calculateEnergy)(this, productKey, deviceKey, "outputPack", state);
+      } else if (id.includes("packInputPower") && state.val != void 0 && state.val != null) {
+        (0, import_adapterService.calculateEnergy)(this, productKey, deviceKey, "packInput", state);
+      } else if (id.includes("outputHomePower") && state.val != void 0 && state.val != null) {
+        (0, import_adapterService.calculateEnergy)(this, productKey, deviceKey, "outputHome", state);
       }
     } else {
       this.log.debug(`state ${id} deleted`);

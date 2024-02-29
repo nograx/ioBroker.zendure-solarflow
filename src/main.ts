@@ -130,7 +130,7 @@ export class ZendureSolarflow extends utils.Adapter {
     id: string,
     state: ioBroker.State | null | undefined,
   ): void {
-    if (state && !state.ack && state.val != undefined && state.val != null) {
+    if (state) {
       // The state was changed
       this.log.debug(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
 
@@ -139,24 +139,24 @@ export class ZendureSolarflow extends utils.Adapter {
       const productKey = splitted[2];
       const deviceKey = splitted[3];
 
-      if (id.includes("setOutputLimit")) {
+      if (id.includes("setOutputLimit") && state.val != undefined && state.val != null) {
         setOutputLimit(this, productKey, deviceKey, Number(state.val));
-      } else if (id.includes("dischargeLimit")) {
+      } else if (id.includes("dischargeLimit")&& state.val != undefined && state.val != null) {
         setDischargeLimit(this, productKey, deviceKey, Number(state.val));
-      } else if (id.includes("chargeLimit")) {
+      } else if (id.includes("chargeLimit")&& state.val != undefined && state.val != null) {
         setChargeLimit(this, productKey, deviceKey, Number(state.val));
-      } else if (id.includes("solarInputPower")) {
+      } else if (id.includes("solarInput")&& state.val != undefined && state.val != null) {
         // Calculate todays solar input
-        calculateEnergy(this, productKey, deviceKey, "solarInputPower", state);
-      } else if (id.includes("outputPackPower")) {
+        calculateEnergy(this, productKey, deviceKey, "solarInput", state);
+      } else if (id.includes("outputPackPower")&& state.val != undefined && state.val != null) {
         // Calculate todays output pack power (energy to battery)
-        calculateEnergy(this, productKey, deviceKey, "outputPackPower", state);
-      } else if (id.includes("packInputPower")) {
+        calculateEnergy(this, productKey, deviceKey, "outputPack", state);
+      } else if (id.includes("packInputPower")&& state.val != undefined && state.val != null) {
         // Calculate todays pack input power (energy from battery)
-        calculateEnergy(this, productKey, deviceKey, "packInputPower", state);
-      } else if (id.includes("outputHomePower")) {
+        calculateEnergy(this, productKey, deviceKey, "packInput", state);
+      } else if (id.includes("outputHomePower")&& state.val != undefined && state.val != null) {
         // Calculate todays pack input power (energy from system to home)
-        calculateEnergy(this, productKey, deviceKey, "outputHomePower", state);
+        calculateEnergy(this, productKey, deviceKey, "outputHome", state);
       }
     } else {
       // The state was deleted

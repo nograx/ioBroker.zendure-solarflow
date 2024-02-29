@@ -26,6 +26,7 @@ const createCalculationStates = async (
         role: "value.energy",
         read: true,
         write: false,
+        unit: "Wh"
       },
       native: {},
     },
@@ -45,6 +46,7 @@ const createCalculationStates = async (
         role: "value.energy",
         read: true,
         write: false,
+        unit: "kWh"
       },
       native: {},
     },
@@ -57,7 +59,6 @@ const createCalculationStates = async (
     productKey +
       "." +
       deviceKey +
-      "." +
       ".calculations.outputPackEnergyTodayWh",
     {
       type: "state",
@@ -81,7 +82,6 @@ const createCalculationStates = async (
     productKey +
       "." +
       deviceKey +
-      "." +
       ".calculations.outputPackEnergyTodaykWh",
     {
       type: "state",
@@ -105,7 +105,7 @@ const createCalculationStates = async (
   Start Pack Input Energy states
   */
   await adapter?.extendObjectAsync(
-    productKey + "." + deviceKey + "." + ".calculations.packInputEnergyTodayWh",
+    productKey + "." + deviceKey  + ".calculations.packInputEnergyTodayWh",
     {
       type: "state",
       common: {
@@ -128,7 +128,6 @@ const createCalculationStates = async (
     productKey +
       "." +
       deviceKey +
-      "." +
       ".calculations.packInputEnergyTodaykWh",
     {
       type: "state",
@@ -155,7 +154,6 @@ const createCalculationStates = async (
     productKey +
       "." +
       deviceKey +
-      "." +
       ".calculations.outputHomeEnergyTodayWh",
     {
       type: "state",
@@ -179,7 +177,6 @@ const createCalculationStates = async (
     productKey +
       "." +
       deviceKey +
-      "." +
       ".calculations.outputHomeEnergyTodaykWh",
     {
       type: "state",
@@ -857,7 +854,11 @@ export const calculateEnergy = async (
       Number(currentVal.val) + (Number(state.val) * timeFrame) / 3600000000; // Wh
 
     adapter?.setStateAsync(stateNameWh, newVal, true);
-    adapter?.setStateAsync(stateNamekWh, newVal / 1000, true);
+    adapter?.setStateAsync(stateNamekWh, (newVal / 1000).toFixed(2), true);
+  }
+  else {
+    adapter?.setStateAsync(stateNameWh, 0, true);
+    adapter?.setStateAsync(stateNamekWh, 0, true);
   }
 };
 

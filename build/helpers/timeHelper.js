@@ -24,7 +24,7 @@ module.exports = __toCommonJS(timeHelper_exports);
 const toHoursAndMinutes = (totalMinutes) => {
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
-  return hours + ":" + minutes;
+  return hours + ":" + ("00" + minutes).slice(-2);
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
