@@ -38,7 +38,7 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
-### 1.1.5 (2024-02-29)
+### **WORK IN PROGRESS**
 
 - Add energy calculations for 'today'
 - Fix minutes display bug for remaining charge and discharge time

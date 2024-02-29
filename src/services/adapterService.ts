@@ -8,7 +8,7 @@ const createCalculationStates = async (
   adapter: ZendureSolarflow,
   productKey: string,
   deviceKey: string,
-) => {
+): Promise<void> => {
   /*
   Start Solar Input Energy states
   */
@@ -244,7 +244,7 @@ const createControlStates = async (
   adapter: ZendureSolarflow,
   productKey: string,
   deviceKey: string,
-) => {
+): Promise<void> => {
   // Create control folder
   await adapter?.extendObjectAsync(productKey + "." + deviceKey + ".control", {
     type: "channel",
