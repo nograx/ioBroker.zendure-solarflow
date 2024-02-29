@@ -851,7 +851,7 @@ export const calculateEnergy = async (
   if (currentVal && currentVal.lc && state.val) {
     const timeFrame = state.lc - currentVal?.lc;
     const newVal =
-      Number(currentVal.val) + (Number(state.val) * timeFrame) / 3600000000; // Wh
+      Number(currentVal.val) + (Number(state.val) * timeFrame) / 3600000; // Wh
 
     adapter?.setStateAsync(stateNameWh, newVal, true);
     adapter?.setStateAsync(stateNamekWh, (newVal / 1000).toFixed(2), true);
