@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.1.5",
+    "version": "1.1.6",
     "news": {
+      "1.1.6": {
+        "en": "Add energy calculations for 'today'\nFix minutes display bug for remaining charge and discharge time",
+        "de": "Energieberechnungen für heute hinzufügen '\nFehler der Minutenanzeige für die verbleibende Lade- und Entladezeit",
+        "ru": "Добавить расчеты энергии для \"сегодня\" \"\n6 минут дисплей клоп для оставшегося заряда и времени выгрузки",
+        "pt": "Adicionar cálculos de energia para 'hoje '\nCorrigir minutos exibir bug para o tempo restante de carga e descarga",
+        "nl": "Energieberekeningen toevoegen voor 'vandaag' '\nFix minuten weergave bug voor resterende lading en ontladingstijd",
+        "fr": "Ajouter le calcul de l'énergie pour «aujourd'hui» '\nCorrection minutes affichage bug pour la charge restante et le temps de décharge",
+        "it": "Aggiungere calcoli energetici per 'oggi '\nFissare il bug di visualizzazione dei minuti per il tempo di carica e di scarico rimanenti",
+        "es": "Añadir cálculos energéticos para 'hoy '\nError de visualización de minutos fijo para el tiempo de carga y descarga restante",
+        "pl": "Dodaj obliczenia energii na dziś '\nNapraw błąd wyświetlania minut dla pozostałego czasu ładowania i rozładowania",
+        "uk": "Додавання енергорозрахунків за добу Р\nВиправлення хвилин відображення помилок для решти часу заряду та розряду",
+        "zh-cn": "为今天添加能量计算  '\n为剩余充电和放电时间修正分钟显示错误"
+      },
       "1.1.5": {
         "en": "Add energy calculations for 'today'\nFix minutes display bug for remaining charge and discharge time",
         "de": "Energieberechnungen für heute hinzufügen '\nFehler der Minutenanzeige für die verbleibende Lade- und Entladezeit",
@@ -80,19 +93,6 @@
         "pl": "Switched solar input 1 und 2 to adjustic the behavior like the official app\nDodano folder Obliczeń, pozostały czas ładowania i rozładowania jest teraz dostępny jako sformatowany czas\nDodano notatkę w ustawieniach, że ten adapter działa tylko z globalnym serwerem",
         "uk": "Переключений сонячний вхід 1 унд 2 для регулювання поведінки, як офичний додаток\nДодано папку Розрахунок, що залишився заряд і час розряду тепер доступний як форматований час\nДодано замітку в налаштуваннях, які цей адаптер працює тільки з глобальним сервером",
         "zh-cn": "切换太阳输入 1 und 2 以调整类似外科应用的行为\n已添加计算文件夹、剩余充电和放电时间已作为格式化时间提供\n在设置中添加了一个注释, 该适配器只与全局服务器工作"
-      },
-      "1.0.7": {
-        "en": "Add control for charge and discharge limit\nUpdate Readme Screenshot",
-        "de": "Steuerung für Lade- und Entladegrenzen hinzufügen\nUpdate Readme Screenshot",
-        "ru": "Добавить контроль за лимитом заряда и разряда\nОбновление Редакция экрана",
-        "pt": "Adicionar controle para o limite de carga e descarga\nActualizar Screenshot de Readme",
-        "nl": "Controle toevoegen voor lading en ontladingslimiet\nSchermafdruk bijwerken",
-        "fr": "Ajouter le contrôle pour la charge et la limite de décharge\nMettre à jour la capture d'écran Readme",
-        "it": "Aggiungere il controllo per il limite di carica e scarico\nAggiornamento Readme Screenshot",
-        "es": "Agregar control para el límite de carga y descarga\nUpdate Readme Captura de Pantalla",
-        "pl": "Dodawanie kontroli dla doładowania i rozładowania\nAktualizacja zrzutu ekranu Readme",
-        "uk": "Додати контроль за лімітом заряду та розряду\nUpdate Readme Скріншот",
-        "zh-cn": "添加充电和放电限制的控制\n更新 Readme 屏幕截图"
       }
     },
     "title": "Zendure Solarflow",
