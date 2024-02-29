@@ -3,7 +3,11 @@ import { MqttClient } from "mqtt";
 import * as mqtt from "mqtt";
 import { ZendureSolarflow } from "../main";
 import { ISolarFlowDeviceDetails } from "../models/ISolarFlowDeviceDetails";
-import { addOrUpdatePackData, createSolarFlowStates, updateSolarFlowState } from "./adapterService";
+import {
+  addOrUpdatePackData,
+  createSolarFlowStates,
+  updateSolarFlowState,
+} from "./adapterService";
 import { toHoursAndMinutes } from "../helpers/timeHelper";
 
 let client: MqttClient | undefined = undefined;
@@ -177,7 +181,9 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "calculations.remainInputTime",
-        obj.properties.remainInputTime < 59940 ? toHoursAndMinutes(obj.properties.remainInputTime) : "",
+        obj.properties.remainInputTime < 59940
+          ? toHoursAndMinutes(obj.properties.remainInputTime)
+          : "",
       );
     }
 
@@ -199,7 +205,9 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "calculations.remainOutTime",
-        obj.properties.remainOutTime < 59940 ? toHoursAndMinutes(obj.properties.remainOutTime) : "",
+        obj.properties.remainOutTime < 59940
+          ? toHoursAndMinutes(obj.properties.remainOutTime)
+          : "",
       );
     }
 
@@ -248,11 +256,8 @@ export const setChargeLimit = async (
         `Setting ChargeLimit for device key ${deviceKey} to ${socSet}!`,
       );
       client?.publish(topic, JSON.stringify(socSetLimit));
-    }
-    else {
-      adapter.log.debug(
-        `Charge limit is not in range 40<>100!`,
-      );
+    } else {
+      adapter.log.debug(`Charge limit is not in range 40<>100!`);
     }
   }
 };
@@ -272,11 +277,8 @@ export const setDischargeLimit = async (
         `Setting Discharge Limit for device key ${deviceKey} to ${minSoc}!`,
       );
       client?.publish(topic, JSON.stringify(socSetLimit));
-    }
-    else{
-      adapter.log.debug(
-        `Discharge limit is not in range 0<>90!`,
-      );
+    } else {
+      adapter.log.debug(`Discharge limit is not in range 0<>90!`);
     }
   }
 };

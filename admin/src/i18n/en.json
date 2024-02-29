@@ -1,6 +1,6 @@
 {
   "settings": "Adapter settings for Zendure Solarflow",
-  "settingsDesc": "Please provide the login information for the Zendure Cloud (the same you entered in the official app). Works only with the global server!",
+  "settingsDesc": "Please provide the login information for the Zendure Cloud (the same you entered in the official app). ",
   "server": "Server",
   "userName": "Username",
   "password": "Password",
@@ -20,5 +20,6 @@
   "buzzerSwitch": "Sound output on HUB",
   "electricLevel": "Current soc",
   "donate1": "If you find the adapter useful for you and want to support my work, feel free to donate by Paypal. Thank You!",
-  "donate2": "(this is an personal Donate link for Nograx, in no relation to the ioBroker Project!)"
+  "donate2": "(this is an personal Donate link for Nograx, in no relation to the ioBroker Project!)",
+  "onlyGlobalServer": "This adapter works only with the global zendure server!"
 }

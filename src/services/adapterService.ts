@@ -1,9 +1,347 @@
 import { ZendureSolarflow } from "../main";
 import { IPackData } from "../models/IPackData";
 import { ISolarFlowDeviceDetails } from "../models/ISolarFlowDeviceDetails";
-import { getDeviceList, login } from "./webService";
+import { getDeviceList } from "./webService";
 
 /* eslint-disable @typescript-eslint/indent */
+const createCalculationStates = async (
+  adapter: ZendureSolarflow,
+  productKey: string,
+  deviceKey: string,
+) => {
+  /*
+  Start Solar Input Energy states
+  */
+  await adapter?.extendObjectAsync(
+    productKey + "." + deviceKey + ".calculations.solarInputEnergyTodayWh",
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Heutiger Solarertrag (Wh)",
+          en: "Todays solar input (Wh)",
+        },
+        type: "number",
+        desc: "solarInputEnergyTodayWh",
+        role: "value.energy",
+        read: true,
+        write: false,
+      },
+      native: {},
+    },
+  );
+
+  await adapter?.extendObjectAsync(
+    productKey + "." + deviceKey + ".calculations.solarInputEnergyTodaykWh",
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Heutiger Solarertrag (kWh)",
+          en: "Todays solar input (kWh)",
+        },
+        type: "number",
+        desc: "solarInputEnergyTodaykWh",
+        role: "value.energy",
+        read: true,
+        write: false,
+      },
+      native: {},
+    },
+  );
+
+  /*
+  Start output pack Energy states
+  */
+  await adapter?.extendObjectAsync(
+    productKey +
+      "." +
+      deviceKey +
+      "." +
+      ".calculations.outputPackEnergyTodayWh",
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Heutige Ladung zum Akku (Wh)",
+          en: "todays charge energy to battery (Wh)",
+        },
+        type: "number",
+        desc: "outputPackEnergyTodayWh",
+        role: "value.energy",
+        read: true,
+        write: false,
+        unit: "Wh",
+      },
+      native: {},
+    },
+  );
+
+  await adapter?.extendObjectAsync(
+    productKey +
+      "." +
+      deviceKey +
+      "." +
+      ".calculations.outputPackEnergyTodaykWh",
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Heutige Ladung zum Akku (kWh)",
+          en: "todays charge energy to battery (kWh)",
+        },
+        type: "number",
+        desc: "outputPackEnergyTodaykWh",
+        role: "value.energy",
+        read: true,
+        write: false,
+        unit: "kWh",
+      },
+      native: {},
+    },
+  );
+
+  /*
+  Start Pack Input Energy states
+  */
+  await adapter?.extendObjectAsync(
+    productKey + "." + deviceKey + "." + ".calculations.packInputEnergyTodayWh",
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Heutige Ladung zum Akku (Wh)",
+          en: "todays charge energy to battery (Wh)",
+        },
+        type: "number",
+        desc: "packInputEnergyTodayWh",
+        role: "value.energy",
+        read: true,
+        write: false,
+        unit: "Wh",
+      },
+      native: {},
+    },
+  );
+
+  await adapter?.extendObjectAsync(
+    productKey +
+      "." +
+      deviceKey +
+      "." +
+      ".calculations.packInputEnergyTodaykWh",
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Heutige Einspeisung aus Akku (kWh)",
+          en: "Todays discharge energy from battery (kWh)",
+        },
+        type: "number",
+        desc: "packInputEnergyTodaykWh",
+        role: "value.energy",
+        read: true,
+        write: false,
+        unit: "kWh",
+      },
+      native: {},
+    },
+  );
+
+  /*
+  Start outputHome Energy states
+  */
+  await adapter?.extendObjectAsync(
+    productKey +
+      "." +
+      deviceKey +
+      "." +
+      ".calculations.outputHomeEnergyTodayWh",
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Heutige Einspeisung ins Haus (Wh)",
+          en: "Todays input energy to home (Wh)",
+        },
+        type: "number",
+        desc: "outputHomeEnergyTodayWh",
+        role: "value.energy",
+        read: true,
+        write: false,
+        unit: "Wh",
+      },
+      native: {},
+    },
+  );
+
+  await adapter?.extendObjectAsync(
+    productKey +
+      "." +
+      deviceKey +
+      "." +
+      ".calculations.outputHomeEnergyTodaykWh",
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Heutige Einspeisung ins Haus (kWh)",
+          en: "Todays input energy to home (kWh)",
+        },
+        type: "number",
+        desc: "outputHomeEnergyTodaykWh",
+        role: "value.energy",
+        read: true,
+        write: false,
+        unit: "kWh",
+      },
+      native: {},
+    },
+  );
+  /*
+  End Energy states
+  */
+
+  // Calculation input time
+  await adapter?.extendObjectAsync(
+    productKey + "." + deviceKey + ".calculations.remainInputTime",
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Erwartete Ladedauer (hh:mm)",
+          en: "remaining charge time (hh:mm)",
+        },
+        type: "string",
+        desc: "calcRemainInputTime",
+        role: "value",
+        read: true,
+        write: false,
+      },
+      native: {},
+    },
+  );
+
+  // Calculation remainOutTime
+  await adapter?.extendObjectAsync(
+    productKey + "." + deviceKey + ".calculations.remainOutTime",
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Erwartete Entladedauer (hh:mm)",
+          en: "remaining discharge time (hh:mm)",
+        },
+        type: "string",
+        desc: "calcRemainOutTime",
+        role: "value",
+        read: true,
+        write: false,
+      },
+      native: {},
+    },
+  );
+};
+
+const createControlStates = async (
+  adapter: ZendureSolarflow,
+  productKey: string,
+  deviceKey: string,
+) => {
+  // Create control folder
+  await adapter?.extendObjectAsync(productKey + "." + deviceKey + ".control", {
+    type: "channel",
+    common: {
+      name: {
+        de: "Steuerung für Gerät " + deviceKey,
+        en: "Control for device " + deviceKey,
+      },
+    },
+    native: {},
+  });
+
+  // State zum Setzen des Output Limit
+  await adapter?.extendObjectAsync(
+    productKey + "." + deviceKey + ".control." + "setOutputLimit",
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Einzustellende Ausgangsleistung",
+          en: "Control of the output limit",
+        },
+        type: "number",
+        desc: "setOutputLimit",
+        role: "value.power",
+        read: true,
+        write: true,
+        min: 0,
+        unit: "W",
+      },
+      native: {},
+    },
+  );
+
+  // State zum Setzen des Charge Limit
+  await adapter?.extendObjectAsync(
+    productKey + "." + deviceKey + ".control." + "chargeLimit",
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Setzen des Lade-Limits",
+          en: "Control of the charge limit",
+        },
+        type: "number",
+        desc: "chargeLimit",
+        role: "value.battery",
+        read: true,
+        write: true,
+        min: 40,
+        max: 100,
+        unit: "%",
+      },
+      native: {},
+    },
+  );
+
+  // State zum Setzen des Discharge Limit
+  await adapter?.extendObjectAsync(
+    productKey + "." + deviceKey + ".control." + "dischargeLimit",
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Setzen des Entlade-Limits",
+          en: "Control of the discharge limit",
+        },
+        type: "number",
+        desc: "dischargeLimit",
+        role: "value.battery",
+        read: true,
+        write: true,
+        min: 0,
+        max: 90,
+        unit: "%",
+      },
+      native: {},
+    },
+  );
+
+  // Subcribe to control states
+  adapter?.subscribeStates(
+    productKey + "." + deviceKey + ".control." + "setOutputLimit",
+  );
+
+  adapter?.subscribeStates(
+    productKey + "." + deviceKey + ".control." + "chargeLimit",
+  );
+
+  adapter?.subscribeStates(
+    productKey + "." + deviceKey + ".control." + "dischargeLimit",
+  );
+};
+
 export const createSolarFlowStates = async (
   adapter: ZendureSolarflow,
   productKey: string,
@@ -30,29 +368,20 @@ export const createSolarFlowStates = async (
     native: {},
   });
 
-  // Create control folder
-  await adapter?.extendObjectAsync(productKey + "." + deviceKey + ".control", {
-    type: "channel",
-    common: {
-      name: {
-        de: "Steuerung für Gerät " + deviceKey,
-        en: "Control for device " + deviceKey,
-      },
-    },
-    native: {},
-  });
-
   // Create calculations folder
-  await adapter?.extendObjectAsync(productKey + "." + deviceKey + ".calculations", {
-    type: "channel",
-    common: {
-      name: {
-        de: "Berechnungen für Gerät " + deviceKey,
-        en: "Calculations for Device " + deviceKey,
+  await adapter?.extendObjectAsync(
+    productKey + "." + deviceKey + ".calculations",
+    {
+      type: "channel",
+      common: {
+        name: {
+          de: "Berechnungen für Gerät " + deviceKey,
+          en: "Calculations for Device " + deviceKey,
+        },
       },
+      native: {},
     },
-    native: {},
-  });
+  );
 
   // Create pack data folder
   await adapter?.extendObjectAsync(productKey + "." + deviceKey + ".packData", {
@@ -239,7 +568,10 @@ export const createSolarFlowStates = async (
     {
       type: "state",
       common: {
-        name: { de: "Erwartete Entladedauer (Minuten)", en: "remaining discharge time (minutes)" },
+        name: {
+          de: "Erwartete Entladedauer (Minuten)",
+          en: "remaining discharge time (minutes)",
+        },
         type: "number",
         desc: "remainOutTime",
         role: "value.interval",
@@ -284,120 +616,25 @@ export const createSolarFlowStates = async (
     },
   );
 
-  // State zum Setzen des Output Limit
-  await adapter?.extendObjectAsync(
-    productKey + "." + deviceKey + ".control." + "setOutputLimit",
-    {
-      type: "state",
-      common: {
-        name: {
-          de: "Einzustellende Ausgangsleistung",
-          en: "Control of the output limit",
-        },
-        type: "number",
-        desc: "setOutputLimit",
-        role: "value.power",
-        read: true,
-        write: true,
-        min: 0,
-        unit: "W",
-      },
-      native: {},
-    },
-  );
-
-  // State zum Setzen des Output Limit
-  await adapter?.extendObjectAsync(
-    productKey + "." + deviceKey + ".control." + "chargeLimit",
-    {
-      type: "state",
-      common: {
-        name: {
-          de: "Setzen des Lade-Limits",
-          en: "Control of the charge limit",
-        },
-        type: "number",
-        desc: "chargeLimit",
-        role: "value.battery",
-        read: true,
-        write: true,
-        min: 40,
-        max: 100,
-        unit: "%",
-      },
-      native: {},
-    },
-  );
-
-  // State zum Setzen des Output Limit
-  await adapter?.extendObjectAsync(
-    productKey + "." + deviceKey + ".control." + "dischargeLimit",
-    {
-      type: "state",
-      common: {
-        name: {
-          de: "Setzen des Entlade-Limits",
-          en: "Control of the discharge limit",
-        },
-        type: "number",
-        desc: "dischargeLimit",
-        role: "value.battery",
-        read: true,
-        write: true,
-        min: 0,
-        max: 90,
-        unit: "%",
-      },
-      native: {},
-    },
-  );
-
-  // Calculation input time
-  await adapter?.extendObjectAsync(
-    productKey + "." + deviceKey  + ".calculations.remainInputTime",
-    {
-      type: "state",
-      common: {
-        name: { de: "Erwartete Ladedauer (hh:mm)", en: "remaining charge time (hh:mm)" },
-        type: "string",
-        desc: "remainInputTime",
-        role: "value",
-        read: true,
-        write: false,
-      },
-      native: {},
-    },
-  );
-
-  // Calculation remainOutTime
-  await adapter?.extendObjectAsync(
-    productKey + "." + deviceKey + ".calculations.remainOutTime",
-    {
-      type: "state",
-      common: {
-        name: { de: "Erwartete Entladedauer (hh:mm)", en: "remaining discharge time (hh:mm)" },
-        type: "string",
-        desc: "remainInputTime",
-        role: "value",
-        read: true,
-        write: false,
-      },
-      native: {},
-    },
-  );
-
   // Subscibe to State updates to listen to changes
   adapter?.subscribeStates(
-    productKey + "." + deviceKey + ".control." + "setOutputLimit",
+    productKey + "." + deviceKey + "." + "solarInputPower",
   );
 
   adapter?.subscribeStates(
-    productKey + "." + deviceKey + ".control." + "chargeLimit",
+    productKey + "." + deviceKey + "." + "outputPackPower",
   );
 
   adapter?.subscribeStates(
-    productKey + "." + deviceKey + ".control." + "dischargeLimit",
+    productKey + "." + deviceKey + "." + "packInputPower",
   );
+
+  adapter?.subscribeStates(
+    productKey + "." + deviceKey + "." + "outputHomePower",
+  );
+
+  await createControlStates(adapter, productKey, deviceKey);
+  await createCalculationStates(adapter, productKey, deviceKey);
 };
 
 export const addOrUpdatePackData = async (
@@ -528,11 +765,7 @@ export const addOrUpdatePackData = async (
           native: {},
         });
 
-        await adapter?.setStateAsync(
-          key + ".totalVol",
-          x.totalVol / 100,
-          true,
-        );
+        await adapter?.setStateAsync(key + ".totalVol", x.totalVol / 100, true);
       }
     }
   });
@@ -558,22 +791,6 @@ export const startCheckStatesTimer = async (
           );
 
           const tenMinutesAgo = Date.now() / 1000 - 10 * 60; // Ten minutes ago
-          const oneDayAgo = new Date(new Date().getTime() - (1 * 24 * 60 * 60 * 1000));
-
-          if (adapter.lastLogin && adapter.lastLogin < oneDayAgo) {
-            adapter.log.debug(
-              `Last login for deviceKey ${device.deviceKey} was at ${adapter.lastLogin}, refreshing accessToken!`,
-            );
-            if (adapter.config.userName && adapter.config.password) {
-              login(adapter)
-                ?.then((_accessToken: string) => {
-                  adapter.accessToken = _accessToken;
-
-                  adapter.connected = true;
-                }
-              )
-            }
-          }
 
           if (
             lastUpdate &&
@@ -610,6 +827,68 @@ export const startCheckStatesTimer = async (
   }, 50000);
 };
 
+export const calculateEnergy = async (
+  adapter: ZendureSolarflow,
+  productKey: string,
+  deviceKey: string,
+  stateKey: string, // e.g. packInput, outputHome, outputPack, solarInput
+  state: ioBroker.State,
+): Promise<void> => {
+  const stateNameWh =
+    productKey +
+    "." +
+    deviceKey +
+    ".calculations." +
+    stateKey +
+    "EnergyTodayWh";
+
+  const stateNamekWh =
+    productKey +
+    "." +
+    deviceKey +
+    ".calculations." +
+    stateKey +
+    "EnergyTodaykWh";
+  const currentVal = await adapter?.getStateAsync(stateNameWh);
+
+  if (currentVal && currentVal.lc && state.val) {
+    const timeFrame = state.lc - currentVal?.lc;
+    const newVal =
+      Number(currentVal.val) + (Number(state.val) * timeFrame) / 3600000000; // Wh
+
+    adapter?.setStateAsync(stateNameWh, newVal, true);
+    adapter?.setStateAsync(stateNamekWh, newVal / 1000, true);
+  }
+};
+
+export const resetTodaysValues = async (
+  adapter: ZendureSolarflow,
+): Promise<void> => {
+  adapter.deviceList.forEach((device: ISolarFlowDeviceDetails) => {
+    const names = ["packInput", "outputHome", "outputPack", "solarInput"];
+
+    names.forEach((name: string) => {
+      const stateNameWh =
+        device.productKey +
+        "." +
+        device.deviceKey +
+        ".calculations." +
+        name +
+        "EnergyTodayWh";
+      const stateNamekWh =
+        device.productKey +
+        "." +
+        device.deviceKey +
+        ".calculations." +
+        name +
+        "EnergyTodaykWh";
+
+      adapter?.setStateAsync(stateNameWh, 0, true);
+      adapter?.setStateAsync(stateNamekWh, 0, true);
+    });
+  });
+};
+
 export const updateSolarFlowState = async (
   adapter: ZendureSolarflow,
   productKey: string,
@@ -617,9 +896,5 @@ export const updateSolarFlowState = async (
   state: string,
   val: number | string,
 ): Promise<void> => {
-  adapter?.setStateAsync(
-    productKey + "." + deviceKey + "." + state,
-    val,
-    true,
-  );
+  adapter?.setStateAsync(productKey + "." + deviceKey + "." + state, val, true);
 };

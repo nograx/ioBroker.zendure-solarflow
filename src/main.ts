@@ -6,12 +6,22 @@
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
 import * as utils from "@iobroker/adapter-core";
-import { connectMqttClient, setChargeLimit, setDischargeLimit, setOutputLimit } from "./services/mqttService";
+import {
+  connectMqttClient,
+  setChargeLimit,
+  setDischargeLimit,
+  setOutputLimit,
+} from "./services/mqttService";
 import { getDeviceList, login } from "./services/webService";
 import { ISolarFlowDeviceDetails } from "./models/ISolarFlowDeviceDetails";
 import { ISolarFlowPaths } from "./models/ISolarFlowPaths";
 import { pathsGlobal } from "./constants/paths";
-import { startCheckStatesTimer } from "./services/adapterService";
+import {
+  calculateEnergy,
+  resetTodaysValues,
+  startCheckStatesTimer,
+} from "./services/adapterService";
+import { Job, scheduleJob } from "node-schedule";
 
 export class ZendureSolarflow extends utils.Adapter {
   public constructor(options: Partial<utils.AdapterOptions> = {}) {
@@ -30,6 +40,8 @@ export class ZendureSolarflow extends utils.Adapter {
   public interval: ioBroker.Interval | undefined = undefined;
   public lastLogin: Date | undefined = undefined;
 
+  public resetValuesJob: Job | undefined = undefined;
+
   /**
    * Is called when databases are connected and adapter received configuration.
    */
@@ -45,6 +57,23 @@ export class ZendureSolarflow extends utils.Adapter {
 
           this.connected = true;
           this.lastLogin = new Date();
+
+          // Schedule Job
+          this.resetValuesJob = scheduleJob("0 0 * * *", () => {
+            // Relogin at night to get a fresh accessToken!
+            this.log.debug(`Refreshing accessToken!`);
+
+            if (this.config.userName && this.config.password) {
+              login(this)?.then((_accessToken: string) => {
+                this.accessToken = _accessToken;
+                this.lastLogin = new Date();
+                this.connected = true;
+              });
+            }
+
+            // Reset Values
+            resetTodaysValues(this);
+          });
 
           // Try to get the device list
           getDeviceList(this)
@@ -82,6 +111,12 @@ export class ZendureSolarflow extends utils.Adapter {
       if (this.interval) {
         this.clearInterval(this.interval);
       }
+
+      // Scheduler beenden
+      if (this.resetValuesJob) {
+        this.resetValuesJob.cancel();
+      }
+
       callback();
     } catch (e) {
       callback();
@@ -95,38 +130,33 @@ export class ZendureSolarflow extends utils.Adapter {
     id: string,
     state: ioBroker.State | null | undefined,
   ): void {
-    if (state && !state.ack) {
+    if (state && !state.ack && state.val != undefined && state.val != null) {
       // The state was changed
       this.log.debug(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
-      if (
-        id.includes("setOutputLimit") &&
-        state.val != undefined &&
-        state.val != null
-      ) {
-        const splitted = id.split(".");
-        const productKey = splitted[2];
-        const deviceKey = splitted[3];
+
+      // Read product and device key from string
+      const splitted = id.split(".");
+      const productKey = splitted[2];
+      const deviceKey = splitted[3];
+
+      if (id.includes("setOutputLimit")) {
         setOutputLimit(this, productKey, deviceKey, Number(state.val));
-      }
-      else if (
-        id.includes("dischargeLimit") &&
-        state.val != undefined &&
-        state.val != null
-      ) {
-        const splitted = id.split(".");
-        const productKey = splitted[2];
-        const deviceKey = splitted[3];
+      } else if (id.includes("dischargeLimit")) {
         setDischargeLimit(this, productKey, deviceKey, Number(state.val));
-      }
-      else if (
-        id.includes("chargeLimit") &&
-        state.val != undefined &&
-        state.val != null
-      ) {
-        const splitted = id.split(".");
-        const productKey = splitted[2];
-        const deviceKey = splitted[3];
+      } else if (id.includes("chargeLimit")) {
         setChargeLimit(this, productKey, deviceKey, Number(state.val));
+      } else if (id.includes("solarInputPower")) {
+        // Calculate todays solar input
+        calculateEnergy(this, productKey, deviceKey, "solarInputPower", state);
+      } else if (id.includes("outputPackPower")) {
+        // Calculate todays output pack power (energy to battery)
+        calculateEnergy(this, productKey, deviceKey, "outputPackPower", state);
+      } else if (id.includes("packInputPower")) {
+        // Calculate todays pack input power (energy from battery)
+        calculateEnergy(this, productKey, deviceKey, "packInputPower", state);
+      } else if (id.includes("outputHomePower")) {
+        // Calculate todays pack input power (energy from system to home)
+        calculateEnergy(this, productKey, deviceKey, "outputHomePower", state);
       }
     } else {
       // The state was deleted
