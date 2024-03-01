@@ -53,7 +53,7 @@ const onSubscribe = (error) => {
   }
 };
 const onMessage = async (topic, message) => {
-  var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x;
+  var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D;
   if (adapter) {
     const splitted = topic.split("/");
     const productKey = splitted[1];
@@ -148,7 +148,25 @@ const onMessage = async (topic, message) => {
         obj.properties.pvPower2
       );
     }
-    if (((_q = obj.properties) == null ? void 0 : _q.remainInputTime) != null && ((_r = obj.properties) == null ? void 0 : _r.remainInputTime) != void 0) {
+    if (((_q = obj.properties) == null ? void 0 : _q.solarPower1) != null && ((_r = obj.properties) == null ? void 0 : _r.solarPower1) != void 0) {
+      (0, import_adapterService.updateSolarFlowState)(
+        adapter,
+        productKey,
+        deviceKey,
+        "pvPower1",
+        obj.properties.solarPower1
+      );
+    }
+    if (((_s = obj.properties) == null ? void 0 : _s.solarPower2) != null && ((_t = obj.properties) == null ? void 0 : _t.solarPower2) != void 0) {
+      (0, import_adapterService.updateSolarFlowState)(
+        adapter,
+        productKey,
+        deviceKey,
+        "pvPower2",
+        obj.properties.solarPower2
+      );
+    }
+    if (((_u = obj.properties) == null ? void 0 : _u.remainInputTime) != null && ((_v = obj.properties) == null ? void 0 : _v.remainInputTime) != void 0) {
       (0, import_adapterService.updateSolarFlowState)(
         adapter,
         productKey,
@@ -156,15 +174,49 @@ const onMessage = async (topic, message) => {
         "remainInputTime",
         obj.properties.remainInputTime
       );
-      (0, import_adapterService.updateSolarFlowState)(
-        adapter,
-        productKey,
-        deviceKey,
-        "calculations.remainInputTime",
-        obj.properties.remainInputTime < 59940 ? (0, import_timeHelper.toHoursAndMinutes)(obj.properties.remainInputTime) : ""
+      const packInputPower = Number(
+        (_w = await adapter.getStateAsync(
+          productKey + "." + deviceKey + ".packInputPower"
+        )) == null ? void 0 : _w.val
       );
+      const outputPackPower = Number(
+        (_x = await adapter.getStateAsync(
+          productKey + "." + deviceKey + ".outputPackPower"
+        )) == null ? void 0 : _x.val
+      );
+      if (packInputPower && packInputPower > 0) {
+        (0, import_adapterService.updateSolarFlowState)(
+          adapter,
+          productKey,
+          deviceKey,
+          "calculations.remainOutTime",
+          obj.properties.remainOutTime < 59940 ? (0, import_timeHelper.toHoursAndMinutes)(obj.properties.remainOutTime) : ""
+        );
+        (0, import_adapterService.updateSolarFlowState)(
+          adapter,
+          productKey,
+          deviceKey,
+          "calculations.remainInputTime",
+          ""
+        );
+      } else if (outputPackPower && outputPackPower > 0) {
+        (0, import_adapterService.updateSolarFlowState)(
+          adapter,
+          productKey,
+          deviceKey,
+          "calculations.remainInputTime",
+          obj.properties.remainInputTime < 59940 ? (0, import_timeHelper.toHoursAndMinutes)(obj.properties.remainInputTime) : ""
+        );
+        (0, import_adapterService.updateSolarFlowState)(
+          adapter,
+          productKey,
+          deviceKey,
+          "calculations.remainOutTime",
+          ""
+        );
+      }
     }
-    if (((_s = obj.properties) == null ? void 0 : _s.remainOutTime) != null && ((_t = obj.properties) == null ? void 0 : _t.remainOutTime) != void 0) {
+    if (((_y = obj.properties) == null ? void 0 : _y.remainOutTime) != null && ((_z = obj.properties) == null ? void 0 : _z.remainOutTime) != void 0) {
       (0, import_adapterService.updateSolarFlowState)(
         adapter,
         productKey,
@@ -172,15 +224,8 @@ const onMessage = async (topic, message) => {
         "remainOutTime",
         obj.properties.remainOutTime
       );
-      (0, import_adapterService.updateSolarFlowState)(
-        adapter,
-        productKey,
-        deviceKey,
-        "calculations.remainOutTime",
-        obj.properties.remainOutTime < 59940 ? (0, import_timeHelper.toHoursAndMinutes)(obj.properties.remainOutTime) : ""
-      );
     }
-    if (((_u = obj.properties) == null ? void 0 : _u.socSet) != null && ((_v = obj.properties) == null ? void 0 : _v.socSet) != void 0) {
+    if (((_A = obj.properties) == null ? void 0 : _A.socSet) != null && ((_B = obj.properties) == null ? void 0 : _B.socSet) != void 0) {
       (0, import_adapterService.updateSolarFlowState)(
         adapter,
         productKey,
@@ -189,7 +234,7 @@ const onMessage = async (topic, message) => {
         Number(obj.properties.socSet) / 10
       );
     }
-    if (((_w = obj.properties) == null ? void 0 : _w.minSoc) != null && ((_x = obj.properties) == null ? void 0 : _x.minSoc) != void 0) {
+    if (((_C = obj.properties) == null ? void 0 : _C.minSoc) != null && ((_D = obj.properties) == null ? void 0 : _D.minSoc) != void 0) {
       (0, import_adapterService.updateSolarFlowState)(
         adapter,
         productKey,
