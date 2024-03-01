@@ -164,6 +164,32 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
     }
 
     if (
+      obj.properties?.solarPower1 != null &&
+      obj.properties?.solarPower1 != undefined
+    ) {
+      updateSolarFlowState(
+        adapter,
+        productKey,
+        deviceKey,
+        "pvPower1",
+        obj.properties.solarPower1,
+      );
+    }
+
+    if (
+      obj.properties?.solarPower2 != null &&
+      obj.properties?.solarPower2 != undefined
+    ) {
+      updateSolarFlowState(
+        adapter,
+        productKey,
+        deviceKey,
+        "pvPower2",
+        obj.properties.solarPower2,
+      );
+    }
+
+    if (
       obj.properties?.remainInputTime != null &&
       obj.properties?.remainInputTime != undefined
     ) {
@@ -175,16 +201,63 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         obj.properties.remainInputTime,
       );
 
-      // Calculate minutes to format hh:mm
-      updateSolarFlowState(
-        adapter,
-        productKey,
-        deviceKey,
-        "calculations.remainInputTime",
-        obj.properties.remainInputTime < 59940
-          ? toHoursAndMinutes(obj.properties.remainInputTime)
-          : "",
+      // Zendure use the same state for input und output values, if charging set remainInputTime, else remainOutTime
+      const packInputPower = Number(
+        (
+          await adapter.getStateAsync(
+            productKey + "." + deviceKey + ".packInputPower",
+          )
+        )?.val,
       );
+      const outputPackPower = Number(
+        (
+          await adapter.getStateAsync(
+            productKey + "." + deviceKey + ".outputPackPower",
+          )
+        )?.val,
+      );
+
+      if (packInputPower && packInputPower > 0) {
+        // Calculate minutes to format hh:mm
+        updateSolarFlowState(
+          adapter,
+          productKey,
+          deviceKey,
+          "calculations.remainOutTime",
+          obj.properties.remainOutTime < 59940
+            ? toHoursAndMinutes(obj.properties.remainOutTime)
+            : "",
+        );
+
+        // Set remainInputTime to blank
+        updateSolarFlowState(
+          adapter,
+          productKey,
+          deviceKey,
+          "calculations.remainInputTime",
+          "",
+        );
+      } else if (outputPackPower && outputPackPower > 0) {
+        // Calculate minutes to format hh:mm
+        updateSolarFlowState(
+          adapter,
+          productKey,
+          deviceKey,
+          "calculations.remainInputTime",
+          obj.properties.remainInputTime < 59940
+            ? toHoursAndMinutes(obj.properties.remainInputTime)
+            : "",
+        );
+
+        // Set remainOutTime to blank
+        updateSolarFlowState(
+          adapter,
+          productKey,
+          deviceKey,
+          "calculations.remainOutTime",
+          "",
+        );
+      }
     }
 
     if (
@@ -197,17 +270,6 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         deviceKey,
         "remainOutTime",
         obj.properties.remainOutTime,
-      );
-
-      // Calculate minutes to format hh:mm
-      updateSolarFlowState(
-        adapter,
-        productKey,
-        deviceKey,
-        "calculations.remainOutTime",
-        obj.properties.remainOutTime < 59940
-          ? toHoursAndMinutes(obj.properties.remainOutTime)
-          : "",
       );
     }
 

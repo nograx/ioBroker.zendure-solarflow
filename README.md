@@ -38,6 +38,13 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Fix Solar Input 1 and 2 from the new Zendure firmware
+- Fix remaining charging time
+- Fix calculations overwritten when data with 0 value comes in.
+
 ### 1.1.8 (2024-02-29)
 
 - Fix calculation error
