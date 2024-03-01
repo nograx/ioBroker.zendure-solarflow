@@ -53,7 +53,7 @@ const onSubscribe = (error) => {
   }
 };
 const onMessage = async (topic, message) => {
-  var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D;
+  var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B;
   if (adapter) {
     const splitted = topic.split("/");
     const productKey = splitted[1];
@@ -166,13 +166,13 @@ const onMessage = async (topic, message) => {
         obj.properties.solarPower2
       );
     }
-    if (((_u = obj.properties) == null ? void 0 : _u.remainInputTime) != null && ((_v = obj.properties) == null ? void 0 : _v.remainInputTime) != void 0) {
+    if (((_u = obj.properties) == null ? void 0 : _u.remainOutTime) != null && ((_v = obj.properties) == null ? void 0 : _v.remainOutTime) != void 0) {
       (0, import_adapterService.updateSolarFlowState)(
         adapter,
         productKey,
         deviceKey,
-        "remainInputTime",
-        obj.properties.remainInputTime
+        "remainOutTime",
+        obj.properties.remainOutTime
       );
       const packInputPower = Number(
         (_w = await adapter.getStateAsync(
@@ -216,16 +216,7 @@ const onMessage = async (topic, message) => {
         );
       }
     }
-    if (((_y = obj.properties) == null ? void 0 : _y.remainOutTime) != null && ((_z = obj.properties) == null ? void 0 : _z.remainOutTime) != void 0) {
-      (0, import_adapterService.updateSolarFlowState)(
-        adapter,
-        productKey,
-        deviceKey,
-        "remainOutTime",
-        obj.properties.remainOutTime
-      );
-    }
-    if (((_A = obj.properties) == null ? void 0 : _A.socSet) != null && ((_B = obj.properties) == null ? void 0 : _B.socSet) != void 0) {
+    if (((_y = obj.properties) == null ? void 0 : _y.socSet) != null && ((_z = obj.properties) == null ? void 0 : _z.socSet) != void 0) {
       (0, import_adapterService.updateSolarFlowState)(
         adapter,
         productKey,
@@ -234,7 +225,7 @@ const onMessage = async (topic, message) => {
         Number(obj.properties.socSet) / 10
       );
     }
-    if (((_C = obj.properties) == null ? void 0 : _C.minSoc) != null && ((_D = obj.properties) == null ? void 0 : _D.minSoc) != void 0) {
+    if (((_A = obj.properties) == null ? void 0 : _A.minSoc) != null && ((_B = obj.properties) == null ? void 0 : _B.minSoc) != void 0) {
       (0, import_adapterService.updateSolarFlowState)(
         adapter,
         productKey,
