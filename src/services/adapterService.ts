@@ -844,7 +844,11 @@ export const calculateEnergy = async (
       Number(currentVal.val) + (Number(state.val) * timeFrame) / 3600000; // Wh
 
     adapter?.setStateAsync(stateNameWh, newVal, true);
-    adapter?.setStateAsync(stateNamekWh, (newVal / 1000).toFixed(2), true);
+    adapter?.setStateAsync(
+      stateNamekWh,
+      Number((newVal / 1000).toFixed(2)),
+      true,
+    );
   } else {
     adapter?.setStateAsync(stateNameWh, 0, true);
     adapter?.setStateAsync(stateNamekWh, 0, true);
