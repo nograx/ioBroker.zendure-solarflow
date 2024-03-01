@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.1.9",
+    "version": "1.1.10",
     "news": {
+      "1.1.10": {
+        "en": "Fix Solar Input 1 and 2 from the new Zendure firmware\nFix remaining charging time\nFix calculations overwritten when data with 0 value comes in.",
+        "de": "Fix Solar Input 1 und 2 von der neuen Zendure Firmware\nVerbleibende Ladezeit\nFix Berechnungen überschrieben, wenn Daten mit 0 Wert kommen.",
+        "ru": "Fix Solar Input 1 и 2 из новой прошивки Zendure\nОставшееся время зарядки\nИсправления вычислений переписываются, когда данные с значением 0 поступают.",
+        "pt": "Fix Solar Input 1 e 2 do novo firmware Zendure\nCorrigir tempo de carregamento restante\nCorrigir cálculos substituídos quando dados com 0 valor entra.",
+        "nl": "Fix Solar Input 1 en 2 van de nieuwe Zendure firmware\nDe resterende laadtijd herstellen\nRepareer berekeningen overschreven wanneer gegevens met 0 waarde komt.",
+        "fr": "Fix Solar Input 1 et 2 du nouveau firmware Zendure\nCorrection du temps de chargement restant\nCorriger les calculs écrasés lorsque des données avec 0 valeur arrivent.",
+        "it": "Fix Solar Input 1 e 2 dal nuovo firmware Zendure\nRisolvi il tempo di ricarica rimanente\nFissare i calcoli sovrascritti quando i dati con 0 valore entra.",
+        "es": "Fija la entrada solar 1 y 2 del nuevo firmware Zendure\nFijar el tiempo de carga restante\nFijar cálculos sobrescritos cuando los datos con valor 0 entran.",
+        "pl": "Fix Solar Input 1 i 2 z nowego firmware Zabb\nPopraw pozostały czas ładowania\nNapraw obliczenia nadpisane, gdy dane o wartości 0 wchodzą.",
+        "uk": "Фіксація Solar Input 1 і 2 від нової прошивки Zendure\nВиправлення часу решти зарядки\nВиправлення перезаписів, коли дані з значенням 0 надходить в.",
+        "zh-cn": "从新的 Zendure 固件中修复太阳输入 1 和 2\n修复剩余充电时间\n当有 0 个值的数据出现时, 修正覆盖的计算 ."
+      },
       "1.1.9": {
         "en": "Fix Solar Input 1 and 2 from the new Zendure firmware\nFix remaining charging time\nFix calculations overwritten when data with 0 value comes in.",
         "de": "Fix Solar Input 1 und 2 von der neuen Zendure Firmware\nVerbleibende Ladezeit\nFix Berechnungen überschrieben, wenn Daten mit 0 Wert kommen.",
@@ -69,19 +82,6 @@
         "zh-cn": "为今天添加能量计算  '\n为剩余充电和放电时间修正分钟显示错误"
       },
       "1.1.4": {
-        "en": "Fix timeout issues",
-        "de": "Timeout Probleme beheben",
-        "ru": "Вопросы таймаута",
-        "pt": "Corrigir problemas de tempo limite",
-        "nl": "Timeout-problemen oplossen",
-        "fr": "Correction des problèmes de délai",
-        "it": "Risolvere i problemi di timeout",
-        "es": "Arreglar los problemas de tiempo",
-        "pl": "Popraw problemy z czasem",
-        "uk": "Фіксація термінів",
-        "zh-cn": "解决超时问题"
-      },
-      "1.1.3": {
         "en": "Fix timeout issues",
         "de": "Timeout Probleme beheben",
         "ru": "Вопросы таймаута",
