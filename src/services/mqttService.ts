@@ -190,15 +190,15 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
     }
 
     if (
-      obj.properties?.remainInputTime != null &&
-      obj.properties?.remainInputTime != undefined
+      obj.properties?.remainOutTime != null &&
+      obj.properties?.remainOutTime != undefined
     ) {
       updateSolarFlowState(
         adapter,
         productKey,
         deviceKey,
-        "remainInputTime",
-        obj.properties.remainInputTime,
+        "remainOutTime",
+        obj.properties.remainOutTime,
       );
 
       // Zendure use the same state for input und output values, if charging set remainInputTime, else remainOutTime
@@ -258,19 +258,6 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
           "",
         );
       }
-    }
-
-    if (
-      obj.properties?.remainOutTime != null &&
-      obj.properties?.remainOutTime != undefined
-    ) {
-      updateSolarFlowState(
-        adapter,
-        productKey,
-        deviceKey,
-        "remainOutTime",
-        obj.properties.remainOutTime,
-      );
     }
 
     if (obj.properties?.socSet != null && obj.properties?.socSet != undefined) {
