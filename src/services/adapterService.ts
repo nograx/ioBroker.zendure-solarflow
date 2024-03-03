@@ -104,8 +104,8 @@ const createCalculationStates = async (
       type: "state",
       common: {
         name: {
-          de: "Heutige Ladung zum Akku (Wh)",
-          en: "todays charge energy to battery (Wh)",
+          de: "Heutige Einspeisung aus Akku (Wh)",
+          en: "Todays discharge energy from battery (Wh)",
         },
         type: "number",
         desc: "packInputEnergyTodayWh",
