@@ -35,8 +35,8 @@ var utils = __toESM(require("@iobroker/adapter-core"));
 var import_mqttService = require("./services/mqttService");
 var import_webService = require("./services/webService");
 var import_paths = require("./constants/paths");
-var import_adapterService = require("./services/adapterService");
-var import_node_schedule = require("node-schedule");
+var import_jobSchedule = require("./services/jobSchedule");
+var import_calculationService = require("./services/calculationService");
 class ZendureSolarflow extends utils.Adapter {
   constructor(options = {}) {
     super({
@@ -50,6 +50,7 @@ class ZendureSolarflow extends utils.Adapter {
     this.interval = void 0;
     this.lastLogin = void 0;
     this.resetValuesJob = void 0;
+    this.checkStatesJob = void 0;
     this.on("ready", this.onReady.bind(this));
     this.on("stateChange", this.onStateChange.bind(this));
     this.on("unload", this.onUnload.bind(this));
@@ -65,23 +66,12 @@ class ZendureSolarflow extends utils.Adapter {
         this.accessToken = _accessToken;
         this.connected = true;
         this.lastLogin = /* @__PURE__ */ new Date();
-        this.resetValuesJob = (0, import_node_schedule.scheduleJob)("0 0 * * *", () => {
-          var _a2;
-          this.log.debug(`Refreshing accessToken!`);
-          if (this.config.userName && this.config.password) {
-            (_a2 = (0, import_webService.login)(this)) == null ? void 0 : _a2.then((_accessToken2) => {
-              this.accessToken = _accessToken2;
-              this.lastLogin = /* @__PURE__ */ new Date();
-              this.connected = true;
-            });
-          }
-          (0, import_adapterService.resetTodaysValues)(this);
-        });
         (0, import_webService.getDeviceList)(this).then((result) => {
           if (result) {
             this.deviceList = result;
             (0, import_mqttService.connectMqttClient)(this);
-            (0, import_adapterService.startCheckStatesTimer)(this);
+            (0, import_jobSchedule.startReloginAndResetValuesJob)(this);
+            (0, import_jobSchedule.startCheckStatesJob)(this);
           }
         }).catch(() => {
           var _a2;
@@ -103,12 +93,18 @@ class ZendureSolarflow extends utils.Adapter {
    * Is called when adapter shuts down - callback has to be called under any circumstances!
    */
   onUnload(callback) {
+    var _a;
     try {
       if (this.interval) {
         this.clearInterval(this.interval);
       }
       if (this.resetValuesJob) {
         this.resetValuesJob.cancel();
+        this.resetValuesJob = void 0;
+      }
+      if (this.checkStatesJob) {
+        (_a = this.checkStatesJob) == null ? void 0 : _a.cancel();
+        this.checkStatesJob = void 0;
       }
       callback();
     } catch (e) {
@@ -123,23 +119,45 @@ class ZendureSolarflow extends utils.Adapter {
       const splitted = id.split(".");
       const productKey = splitted[2];
       const deviceKey = splitted[3];
-      if (id.includes("setOutputLimit") && state.val != void 0 && state.val != null) {
-        (0, import_mqttService.setOutputLimit)(this, productKey, deviceKey, Number(state.val));
-      } else if (id.includes("dischargeLimit") && state.val != void 0 && state.val != null) {
-        (0, import_mqttService.setDischargeLimit)(this, productKey, deviceKey, Number(state.val));
-      } else if (id.includes("chargeLimit") && state.val != void 0 && state.val != null) {
-        (0, import_mqttService.setChargeLimit)(this, productKey, deviceKey, Number(state.val));
-      } else if (id.includes("solarInput") && state.val != void 0 && state.val != null) {
-        (0, import_adapterService.calculateEnergy)(this, productKey, deviceKey, "solarInput", state);
-      } else if (id.includes("outputPackPower") && state.val != void 0 && state.val != null) {
-        (0, import_adapterService.calculateEnergy)(this, productKey, deviceKey, "outputPack", state);
-      } else if (id.includes("packInputPower") && state.val != void 0 && state.val != null) {
-        (0, import_adapterService.calculateEnergy)(this, productKey, deviceKey, "packInput", state);
-      } else if (id.includes("outputHomePower") && state.val != void 0 && state.val != null) {
-        (0, import_adapterService.calculateEnergy)(this, productKey, deviceKey, "outputHome", state);
+      const stateName1 = splitted[4];
+      const stateName2 = splitted[4];
+      if (state.val != void 0 && state.val != null) {
+        switch (stateName1) {
+          case "control":
+            if (stateName2 == "setOutputLimit") {
+              (0, import_mqttService.setOutputLimit)(this, productKey, deviceKey, Number(state.val));
+            } else if (stateName2 == "dischargeLimit") {
+              (0, import_mqttService.setDischargeLimit)(this, productKey, deviceKey, Number(state.val));
+            } else if (stateName2 == "chargeLimit") {
+              (0, import_mqttService.setChargeLimit)(this, productKey, deviceKey, Number(state.val));
+            }
+            break;
+          case "solarInput":
+            if (this.config.useCalculation) {
+              (0, import_calculationService.calculateEnergy)(this, productKey, deviceKey, "solarInput", state);
+            }
+            break;
+          case "outputPackPower":
+            if (this.config.useCalculation) {
+              (0, import_calculationService.calculateEnergy)(this, productKey, deviceKey, "outputPack", state);
+            }
+            break;
+          case "packInputPower":
+            if (this.config.useCalculation) {
+              (0, import_calculationService.calculateEnergy)(this, productKey, deviceKey, "packInput", state);
+            }
+            break;
+          case "outputHomePower":
+            if (this.config.useCalculation) {
+              (0, import_calculationService.calculateEnergy)(this, productKey, deviceKey, "outputHome", state);
+            }
+            break;
+          default:
+            break;
+        }
+      } else {
+        this.log.debug(`state ${id} deleted`);
       }
-    } else {
-      this.log.debug(`state ${id} deleted`);
     }
   }
 }

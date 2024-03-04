@@ -23,27 +23,29 @@ export const calculateSocAndEnergy = async (
       ? Number(currentEnergyState?.val) + value
       : Number(currentEnergyState?.val) - value;
 
-  adapter?.setStateAsync(
-    productKey + "." + deviceKey + ".calculations.energyWh",
-    newValue,
-    true,
-  );
-
-  if (currentEnergyMaxState) {
-    const soc = (newValue / Number(currentEnergyMaxState.val)) * 100;
+  if (newValue > 0) {
     adapter?.setStateAsync(
-      productKey + "." + deviceKey + ".calculations.soc",
-      soc,
+      productKey + "." + deviceKey + ".calculations.energyWh",
+      newValue,
       true,
     );
 
-    if (newValue > Number(currentEnergyMaxState.val)) {
-      // Extend maxVal
+    if (currentEnergyMaxState) {
+      const soc = (newValue / Number(currentEnergyMaxState.val)) * 100;
       adapter?.setStateAsync(
-        productKey + "." + deviceKey + ".calculations.energyWhMax",
-        newValue,
+        productKey + "." + deviceKey + ".calculations.soc",
+        soc,
         true,
       );
+
+      if (newValue > Number(currentEnergyMaxState.val)) {
+        // Extend maxVal
+        adapter?.setStateAsync(
+          productKey + "." + deviceKey + ".calculations.energyWhMax",
+          newValue,
+          true,
+        );
+      }
     }
   }
 };

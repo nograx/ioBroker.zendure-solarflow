@@ -59,7 +59,7 @@ export const createCalculationStates = async (
       common: {
         name: {
           de: "Heutige Ladung zum Akku (Wh)",
-          en: "todays charge energy to battery (Wh)",
+          en: "Todays charge energy to battery (Wh)",
         },
         type: "number",
         desc: "outputPackEnergyTodayWh",

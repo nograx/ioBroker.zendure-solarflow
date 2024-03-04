@@ -73,7 +73,7 @@ const login = (adapter) => {
     return import_axios.default.post(adapter.paths.solarFlowTokenUrl, authBody, config).then(function(response) {
       var _a, _b;
       if (response.data.success) {
-        adapter.log.info("Login to Rest API successful!");
+        adapter.log.info("Login to Zendure Rest API successful!");
         if ((_b = (_a = response.data) == null ? void 0 : _a.data) == null ? void 0 : _b.accessToken) {
           return response.data.data.accessToken;
         }

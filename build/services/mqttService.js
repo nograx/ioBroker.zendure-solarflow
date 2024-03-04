@@ -28,6 +28,7 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var mqttService_exports = {};
 __export(mqttService_exports, {
+  addOrUpdatePackData: () => addOrUpdatePackData,
   connectMqttClient: () => connectMqttClient,
   setChargeLimit: () => setChargeLimit,
   setDischargeLimit: () => setDischargeLimit,
@@ -37,6 +38,7 @@ module.exports = __toCommonJS(mqttService_exports);
 var mqtt = __toESM(require("mqtt"));
 var import_adapterService = require("./adapterService");
 var import_timeHelper = require("../helpers/timeHelper");
+var import_createSolarFlowStates = require("../helpers/createSolarFlowStates");
 let client = void 0;
 let adapter = void 0;
 const onConnected = () => {
@@ -51,6 +53,117 @@ const onSubscribe = (error) => {
   } else {
     adapter == null ? void 0 : adapter.log.debug("Subscription successful!");
   }
+};
+const addOrUpdatePackData = async (adapter2, productKey, deviceKey, packData) => {
+  await packData.forEach(async (x) => {
+    if (x.sn) {
+      const key = (productKey + "." + deviceKey + ".packData." + x.sn).replace(
+        adapter2.FORBIDDEN_CHARS,
+        ""
+      );
+      await (adapter2 == null ? void 0 : adapter2.extendObjectAsync(key + ".sn", {
+        type: "state",
+        common: {
+          name: {
+            de: "Seriennummer",
+            en: "Serial id"
+          },
+          type: "string",
+          desc: "Serial ID",
+          role: "value",
+          read: true,
+          write: false
+        },
+        native: {}
+      }));
+      await (adapter2 == null ? void 0 : adapter2.setStateAsync(key + ".sn", x.sn, true));
+      if (x.socLevel) {
+        await (adapter2 == null ? void 0 : adapter2.extendObjectAsync(key + ".socLevel", {
+          type: "state",
+          common: {
+            name: {
+              de: "SOC der Batterie",
+              en: "soc of battery"
+            },
+            type: "number",
+            desc: "SOC Level",
+            role: "value",
+            read: true,
+            write: false
+          },
+          native: {}
+        }));
+        await (adapter2 == null ? void 0 : adapter2.setStateAsync(key + ".socLevel", x.socLevel, true));
+      }
+      if (x.maxTemp) {
+        await (adapter2 == null ? void 0 : adapter2.extendObjectAsync(key + ".maxTemp", {
+          type: "state",
+          common: {
+            name: {
+              de: "Max. Temperatur der Batterie",
+              en: "max temp. of battery"
+            },
+            type: "number",
+            desc: "Max. Temp",
+            role: "value",
+            read: true,
+            write: false
+          },
+          native: {}
+        }));
+        await (adapter2 == null ? void 0 : adapter2.setStateAsync(
+          key + ".maxTemp",
+          x.maxTemp / 10 - 273.15,
+          true
+        ));
+      }
+      if (x.minVol) {
+        await (adapter2 == null ? void 0 : adapter2.extendObjectAsync(key + ".minVol", {
+          type: "state",
+          common: {
+            name: "minVol",
+            type: "number",
+            desc: "minVol",
+            role: "value",
+            read: true,
+            write: false
+          },
+          native: {}
+        }));
+        await (adapter2 == null ? void 0 : adapter2.setStateAsync(key + ".minVol", x.minVol / 100, true));
+      }
+      if (x.maxVol) {
+        await (adapter2 == null ? void 0 : adapter2.extendObjectAsync(key + ".maxVol", {
+          type: "state",
+          common: {
+            name: "maxVol",
+            type: "number",
+            desc: "maxVol",
+            role: "value",
+            read: true,
+            write: false
+          },
+          native: {}
+        }));
+        await (adapter2 == null ? void 0 : adapter2.setStateAsync(key + ".maxVol", x.maxVol / 100, true));
+      }
+      if (x.totalVol) {
+        await (adapter2 == null ? void 0 : adapter2.extendObjectAsync(key + ".totalVol", {
+          type: "state",
+          common: {
+            name: "totalVol",
+            type: "number",
+            desc: "totalVol",
+            role: "value",
+            read: true,
+            write: false
+          },
+          native: {}
+        }));
+        await (adapter2 == null ? void 0 : adapter2.setStateAsync(key + ".totalVol", x.totalVol / 100, true));
+      }
+    }
+  });
 };
 const onMessage = async (topic, message) => {
   var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B;
@@ -174,46 +287,48 @@ const onMessage = async (topic, message) => {
         "remainOutTime",
         obj.properties.remainOutTime
       );
-      const packInputPower = Number(
-        (_w = await adapter.getStateAsync(
-          productKey + "." + deviceKey + ".packInputPower"
-        )) == null ? void 0 : _w.val
-      );
-      const outputPackPower = Number(
-        (_x = await adapter.getStateAsync(
-          productKey + "." + deviceKey + ".outputPackPower"
-        )) == null ? void 0 : _x.val
-      );
-      if (packInputPower && packInputPower > 0) {
-        (0, import_adapterService.updateSolarFlowState)(
-          adapter,
-          productKey,
-          deviceKey,
-          "calculations.remainOutTime",
-          obj.properties.remainOutTime < 59940 ? (0, import_timeHelper.toHoursAndMinutes)(obj.properties.remainOutTime) : ""
+      if (adapter.config.useCalculation) {
+        const packInputPower = Number(
+          (_w = await adapter.getStateAsync(
+            productKey + "." + deviceKey + ".packInputPower"
+          )) == null ? void 0 : _w.val
         );
-        (0, import_adapterService.updateSolarFlowState)(
-          adapter,
-          productKey,
-          deviceKey,
-          "calculations.remainInputTime",
-          ""
+        const outputPackPower = Number(
+          (_x = await adapter.getStateAsync(
+            productKey + "." + deviceKey + ".outputPackPower"
+          )) == null ? void 0 : _x.val
         );
-      } else if (outputPackPower && outputPackPower > 0) {
-        (0, import_adapterService.updateSolarFlowState)(
-          adapter,
-          productKey,
-          deviceKey,
-          "calculations.remainInputTime",
-          obj.properties.remainInputTime < 59940 ? (0, import_timeHelper.toHoursAndMinutes)(obj.properties.remainInputTime) : ""
-        );
-        (0, import_adapterService.updateSolarFlowState)(
-          adapter,
-          productKey,
-          deviceKey,
-          "calculations.remainOutTime",
-          ""
-        );
+        if (packInputPower && packInputPower > 0) {
+          (0, import_adapterService.updateSolarFlowState)(
+            adapter,
+            productKey,
+            deviceKey,
+            "calculations.remainOutTime",
+            obj.properties.remainOutTime < 59940 ? (0, import_timeHelper.toHoursAndMinutes)(obj.properties.remainOutTime) : ""
+          );
+          (0, import_adapterService.updateSolarFlowState)(
+            adapter,
+            productKey,
+            deviceKey,
+            "calculations.remainInputTime",
+            ""
+          );
+        } else if (outputPackPower && outputPackPower > 0) {
+          (0, import_adapterService.updateSolarFlowState)(
+            adapter,
+            productKey,
+            deviceKey,
+            "calculations.remainInputTime",
+            obj.properties.remainInputTime < 59940 ? (0, import_timeHelper.toHoursAndMinutes)(obj.properties.remainInputTime) : ""
+          );
+          (0, import_adapterService.updateSolarFlowState)(
+            adapter,
+            productKey,
+            deviceKey,
+            "calculations.remainOutTime",
+            ""
+          );
+        }
       }
     }
     if (((_y = obj.properties) == null ? void 0 : _y.socSet) != null && ((_z = obj.properties) == null ? void 0 : _z.socSet) != void 0) {
@@ -235,7 +350,7 @@ const onMessage = async (topic, message) => {
       );
     }
     if (obj.packData) {
-      (0, import_adapterService.addOrUpdatePackData)(adapter, productKey, deviceKey, obj.packData);
+      addOrUpdatePackData(adapter, productKey, deviceKey, obj.packData);
     }
   }
   if (client) {
@@ -319,7 +434,7 @@ const connectMqttClient = (_adapter) => {
       client.on("error", onError);
       adapter.deviceList.forEach((device) => {
         if (adapter) {
-          (0, import_adapterService.createSolarFlowStates)(adapter, device.productKey, device.deviceKey);
+          (0, import_createSolarFlowStates.createSolarFlowStates)(adapter, device.productKey, device.deviceKey);
           (0, import_adapterService.updateSolarFlowState)(
             adapter,
             device.productKey,
@@ -341,6 +456,7 @@ const connectMqttClient = (_adapter) => {
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  addOrUpdatePackData,
   connectMqttClient,
   setChargeLimit,
   setDischargeLimit,
