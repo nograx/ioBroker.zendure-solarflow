@@ -140,6 +140,7 @@ class Settings extends React.Component<SettingsProps, SettingsState> {
           {I18n.t("settingsDesc")}
           <div>{this.renderInput("userName", "userName", "text")}</div>
           <div>{this.renderInput("password", "password", "password")}</div>
+          <div>{this.renderCheckbox("useCalculation", "useCalculation")}</div>
           <div style={{ marginTop: 10 }}>{I18n.t("onlyGlobalServer")}</div>
           <div style={{ marginTop: 20 }}>
             {I18n.t("donate1")}

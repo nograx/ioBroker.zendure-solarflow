@@ -51,7 +51,7 @@ export const login = (adapter: ZendureSolarflow): Promise<string> => {
       .post(adapter.paths.solarFlowTokenUrl, authBody, config)
       .then(function (response) {
         if (response.data.success) {
-          adapter.log.info("Login to Rest API successful!");
+          adapter.log.info("Login to Zendure Rest API successful!");
 
           if (response.data?.data?.accessToken) {
             return response.data.data.accessToken;

@@ -3,12 +3,10 @@ import { MqttClient } from "mqtt";
 import * as mqtt from "mqtt";
 import { ZendureSolarflow } from "../main";
 import { ISolarFlowDeviceDetails } from "../models/ISolarFlowDeviceDetails";
-import {
-  addOrUpdatePackData,
-  createSolarFlowStates,
-  updateSolarFlowState,
-} from "./adapterService";
+import { updateSolarFlowState } from "./adapterService";
 import { toHoursAndMinutes } from "../helpers/timeHelper";
+import { createSolarFlowStates } from "../helpers/createSolarFlowStates";
+import { IPackData } from "../models/IPackData";
 
 let client: MqttClient | undefined = undefined;
 let adapter: ZendureSolarflow | undefined = undefined;
@@ -27,6 +25,140 @@ const onSubscribe: any = (error: Error | null) => {
   } else {
     adapter?.log.debug("Subscription successful!");
   }
+};
+
+export const addOrUpdatePackData = async (
+  adapter: ZendureSolarflow,
+  productKey: string,
+  deviceKey: string,
+  packData: IPackData[],
+): Promise<void> => {
+  await packData.forEach(async (x) => {
+    // Process data only with a serial id!
+    if (x.sn) {
+      // create a state for the serial id
+      const key = (productKey + "." + deviceKey + ".packData." + x.sn).replace(
+        adapter.FORBIDDEN_CHARS,
+        "",
+      );
+
+      await adapter?.extendObjectAsync(key + ".sn", {
+        type: "state",
+        common: {
+          name: {
+            de: "Seriennummer",
+            en: "Serial id",
+          },
+          type: "string",
+          desc: "Serial ID",
+          role: "value",
+          read: true,
+          write: false,
+        },
+        native: {},
+      });
+
+      await adapter?.setStateAsync(key + ".sn", x.sn, true);
+
+      if (x.socLevel) {
+        // State für socLevel
+        await adapter?.extendObjectAsync(key + ".socLevel", {
+          type: "state",
+          common: {
+            name: {
+              de: "SOC der Batterie",
+              en: "soc of battery",
+            },
+            type: "number",
+            desc: "SOC Level",
+            role: "value",
+            read: true,
+            write: false,
+          },
+          native: {},
+        });
+
+        await adapter?.setStateAsync(key + ".socLevel", x.socLevel, true);
+      }
+
+      if (x.maxTemp) {
+        // State für maxTemp
+        await adapter?.extendObjectAsync(key + ".maxTemp", {
+          type: "state",
+          common: {
+            name: {
+              de: "Max. Temperatur der Batterie",
+              en: "max temp. of battery",
+            },
+            type: "number",
+            desc: "Max. Temp",
+            role: "value",
+            read: true,
+            write: false,
+          },
+          native: {},
+        });
+
+        // Convert Kelvin to Celsius
+        await adapter?.setStateAsync(
+          key + ".maxTemp",
+          x.maxTemp / 10 - 273.15,
+          true,
+        );
+      }
+
+      if (x.minVol) {
+        await adapter?.extendObjectAsync(key + ".minVol", {
+          type: "state",
+          common: {
+            name: "minVol",
+            type: "number",
+            desc: "minVol",
+            role: "value",
+            read: true,
+            write: false,
+          },
+          native: {},
+        });
+
+        await adapter?.setStateAsync(key + ".minVol", x.minVol / 100, true);
+      }
+
+      if (x.maxVol) {
+        await adapter?.extendObjectAsync(key + ".maxVol", {
+          type: "state",
+          common: {
+            name: "maxVol",
+            type: "number",
+            desc: "maxVol",
+            role: "value",
+            read: true,
+            write: false,
+          },
+          native: {},
+        });
+
+        await adapter?.setStateAsync(key + ".maxVol", x.maxVol / 100, true);
+      }
+
+      if (x.totalVol) {
+        await adapter?.extendObjectAsync(key + ".totalVol", {
+          type: "state",
+          common: {
+            name: "totalVol",
+            type: "number",
+            desc: "totalVol",
+            role: "value",
+            read: true,
+            write: false,
+          },
+          native: {},
+        });
+
+        await adapter?.setStateAsync(key + ".totalVol", x.totalVol / 100, true);
+      }
+    }
+  });
 };
 
 const onMessage = async (topic: string, message: Buffer): Promise<void> => {
@@ -201,62 +333,65 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         obj.properties.remainOutTime,
       );
 
-      // Zendure use the same state for input und output values, if charging set remainInputTime, else remainOutTime
-      const packInputPower = Number(
-        (
-          await adapter.getStateAsync(
-            productKey + "." + deviceKey + ".packInputPower",
-          )
-        )?.val,
-      );
-      const outputPackPower = Number(
-        (
-          await adapter.getStateAsync(
-            productKey + "." + deviceKey + ".outputPackPower",
-          )
-        )?.val,
-      );
-
-      if (packInputPower && packInputPower > 0) {
-        // Calculate minutes to format hh:mm
-        updateSolarFlowState(
-          adapter,
-          productKey,
-          deviceKey,
-          "calculations.remainOutTime",
-          obj.properties.remainOutTime < 59940
-            ? toHoursAndMinutes(obj.properties.remainOutTime)
-            : "",
+      // If Adapter calucation is used, calculate in and outtime
+      if (adapter.config.useCalculation) {
+        // Zendure use the same state for input und output values, if charging set remainInputTime, else remainOutTime
+        const packInputPower = Number(
+          (
+            await adapter.getStateAsync(
+              productKey + "." + deviceKey + ".packInputPower",
+            )
+          )?.val,
+        );
+        const outputPackPower = Number(
+          (
+            await adapter.getStateAsync(
+              productKey + "." + deviceKey + ".outputPackPower",
+            )
+          )?.val,
         );
 
-        // Set remainInputTime to blank
-        updateSolarFlowState(
-          adapter,
-          productKey,
-          deviceKey,
-          "calculations.remainInputTime",
-          "",
-        );
-      } else if (outputPackPower && outputPackPower > 0) {
-        // Calculate minutes to format hh:mm
-        updateSolarFlowState(
-          adapter,
-          productKey,
-          deviceKey,
-          "calculations.remainInputTime",
-          obj.properties.remainInputTime < 59940
-            ? toHoursAndMinutes(obj.properties.remainInputTime)
-            : "",
-        );
+        if (packInputPower && packInputPower > 0) {
+          // Calculate minutes to format hh:mm
+          updateSolarFlowState(
+            adapter,
+            productKey,
+            deviceKey,
+            "calculations.remainOutTime",
+            obj.properties.remainOutTime < 59940
+              ? toHoursAndMinutes(obj.properties.remainOutTime)
+              : "",
+          );
 
-        // Set remainOutTime to blank
-        updateSolarFlowState(
-          adapter,
-          productKey,
-          deviceKey,
-          "calculations.remainOutTime",
-          "",
-        );
+          // Set remainInputTime to blank
+          updateSolarFlowState(
+            adapter,
+            productKey,
+            deviceKey,
+            "calculations.remainInputTime",
+            "",
+          );
+        } else if (outputPackPower && outputPackPower > 0) {
+          // Calculate minutes to format hh:mm
+          updateSolarFlowState(
+            adapter,
+            productKey,
+            deviceKey,
+            "calculations.remainInputTime",
+            obj.properties.remainInputTime < 59940
+              ? toHoursAndMinutes(obj.properties.remainInputTime)
+              : "",
+          );
+
+          // Set remainOutTime to blank
+          updateSolarFlowState(
+            adapter,
+            productKey,
+            deviceKey,
+            "calculations.remainOutTime",
+            "",
+          );
+        }
       }
     }
 

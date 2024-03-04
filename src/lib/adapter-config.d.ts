@@ -8,6 +8,7 @@ declare global {
       server: string; // EU or global
       userName: string;
       password: string;
+      useCalculation: boolean;
     }
   }
 }

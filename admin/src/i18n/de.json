@@ -3,6 +3,7 @@
   "server": "Server",
   "userName": "Benutzername",
   "password": "Passwort",
+  "useCalculation": "Berechnungen vom Adapter nutzen (Tageswerte, SOC)",
   "sn": "Seriennummer",
   "eu": "EU",
   "global": "Global",

@@ -16,12 +16,12 @@ import { getDeviceList, login } from "./services/webService";
 import { ISolarFlowDeviceDetails } from "./models/ISolarFlowDeviceDetails";
 import { ISolarFlowPaths } from "./models/ISolarFlowPaths";
 import { pathsGlobal } from "./constants/paths";
+import { Job } from "node-schedule";
 import {
-  calculateEnergy,
-  resetTodaysValues,
-  startCheckStatesTimer,
-} from "./services/adapterService";
-import { Job, scheduleJob } from "node-schedule";
+  startCheckStatesJob,
+  startReloginAndResetValuesJob,
+} from "./services/jobSchedule";
+import { calculateEnergy } from "./services/calculationService";
 
 export class ZendureSolarflow extends utils.Adapter {
   public constructor(options: Partial<utils.AdapterOptions> = {}) {
@@ -41,6 +41,7 @@ export class ZendureSolarflow extends utils.Adapter {
   public lastLogin: Date | undefined = undefined;
 
   public resetValuesJob: Job | undefined = undefined;
+  public checkStatesJob: Job | undefined = undefined;
 
   /**
    * Is called when databases are connected and adapter received configuration.
@@ -58,23 +59,6 @@ export class ZendureSolarflow extends utils.Adapter {
           this.connected = true;
           this.lastLogin = new Date();
 
-          // Schedule Job
-          this.resetValuesJob = scheduleJob("0 0 * * *", () => {
-            // Relogin at night to get a fresh accessToken!
-            this.log.debug(`Refreshing accessToken!`);
-
-            if (this.config.userName && this.config.password) {
-              login(this)?.then((_accessToken: string) => {
-                this.accessToken = _accessToken;
-                this.lastLogin = new Date();
-                this.connected = true;
-              });
-            }
-
-            // Reset Values
-            resetTodaysValues(this);
-          });
-
           // Try to get the device list
           getDeviceList(this)
             .then((result: ISolarFlowDeviceDetails[]) => {
@@ -82,7 +66,10 @@ export class ZendureSolarflow extends utils.Adapter {
                 // Device List found. Save in the adapter properties and connect to MQTT
                 this.deviceList = result;
                 connectMqttClient(this);
-                startCheckStatesTimer(this);
+
+                // Schedule Job
+                startReloginAndResetValuesJob(this);
+                startCheckStatesJob(this);
               }
             })
             .catch(() => {
@@ -115,6 +102,12 @@ export class ZendureSolarflow extends utils.Adapter {
       // Scheduler beenden
       if (this.resetValuesJob) {
         this.resetValuesJob.cancel();
+        this.resetValuesJob = undefined;
+      }
+
+      if (this.checkStatesJob) {
+        this.checkStatesJob?.cancel();
+        this.checkStatesJob = undefined;
       }
 
       callback();
@@ -138,29 +131,51 @@ export class ZendureSolarflow extends utils.Adapter {
       const splitted = id.split(".");
       const productKey = splitted[2];
       const deviceKey = splitted[3];
+      const stateName1 = splitted[4];
+      const stateName2 = splitted[4];
 
-      if (id.includes("setOutputLimit") && state.val != undefined && state.val != null) {
-        setOutputLimit(this, productKey, deviceKey, Number(state.val));
-      } else if (id.includes("dischargeLimit")&& state.val != undefined && state.val != null) {
-        setDischargeLimit(this, productKey, deviceKey, Number(state.val));
-      } else if (id.includes("chargeLimit")&& state.val != undefined && state.val != null) {
-        setChargeLimit(this, productKey, deviceKey, Number(state.val));
-      } else if (id.includes("solarInput")&& state.val != undefined && state.val != null) {
-        // Calculate todays solar input
-        calculateEnergy(this, productKey, deviceKey, "solarInput", state);
-      } else if (id.includes("outputPackPower")&& state.val != undefined && state.val != null) {
-        // Calculate todays output pack power (energy to battery)
-        calculateEnergy(this, productKey, deviceKey, "outputPack", state);
-      } else if (id.includes("packInputPower")&& state.val != undefined && state.val != null) {
-        // Calculate todays pack input power (energy from battery)
-        calculateEnergy(this, productKey, deviceKey, "packInput", state);
-      } else if (id.includes("outputHomePower")&& state.val != undefined && state.val != null) {
-        // Calculate todays pack input power (energy from system to home)
-        calculateEnergy(this, productKey, deviceKey, "outputHome", state);
+      if (state.val != undefined && state.val != null) {
+        switch (stateName1) {
+          case "control":
+            if (stateName2 == "setOutputLimit") {
+              setOutputLimit(this, productKey, deviceKey, Number(state.val));
+            } else if (stateName2 == "dischargeLimit") {
+              setDischargeLimit(this, productKey, deviceKey, Number(state.val));
+            } else if (stateName2 == "chargeLimit") {
+              setChargeLimit(this, productKey, deviceKey, Number(state.val));
+            }
+            break;
+          case "solarInput":
+            if (this.config.useCalculation) {
+              // Calculate todays solar input
+              calculateEnergy(this, productKey, deviceKey, "solarInput", state);
+            }
+            break;
+          case "outputPackPower":
+            if (this.config.useCalculation) {
+              // Calculate todays output pack power (energy to battery)
+              calculateEnergy(this, productKey, deviceKey, "outputPack", state);
+            }
+            break;
+          case "packInputPower":
+            if (this.config.useCalculation) {
+              // Calculate todays pack input power (energy from battery)
+              calculateEnergy(this, productKey, deviceKey, "packInput", state);
+            }
+            break;
+          case "outputHomePower":
+            if (this.config.useCalculation) {
+              // Calculate todays pack input power (energy from system to home)
+              calculateEnergy(this, productKey, deviceKey, "outputHome", state);
+            }
+            break;
+          default:
+            break;
+        }
+      } else {
+        // The state was deleted
+        this.log.debug(`state ${id} deleted`);
       }
-    } else {
-      // The state was deleted
-      this.log.debug(`state ${id} deleted`);
     }
   }
 }

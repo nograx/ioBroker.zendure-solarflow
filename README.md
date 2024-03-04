@@ -38,6 +38,14 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Reorganize Code
+- Calculations are now optional and have to be enabled in settings
+- Calculation of SOC from voltage and energy go in and out of batteries
+- Stop energy feed if voltage drops under limit
+
 ### 1.1.11 (2024-03-01)
 
 - Fix Solar Input 1 and 2 from the new Zendure firmware

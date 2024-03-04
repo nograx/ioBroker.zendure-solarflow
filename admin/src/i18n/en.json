@@ -4,6 +4,7 @@
   "server": "Server",
   "userName": "Username",
   "password": "Password",
+  "useCalculation": "Use calculations (daily values, soc)",
   "sn": "Serial number",
   "eu": "EU",
   "global": "Global",
