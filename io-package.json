@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.1.11",
+    "version": "1.1.12",
     "news": {
+      "1.1.12": {
+        "en": "Reorganize Code\nCalculations are now optional and have to be enabled in settings\nCalculation of SOC from voltage and energy go in and out of batteries\nStop energy feed if voltage drops under limit",
+        "de": "Reorganisieren Code\nBerechnungen sind nun optional und müssen in Einstellungen aktiviert werden\nBerechnung von SOC aus Spannung und Energie gehen in und aus Batterien\nStoppen Sie die Energiezufuhr, wenn die Spannung unter Grenzwert sinkt",
+        "ru": "Реорганизовать код\nРасчеты теперь необязательны и должны быть включены в настройки\nРасчет SOC от напряжения и энергии идет в и из батарей\nОстановить источник энергии, если напряжение падает под лимит",
+        "pt": "Reorganizar código\nCálculos agora são opcionais e têm de ser ativados em configurações\nCálculo de SOC de tensão e energia entrar e sair de baterias\nPare a alimentação de energia se a tensão cair sob limite",
+        "nl": "Code herschikken\nBerekeningen zijn nu optioneel en moeten worden ingeschakeld in instellingen\nBerekening van SOC uit spanning en energie gaan in en uit batterijen\nStop energietoevoer als de spanning onder de limiet daalt",
+        "fr": "Réorganiser le code\nLes calculs sont désormais optionnels et doivent être activés dans les paramètres\nCalcul du COS à partir de la tension et de l'énergie entrent et sortent des batteries\nArrêt de l'alimentation en énergie si la tension tombe sous la limite",
+        "it": "Riorganizzare il Codice\nI calcoli sono ora facoltativi e devono essere abilitati nelle impostazioni\nCalcolo di SOC da tensione ed energia vanno dentro e fuori dalle batterie\nSmettere di alimentazione di energia se la tensione scende sotto limite",
+        "es": "Reorganizar el Código\nLas cálculos son ahora opcionales y tienen que ser habilitados en la configuración\nCálculo de SOC a partir del voltaje y la energía entran y salen de las baterías\nStop energy feed if tension drops under limit",
+        "pl": "Kod reorganizacji\nObliczenia są teraz opcjonalne i muszą być włączone w ustawieniach\nObliczanie SOC z napięcia i energii wchodzi i wychodzi z baterii\nZatrzymać zasilanie energetyczne, jeśli napięcie spada w granicach",
+        "uk": "Код реорганізації\nРозрахунок тепер необов'язково і потрібно ввімкнути в налаштуваннях\nРозрахунок SOC від напруги і енергії йти і з батарей\nЗупинити живлення енергії, якщо краплі напруги під лімітом",
+        "zh-cn": "重组代码\n现在计算是可选的,必须在设置中启用\n从电压和能量中计算出电池的SOC\n如果电压下降, 停止能量喂养"
+      },
       "1.1.11": {
         "en": "Fix Solar Input 1 and 2 from the new Zendure firmware\nFix remaining charging time\nFix calculations overwritten when data with 0 value comes in.",
         "de": "Fix Solar Input 1 und 2 von der neuen Zendure Firmware\nVerbleibende Ladezeit\nFix Berechnungen überschrieben, wenn Daten mit 0 Wert kommen.",
@@ -69,19 +82,6 @@
         "zh-cn": "为今天添加能量计算  '\n为剩余充电和放电时间修正分钟显示错误"
       },
       "1.1.6": {
-        "en": "Add energy calculations for 'today'\nFix minutes display bug for remaining charge and discharge time",
-        "de": "Energieberechnungen für heute hinzufügen '\nFehler der Minutenanzeige für die verbleibende Lade- und Entladezeit",
-        "ru": "Добавить расчеты энергии для \"сегодня\" \"\n6 минут дисплей клоп для оставшегося заряда и времени выгрузки",
-        "pt": "Adicionar cálculos de energia para 'hoje '\nCorrigir minutos exibir bug para o tempo restante de carga e descarga",
-        "nl": "Energieberekeningen toevoegen voor 'vandaag' '\nFix minuten weergave bug voor resterende lading en ontladingstijd",
-        "fr": "Ajouter le calcul de l'énergie pour «aujourd'hui» '\nCorrection minutes affichage bug pour la charge restante et le temps de décharge",
-        "it": "Aggiungere calcoli energetici per 'oggi '\nFissare il bug di visualizzazione dei minuti per il tempo di carica e di scarico rimanenti",
-        "es": "Añadir cálculos energéticos para 'hoy '\nError de visualización de minutos fijo para el tiempo de carga y descarga restante",
-        "pl": "Dodaj obliczenia energii na dziś '\nNapraw błąd wyświetlania minut dla pozostałego czasu ładowania i rozładowania",
-        "uk": "Додавання енергорозрахунків за добу Р\nВиправлення хвилин відображення помилок для решти часу заряду та розряду",
-        "zh-cn": "为今天添加能量计算  '\n为剩余充电和放电时间修正分钟显示错误"
-      },
-      "1.1.5": {
         "en": "Add energy calculations for 'today'\nFix minutes display bug for remaining charge and discharge time",
         "de": "Energieberechnungen für heute hinzufügen '\nFehler der Minutenanzeige für die verbleibende Lade- und Entladezeit",
         "ru": "Добавить расчеты энергии для \"сегодня\" \"\n6 минут дисплей клоп для оставшегося заряда и времени выгрузки",
