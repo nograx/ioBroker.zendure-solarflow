@@ -38,7 +38,8 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
-### 1.1.12 (2024-03-04)
+
+### **WORK IN PROGRESS**
 
 - Reorganize Code
 - Calculations are now optional and have to be enabled in settings

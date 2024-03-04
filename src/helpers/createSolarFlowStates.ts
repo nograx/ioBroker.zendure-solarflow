@@ -3,7 +3,7 @@
 import { ZendureSolarflow } from "../main";
 import { createCalculationStates } from "./createCalculationStates";
 import { createControlStates } from "./createControlStates";
-import { deleteCalculationStates } from "./deleteCalculationStates";
+//import { deleteCalculationStates } from "./deleteCalculationStates";
 
 export const createSolarFlowStates = async (
   adapter: ZendureSolarflow,
@@ -301,6 +301,6 @@ export const createSolarFlowStates = async (
   if (adapter.config.useCalculation) {
     await createCalculationStates(adapter, productKey, deviceKey);
   } else {
-    await deleteCalculationStates(adapter, productKey, deviceKey);
+    //await deleteCalculationStates(adapter, productKey, deviceKey);
   }
 };
