@@ -23,7 +23,6 @@ __export(createSolarFlowStates_exports, {
 module.exports = __toCommonJS(createSolarFlowStates_exports);
 var import_createCalculationStates = require("./createCalculationStates");
 var import_createControlStates = require("./createControlStates");
-var import_deleteCalculationStates = require("./deleteCalculationStates");
 const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
   productKey = productKey.replace(adapter.FORBIDDEN_CHARS, "");
   deviceKey = deviceKey.replace(adapter.FORBIDDEN_CHARS, "");
@@ -288,7 +287,6 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
   if (adapter.config.useCalculation) {
     await (0, import_createCalculationStates.createCalculationStates)(adapter, productKey, deviceKey);
   } else {
-    await (0, import_deleteCalculationStates.deleteCalculationStates)(adapter, productKey, deviceKey);
   }
 };
 // Annotate the CommonJS export names for ESM import in node:
