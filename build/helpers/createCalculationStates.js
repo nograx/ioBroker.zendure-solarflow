@@ -243,7 +243,7 @@ const createCalculationStates = async (adapter, productKey, deviceKey) => {
         role: "value",
         read: true,
         write: false,
-        unit: "%"
+        unit: "Wh"
       },
       native: {}
     }
@@ -262,7 +262,7 @@ const createCalculationStates = async (adapter, productKey, deviceKey) => {
         role: "value",
         read: true,
         write: false,
-        unit: "%"
+        unit: "Wh"
       },
       native: {}
     }

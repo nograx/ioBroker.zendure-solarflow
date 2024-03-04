@@ -132,7 +132,7 @@ export class ZendureSolarflow extends utils.Adapter {
       const productKey = splitted[2];
       const deviceKey = splitted[3];
       const stateName1 = splitted[4];
-      const stateName2 = splitted[4];
+      const stateName2 = splitted[5];
 
       if (state.val != undefined && state.val != null) {
         switch (stateName1) {
