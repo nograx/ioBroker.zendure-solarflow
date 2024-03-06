@@ -29,7 +29,11 @@ var import_calculationService = require("./calculationService");
 const startReloginAndResetValuesJob = async (adapter) => {
   adapter.resetValuesJob = (0, import_node_schedule.scheduleJob)("0 0 * * *", () => {
     var _a;
-    adapter.log.debug(`Refreshing accessToken!`);
+    adapter.log.info(`[startReloginAndResetValuesJob] Refreshing accessToken!`);
+    if (adapter.mqttClient) {
+      adapter.mqttClient.end();
+      adapter.mqttClient = void 0;
+    }
     if (adapter.config.userName && adapter.config.password) {
       (_a = (0, import_webService.login)(adapter)) == null ? void 0 : _a.then((_accessToken) => {
         adapter.accessToken = _accessToken;
@@ -57,7 +61,7 @@ const startCheckStatesJob = async (adapter) => {
         const tenMinutesAgo = Date.now() / 1e3 - 10 * 60;
         if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < tenMinutesAgo) {
           adapter.log.debug(
-            `Last update for deviceKey ${device.deviceKey} was at ${new Date(
+            `[checkStatesJob] Last update for deviceKey ${device.deviceKey} was at ${new Date(
               Number(lastUpdate)
             )}, checking for pseudo power values!`
           );
@@ -68,17 +72,20 @@ const startCheckStatesJob = async (adapter) => {
               true
             ));
           });
-          await (adapter == null ? void 0 : adapter.setStateAsync(
-            device.productKey + "." + device.deviceKey + ".electricLevel",
-            device.electricity,
-            true
-          ));
+          if (device.electricity) {
+            await (adapter == null ? void 0 : adapter.setStateAsync(
+              device.productKey + "." + device.deviceKey + ".electricLevel",
+              device.electricity,
+              true
+            ));
+          }
         }
       });
     }).catch(() => {
       var _a;
-      (_a = adapter.log) == null ? void 0 : _a.error("Retrieving device failed!");
-      return null;
+      (_a = adapter.log) == null ? void 0 : _a.error(
+        "[checkStatesJob] Retrieving device failedRetrieving device failed!"
+      );
     });
   });
 };

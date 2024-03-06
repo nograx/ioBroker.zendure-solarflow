@@ -49,6 +49,7 @@ class ZendureSolarflow extends utils.Adapter {
     this.paths = void 0;
     this.interval = void 0;
     this.lastLogin = void 0;
+    this.mqttClient = void 0;
     this.resetValuesJob = void 0;
     this.checkStatesJob = void 0;
     this.on("ready", this.onReady.bind(this));
@@ -76,17 +77,17 @@ class ZendureSolarflow extends utils.Adapter {
         }).catch(() => {
           var _a2;
           this.connected = false;
-          (_a2 = this.log) == null ? void 0 : _a2.error("Retrieving device failed!");
+          (_a2 = this.log) == null ? void 0 : _a2.error("[onReady] Retrieving device failed!");
         });
       }).catch((error) => {
         this.connected = false;
         this.log.error(
-          "Logon error at Zendure cloud service! Error: " + error.toString()
+          "[onReady] Logon error at Zendure cloud service! Error: " + error.toString()
         );
       });
     } else {
       this.connected = false;
-      this.log.error("No Login Information provided!");
+      this.log.error("[onReady] No Login Information provided!");
     }
   }
   /**
@@ -130,9 +131,15 @@ class ZendureSolarflow extends utils.Adapter {
               (0, import_mqttService.setDischargeLimit)(this, productKey, deviceKey, Number(state.val));
             } else if (stateName2 == "chargeLimit") {
               (0, import_mqttService.setChargeLimit)(this, productKey, deviceKey, Number(state.val));
+            } else if (stateName2 == "lowVoltageBlock") {
+              if (this.config.useLowVoltageBlock) {
+                if (state.val == true) {
+                  (0, import_mqttService.setOutputLimit)(this, productKey, deviceKey, 0);
+                }
+              }
             }
             break;
-          case "solarInput":
+          case "solarInputPower":
             if (this.config.useCalculation) {
               (0, import_calculationService.calculateEnergy)(this, productKey, deviceKey, "solarInput", state);
             }

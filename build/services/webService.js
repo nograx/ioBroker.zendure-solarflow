@@ -73,20 +73,22 @@ const login = (adapter) => {
     return import_axios.default.post(adapter.paths.solarFlowTokenUrl, authBody, config).then(function(response) {
       var _a, _b;
       if (response.data.success) {
-        adapter.log.info("Login to Zendure Rest API successful!");
+        adapter.log.info("[login] Login to Zendure Rest API successful!");
         if ((_b = (_a = response.data) == null ? void 0 : _a.data) == null ? void 0 : _b.accessToken) {
           return response.data.data.accessToken;
         }
       }
     }).catch(function(error) {
       adapter.log.error(error);
-      return Promise.reject("Failed to login to Zendure REST API!");
+      return Promise.reject("[login] Failed to login to Zendure REST API!");
     });
   } else
     return Promise.reject("Path error!");
 };
 const getDeviceList = (adapter) => {
-  adapter.log.debug("Getting device list from Zendure Rest API!");
+  adapter.log.debug(
+    "[getDeviceList] Getting device list from Zendure Rest API!"
+  );
   if (adapter.accessToken && config && config.headers) {
     config.headers["Blade-Auth"] = "bearer " + adapter.accessToken;
     const body = {};
@@ -104,7 +106,7 @@ const getDeviceList = (adapter) => {
       }
     });
   } else {
-    adapter.log.error("No Access Token found!");
+    adapter.log.error("[getDeviceList] No Access Token found!");
     return Promise.reject("No Access Token found!");
   }
 };

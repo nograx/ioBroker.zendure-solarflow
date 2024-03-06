@@ -30,7 +30,8 @@ const calculateSocAndEnergy = async (adapter, productKey, deviceKey, stateKey, v
   const currentEnergyMaxState = await (adapter == null ? void 0 : adapter.getStateAsync(
     productKey + "." + deviceKey + ".calculations.energyWhMax"
   ));
-  const newValue = stateKey == "outputPack" ? Number(currentEnergyState == null ? void 0 : currentEnergyState.val) + value : Number(currentEnergyState == null ? void 0 : currentEnergyState.val) - value;
+  const currentValue = (currentEnergyState == null ? void 0 : currentEnergyState.val) ? Number(currentEnergyState == null ? void 0 : currentEnergyState.val) : 0;
+  const newValue = stateKey == "outputPack" ? currentValue + value : currentValue - value;
   if (newValue > 0) {
     adapter == null ? void 0 : adapter.setStateAsync(
       productKey + "." + deviceKey + ".calculations.energyWh",

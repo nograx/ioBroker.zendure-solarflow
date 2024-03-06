@@ -40,7 +40,7 @@ const deleteCalculationStates = async (adapter, productKey, deviceKey) => {
   stateNames.forEach(async (stateName) => {
     const key = productKey + "." + deviceKey + ".calculations." + stateName;
     if (await adapter.objectExists(key)) {
-      await (adapter == null ? void 0 : adapter.delObjectAsync(key));
+      await (adapter == null ? void 0 : adapter.deleteStateAsync(key));
     }
   });
 };

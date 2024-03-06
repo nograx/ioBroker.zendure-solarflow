@@ -94,6 +94,29 @@ const createControlStates = async (adapter, productKey, deviceKey) => {
       native: {}
     }
   ));
+  if (adapter.config.useLowVoltageBlock) {
+    await (adapter == null ? void 0 : adapter.extendObjectAsync(
+      productKey + "." + deviceKey + ".control.lowVoltageBlock",
+      {
+        type: "state",
+        common: {
+          name: {
+            de: "Niedrige Batteriespannung erkannt",
+            en: "Low Voltage on battery detected"
+          },
+          type: "boolean",
+          desc: "lowVoltageBlock",
+          role: "value.switch",
+          read: true,
+          write: false
+        },
+        native: {}
+      }
+    ));
+    adapter == null ? void 0 : adapter.subscribeStates(
+      productKey + "." + deviceKey + ".control.lowVoltageBlock"
+    );
+  }
   adapter == null ? void 0 : adapter.subscribeStates(
     productKey + "." + deviceKey + ".control.setOutputLimit"
   );
