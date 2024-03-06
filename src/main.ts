@@ -156,7 +156,7 @@ export class ZendureSolarflow extends utils.Adapter {
               }
             }
             break;
-          case "solarInput":
+          case "solarInputPower":
             if (this.config.useCalculation) {
               // Calculate todays solar input
               calculateEnergy(this, productKey, deviceKey, "solarInput", state);

@@ -18,10 +18,12 @@ export const calculateSocAndEnergy = async (
     productKey + "." + deviceKey + ".calculations.energyWhMax",
   );
 
+  const currentValue = currentEnergyState?.val ? Number(currentEnergyState?.val) : 0;
+
   const newValue =
     stateKey == "outputPack"
-      ? Number(currentEnergyState?.val) + value
-      : Number(currentEnergyState?.val) - value;
+      ? currentValue + value
+      : currentValue - value;
 
   if (newValue > 0) {
     adapter?.setStateAsync(
