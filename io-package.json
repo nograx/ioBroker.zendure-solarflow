@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.1.14",
+    "version": "1.1.15",
     "news": {
+      "1.1.15": {
+        "en": "Calculations improved\nStop energy input on low voltage is now an option in settings",
+        "de": "Berechnungen verbessert\nStoppen Sie die Energieeingabe auf Niederspannung ist jetzt eine Option in Einstellungen",
+        "ru": "Улучшены расчеты\nСтоп-вход энергии при низком напряжении теперь опция в настройках",
+        "pt": "Cálculos melhorados\nParar a entrada de energia na baixa tensão é agora uma opção nas configurações",
+        "nl": "Verbeterde berekeningen\nStop energie-input op lage spanning is nu een optie in instellingen",
+        "fr": "Amélioration des calculs\nL'entrée d'énergie stop en basse tension est maintenant une option dans les réglages",
+        "it": "Miglioramento dei calcoli\nInterrompere l'ingresso di energia su bassa tensione è ora un'opzione nelle impostazioni",
+        "es": "Cálculos mejorados\nStop energy input on low tension is now an option in settings",
+        "pl": "Poprawiono obliczenia\nZaprzestanie wprowadzania energii przy niskim napięciu jest teraz opcją w ustawieniach",
+        "uk": "Удосконалено розрахунки\nЗупинити введення енергії на низькій напруги тепер опція в налаштуваннях",
+        "zh-cn": "计算改进\n在低电压下停止能量输入, 现在在设置中是一个选项"
+      },
       "1.1.14": {
         "en": "Reorganize Code\nCalculations are now optional and have to be enabled in settings\nCalculation of SOC from voltage and energy go in and out of batteries\nStop energy feed if voltage drops under limit",
         "de": "Reorganisieren Code\nBerechnungen sind nun optional und müssen in Einstellungen aktiviert werden\nBerechnung von SOC aus Spannung und Energie gehen in und aus Batterien\nStoppen Sie die Energiezufuhr, wenn die Spannung unter Grenzwert sinkt",
@@ -80,19 +93,6 @@
         "pl": "Fix Solar Input 1 i 2 z nowego firmware Zabb\nPopraw pozostały czas ładowania\nNapraw obliczenia nadpisane, gdy dane o wartości 0 wchodzą.",
         "uk": "Фіксація Solar Input 1 і 2 від нової прошивки Zendure\nВиправлення часу решти зарядки\nВиправлення перезаписів, коли дані з значенням 0 надходить в.",
         "zh-cn": "从新的 Zendure 固件中修复太阳输入 1 和 2\n修复剩余充电时间\n当有 0 个值的数据出现时, 修正覆盖的计算 ."
-      },
-      "1.1.8": {
-        "en": "Fix calculation error",
-        "de": "Fehler bei der Berechnung",
-        "ru": "Ошибка расчета",
-        "pt": "Corrigir erro de cálculo",
-        "nl": "Fix rekenfout",
-        "fr": "Correction de l'erreur de calcul",
-        "it": "Correzione dell'errore di calcolo",
-        "es": "Error de cálculo fijo",
-        "pl": "Błąd obliczenia",
-        "uk": "Виправлення помилки розрахунку",
-        "zh-cn": "修正计算错误"
       }
     },
     "title": "Zendure Solarflow",
