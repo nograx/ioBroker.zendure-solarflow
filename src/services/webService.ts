@@ -51,7 +51,7 @@ export const login = (adapter: ZendureSolarflow): Promise<string> => {
       .post(adapter.paths.solarFlowTokenUrl, authBody, config)
       .then(function (response) {
         if (response.data.success) {
-          adapter.log.info("Login to Zendure Rest API successful!");
+          adapter.log.info("[login] Login to Zendure Rest API successful!");
 
           if (response.data?.data?.accessToken) {
             return response.data.data.accessToken;
@@ -60,7 +60,7 @@ export const login = (adapter: ZendureSolarflow): Promise<string> => {
       })
       .catch(function (error) {
         adapter.log.error(error);
-        return Promise.reject("Failed to login to Zendure REST API!");
+        return Promise.reject("[login] Failed to login to Zendure REST API!");
       });
   } else return Promise.reject("Path error!");
 };
@@ -69,7 +69,9 @@ export const getDeviceList = (
   adapter: ZendureSolarflow,
 ): Promise<ISolarFlowDeviceDetails[]> => {
   //adapter.setState("errorMessage", "no_error");
-  adapter.log.debug("Getting device list from Zendure Rest API!");
+  adapter.log.debug(
+    "[getDeviceList] Getting device list from Zendure Rest API!",
+  );
 
   if (adapter.accessToken && config && config.headers) {
     config.headers["Blade-Auth"] = "bearer " + adapter.accessToken;
@@ -94,7 +96,7 @@ export const getDeviceList = (
         }
       });
   } else {
-    adapter.log.error("No Access Token found!");
+    adapter.log.error("[getDeviceList] No Access Token found!");
     return Promise.reject("No Access Token found!");
   }
 };

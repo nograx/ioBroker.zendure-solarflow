@@ -58,7 +58,7 @@ export const createCalculationStates = async (
       type: "state",
       common: {
         name: {
-          de: "Heutige Ladung zum Akku (Wh)",
+          de: "Heutige Ladung zu Batterie (Wh)",
           en: "Todays charge energy to battery (Wh)",
         },
         type: "number",
@@ -78,7 +78,7 @@ export const createCalculationStates = async (
       type: "state",
       common: {
         name: {
-          de: "Heutige Ladung zum Akku (kWh)",
+          de: "Heutige Ladung zur Batterie (kWh)",
           en: "todays charge energy to battery (kWh)",
         },
         type: "number",
@@ -101,7 +101,7 @@ export const createCalculationStates = async (
       type: "state",
       common: {
         name: {
-          de: "Heutige Einspeisung aus Akku (Wh)",
+          de: "Heutige Einspeisung aus Batterie (Wh)",
           en: "Todays discharge energy from battery (Wh)",
         },
         type: "number",
@@ -121,7 +121,7 @@ export const createCalculationStates = async (
       type: "state",
       common: {
         name: {
-          de: "Heutige Einspeisung aus Akku (kWh)",
+          de: "Heutige Einspeisung aus Batterie (kWh)",
           en: "Todays discharge energy from battery (kWh)",
         },
         type: "number",

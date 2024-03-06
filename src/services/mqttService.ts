@@ -1,18 +1,16 @@
 /* eslint-disable @typescript-eslint/indent */
-import { MqttClient } from "mqtt";
 import * as mqtt from "mqtt";
 import { ZendureSolarflow } from "../main";
 import { ISolarFlowDeviceDetails } from "../models/ISolarFlowDeviceDetails";
-import { updateSolarFlowState } from "./adapterService";
+import { checkVoltage, updateSolarFlowState } from "./adapterService";
 import { toHoursAndMinutes } from "../helpers/timeHelper";
 import { createSolarFlowStates } from "../helpers/createSolarFlowStates";
 import { IPackData } from "../models/IPackData";
 
-let client: MqttClient | undefined = undefined;
 let adapter: ZendureSolarflow | undefined = undefined;
 
 const onConnected = (): void => {
-  adapter?.log.info("Connected with MQTT!");
+  adapter?.log.info("[onConnected] Connected with MQTT!");
 };
 
 const onError = (error: any): void => {
@@ -155,7 +153,12 @@ export const addOrUpdatePackData = async (
           native: {},
         });
 
-        await adapter?.setStateAsync(key + ".totalVol", x.totalVol / 100, true);
+        const totalVol = x.totalVol / 100;
+
+        await adapter?.setStateAsync(key + ".totalVol", totalVol, true);
+
+        // Send Voltage to checkVoltage Method
+        checkVoltage(adapter, productKey, deviceKey, totalVol);
       }
     }
   });
@@ -420,7 +423,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
     }
   }
 
-  if (client) {
+  if (adapter?.mqttClient) {
     //client.end();
   }
 };
@@ -431,17 +434,19 @@ export const setChargeLimit = async (
   deviceKey: string,
   socSet: number,
 ): Promise<void> => {
-  if (client && productKey && deviceKey) {
+  if (adapter.mqttClient && productKey && deviceKey) {
     if (socSet > 40 && socSet <= 100) {
       const topic = `iot/${productKey}/${deviceKey}/properties/write`;
 
       const socSetLimit = { properties: { socSet: socSet * 10 } };
       adapter.log.debug(
-        `Setting ChargeLimit for device key ${deviceKey} to ${socSet}!`,
+        `[setChargeLimit] Setting ChargeLimit for device key ${deviceKey} to ${socSet}!`,
       );
-      client?.publish(topic, JSON.stringify(socSetLimit));
+      adapter.mqttClient?.publish(topic, JSON.stringify(socSetLimit));
     } else {
-      adapter.log.debug(`Charge limit is not in range 40<>100!`);
+      adapter.log.debug(
+        `[setChargeLimit] Charge limit is not in range 40<>100!`,
+      );
     }
   }
 };
@@ -452,17 +457,19 @@ export const setDischargeLimit = async (
   deviceKey: string,
   minSoc: number,
 ): Promise<void> => {
-  if (client && productKey && deviceKey) {
+  if (adapter.mqttClient && productKey && deviceKey) {
     if (minSoc > 0 && minSoc < 90) {
       const topic = `iot/${productKey}/${deviceKey}/properties/write`;
 
       const socSetLimit = { properties: { minSoc: minSoc * 10 } };
       adapter.log.debug(
-        `Setting Discharge Limit for device key ${deviceKey} to ${minSoc}!`,
+        `[setDischargeLimit] Setting Discharge Limit for device key ${deviceKey} to ${minSoc}!`,
       );
-      client?.publish(topic, JSON.stringify(socSetLimit));
+      adapter.mqttClient?.publish(topic, JSON.stringify(socSetLimit));
     } else {
-      adapter.log.debug(`Discharge limit is not in range 0<>90!`);
+      adapter.log.debug(
+        `[setDischargeLimit] Discharge limit is not in range 0<>90!`,
+      );
     }
   }
 };
@@ -473,7 +480,20 @@ export const setOutputLimit = async (
   deviceKey: string,
   limit: number,
 ): Promise<void> => {
-  if (client && productKey && deviceKey) {
+  if (adapter.mqttClient && productKey && deviceKey) {
+    if (adapter.config.useLowVoltageBlock) {
+      const lowVoltageBlockState = await adapter.getStateAsync(
+        productKey + "." + deviceKey + ".control.lowVoltageBlock",
+      );
+      if (
+        lowVoltageBlockState &&
+        lowVoltageBlockState.val &&
+        lowVoltageBlockState.val == true
+      ) {
+        limit = 0;
+      }
+    }
+
     // Das Limit kann unter 100 nur in 30er Schritten gesetzt werden, dH. 30/60/90/100, wir rechnen das also um
     const currentLimit = (
       await adapter.getStateAsync(productKey + "." + deviceKey + ".outputLimit")
@@ -504,12 +524,12 @@ export const setOutputLimit = async (
 
         const outputlimit = { properties: { outputLimit: limit } };
         adapter.log.debug(
-          `Setting Output Limit for device key ${deviceKey} to ${limit}!`,
+          `[setOutputLimit] Setting Output Limit for device key ${deviceKey} to ${limit}!`,
         );
-        client?.publish(topic, JSON.stringify(outputlimit));
+        adapter.mqttClient?.publish(topic, JSON.stringify(outputlimit));
       } else {
         adapter.log.debug(
-          `Output Limit for device key ${deviceKey} is already at ${limit}!`,
+          `[setOutputLimit] Output Limit for device key ${deviceKey} is already at ${limit}!`,
         );
       }
     }
@@ -528,14 +548,15 @@ export const connectMqttClient = (_adapter: ZendureSolarflow): void => {
   };
 
   if (mqtt && adapter && adapter.paths) {
-    client = mqtt.connect(
+    adapter.log.debug("[connectMqttClient] Connecting to mqtt client...");
+    adapter.mqttClient = mqtt.connect(
       "mqtt://" + adapter.paths.mqttUrl + ":" + adapter.paths.mqttPort,
       options,
     ); // create a client
 
-    if (client && adapter) {
-      client.on("connect", onConnected);
-      client.on("error", onError);
+    if (adapter && adapter.mqttClient) {
+      adapter.mqttClient.on("connect", onConnected);
+      adapter.mqttClient.on("error", onError);
 
       // Subscribe to Topic (appkey von Zendure)
       adapter.deviceList.forEach((device: ISolarFlowDeviceDetails) => {
@@ -555,14 +576,18 @@ export const connectMqttClient = (_adapter: ZendureSolarflow): void => {
           const reportTopic = `/${device.productKey}/${device.deviceKey}/properties/report`;
           const iotTopic = `iot/${device.productKey}/${device.deviceKey}/#`;
 
-          adapter.log.debug(`Subscribing to MQTT Topic: ${reportTopic}`);
-          client?.subscribe(reportTopic, onSubscribe);
-          adapter.log.debug(`Subscribing to MQTT Topic: ${iotTopic}`);
-          client?.subscribe(iotTopic, onSubscribe);
+          adapter.log.debug(
+            `[connectMqttClient] Subscribing to MQTT Topic: ${reportTopic}`,
+          );
+          adapter.mqttClient?.subscribe(reportTopic, onSubscribe);
+          adapter.log.debug(
+            `[connectMqttClient] Subscribing to MQTT Topic: ${iotTopic}`,
+          );
+          adapter.mqttClient?.subscribe(iotTopic, onSubscribe);
         }
       });
 
-      client.on("message", onMessage);
+      adapter.mqttClient.on("message", onMessage);
     }
   }
 };

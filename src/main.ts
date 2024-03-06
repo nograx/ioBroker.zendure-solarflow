@@ -22,6 +22,7 @@ import {
   startReloginAndResetValuesJob,
 } from "./services/jobSchedule";
 import { calculateEnergy } from "./services/calculationService";
+import { MqttClient } from "mqtt";
 
 export class ZendureSolarflow extends utils.Adapter {
   public constructor(options: Partial<utils.AdapterOptions> = {}) {
@@ -39,6 +40,8 @@ export class ZendureSolarflow extends utils.Adapter {
   public paths: ISolarFlowPaths | undefined = undefined;
   public interval: ioBroker.Interval | undefined = undefined;
   public lastLogin: Date | undefined = undefined;
+
+  public mqttClient: MqttClient | undefined = undefined;
 
   public resetValuesJob: Job | undefined = undefined;
   public checkStatesJob: Job | undefined = undefined;
@@ -74,18 +77,19 @@ export class ZendureSolarflow extends utils.Adapter {
             })
             .catch(() => {
               this.connected = false;
-              this.log?.error("Retrieving device failed!");
+              this.log?.error("[onReady] Retrieving device failed!");
             });
         })
         .catch((error) => {
           this.connected = false;
           this.log.error(
-            "Logon error at Zendure cloud service! Error: " + error.toString(),
+            "[onReady] Logon error at Zendure cloud service! Error: " +
+              error.toString(),
           );
         });
     } else {
       this.connected = false;
-      this.log.error("No Login Information provided!");
+      this.log.error("[onReady] No Login Information provided!");
       //this.stop?.();
     }
   }
@@ -143,6 +147,13 @@ export class ZendureSolarflow extends utils.Adapter {
               setDischargeLimit(this, productKey, deviceKey, Number(state.val));
             } else if (stateName2 == "chargeLimit") {
               setChargeLimit(this, productKey, deviceKey, Number(state.val));
+            } else if (stateName2 == "lowVoltageBlock") {
+              if (this.config.useLowVoltageBlock) {
+                if (state.val == true) {
+                  // Low Voltage Block activated, stop power input
+                  setOutputLimit(this, productKey, deviceKey, 0);
+                }
+              }
             }
             break;
           case "solarInput":

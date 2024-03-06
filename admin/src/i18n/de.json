@@ -4,6 +4,7 @@
   "userName": "Benutzername",
   "password": "Passwort",
   "useCalculation": "Berechnungen vom Adapter nutzen (Tageswerte, SOC)",
+  "useLowVoltageBlock": "Spannungs-Überwachung nutzen (deaktiviert die Einspeisung wenn die Spannung einer Batterie in kritischen Bereich fällt)",
   "sn": "Seriennummer",
   "eu": "EU",
   "global": "Global",

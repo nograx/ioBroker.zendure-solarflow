@@ -5,6 +5,7 @@
   "userName": "Username",
   "password": "Password",
   "useCalculation": "Use calculations (daily values, soc)",
+  "useLowVoltageBlock": "Use low voltage block (deactivates power output when voltagte of one battery drops below critical voltage)",
   "sn": "Serial number",
   "eu": "EU",
   "global": "Global",

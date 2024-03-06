@@ -9,6 +9,7 @@ declare global {
       userName: string;
       password: string;
       useCalculation: boolean;
+      useLowVoltageBlock: boolean;
     }
   }
 }

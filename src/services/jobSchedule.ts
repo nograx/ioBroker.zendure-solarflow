@@ -11,7 +11,12 @@ export const startReloginAndResetValuesJob = async (
 ): Promise<void> => {
   adapter.resetValuesJob = scheduleJob("0 0 * * *", () => {
     // Relogin at night to get a fresh accessToken!
-    adapter.log.debug(`Refreshing accessToken!`);
+    adapter.log.info(`[startReloginAndResetValuesJob] Refreshing accessToken!`);
+
+    if (adapter.mqttClient) {
+      adapter.mqttClient.end();
+      adapter.mqttClient = undefined;
+    }
 
     if (adapter.config.userName && adapter.config.password) {
       login(adapter)?.then((_accessToken: string) => {
@@ -55,7 +60,9 @@ export const startCheckStatesJob = async (
             Number(lastUpdate.val) < tenMinutesAgo
           ) {
             adapter.log.debug(
-              `Last update for deviceKey ${device.deviceKey} was at ${new Date(
+              `[checkStatesJob] Last update for deviceKey ${
+                device.deviceKey
+              } was at ${new Date(
                 Number(lastUpdate),
               )}, checking for pseudo power values!`,
             );
@@ -69,17 +76,20 @@ export const startCheckStatesJob = async (
             });
 
             // set electricLevel from deviceList
-            await adapter?.setStateAsync(
-              device.productKey + "." + device.deviceKey + ".electricLevel",
-              device.electricity,
-              true,
-            );
+            if (device.electricity) {
+              await adapter?.setStateAsync(
+                device.productKey + "." + device.deviceKey + ".electricLevel",
+                device.electricity,
+                true,
+              );
+            }
           }
         });
       })
       .catch(() => {
-        adapter.log?.error("Retrieving device failed!");
-        return null;
+        adapter.log?.error(
+          "[checkStatesJob] Retrieving device failedRetrieving device failed!",
+        );
       });
   });
 };

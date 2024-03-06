@@ -51,7 +51,7 @@ export const createSolarFlowStates = async (
     type: "channel",
     common: {
       name: {
-        de: "Akku Packs",
+        de: "Batterie Packs",
         en: "Battery packs",
       },
     },
@@ -130,7 +130,7 @@ export const createSolarFlowStates = async (
     {
       type: "state",
       common: {
-        name: { de: "Ladeleistung zum Akku", en: "charge power" },
+        name: { de: "Ladeleistung zur Batterie", en: "charge power" },
         type: "number",
         desc: "outputPackPower",
         role: "value.power",
@@ -147,7 +147,7 @@ export const createSolarFlowStates = async (
     {
       type: "state",
       common: {
-        name: { de: "Entladeleistung zum Akku", en: "discharge power" },
+        name: { de: "Entladeleistung aus Batterie", en: "discharge power" },
         type: "number",
         desc: "packInputPower",
         role: "value.power",
