@@ -82,10 +82,15 @@ export const calculateEnergy = async (
       currentPowerState.val != undefined &&
       currentPowerState.val != null
     ) {
-      const timeFrame = currentPowerState.lc - currentEnergyState?.lc;
+      const timeFrame = Date.now() / 1000 - currentEnergyState?.lc;
 
       const addValue = (Number(currentPowerState.val) * timeFrame) / 3600000; // Wh
-      const newValue = Number(currentEnergyState.val) + addValue;
+      let newValue = Number(currentEnergyState.val) + addValue;
+
+      // Fix negative value
+      if (newValue < 0) {
+        newValue = 0;
+      }
 
       adapter?.setStateAsync(stateNameEnergyWh, newValue, true);
       adapter?.setStateAsync(
