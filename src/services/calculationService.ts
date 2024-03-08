@@ -82,7 +82,8 @@ export const calculateEnergy = async (
       currentPowerState.val != undefined &&
       currentPowerState.val != null
     ) {
-      const timeFrame = Date.now() - currentEnergyState?.lc;
+      // Timeframe = 10000ms, Job runs every 10 seconds...
+      const timeFrame = 10000;
 
       /*       console.log(
         `LC = ${currentEnergyState?.lc}, DateNow / 1000 = ${

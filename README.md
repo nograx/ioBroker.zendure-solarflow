@@ -38,9 +38,10 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
-### 1.1.20 (2024-03-08)
 
-- Fix negative values in calculation
+### **WORK IN PROGRESS**
+
+- Fix calculation timeframe
 
 ### 1.1.17 (2024-03-08)
 
@@ -112,7 +113,7 @@ If you find the adapter useful for you and want to support my work, feel free to
 
 ### 1.0.1 (2023-11-03)
 
-- Fix translations
+- Fix translationscd so
 - Use 'extendObjectAsync' instead of 'setObjectNotExistsAsync'
 - First official release version
 
