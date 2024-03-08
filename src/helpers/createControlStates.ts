@@ -100,7 +100,7 @@ export const createControlStates = async (
           },
           type: "boolean",
           desc: "lowVoltageBlock",
-          role: "value.switch",
+          role: "indicator.lowbat",
           read: true,
           write: false,
         },

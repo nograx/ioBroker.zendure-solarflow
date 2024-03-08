@@ -18,6 +18,7 @@ import { ISolarFlowPaths } from "./models/ISolarFlowPaths";
 import { pathsEu, pathsGlobal } from "./constants/paths";
 import { Job } from "node-schedule";
 import {
+  startCalculationJob,
   startCheckStatesJob,
   startReloginAndResetValuesJob,
 } from "./services/jobSchedule";
@@ -77,6 +78,7 @@ export class ZendureSolarflow extends utils.Adapter {
                 // Schedule Job
                 startReloginAndResetValuesJob(this);
                 startCheckStatesJob(this);
+                startCalculationJob(this);
               }
             })
             .catch(() => {
