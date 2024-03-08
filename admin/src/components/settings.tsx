@@ -66,6 +66,7 @@ class Settings extends React.Component<SettingsProps, SettingsState> {
   renderInput(title: AdminWord, attr: string, type: string) {
     return (
       <TextField
+        autoComplete="off"
         label={I18n.t(title)}
         className={`${this.props.classes.input} ${this.props.classes.controlElement}`}
         value={this.props.native[attr]}
@@ -135,9 +136,15 @@ class Settings extends React.Component<SettingsProps, SettingsState> {
   render() {
     return (
       <div style={{ margin: 20 }}>
-        <form className={this.props.classes.tab}>
+        <form autoComplete="off" className={this.props.classes.tab}>
           <div style={{ marginBottom: 20 }}>{I18n.t("settings")}</div>
           {I18n.t("settingsDesc")}
+          {/*        <div>
+            {this.renderSelect("server", "server", [
+              { value: "global", title: "global" },
+              { value: "eu", title: "eu" },
+            ])}
+          </div> */}
           <div>{this.renderInput("userName", "userName", "text")}</div>
           <div>{this.renderInput("password", "password", "password")}</div>
           <div>{this.renderCheckbox("useCalculation", "useCalculation")}</div>

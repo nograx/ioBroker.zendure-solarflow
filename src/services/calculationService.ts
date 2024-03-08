@@ -3,6 +3,13 @@
 import { ZendureSolarflow } from "../main";
 import { ISolarFlowDeviceDetails } from "../models/ISolarFlowDeviceDetails";
 
+const calculationStateKeys = [
+  "packInput",
+  "outputHome",
+  "outputPack",
+  "solarInput",
+];
+
 export const calculateSocAndEnergy = async (
   adapter: ZendureSolarflow,
   productKey: string,
@@ -18,16 +25,16 @@ export const calculateSocAndEnergy = async (
     productKey + "." + deviceKey + ".calculations.energyWhMax",
   );
 
-  const currentValue = currentEnergyState?.val ? Number(currentEnergyState?.val) : 0;
+  const currentValue = currentEnergyState?.val
+    ? Number(currentEnergyState?.val)
+    : 0;
 
   const newValue =
-    stateKey == "outputPack"
-      ? currentValue + value
-      : currentValue - value;
+    stateKey == "outputPack" ? currentValue + value : currentValue - value;
 
   if (newValue > 0) {
     adapter?.setStateAsync(
-      productKey + "." + deviceKey + ".calculations.energyWh",
+      `${productKey}.${deviceKey}.calculations.energyWh`,
       newValue,
       true,
     );
@@ -35,7 +42,7 @@ export const calculateSocAndEnergy = async (
     if (currentEnergyMaxState) {
       const soc = (newValue / Number(currentEnergyMaxState.val)) * 100;
       adapter?.setStateAsync(
-        productKey + "." + deviceKey + ".calculations.soc",
+        `${productKey}.${deviceKey}.calculations.soc`,
         soc,
         true,
       );
@@ -43,7 +50,7 @@ export const calculateSocAndEnergy = async (
       if (newValue > Number(currentEnergyMaxState.val)) {
         // Extend maxVal
         adapter?.setStateAsync(
-          productKey + "." + deviceKey + ".calculations.energyWhMax",
+          `${productKey}.${deviceKey}.calculations.energyWhMax`,
           newValue,
           true,
         );
@@ -56,81 +63,64 @@ export const calculateEnergy = async (
   adapter: ZendureSolarflow,
   productKey: string,
   deviceKey: string,
-  stateKey: string, // e.g. packInput, outputHome, outputPack, solarInput
-  state: ioBroker.State,
 ): Promise<void> => {
-  const stateNameWh =
-    productKey +
-    "." +
-    deviceKey +
-    ".calculations." +
-    stateKey +
-    "EnergyTodayWh";
+  calculationStateKeys.forEach(async (stateKey) => {
+    const stateNameEnergyWh = `${productKey}.${deviceKey}.calculations.${stateKey}EnergyTodayWh`;
+    const stateNameEnergykWh = `${productKey}.${deviceKey}.calculations.${stateKey}EnergyTodaykWh`;
+    const stateNamePower = `${productKey}.${deviceKey}.${stateKey}Power`;
 
-  const stateNamekWh =
-    productKey +
-    "." +
-    deviceKey +
-    ".calculations." +
-    stateKey +
-    "EnergyTodaykWh";
-  const currentState = await adapter?.getStateAsync(stateNameWh);
+    const currentPowerState = await adapter?.getStateAsync(stateNamePower);
+    const currentEnergyState = await adapter?.getStateAsync(stateNameEnergyWh);
 
-  if (currentState?.val == 0) {
-    // Workaround, set Val to very low value to avoid Jump in data...
-    adapter?.setStateAsync(stateNameWh, 0.000001, true);
-  } else if (
-    currentState &&
-    currentState.lc &&
-    state.val != undefined &&
-    state.val != null
-  ) {
-    const timeFrame = state.lc - currentState?.lc;
+    if (currentEnergyState?.val == 0) {
+      // Workaround, set Val to very low value to avoid Jump in data...
+      adapter?.setStateAsync(stateNameEnergyWh, 0.000001, true);
+    } else if (
+      currentEnergyState &&
+      currentEnergyState.lc &&
+      currentPowerState &&
+      currentPowerState.val != undefined &&
+      currentPowerState.val != null
+    ) {
+      const timeFrame = currentPowerState.lc - currentEnergyState?.lc;
 
-    const addValue = (Number(state.val) * timeFrame) / 3600000; // Wh
-    const newValue = Number(currentState.val) + addValue;
+      const addValue = (Number(currentPowerState.val) * timeFrame) / 3600000; // Wh
+      const newValue = Number(currentEnergyState.val) + addValue;
 
-    adapter?.setStateAsync(stateNameWh, newValue, true);
-    adapter?.setStateAsync(
-      stateNamekWh,
-      Number((newValue / 1000).toFixed(2)),
-      true,
-    );
+      adapter?.setStateAsync(stateNameEnergyWh, newValue, true);
+      adapter?.setStateAsync(
+        stateNameEnergykWh,
+        Number((newValue / 1000).toFixed(2)),
+        true,
+      );
 
-    // SOC and energy in batteries
-    if (stateKey == "outputPack" || stateKey == "packInput") {
-      calculateSocAndEnergy(adapter, productKey, deviceKey, stateKey, addValue);
+      // SOC and energy in batteries
+      if (stateKey == "outputPack" || stateKey == "packInput") {
+        calculateSocAndEnergy(
+          adapter,
+          productKey,
+          deviceKey,
+          stateKey,
+          addValue,
+        );
+      }
+    } else {
+      adapter?.setStateAsync(stateNameEnergyWh, 0, true);
+      adapter?.setStateAsync(stateNameEnergykWh, 0, true);
     }
-  } else {
-    adapter?.setStateAsync(stateNameWh, 0, true);
-    adapter?.setStateAsync(stateNamekWh, 0, true);
-  }
+  });
 };
 
 export const resetTodaysValues = async (
   adapter: ZendureSolarflow,
 ): Promise<void> => {
   adapter.deviceList.forEach((device: ISolarFlowDeviceDetails) => {
-    const names = ["packInput", "outputHome", "outputPack", "solarInput"];
+    calculationStateKeys.forEach((stateKey: string) => {
+      const stateNameEnergyWh = `${device.productKey}.${device.deviceKey}.calculations.${stateKey}EnergyTodayWh`;
+      const stateNameEnergykWh = `${device.productKey}.${device.deviceKey}.calculations.${stateKey}EnergyTodaykWh`;
 
-    names.forEach((name: string) => {
-      const stateNameWh =
-        device.productKey +
-        "." +
-        device.deviceKey +
-        ".calculations." +
-        name +
-        "EnergyTodayWh";
-      const stateNamekWh =
-        device.productKey +
-        "." +
-        device.deviceKey +
-        ".calculations." +
-        name +
-        "EnergyTodaykWh";
-
-      adapter?.setStateAsync(stateNameWh, 0, true);
-      adapter?.setStateAsync(stateNamekWh, 0, true);
+      adapter?.setStateAsync(stateNameEnergyWh, 0, true);
+      adapter?.setStateAsync(stateNameEnergykWh, 0, true);
     });
   });
 };

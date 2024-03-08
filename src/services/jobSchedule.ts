@@ -4,7 +4,7 @@ import { ZendureSolarflow } from "../main";
 import { connectMqttClient } from "./mqttService";
 import { getDeviceList, login } from "./webService";
 import { ISolarFlowDeviceDetails } from "../models/ISolarFlowDeviceDetails";
-import { resetTodaysValues } from "./calculationService";
+import { calculateEnergy, resetTodaysValues } from "./calculationService";
 
 export const startReloginAndResetValuesJob = async (
   adapter: ZendureSolarflow,
@@ -30,6 +30,16 @@ export const startReloginAndResetValuesJob = async (
 
     // Reset Values
     resetTodaysValues(adapter);
+  });
+};
+
+export const startCalculationJob = async (
+  adapter: ZendureSolarflow,
+): Promise<void> => {
+  adapter.calculationJob = scheduleJob("*/10 * * * * *", () => {
+    adapter.deviceList.forEach((device) => {
+      calculateEnergy(adapter, device.productKey, device.deviceKey);
+    });
   });
 };
 

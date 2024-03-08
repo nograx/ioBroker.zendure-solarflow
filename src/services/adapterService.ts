@@ -9,7 +9,7 @@ export const updateSolarFlowState = async (
   state: string,
   val: number | string,
 ): Promise<void> => {
-  adapter?.setStateAsync(productKey + "." + deviceKey + "." + state, val, true);
+  adapter?.setStateAsync(`${productKey}.${deviceKey}.${state}`, val, true);
 };
 
 export const checkVoltage = async (
@@ -22,31 +22,31 @@ export const checkVoltage = async (
     if (adapter.config.useCalculation) {
       // Set SOC to 0
       adapter?.setStateAsync(
-        productKey + "." + deviceKey + ".calculations.soc",
+        `${productKey}.${deviceKey}.calculations.soc`,
         0,
         true,
       );
 
       // Calculate new Wh Max Value
       const energyWhState = await adapter.getStateAsync(
-        productKey + "." + deviceKey + ".calculations.energyWh",
+        `${productKey}.${deviceKey}.calculations.energyWh`,
       );
       const energyWhMaxState = await adapter.getStateAsync(
-        productKey + "." + deviceKey + ".calculations.energyWhMax",
+        `${productKey}.${deviceKey}.calculations.energyWhMax`,
       );
 
       const newMax = Number(energyWhMaxState?.val) - Number(energyWhState?.val);
 
       // Set Max Energy to value minus current energy
       adapter?.setStateAsync(
-        productKey + "." + deviceKey + ".calculations.energyWhMax",
+        `${productKey}.${deviceKey}.calculations.energyWhMax`,
         newMax,
         true,
       );
 
       // Set Energy in Battery to 0
       adapter?.setStateAsync(
-        productKey + "." + deviceKey + ".calculations.energyWh",
+        `${productKey}.${deviceKey}.calculations.energyWh`,
         0,
         true,
       );
@@ -55,7 +55,7 @@ export const checkVoltage = async (
     if (adapter.config.useLowVoltageBlock) {
       // Activate Low Voltage Block
       adapter?.setStateAsync(
-        productKey + "." + deviceKey + ".control.lowVoltageBlock",
+        `${productKey}.${deviceKey}.control.lowVoltageBlock`,
         true,
         true,
       );
@@ -64,7 +64,7 @@ export const checkVoltage = async (
     if (adapter.config.useLowVoltageBlock) {
       // Deactivate Low Voltage Block
       adapter?.setStateAsync(
-        productKey + "." + deviceKey + ".control.lowVoltageBlock",
+        `${productKey}.${deviceKey}.control.lowVoltageBlock`,
         false,
         true,
       );

@@ -15,13 +15,12 @@ import {
 import { getDeviceList, login } from "./services/webService";
 import { ISolarFlowDeviceDetails } from "./models/ISolarFlowDeviceDetails";
 import { ISolarFlowPaths } from "./models/ISolarFlowPaths";
-import { pathsGlobal } from "./constants/paths";
+import { pathsEu, pathsGlobal } from "./constants/paths";
 import { Job } from "node-schedule";
 import {
   startCheckStatesJob,
   startReloginAndResetValuesJob,
 } from "./services/jobSchedule";
-import { calculateEnergy } from "./services/calculationService";
 import { MqttClient } from "mqtt";
 
 export class ZendureSolarflow extends utils.Adapter {
@@ -45,13 +44,18 @@ export class ZendureSolarflow extends utils.Adapter {
 
   public resetValuesJob: Job | undefined = undefined;
   public checkStatesJob: Job | undefined = undefined;
+  public calculationJob: Job | undefined = undefined;
 
   /**
    * Is called when databases are connected and adapter received configuration.
    */
   private async onReady(): Promise<void> {
-    // Currently only global Zendure Server are supported!
-    this.paths = pathsGlobal;
+    // Select paths by config value
+    if (this.config.server && this.config.server == "eu") {
+      this.paths = pathsEu;
+    } else {
+      this.paths = pathsGlobal;
+    }
 
     // If Username and Password is provided, try to login and get the access token.
     if (this.config.userName && this.config.password) {
@@ -114,6 +118,11 @@ export class ZendureSolarflow extends utils.Adapter {
         this.checkStatesJob = undefined;
       }
 
+      if (this.calculationJob) {
+        this.calculationJob.cancel();
+        this.calculationJob = undefined;
+      }
+
       callback();
     } catch (e) {
       callback();
@@ -154,30 +163,6 @@ export class ZendureSolarflow extends utils.Adapter {
                   setOutputLimit(this, productKey, deviceKey, 0);
                 }
               }
-            }
-            break;
-          case "solarInputPower":
-            if (this.config.useCalculation) {
-              // Calculate todays solar input
-              calculateEnergy(this, productKey, deviceKey, "solarInput", state);
-            }
-            break;
-          case "outputPackPower":
-            if (this.config.useCalculation) {
-              // Calculate todays output pack power (energy to battery)
-              calculateEnergy(this, productKey, deviceKey, "outputPack", state);
-            }
-            break;
-          case "packInputPower":
-            if (this.config.useCalculation) {
-              // Calculate todays pack input power (energy from battery)
-              calculateEnergy(this, productKey, deviceKey, "packInput", state);
-            }
-            break;
-          case "outputHomePower":
-            if (this.config.useCalculation) {
-              // Calculate todays pack input power (energy from system to home)
-              calculateEnergy(this, productKey, deviceKey, "outputHome", state);
             }
             break;
           default:

@@ -8,7 +8,7 @@ export const createControlStates = async (
   deviceKey: string,
 ): Promise<void> => {
   // Create control folder
-  await adapter?.extendObjectAsync(productKey + "." + deviceKey + ".control", {
+  await adapter?.extendObjectAsync(`${productKey}.${deviceKey}.control`, {
     type: "channel",
     common: {
       name: {
@@ -21,7 +21,7 @@ export const createControlStates = async (
 
   // State zum Setzen des Output Limit
   await adapter?.extendObjectAsync(
-    productKey + "." + deviceKey + ".control.setOutputLimit",
+    `${productKey}.${deviceKey}.control.setOutputLimit`,
     {
       type: "state",
       common: {
@@ -43,7 +43,7 @@ export const createControlStates = async (
 
   // State zum Setzen des Charge Limit
   await adapter?.extendObjectAsync(
-    productKey + "." + deviceKey + ".control.chargeLimit",
+    `${productKey}.${deviceKey}.control.chargeLimit`,
     {
       type: "state",
       common: {
@@ -66,7 +66,7 @@ export const createControlStates = async (
 
   // State zum Setzen des Discharge Limit
   await adapter?.extendObjectAsync(
-    productKey + "." + deviceKey + ".control.dischargeLimit",
+    `${productKey}.${deviceKey}.control.dischargeLimit`,
     {
       type: "state",
       common: {
@@ -90,7 +90,7 @@ export const createControlStates = async (
   if (adapter.config.useLowVoltageBlock) {
     // State zum Setzen des Output Limit
     await adapter?.extendObjectAsync(
-      productKey + "." + deviceKey + ".control.lowVoltageBlock",
+      `${productKey}.${deviceKey}.control.lowVoltageBlock`,
       {
         type: "state",
         common: {
@@ -109,20 +109,14 @@ export const createControlStates = async (
     );
 
     adapter?.subscribeStates(
-      productKey + "." + deviceKey + ".control.lowVoltageBlock",
+      `${productKey}.${deviceKey}.control.lowVoltageBlock`,
     );
   }
 
   // Subcribe to control states
-  adapter?.subscribeStates(
-    productKey + "." + deviceKey + ".control.setOutputLimit",
-  );
+  adapter?.subscribeStates(`${productKey}.${deviceKey}.control.setOutputLimit`);
 
-  adapter?.subscribeStates(
-    productKey + "." + deviceKey + ".control.chargeLimit",
-  );
+  adapter?.subscribeStates(`${productKey}.${deviceKey}.control.chargeLimit`);
 
-  adapter?.subscribeStates(
-    productKey + "." + deviceKey + ".control.dischargeLimit",
-  );
+  adapter?.subscribeStates(`${productKey}.${deviceKey}.control.dischargeLimit`);
 };

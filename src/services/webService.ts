@@ -68,7 +68,6 @@ export const login = (adapter: ZendureSolarflow): Promise<string> => {
 export const getDeviceList = (
   adapter: ZendureSolarflow,
 ): Promise<ISolarFlowDeviceDetails[]> => {
-  //adapter.setState("errorMessage", "no_error");
   adapter.log.debug(
     "[getDeviceList] Getting device list from Zendure Rest API!",
   );

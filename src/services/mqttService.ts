@@ -542,13 +542,16 @@ export const connectMqttClient = (_adapter: ZendureSolarflow): void => {
   const options: mqtt.IClientOptions = {
     clientId: adapter.accessToken,
     username: "zenApp",
-    password: "oK#PCgy6OZxd",
+    password:
+      adapter.config.server && adapter.config.server == "eu"
+        ? "H6s$j9CtNa0N"
+        : "oK#PCgy6OZxd",
     clean: true,
     protocolVersion: 5,
   };
 
   if (mqtt && adapter && adapter.paths) {
-    adapter.log.debug("[connectMqttClient] Connecting to mqtt client...");
+    adapter.log.debug("[connectMqttClient] Connecting to MQTT client...");
     adapter.mqttClient = mqtt.connect(
       "mqtt://" + adapter.paths.mqttUrl + ":" + adapter.paths.mqttPort,
       options,

@@ -32,22 +32,19 @@ export const createSolarFlowStates = async (
   });
 
   // Create calculations folder
-  await adapter?.extendObjectAsync(
-    productKey + "." + deviceKey + ".calculations",
-    {
-      type: "channel",
-      common: {
-        name: {
-          de: "Berechnungen für Gerät " + deviceKey,
-          en: "Calculations for Device " + deviceKey,
-        },
+  await adapter?.extendObjectAsync(`${productKey}.${deviceKey}.calculations`, {
+    type: "channel",
+    common: {
+      name: {
+        de: "Berechnungen für Gerät " + deviceKey,
+        en: "Calculations for Device " + deviceKey,
       },
-      native: {},
     },
-  );
+    native: {},
+  });
 
   // Create pack data folder
-  await adapter?.extendObjectAsync(productKey + "." + deviceKey + ".packData", {
+  await adapter?.extendObjectAsync(`${productKey}.${deviceKey}.packData`, {
     type: "channel",
     common: {
       name: {
@@ -58,41 +55,35 @@ export const createSolarFlowStates = async (
     native: {},
   });
 
-  await adapter?.extendObjectAsync(
-    productKey + "." + deviceKey + "." + "lastUpdate",
-    {
-      type: "state",
-      common: {
-        name: { de: "Letztes Update", en: "Last Update" },
-        type: "number",
-        desc: "lastUpdate",
-        role: "value.time",
-        read: true,
-        write: false,
-      },
-      native: {},
+  await adapter?.extendObjectAsync(`${productKey}.${deviceKey}.lastUpdate`, {
+    type: "state",
+    common: {
+      name: { de: "Letztes Update", en: "Last Update" },
+      type: "number",
+      desc: "lastUpdate",
+      role: "value.time",
+      read: true,
+      write: false,
     },
-  );
+    native: {},
+  });
+
+  await adapter?.extendObjectAsync(`${productKey}.${deviceKey}.electricLevel`, {
+    type: "state",
+    common: {
+      name: { de: "SOC Gesamtsystem", en: "SOC of the system" },
+      type: "number",
+      desc: "electricLevel",
+      role: "value.battery",
+      read: true,
+      write: false,
+      unit: "%",
+    },
+    native: {},
+  });
 
   await adapter?.extendObjectAsync(
-    productKey + "." + deviceKey + "." + "electricLevel",
-    {
-      type: "state",
-      common: {
-        name: { de: "SOC Gesamtsystem", en: "SOC of the system" },
-        type: "number",
-        desc: "electricLevel",
-        role: "value.battery",
-        read: true,
-        write: false,
-        unit: "%",
-      },
-      native: {},
-    },
-  );
-
-  await adapter?.extendObjectAsync(
-    productKey + "." + deviceKey + "." + "outputHomePower",
+    `${productKey}.${deviceKey}.outputHomePower`,
     {
       type: "state",
       common: {
@@ -108,25 +99,22 @@ export const createSolarFlowStates = async (
     },
   );
 
-  await adapter?.extendObjectAsync(
-    productKey + "." + deviceKey + "." + "outputLimit",
-    {
-      type: "state",
-      common: {
-        name: { de: "Limit der Ausgangsleistung", en: "limit of output power" },
-        type: "number",
-        desc: "outputLimit",
-        role: "value.power",
-        read: true,
-        write: false,
-        unit: "W",
-      },
-      native: {},
+  await adapter?.extendObjectAsync(`${productKey}.${deviceKey}.outputLimit`, {
+    type: "state",
+    common: {
+      name: { de: "Limit der Ausgangsleistung", en: "limit of output power" },
+      type: "number",
+      desc: "outputLimit",
+      role: "value.power",
+      read: true,
+      write: false,
+      unit: "W",
     },
-  );
+    native: {},
+  });
 
   await adapter?.extendObjectAsync(
-    productKey + "." + deviceKey + "." + "outputPackPower",
+    `${productKey}.${deviceKey}.outputPackPower`,
     {
       type: "state",
       common: {
@@ -143,7 +131,7 @@ export const createSolarFlowStates = async (
   );
 
   await adapter?.extendObjectAsync(
-    productKey + "." + deviceKey + "." + "packInputPower",
+    `${productKey}.${deviceKey}.packInputPower`,
     {
       type: "state",
       common: {
@@ -160,7 +148,7 @@ export const createSolarFlowStates = async (
   );
 
   await adapter?.extendObjectAsync(
-    productKey + "." + deviceKey + "." + "solarInputPower",
+    `${productKey}.${deviceKey}.solarInputPower`,
     {
       type: "state",
       common: {
@@ -176,42 +164,36 @@ export const createSolarFlowStates = async (
     },
   );
 
-  await adapter?.extendObjectAsync(
-    productKey + "." + deviceKey + "." + "pvPower1",
-    {
-      type: "state",
-      common: {
-        name: { de: "Leistung PV 1", en: "solar power channel 1" },
-        type: "number",
-        desc: "pvPower1",
-        role: "value.power",
-        read: true,
-        write: false,
-        unit: "W",
-      },
-      native: {},
+  await adapter?.extendObjectAsync(`${productKey}.${deviceKey}.pvPower1`, {
+    type: "state",
+    common: {
+      name: { de: "Leistung PV 1", en: "solar power channel 1" },
+      type: "number",
+      desc: "pvPower1",
+      role: "value.power",
+      read: true,
+      write: false,
+      unit: "W",
     },
-  );
+    native: {},
+  });
+
+  await adapter?.extendObjectAsync(`${productKey}.${deviceKey}.pvPower2`, {
+    type: "state",
+    common: {
+      name: { de: "Leistung PV 2", en: "solar power channel 2" },
+      type: "number",
+      desc: "pvPower2",
+      role: "value.power",
+      read: true,
+      write: false,
+      unit: "W",
+    },
+    native: {},
+  });
 
   await adapter?.extendObjectAsync(
-    productKey + "." + deviceKey + "." + "pvPower2",
-    {
-      type: "state",
-      common: {
-        name: { de: "Leistung PV 2", en: "solar power channel 2" },
-        type: "number",
-        desc: "pvPower2",
-        role: "value.power",
-        read: true,
-        write: false,
-        unit: "W",
-      },
-      native: {},
-    },
-  );
-
-  await adapter?.extendObjectAsync(
-    productKey + "." + deviceKey + "." + "remainInputTime",
+    `${productKey}.${deviceKey}.remainInputTime`,
     {
       type: "state",
       common: {
@@ -226,75 +208,49 @@ export const createSolarFlowStates = async (
     },
   );
 
-  await adapter?.extendObjectAsync(
-    productKey + "." + deviceKey + "." + "remainOutTime",
-    {
-      type: "state",
-      common: {
-        name: {
-          de: "Erwartete Entladedauer (Minuten)",
-          en: "remaining discharge time (minutes)",
-        },
-        type: "number",
-        desc: "remainOutTime",
-        role: "value.interval",
-        read: true,
-        write: false,
+  await adapter?.extendObjectAsync(`${productKey}.${deviceKey}.remainOutTime`, {
+    type: "state",
+    common: {
+      name: {
+        de: "Erwartete Entladedauer (Minuten)",
+        en: "remaining discharge time (minutes)",
       },
-      native: {},
+      type: "number",
+      desc: "remainOutTime",
+      role: "value.interval",
+      read: true,
+      write: false,
     },
-  );
+    native: {},
+  });
 
-  await adapter?.extendObjectAsync(
-    productKey + "." + deviceKey + "." + "socSet",
-    {
-      type: "state",
-      common: {
-        name: { de: "Max. SOC", en: "max. SOC" },
-        type: "number",
-        desc: "socSet",
-        role: "value.battery",
-        read: true,
-        write: false,
-        unit: "%",
-      },
-      native: {},
+  await adapter?.extendObjectAsync(`${productKey}.${deviceKey}.socSet`, {
+    type: "state",
+    common: {
+      name: { de: "Max. SOC", en: "max. SOC" },
+      type: "number",
+      desc: "socSet",
+      role: "value.battery",
+      read: true,
+      write: false,
+      unit: "%",
     },
-  );
+    native: {},
+  });
 
-  await adapter?.extendObjectAsync(
-    productKey + "." + deviceKey + "." + "minSoc",
-    {
-      type: "state",
-      common: {
-        name: { de: "Min. SOC", en: "min. SOC" },
-        type: "number",
-        desc: "minSoc",
-        role: "value.battery",
-        read: true,
-        write: false,
-        unit: "%",
-      },
-      native: {},
+  await adapter?.extendObjectAsync(`${productKey}.${deviceKey}.minSoc`, {
+    type: "state",
+    common: {
+      name: { de: "Min. SOC", en: "min. SOC" },
+      type: "number",
+      desc: "minSoc",
+      role: "value.battery",
+      read: true,
+      write: false,
+      unit: "%",
     },
-  );
-
-  // Subscibe to State updates to listen to changes
-  adapter?.subscribeStates(
-    productKey + "." + deviceKey + "." + "solarInputPower",
-  );
-
-  adapter?.subscribeStates(
-    productKey + "." + deviceKey + "." + "outputPackPower",
-  );
-
-  adapter?.subscribeStates(
-    productKey + "." + deviceKey + "." + "packInputPower",
-  );
-
-  adapter?.subscribeStates(
-    productKey + "." + deviceKey + "." + "outputHomePower",
-  );
+    native: {},
+  });
 
   await createControlStates(adapter, productKey, deviceKey);
 
