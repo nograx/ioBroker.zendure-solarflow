@@ -15,7 +15,7 @@ import {
 import { getDeviceList, login } from "./services/webService";
 import { ISolarFlowDeviceDetails } from "./models/ISolarFlowDeviceDetails";
 import { ISolarFlowPaths } from "./models/ISolarFlowPaths";
-import { pathsEu, pathsGlobal } from "./constants/paths";
+import { pathsGlobal } from "./constants/paths";
 import { Job } from "node-schedule";
 import {
   startCalculationJob,
@@ -52,11 +52,11 @@ export class ZendureSolarflow extends utils.Adapter {
    */
   private async onReady(): Promise<void> {
     // Select paths by config value
-    if (this.config.server && this.config.server == "eu") {
-      this.paths = pathsEu;
-    } else {
-      this.paths = pathsGlobal;
-    }
+    //if (this.config.server && this.config.server == "eu") {
+    //  this.paths = pathsEu;
+    //} else {
+    this.paths = pathsGlobal;
+    //}
 
     // If Username and Password is provided, try to login and get the access token.
     if (this.config.userName && this.config.password) {
