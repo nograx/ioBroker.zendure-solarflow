@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.1.18",
+    "version": "1.1.19",
     "news": {
+      "1.1.19": {
+        "en": "Fix negative values in calculation",
+        "de": "Negative Werte in der Berechnung festsetzen",
+        "ru": "Исправление отрицательных значений в расчетах",
+        "pt": "Corrigir valores negativos no cálculo",
+        "nl": "Vaststellen van negatieve waarden bij de berekening",
+        "fr": "Fixer des valeurs négatives dans le calcul",
+        "it": "Fissare i valori negativi nel calcolo",
+        "es": "Fijar valores negativos en el cálculo",
+        "pl": "Popraw wartości ujemne w obliczeniach",
+        "uk": "Виправлення негативних значень при розрахунку",
+        "zh-cn": "在计算中修正负值"
+      },
       "1.1.18": {
         "en": "Fix negative values in calculation",
         "de": "Negative Werte in der Berechnung festsetzen",
@@ -69,19 +82,6 @@
         "zh-cn": "重组代码\n现在计算是可选的,必须在设置中启用\n从电压和能量中计算出电池的SOC\n如果电压下降, 停止能量喂养"
       },
       "1.1.13": {
-        "en": "Reorganize Code\nCalculations are now optional and have to be enabled in settings\nCalculation of SOC from voltage and energy go in and out of batteries\nStop energy feed if voltage drops under limit",
-        "de": "Reorganisieren Code\nBerechnungen sind nun optional und müssen in Einstellungen aktiviert werden\nBerechnung von SOC aus Spannung und Energie gehen in und aus Batterien\nStoppen Sie die Energiezufuhr, wenn die Spannung unter Grenzwert sinkt",
-        "ru": "Реорганизовать код\nРасчеты теперь необязательны и должны быть включены в настройки\nРасчет SOC от напряжения и энергии идет в и из батарей\nОстановить источник энергии, если напряжение падает под лимит",
-        "pt": "Reorganizar código\nCálculos agora são opcionais e têm de ser ativados em configurações\nCálculo de SOC de tensão e energia entrar e sair de baterias\nPare a alimentação de energia se a tensão cair sob limite",
-        "nl": "Code herschikken\nBerekeningen zijn nu optioneel en moeten worden ingeschakeld in instellingen\nBerekening van SOC uit spanning en energie gaan in en uit batterijen\nStop energietoevoer als de spanning onder de limiet daalt",
-        "fr": "Réorganiser le code\nLes calculs sont désormais optionnels et doivent être activés dans les paramètres\nCalcul du COS à partir de la tension et de l'énergie entrent et sortent des batteries\nArrêt de l'alimentation en énergie si la tension tombe sous la limite",
-        "it": "Riorganizzare il Codice\nI calcoli sono ora facoltativi e devono essere abilitati nelle impostazioni\nCalcolo di SOC da tensione ed energia vanno dentro e fuori dalle batterie\nSmettere di alimentazione di energia se la tensione scende sotto limite",
-        "es": "Reorganizar el Código\nLas cálculos son ahora opcionales y tienen que ser habilitados en la configuración\nCálculo de SOC a partir del voltaje y la energía entran y salen de las baterías\nStop energy feed if tension drops under limit",
-        "pl": "Kod reorganizacji\nObliczenia są teraz opcjonalne i muszą być włączone w ustawieniach\nObliczanie SOC z napięcia i energii wchodzi i wychodzi z baterii\nZatrzymać zasilanie energetyczne, jeśli napięcie spada w granicach",
-        "uk": "Код реорганізації\nРозрахунок тепер необов'язково і потрібно ввімкнути в налаштуваннях\nРозрахунок SOC від напруги і енергії йти і з батарей\nЗупинити живлення енергії, якщо краплі напруги під лімітом",
-        "zh-cn": "重组代码\n现在计算是可选的,必须在设置中启用\n从电压和能量中计算出电池的SOC\n如果电压下降, 停止能量喂养"
-      },
-      "1.1.12": {
         "en": "Reorganize Code\nCalculations are now optional and have to be enabled in settings\nCalculation of SOC from voltage and energy go in and out of batteries\nStop energy feed if voltage drops under limit",
         "de": "Reorganisieren Code\nBerechnungen sind nun optional und müssen in Einstellungen aktiviert werden\nBerechnung von SOC aus Spannung und Energie gehen in und aus Batterien\nStoppen Sie die Energiezufuhr, wenn die Spannung unter Grenzwert sinkt",
         "ru": "Реорганизовать код\nРасчеты теперь необязательны и должны быть включены в настройки\nРасчет SOC от напряжения и энергии идет в и из батарей\nОстановить источник энергии, если напряжение падает под лимит",
