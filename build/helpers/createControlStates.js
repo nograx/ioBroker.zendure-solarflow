@@ -106,7 +106,7 @@ const createControlStates = async (adapter, productKey, deviceKey) => {
           },
           type: "boolean",
           desc: "lowVoltageBlock",
-          role: "value.switch",
+          role: "indicator.lowbat",
           read: true,
           write: false
         },
