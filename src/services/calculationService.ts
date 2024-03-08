@@ -82,7 +82,13 @@ export const calculateEnergy = async (
       currentPowerState.val != undefined &&
       currentPowerState.val != null
     ) {
-      const timeFrame = Date.now() / 1000 - currentEnergyState?.lc;
+      const timeFrame = Date.now() - currentEnergyState?.lc;
+
+      /*       console.log(
+        `LC = ${currentEnergyState?.lc}, DateNow / 1000 = ${
+          Date.now() / 1000
+        } / DIFF = ${timeFrame}`,
+      ); */
 
       const addValue = (Number(currentPowerState.val) * timeFrame) / 3600000; // Wh
       let newValue = Number(currentEnergyState.val) + addValue;
