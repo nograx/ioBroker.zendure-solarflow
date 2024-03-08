@@ -18,6 +18,7 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var jobSchedule_exports = {};
 __export(jobSchedule_exports, {
+  startCalculationJob: () => startCalculationJob,
   startCheckStatesJob: () => startCheckStatesJob,
   startReloginAndResetValuesJob: () => startReloginAndResetValuesJob
 });
@@ -43,6 +44,13 @@ const startReloginAndResetValuesJob = async (adapter) => {
       });
     }
     (0, import_calculationService.resetTodaysValues)(adapter);
+  });
+};
+const startCalculationJob = async (adapter) => {
+  adapter.calculationJob = (0, import_node_schedule.scheduleJob)("*/10 * * * * *", () => {
+    adapter.deviceList.forEach((device) => {
+      (0, import_calculationService.calculateEnergy)(adapter, device.productKey, device.deviceKey);
+    });
   });
 };
 const startCheckStatesJob = async (adapter) => {
@@ -91,6 +99,7 @@ const startCheckStatesJob = async (adapter) => {
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  startCalculationJob,
   startCheckStatesJob,
   startReloginAndResetValuesJob
 });

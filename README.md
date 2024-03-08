@@ -38,8 +38,7 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 1.1.16 (2024-03-08)
 
 - Improve calculations
 - No autocomplete on settings

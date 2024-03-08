@@ -22,7 +22,7 @@ __export(createControlStates_exports, {
 });
 module.exports = __toCommonJS(createControlStates_exports);
 const createControlStates = async (adapter, productKey, deviceKey) => {
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(productKey + "." + deviceKey + ".control", {
+  await (adapter == null ? void 0 : adapter.extendObjectAsync(`${productKey}.${deviceKey}.control`, {
     type: "channel",
     common: {
       name: {
@@ -33,7 +33,7 @@ const createControlStates = async (adapter, productKey, deviceKey) => {
     native: {}
   }));
   await (adapter == null ? void 0 : adapter.extendObjectAsync(
-    productKey + "." + deviceKey + ".control.setOutputLimit",
+    `${productKey}.${deviceKey}.control.setOutputLimit`,
     {
       type: "state",
       common: {
@@ -53,7 +53,7 @@ const createControlStates = async (adapter, productKey, deviceKey) => {
     }
   ));
   await (adapter == null ? void 0 : adapter.extendObjectAsync(
-    productKey + "." + deviceKey + ".control.chargeLimit",
+    `${productKey}.${deviceKey}.control.chargeLimit`,
     {
       type: "state",
       common: {
@@ -74,7 +74,7 @@ const createControlStates = async (adapter, productKey, deviceKey) => {
     }
   ));
   await (adapter == null ? void 0 : adapter.extendObjectAsync(
-    productKey + "." + deviceKey + ".control.dischargeLimit",
+    `${productKey}.${deviceKey}.control.dischargeLimit`,
     {
       type: "state",
       common: {
@@ -96,7 +96,7 @@ const createControlStates = async (adapter, productKey, deviceKey) => {
   ));
   if (adapter.config.useLowVoltageBlock) {
     await (adapter == null ? void 0 : adapter.extendObjectAsync(
-      productKey + "." + deviceKey + ".control.lowVoltageBlock",
+      `${productKey}.${deviceKey}.control.lowVoltageBlock`,
       {
         type: "state",
         common: {
@@ -114,18 +114,12 @@ const createControlStates = async (adapter, productKey, deviceKey) => {
       }
     ));
     adapter == null ? void 0 : adapter.subscribeStates(
-      productKey + "." + deviceKey + ".control.lowVoltageBlock"
+      `${productKey}.${deviceKey}.control.lowVoltageBlock`
     );
   }
-  adapter == null ? void 0 : adapter.subscribeStates(
-    productKey + "." + deviceKey + ".control.setOutputLimit"
-  );
-  adapter == null ? void 0 : adapter.subscribeStates(
-    productKey + "." + deviceKey + ".control.chargeLimit"
-  );
-  adapter == null ? void 0 : adapter.subscribeStates(
-    productKey + "." + deviceKey + ".control.dischargeLimit"
-  );
+  adapter == null ? void 0 : adapter.subscribeStates(`${productKey}.${deviceKey}.control.setOutputLimit`);
+  adapter == null ? void 0 : adapter.subscribeStates(`${productKey}.${deviceKey}.control.chargeLimit`);
+  adapter == null ? void 0 : adapter.subscribeStates(`${productKey}.${deviceKey}.control.dischargeLimit`);
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

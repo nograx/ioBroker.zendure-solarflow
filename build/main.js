@@ -36,7 +36,6 @@ var import_mqttService = require("./services/mqttService");
 var import_webService = require("./services/webService");
 var import_paths = require("./constants/paths");
 var import_jobSchedule = require("./services/jobSchedule");
-var import_calculationService = require("./services/calculationService");
 class ZendureSolarflow extends utils.Adapter {
   constructor(options = {}) {
     super({
@@ -52,6 +51,7 @@ class ZendureSolarflow extends utils.Adapter {
     this.mqttClient = void 0;
     this.resetValuesJob = void 0;
     this.checkStatesJob = void 0;
+    this.calculationJob = void 0;
     this.on("ready", this.onReady.bind(this));
     this.on("stateChange", this.onStateChange.bind(this));
     this.on("unload", this.onUnload.bind(this));
@@ -61,7 +61,11 @@ class ZendureSolarflow extends utils.Adapter {
    */
   async onReady() {
     var _a;
-    this.paths = import_paths.pathsGlobal;
+    if (this.config.server && this.config.server == "eu") {
+      this.paths = import_paths.pathsEu;
+    } else {
+      this.paths = import_paths.pathsGlobal;
+    }
     if (this.config.userName && this.config.password) {
       (_a = (0, import_webService.login)(this)) == null ? void 0 : _a.then((_accessToken) => {
         this.accessToken = _accessToken;
@@ -107,6 +111,10 @@ class ZendureSolarflow extends utils.Adapter {
         (_a = this.checkStatesJob) == null ? void 0 : _a.cancel();
         this.checkStatesJob = void 0;
       }
+      if (this.calculationJob) {
+        this.calculationJob.cancel();
+        this.calculationJob = void 0;
+      }
       callback();
     } catch (e) {
       callback();
@@ -137,26 +145,6 @@ class ZendureSolarflow extends utils.Adapter {
                   (0, import_mqttService.setOutputLimit)(this, productKey, deviceKey, 0);
                 }
               }
-            }
-            break;
-          case "solarInputPower":
-            if (this.config.useCalculation) {
-              (0, import_calculationService.calculateEnergy)(this, productKey, deviceKey, "solarInput", state);
-            }
-            break;
-          case "outputPackPower":
-            if (this.config.useCalculation) {
-              (0, import_calculationService.calculateEnergy)(this, productKey, deviceKey, "outputPack", state);
-            }
-            break;
-          case "packInputPower":
-            if (this.config.useCalculation) {
-              (0, import_calculationService.calculateEnergy)(this, productKey, deviceKey, "packInput", state);
-            }
-            break;
-          case "outputHomePower":
-            if (this.config.useCalculation) {
-              (0, import_calculationService.calculateEnergy)(this, productKey, deviceKey, "outputHome", state);
             }
             break;
           default:
