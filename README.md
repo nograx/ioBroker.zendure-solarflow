@@ -38,6 +38,11 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Try to fix reset values at midnight
+
 ### 1.1.21 (2024-03-08)
 
 - Fix calculation timeframe

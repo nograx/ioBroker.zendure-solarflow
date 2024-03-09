@@ -9,7 +9,7 @@ import { calculateEnergy, resetTodaysValues } from "./calculationService";
 export const startReloginAndResetValuesJob = async (
   adapter: ZendureSolarflow,
 ): Promise<void> => {
-  adapter.resetValuesJob = scheduleJob("0 0 * * *", () => {
+  adapter.resetValuesJob = scheduleJob("5 0 0 * * *", () => {
     // Relogin at night to get a fresh accessToken!
     adapter.log.info(`[startReloginAndResetValuesJob] Refreshing accessToken!`);
 
