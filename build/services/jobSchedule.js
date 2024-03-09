@@ -28,7 +28,7 @@ var import_mqttService = require("./mqttService");
 var import_webService = require("./webService");
 var import_calculationService = require("./calculationService");
 const startReloginAndResetValuesJob = async (adapter) => {
-  adapter.resetValuesJob = (0, import_node_schedule.scheduleJob)("0 0 * * *", () => {
+  adapter.resetValuesJob = (0, import_node_schedule.scheduleJob)("5 0 0 * * *", () => {
     var _a;
     adapter.log.info(`[startReloginAndResetValuesJob] Refreshing accessToken!`);
     if (adapter.mqttClient) {

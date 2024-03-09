@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.1.21",
+    "version": "1.1.22",
     "news": {
+      "1.1.22": {
+        "en": "Try to fix reset values at midnight",
+        "de": "Versuchen Sie, Reset-Werte um Mitternacht zu beheben",
+        "ru": "Попробуйте исправить значения сброса в полночь",
+        "pt": "Tente corrigir valores de reset à meia-noite",
+        "nl": "Probeer resetwaarden om middernacht te repareren",
+        "fr": "Essayez de fixer les valeurs de réinitialisation à minuit",
+        "it": "Prova a correggere i valori di reset a mezzanotte",
+        "es": "Trate de fijar valores de reset a medianoche",
+        "pl": "Spróbuj naprawić wartości reset o północy",
+        "uk": "Спробуйте виправити значення скидання на ніч",
+        "zh-cn": "尝试在午夜修复重置值"
+      },
       "1.1.21": {
         "en": "Fix calculation timeframe",
         "de": "Berechnungs-Zeitrahmen",
@@ -80,19 +93,6 @@
         "pl": "Poprawa obliczeń\nBrak autokompletu w ustawieniach",
         "uk": "Покращити розрахунки\nНемає автоматичного завершення на налаштуваннях",
         "zh-cn": "改进计算\n没有自动完成设置"
-      },
-      "1.1.15": {
-        "en": "Calculations improved\nStop energy input on low voltage is now an option in settings",
-        "de": "Berechnungen verbessert\nStoppen Sie die Energieeingabe auf Niederspannung ist jetzt eine Option in Einstellungen",
-        "ru": "Улучшены расчеты\nСтоп-вход энергии при низком напряжении теперь опция в настройках",
-        "pt": "Cálculos melhorados\nParar a entrada de energia na baixa tensão é agora uma opção nas configurações",
-        "nl": "Verbeterde berekeningen\nStop energie-input op lage spanning is nu een optie in instellingen",
-        "fr": "Amélioration des calculs\nL'entrée d'énergie stop en basse tension est maintenant une option dans les réglages",
-        "it": "Miglioramento dei calcoli\nInterrompere l'ingresso di energia su bassa tensione è ora un'opzione nelle impostazioni",
-        "es": "Cálculos mejorados\nStop energy input on low tension is now an option in settings",
-        "pl": "Poprawiono obliczenia\nZaprzestanie wprowadzania energii przy niskim napięciu jest teraz opcją w ustawieniach",
-        "uk": "Удосконалено розрахунки\nЗупинити введення енергії на низькій напруги тепер опція в налаштуваннях",
-        "zh-cn": "计算改进\n在低电压下停止能量输入, 现在在设置中是一个选项"
       }
     },
     "title": "Zendure Solarflow",
