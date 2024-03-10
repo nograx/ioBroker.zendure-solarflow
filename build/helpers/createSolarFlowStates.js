@@ -86,6 +86,70 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
     native: {}
   }));
   await (adapter == null ? void 0 : adapter.extendObjectAsync(
+    `${productKey}.${deviceKey}.pass`,
+    {
+      type: "state",
+      common: {
+        name: { de: "Bypass", en: "Bypass" },
+        type: "number",
+        desc: "pass",
+        role: "state",
+        read: true,
+        write: false,
+        unit: ""
+      },
+      native: {}
+    }
+  ));
+  await (adapter == null ? void 0 : adapter.extendObjectAsync(
+    `${productKey}.${deviceKey}.passMode`,
+    {
+      type: "state",
+      common: {
+        name: { de: "Bypass Modus", en: "Bypass Mode" },
+        type: "number",
+        desc: "passMode",
+        role: "state",
+        read: true,
+        write: false,
+        unit: ""
+      },
+      native: {}
+    }
+  ));
+await (adapter == null ? void 0 : adapter.extendObjectAsync(
+    `${productKey}.${deviceKey}.packState`,
+    {
+      type: "state",
+      common: {
+        name: { de: "Akkustatus", en: "Pack State" },
+        type: "number",
+        desc: "packState",
+        role: "state",
+        read: true,
+        write: false,
+        unit: ""
+      },
+      native: {}
+    }
+  ));
+  await (adapter == null ? void 0 : adapter.extendObjectAsync(
+    `${productKey}.${deviceKey}.autoRecover`,
+    {
+      type: "state",
+      common: {
+        name: { de: "Auto-Wiederherstellung Bypass", en: "Autorecover Bypass" },
+        type: "number",
+        desc: "autoRecover",
+        role: "state",
+        read: true,
+        write: false,
+        unit: ""
+      },
+      native: {}
+    }
+  ));
+  await (adapter == null ? void 0 : adapter.extendObjectAsync(
     `${productKey}.${deviceKey}.outputHomePower`,
     {
       type: "state",
