@@ -38,6 +38,11 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
+### **WORK IN PROGRESS**
+
+- Fix calculation of "energy in batteries"
+- Try to implement EU server - untested -
+
 ### 1.1.22 (2024-03-09)
 
 - Try to fix reset values at midnight

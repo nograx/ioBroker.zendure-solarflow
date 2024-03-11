@@ -139,12 +139,12 @@ class Settings extends React.Component<SettingsProps, SettingsState> {
         <form autoComplete="off" className={this.props.classes.tab}>
           <div style={{ marginBottom: 20 }}>{I18n.t("settings")}</div>
           {I18n.t("settingsDesc")}
-          {/*        <div>
+          <div>
             {this.renderSelect("server", "server", [
               { value: "global", title: "global" },
               { value: "eu", title: "eu" },
             ])}
-          </div> */}
+          </div>
           <div>{this.renderInput("userName", "userName", "text")}</div>
           <div>{this.renderInput("password", "password", "password")}</div>
           <div>{this.renderCheckbox("useCalculation", "useCalculation")}</div>

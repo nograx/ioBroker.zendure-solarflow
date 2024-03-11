@@ -61,7 +61,12 @@ class ZendureSolarflow extends utils.Adapter {
    */
   async onReady() {
     var _a;
-    this.paths = import_paths.pathsGlobal;
+    this.log.debug("Using Server: " + this.config.server);
+    if (this.config.server && this.config.server == "eu") {
+      this.paths = import_paths.pathsEu;
+    } else {
+      this.paths = import_paths.pathsEu;
+    }
     if (this.config.userName && this.config.password) {
       (_a = (0, import_webService.login)(this)) == null ? void 0 : _a.then((_accessToken) => {
         this.accessToken = _accessToken;

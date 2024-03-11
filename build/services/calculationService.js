@@ -83,7 +83,7 @@ const calculateEnergy = async (adapter, productKey, deviceKey) => {
         Number((newValue / 1e3).toFixed(2)),
         true
       );
-      if (stateKey == "outputPack" || stateKey == "packInput") {
+      if ((stateKey == "outputPack" || stateKey == "packInput") && addValue > 0) {
         calculateSocAndEnergy(
           adapter,
           productKey,

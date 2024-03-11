@@ -107,7 +107,7 @@ export const calculateEnergy = async (
       );
 
       // SOC and energy in batteries
-      if (stateKey == "outputPack" || stateKey == "packInput") {
+      if ((stateKey == "outputPack" || stateKey == "packInput") && addValue > 0) {
         calculateSocAndEnergy(
           adapter,
           productKey,
