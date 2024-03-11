@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.1.22",
+    "version": "1.1.23",
     "news": {
+      "1.1.23": {
+        "en": "Fix calculation of \"energy in batteries\"\nTry to implement EU server - untested -",
+        "de": "Fixe Berechnung von \"Energie in Batterien\"\nVersuchen Sie, EU-Server zu implementieren - nicht getestet -",
+        "ru": "Исправленный расчет «энергии в батареях»\nПопробуйте реализовать сервер ЕС - непроверенный -",
+        "pt": "Cálculo fixo de \"energia em baterias\"\nTente implementar servidor da UE - não testado -",
+        "nl": "Berekening van \"energie in batterijen\"\nProbeer de EU-server te implementeren - niet getest -",
+        "fr": "Correction du calcul de \"l'énergie dans les batteries\"\nEssayez de mettre en œuvre le serveur UE - non testé -",
+        "it": "Fissare il calcolo di \"energia nelle batterie\"\nCerca di implementare il server UE - non testato -",
+        "es": "Cálculo de \"energía en baterías\"\nTrate de implementar el servidor de la UE - sin probar -",
+        "pl": "Napraw obliczanie \"energii w bateriach\"\nSpróbuj wdrożyć serwer UE - nieprzetestowany -",
+        "uk": "Фіксований розрахунок \"енергетики в батареях\"\nСпробуйте реалізувати сервер ЄС - не перевірено -",
+        "zh-cn": "固定“电池中的能量”的计算\n尝试执行 EU 服务器 - 未测试 -"
+      },
       "1.1.22": {
         "en": "Try to fix reset values at midnight",
         "de": "Versuchen Sie, Reset-Werte um Mitternacht zu beheben",
@@ -69,19 +82,6 @@
         "zh-cn": "在计算中修正负值"
       },
       "1.1.17": {
-        "en": "Improve calculations\nNo autocomplete on settings",
-        "de": "Berechnungen verbessern\nKein autocomplete auf Einstellungen",
-        "ru": "Совершенствование расчетов\nОтсутствие автозаполнения настроек",
-        "pt": "Melhorar os cálculos\nSem autocompleto nas configurações",
-        "nl": "Verbetering van de berekeningen\nGeen auto-aanvullen bij instellingen",
-        "fr": "Améliorer les calculs\nPas d'autocomplet sur les paramètres",
-        "it": "Migliorare i calcoli\nNessun completamento automatico sulle impostazioni",
-        "es": "Mejorar los cálculos\nNo autocompleto en la configuración",
-        "pl": "Poprawa obliczeń\nBrak autokompletu w ustawieniach",
-        "uk": "Покращити розрахунки\nНемає автоматичного завершення на налаштуваннях",
-        "zh-cn": "改进计算\n没有自动完成设置"
-      },
-      "1.1.16": {
         "en": "Improve calculations\nNo autocomplete on settings",
         "de": "Berechnungen verbessern\nKein autocomplete auf Einstellungen",
         "ru": "Совершенствование расчетов\nОтсутствие автозаполнения настроек",
