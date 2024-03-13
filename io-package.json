@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.1.23",
+    "version": "1.2.0",
     "news": {
+      "1.2.0": {
+        "en": "EU server is working now.\nFix calculation errors in log when calculation is not used\nMore Debug Output\nFilter SolarFlow devices, so no other devices (e.g. SmartPlugs) will be added.\nClear password when settings loaded, as encrypted password is loaded into input and leads to a wrong password.",
+        "de": "EU-Server arbeitet jetzt.\nBerechnungsfehler im Log behoben, wenn die Berechnung nicht verwendet wird\nMehr Debug Ausgang\nFilter Solar Durchflussgeräte, so dass keine anderen Geräte (z.B. SmartPlugs) hinzugefügt werden.\nKlares Passwort bei geladenen Einstellungen, da verschlüsseltes Passwort in Eingabe geladen wird und zu einem falschen Passwort führt.",
+        "ru": "Сервер ЕС работает сейчас.\nИсправление ошибок расчета в журнале, когда не используется расчет\nMore Debug Выход\nФильтры Flow-устройства, поэтому никакие другие устройства (например, SmartPlugs) не будут добавлены.\nОчистить пароль при загрузке настроек, так как зашифрованный пароль загружается в ввод и приводит к неправильному паролю.",
+        "pt": "O servidor da UE está a funcionar agora.\nCorrigir erros de cálculo no log quando o cálculo não é usado\nMais saída de depuração\nFiltro solar Dispositivos de fluxo, então nenhum outro dispositivo (por exemplo, SmartPlugs) será adicionado.\nSenha clara quando as configurações carregadas, como a senha criptografada é carregada em entrada e leva a uma senha errada.",
+        "nl": "De EU-server werkt nu.\nFix rekenfouten in log wanneer berekening niet wordt gebruikt\nMeer debug-uitvoer\nFilterzonne Stroomapparaten, zodat er geen andere apparaten (bv. SmartPlugs) worden toegevoegd.\nWachtwoord wissen bij laden, aangezien versleuteld wachtwoord wordt geladen in invoer en leidt tot een verkeerd wachtwoord.",
+        "fr": "Le serveur de l'UE fonctionne maintenant.\nCorrection d'erreurs de calcul dans le journal lorsque le calcul n'est pas utilisé\nPlus de sortie de débogage\nFiltre solaire Dispositifs de débit, de sorte qu'aucun autre dispositif (par exemple SmartPlugs) ne sera ajouté.\nEffacer le mot de passe lorsque les paramètres sont chargés, car le mot de passe chiffré est chargé en entrée et mène à un mauvais mot de passe.",
+        "it": "Il server UE sta funzionando ora.\nFissare gli errori di calcolo nel registro quando il calcolo non viene utilizzato\nPiù Debug Output\nFiltro solare I dispositivi di flusso, quindi non verranno aggiunti altri dispositivi (ad esempio SmartPlugs).\nCancella password quando le impostazioni vengono caricate, poiché la password crittografata viene caricata in ingresso e porta a una password sbagliata.",
+        "es": "El servidor de la UE está trabajando ahora.\nFijar errores de cálculo en el registro cuando el cálculo no se utiliza\nMás Debug Output\nFiltro solar Dispositivos de flujo, por lo que no se añadirán otros dispositivos (por ejemplo, SmartPlugs).\nContraseña clara cuando se cargan los ajustes, ya que la contraseña cifrada se carga en entrada y conduce a una contraseña incorrecta.",
+        "pl": "Serwer UE działa.\nPopraw błędy obliczeniowe w dzienniku, gdy obliczenia nie są używane\nWięcej wyników debugowania\nFiltr słoneczny Urządzenia przepływowe, więc nie będą dodawane żadne inne urządzenia (np. SmartPlugs).\nWyczyść hasło podczas wczytywania ustawień, ponieważ szyfrowane hasło jest wczytywane do wejścia i prowadzi do błędnego hasła.",
+        "uk": "Сервер ЄС працює зараз.\nВиправлення помилок розрахунку в журналі при розрахунку не використовується\nДетальніше Debug Вихід\nФільтр Сонячний Пристрої потоку, тому не будуть додані інші пристрої (наприклад, SmartPlugs).\nОчистити пароль при навантаженні налаштувань, як зашифрований пароль завантажується в вхід і призводить до неправильного пароля.",
+        "zh-cn": "欧盟服务器正在工作.\n不使用计算时纠正日志中的计算错误\n更多调试输出\n过滤太阳 流设备,所以不会添加其他设备(如SmartPlugs).\n装入设置时清除密码, 因为加密密码被装入输入, 并导致错误的密码 ."
+      },
       "1.1.23": {
         "en": "Fix calculation of \"energy in batteries\"\nTry to implement EU server - untested -",
         "de": "Fixe Berechnung von \"Energie in Batterien\"\nVersuchen Sie, EU-Server zu implementieren - nicht getestet -",
@@ -80,19 +93,6 @@
         "pl": "Popraw wartości ujemne w obliczeniach",
         "uk": "Виправлення негативних значень при розрахунку",
         "zh-cn": "在计算中修正负值"
-      },
-      "1.1.17": {
-        "en": "Improve calculations\nNo autocomplete on settings",
-        "de": "Berechnungen verbessern\nKein autocomplete auf Einstellungen",
-        "ru": "Совершенствование расчетов\nОтсутствие автозаполнения настроек",
-        "pt": "Melhorar os cálculos\nSem autocompleto nas configurações",
-        "nl": "Verbetering van de berekeningen\nGeen auto-aanvullen bij instellingen",
-        "fr": "Améliorer les calculs\nPas d'autocomplet sur les paramètres",
-        "it": "Migliorare i calcoli\nNessun completamento automatico sulle impostazioni",
-        "es": "Mejorar los cálculos\nNo autocompleto en la configuración",
-        "pl": "Poprawa obliczeń\nBrak autokompletu w ustawieniach",
-        "uk": "Покращити розрахунки\nНемає автоматичного завершення на налаштуваннях",
-        "zh-cn": "改进计算\n没有自动完成设置"
       }
     },
     "title": "Zendure Solarflow",

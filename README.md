@@ -38,7 +38,7 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.2.0 (2024-03-13)
 
 - EU server is working now.
 - Fix calculation errors in log when calculation is not used
