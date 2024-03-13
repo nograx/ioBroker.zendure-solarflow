@@ -10,6 +10,24 @@ const calculationStateKeys = [
   "solarInput",
 ];
 
+export const setEnergyWhMax = async (
+  adapter: ZendureSolarflow,
+  productKey: string,
+  deviceKey: string,
+): Promise<void> => {
+  const currentEnergyState = await adapter?.getStateAsync(
+    productKey + "." + deviceKey + ".calculations.energyWh",
+  );
+
+  if (currentEnergyState) {
+    adapter?.setStateAsync(
+      `${productKey}.${deviceKey}.calculations.energyWhMax`,
+      currentEnergyState?.val,
+      true,
+    );
+  }
+}
+
 export const calculateSocAndEnergy = async (
   adapter: ZendureSolarflow,
   productKey: string,
@@ -40,7 +58,7 @@ export const calculateSocAndEnergy = async (
     );
 
     if (currentEnergyMaxState) {
-      const soc = (newValue / Number(currentEnergyMaxState.val)) * 100;
+      const soc = Number(((newValue / Number(currentEnergyMaxState.val)) * 100).toFixed(1));
       adapter?.setStateAsync(
         `${productKey}.${deviceKey}.calculations.soc`,
         soc,

@@ -6,6 +6,7 @@ import { checkVoltage, updateSolarFlowState } from "./adapterService";
 import { toHoursAndMinutes } from "../helpers/timeHelper";
 import { createSolarFlowStates } from "../helpers/createSolarFlowStates";
 import { IPackData } from "../models/IPackData";
+import { setEnergyWhMax } from "./calculationService";
 
 let adapter: ZendureSolarflow | undefined = undefined;
 
@@ -193,6 +194,10 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         "electricLevel",
         obj.properties.electricLevel,
       );
+
+      if (adapter?.config.useCalculation && obj.properties.electricLevel == 100) {
+        setEnergyWhMax(adapter, productKey, deviceKey);
+      }
     }
 
     if (

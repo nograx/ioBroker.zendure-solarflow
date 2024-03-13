@@ -38,6 +38,11 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
+### **WORK IN PROGRESS**
+
+- Fix calculation of soc: Set energyMaxWh to current energyWh if Zendures SOC is 100%
+- Round SOC to max 1 digit after comma.
+
 ### 1.2.0 (2024-03-13)
 
 - EU server is working now.
