@@ -20,7 +20,8 @@ var calculationService_exports = {};
 __export(calculationService_exports, {
   calculateEnergy: () => calculateEnergy,
   calculateSocAndEnergy: () => calculateSocAndEnergy,
-  resetTodaysValues: () => resetTodaysValues
+  resetTodaysValues: () => resetTodaysValues,
+  setEnergyWhMax: () => setEnergyWhMax
 });
 module.exports = __toCommonJS(calculationService_exports);
 const calculationStateKeys = [
@@ -29,6 +30,18 @@ const calculationStateKeys = [
   "outputPack",
   "solarInput"
 ];
+const setEnergyWhMax = async (adapter, productKey, deviceKey) => {
+  const currentEnergyState = await (adapter == null ? void 0 : adapter.getStateAsync(
+    productKey + "." + deviceKey + ".calculations.energyWh"
+  ));
+  if (currentEnergyState) {
+    adapter == null ? void 0 : adapter.setStateAsync(
+      `${productKey}.${deviceKey}.calculations.energyWhMax`,
+      currentEnergyState == null ? void 0 : currentEnergyState.val,
+      true
+    );
+  }
+};
 const calculateSocAndEnergy = async (adapter, productKey, deviceKey, stateKey, value) => {
   const currentEnergyState = await (adapter == null ? void 0 : adapter.getStateAsync(
     productKey + "." + deviceKey + ".calculations.energyWh"
@@ -45,7 +58,7 @@ const calculateSocAndEnergy = async (adapter, productKey, deviceKey, stateKey, v
       true
     );
     if (currentEnergyMaxState) {
-      const soc = newValue / Number(currentEnergyMaxState.val) * 100;
+      const soc = Number((newValue / Number(currentEnergyMaxState.val) * 100).toFixed(1));
       adapter == null ? void 0 : adapter.setStateAsync(
         `${productKey}.${deviceKey}.calculations.soc`,
         soc,
@@ -112,6 +125,7 @@ const resetTodaysValues = async (adapter) => {
 0 && (module.exports = {
   calculateEnergy,
   calculateSocAndEnergy,
-  resetTodaysValues
+  resetTodaysValues,
+  setEnergyWhMax
 });
 //# sourceMappingURL=calculationService.js.map

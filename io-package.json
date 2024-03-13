@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "news": {
+      "1.2.1": {
+        "en": "Fix calculation of soc: Set energyMaxWh to current energyWh if Zendures SOC is 100%\nRound SOC to max 1 digit after comma.",
+        "de": "Berechnung von soc: Energie einstellenMaxWh zur aktuellen Energie Wh, wenn Zendures SOC 100%\nRunder SOC bis max 1 Ziffer nach Komma.",
+        "ru": "Исправление расчета сока: Установка энергииMaxWh к текущей энергии В, если Зендурес SOC составляет 100%\nКруглый SOC до макс. 1 цифры после запятой.",
+        "pt": "Cálculo fixo do soc: Definir energia MaxWh para energia atual Wh se Zendures SOC é 100%\nSOC redondo para max 1 dígito após vírgula.",
+        "nl": "Fix calculation of soc: Energie instellenMaxWh op huidige energie Als Zendures SOC 100% is\nRonde SOC tot maximaal 1 cijfer na komma.",
+        "fr": "Fixez le calcul du soc: Définir l'énergieMaxWh à l'énergie actuelle Whh si Zendures SOC est 100%\nRond SOC à 1 chiffre maximum après virgule.",
+        "it": "Fissare il calcolo del soc: Impostare energia MaxWh a energia corrente Se Zendures SOC è 100%\nSOC tondo a max 1 cifra dopo virgola.",
+        "es": "Fijar el cálculo del soc: Establecer energíaMaxWh a la energía actual Wh si Zendures SOC es 100%\nSOC redondo a máx 1 dígito después del coma.",
+        "pl": "Fix obliczenia soc: Ustaw energyMaxWh na energię bieżącą Wh jeśli Zendures SOC wynosi 100%\nOkrągłe SOC do maksymalnie 1 cyfry po przecinku.",
+        "uk": "Фіксований розрахунок СО: Настроювання енергіїMaxWh до поточної енергії Wh, якщо Zendures SOC 100%\nКруглий SOC до макс. 1 цифра після коми.",
+        "zh-cn": "索克的固定计算 : 将能量MaxWh设定为当前能量 如果Zendures SOC是100%的话\n在逗号后将 SOC 转至最大 1 位数 ."
+      },
       "1.2.0": {
         "en": "EU server is working now.\nFix calculation errors in log when calculation is not used\nMore Debug Output\nFilter SolarFlow devices, so no other devices (e.g. SmartPlugs) will be added.\nClear password when settings loaded, as encrypted password is loaded into input and leads to a wrong password.",
         "de": "EU-Server arbeitet jetzt.\nBerechnungsfehler im Log behoben, wenn die Berechnung nicht verwendet wird\nMehr Debug Ausgang\nFilter Solar Durchflussgeräte, so dass keine anderen Geräte (z.B. SmartPlugs) hinzugefügt werden.\nKlares Passwort bei geladenen Einstellungen, da verschlüsseltes Passwort in Eingabe geladen wird und zu einem falschen Passwort führt.",
@@ -69,19 +82,6 @@
         "zh-cn": "在计算中修正负值"
       },
       "1.1.19": {
-        "en": "Fix negative values in calculation",
-        "de": "Negative Werte in der Berechnung festsetzen",
-        "ru": "Исправление отрицательных значений в расчетах",
-        "pt": "Corrigir valores negativos no cálculo",
-        "nl": "Vaststellen van negatieve waarden bij de berekening",
-        "fr": "Fixer des valeurs négatives dans le calcul",
-        "it": "Fissare i valori negativi nel calcolo",
-        "es": "Fijar valores negativos en el cálculo",
-        "pl": "Popraw wartości ujemne w obliczeniach",
-        "uk": "Виправлення негативних значень при розрахунку",
-        "zh-cn": "在计算中修正负值"
-      },
-      "1.1.18": {
         "en": "Fix negative values in calculation",
         "de": "Negative Werte in der Berechnung festsetzen",
         "ru": "Исправление отрицательных значений в расчетах",

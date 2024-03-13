@@ -39,6 +39,7 @@ var mqtt = __toESM(require("mqtt"));
 var import_adapterService = require("./adapterService");
 var import_timeHelper = require("../helpers/timeHelper");
 var import_createSolarFlowStates = require("../helpers/createSolarFlowStates");
+var import_calculationService = require("./calculationService");
 let adapter = void 0;
 const onConnected = () => {
   adapter == null ? void 0 : adapter.log.info("[onConnected] Connected with MQTT!");
@@ -188,6 +189,9 @@ const onMessage = async (topic, message) => {
         "electricLevel",
         obj.properties.electricLevel
       );
+      if ((adapter == null ? void 0 : adapter.config.useCalculation) && obj.properties.electricLevel == 100) {
+        (0, import_calculationService.setEnergyWhMax)(adapter, productKey, deviceKey);
+      }
     }
     if (((_c = obj.properties) == null ? void 0 : _c.outputHomePower) != null && ((_d = obj.properties) == null ? void 0 : _d.outputHomePower) != void 0) {
       (0, import_adapterService.updateSolarFlowState)(
