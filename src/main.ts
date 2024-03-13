@@ -55,8 +55,10 @@ export class ZendureSolarflow extends utils.Adapter {
     if (this.config.server && this.config.server == "eu") {
       this.paths = pathsEu;
     } else {
-    this.paths = pathsGlobal;
+      this.paths = pathsGlobal;
     }
+
+    this.log.debug("[onReady] Using server " + this.config.server);
 
     // If Username and Password is provided, try to login and get the access token.
     if (this.config.userName && this.config.password) {
@@ -72,13 +74,24 @@ export class ZendureSolarflow extends utils.Adapter {
             .then((result: ISolarFlowDeviceDetails[]) => {
               if (result) {
                 // Device List found. Save in the adapter properties and connect to MQTT
-                this.deviceList = result;
+
+                // Filtering to SolarFlow devices
+                this.deviceList = result.filter((device) => device.name.toLowerCase() == "solarflow");
+
+                this.log.info(
+                  `[onReady] Found ${this.deviceList.length} SolarFlow devices.`
+                );
+
                 connectMqttClient(this);
 
                 // Schedule Job
                 startReloginAndResetValuesJob(this);
                 startCheckStatesJob(this);
-                startCalculationJob(this);
+
+                if (this.config.useCalculation)
+                {
+                  startCalculationJob(this);
+                }
               }
             })
             .catch(() => {

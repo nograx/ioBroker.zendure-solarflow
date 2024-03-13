@@ -18,7 +18,7 @@ You can read more about the API here: https://github.com/Zendure/developer-devic
 
 Notes:
 
-1. You have to use the global Zendure Server!
+1. Currently on working with SolarFlow devices. AIO is not supported (as I don't have such a device..)
 
 2. It is possible to control the Output limit with the state created in the productId/deviceKey/control subfolder. Please deactivate/uncheck all modes in the Zendure App, otherwise it is not possible to set the output limit!
 
@@ -35,9 +35,17 @@ Credits goes to https://github.com/reinhard-brandstaedter/solarflow which helped
 If you find the adapter useful for you and want to support my work, feel free to donate by Paypal. Thank You!
 (this is an personal Donate link for Nograx, in no relation to the ioBroker Project!)<br />
 
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/paypalme/PeterFrommert)
+[![Donate](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
+### **WORK IN PROGRESS**
+
+- EU server is working now.
+- Fix calculation errors in log when calculation is not used
+- More Debug Output
+- Filter SolarFlow devices, so no other devices (e.g. SmartPlugs) will be added.
+- Clear password when settings loaded, as encrypted password is loaded into input and leads to a wrong password.
+
 ### 1.1.23 (2024-03-11)
 
 - Fix calculation of "energy in batteries"

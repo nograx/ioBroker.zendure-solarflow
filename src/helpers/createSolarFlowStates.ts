@@ -13,6 +13,10 @@ export const createSolarFlowStates = async (
   productKey = productKey.replace(adapter.FORBIDDEN_CHARS, "");
   deviceKey = deviceKey.replace(adapter.FORBIDDEN_CHARS, "");
 
+  adapter.log.debug(
+    `[createSolarFlowStates] Creating or updating SolarFlow states for productKey ${productKey} and deviceKey ${deviceKey}.`,
+  );
+
   // Create device (e.g. the product type -> SolarFlow)
   await adapter?.extendObjectAsync(productKey, {
     type: "device",

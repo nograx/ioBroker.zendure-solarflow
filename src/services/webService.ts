@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/indent */
-import { pathsEu, pathsGlobal } from "../constants/paths";
 import { ZendureSolarflow } from "../main";
 import axios, { AxiosRequestConfig } from "axios";
 import { ISolarFlowDeviceDetails } from "../models/ISolarFlowDeviceDetails";
@@ -72,21 +71,13 @@ export const getDeviceList = (
     "[getDeviceList] Getting device list from Zendure Rest API!",
   );
 
-  if (adapter.accessToken && config && config.headers) {
+  if (adapter && adapter.paths && adapter.accessToken && config && config.headers) {
     config.headers["Blade-Auth"] = "bearer " + adapter.accessToken;
 
     const body = {};
 
-    let paths = undefined;
-
-    if (adapter.config.server == "eu") {
-      paths = pathsEu;
-    } else {
-      paths = pathsGlobal;
-    }
-
     return axios
-      .post(paths.solarFlowQueryDeviceListUrl, JSON.stringify(body), config)
+      .post(adapter.paths.solarFlowQueryDeviceListUrl, JSON.stringify(body), config)
       .then(function (response) {
         if (response.data.data && response.data.data.length > 0) {
           return response.data.data as ISolarFlowDeviceDetails[];

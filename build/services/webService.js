@@ -32,7 +32,6 @@ __export(webService_exports, {
   login: () => login
 });
 module.exports = __toCommonJS(webService_exports);
-var import_paths = require("../constants/paths");
 var import_axios = __toESM(require("axios"));
 const config = {
   headers: {
@@ -89,16 +88,10 @@ const getDeviceList = (adapter) => {
   adapter.log.debug(
     "[getDeviceList] Getting device list from Zendure Rest API!"
   );
-  if (adapter.accessToken && config && config.headers) {
+  if (adapter && adapter.paths && adapter.accessToken && config && config.headers) {
     config.headers["Blade-Auth"] = "bearer " + adapter.accessToken;
     const body = {};
-    let paths = void 0;
-    if (adapter.config.server == "eu") {
-      paths = import_paths.pathsEu;
-    } else {
-      paths = import_paths.pathsGlobal;
-    }
-    return import_axios.default.post(paths.solarFlowQueryDeviceListUrl, JSON.stringify(body), config).then(function(response) {
+    return import_axios.default.post(adapter.paths.solarFlowQueryDeviceListUrl, JSON.stringify(body), config).then(function(response) {
       if (response.data.data && response.data.data.length > 0) {
         return response.data.data;
       } else {

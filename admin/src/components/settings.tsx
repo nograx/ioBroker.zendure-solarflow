@@ -61,6 +61,8 @@ class Settings extends React.Component<SettingsProps, SettingsState> {
   constructor(props: SettingsProps) {
     super(props);
     this.state = {};
+
+    this.props.onChange("password", "");
   }
 
   renderInput(title: AdminWord, attr: string, type: string) {
@@ -137,21 +139,26 @@ class Settings extends React.Component<SettingsProps, SettingsState> {
     return (
       <div style={{ margin: 20 }}>
         <form autoComplete="off" className={this.props.classes.tab}>
-          <div style={{ marginBottom: 20 }}>{I18n.t("settings")}</div>
-          {I18n.t("settingsDesc")}
-          <div>
+          <div style={{ marginBottom: 20 }}>
+            <h3>{I18n.t("settings")}</h3>
+          </div>
+          <div>{I18n.t("settingsDesc")}</div>
+          <div style={{marginTop: 10, marginBottom: 5}}>
             {this.renderSelect("server", "server", [
               { value: "global", title: "global" },
               { value: "eu", title: "eu" },
             ])}
           </div>
           <div>{this.renderInput("userName", "userName", "text")}</div>
-          <div>{this.renderInput("password", "password", "password")}</div>
+          <div>{this.renderInput("password", "password", "text")}</div>
+          {this.props.native["password"] == undefined || this.props.native["password"] == "" && <div style={{color: "red"}}>{I18n.t("enterPassword")}</div>}
+
           <div>{this.renderCheckbox("useCalculation", "useCalculation")}</div>
           <div>
             {this.renderCheckbox("useLowVoltageBlock", "useLowVoltageBlock")}
           </div>
-          <div style={{ marginTop: 10 }}>{I18n.t("onlyGlobalServer")}</div>
+
+          <h3>{I18n.t("donateHeader")}</h3>
           <div style={{ marginTop: 20 }}>
             {I18n.t("donate1")}
 
@@ -160,12 +167,13 @@ class Settings extends React.Component<SettingsProps, SettingsState> {
           </div>
           <div style={{ marginTop: 20 }}>
             <a
-              href="http://paypal.me/peter.frommert"
+              href="https://www.paypal.com/paypalme/PeterFrommert"
               target="_blank"
               rel="noreferrer"
             >
               <img
-                src={"https://img.shields.io/badge/Donate-PayPal-green.svg"}
+              height={30}
+                src={"https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white"}
               ></img>
             </a>
           </div>

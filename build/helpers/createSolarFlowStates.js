@@ -26,6 +26,9 @@ var import_createControlStates = require("./createControlStates");
 const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
   productKey = productKey.replace(adapter.FORBIDDEN_CHARS, "");
   deviceKey = deviceKey.replace(adapter.FORBIDDEN_CHARS, "");
+  adapter.log.debug(
+    `[createSolarFlowStates] Creating or updating SolarFlow states for productKey ${productKey} and deviceKey ${deviceKey}.`
+  );
   await (adapter == null ? void 0 : adapter.extendObjectAsync(productKey, {
     type: "device",
     common: {

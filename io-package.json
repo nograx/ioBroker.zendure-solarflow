@@ -158,7 +158,10 @@
     ]
   },
   "native": {
-    "username": ""
+    "userName": "",
+    "server": "global",
+    "useCalculation": false,
+    "useLowVoltageBlock": false
   },
   "encryptedNative": [
     "password"

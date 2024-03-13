@@ -24,5 +24,6 @@
   "settingsDesc": "Bitte geben Sie die Anmeldeinformationen für die Zendure Cloud an (die gleichen, die Sie in der offiziellen App eingegeben haben).",
   "donate1": "Wenn Sie den Adapter nützlich finden und meine Arbeit unterstützen möchten, können Sie gerne per Paypal spenden. Danke schön!",
   "donate2": "(Dies ist ein persönlicher Spendenlink für Nograx, der in keiner Verbindung zum ioBroker-Projekt steht!)",
-  "onlyGlobalServer": "Dieser Adapter funktioniert aktuell nur mit dem globalen Zendure Server!"
+  "donateHeader": "Spende",
+  "enterPassword": "Bitte ein Passwort eingeben!"
 }

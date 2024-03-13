@@ -550,7 +550,7 @@ export const connectMqttClient = (_adapter: ZendureSolarflow): void => {
     protocolVersion: 5,
   };
 
-  if (mqtt && adapter && adapter.paths) {
+  if (mqtt && adapter && adapter.paths && adapter.deviceList) {
     adapter.log.debug("[connectMqttClient] Connecting to MQTT client...");
     adapter.mqttClient = mqtt.connect(
       "mqtt://" + adapter.paths.mqttUrl + ":" + adapter.paths.mqttPort,
@@ -560,6 +560,10 @@ export const connectMqttClient = (_adapter: ZendureSolarflow): void => {
     if (adapter && adapter.mqttClient) {
       adapter.mqttClient.on("connect", onConnected);
       adapter.mqttClient.on("error", onError);
+
+      adapter.log.debug(
+        `[connectMqttClient] Found ${adapter.deviceList.length} SolarFlow devices.`,
+      );
 
       // Subscribe to Topic (appkey von Zendure)
       adapter.deviceList.forEach((device: ISolarFlowDeviceDetails) => {

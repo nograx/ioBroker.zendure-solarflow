@@ -66,6 +66,7 @@ class ZendureSolarflow extends utils.Adapter {
     } else {
       this.paths = import_paths.pathsGlobal;
     }
+    this.log.debug("[onReady] Using server " + this.config.server);
     if (this.config.userName && this.config.password) {
       (_a = (0, import_webService.login)(this)) == null ? void 0 : _a.then((_accessToken) => {
         this.accessToken = _accessToken;
@@ -73,11 +74,16 @@ class ZendureSolarflow extends utils.Adapter {
         this.lastLogin = /* @__PURE__ */ new Date();
         (0, import_webService.getDeviceList)(this).then((result) => {
           if (result) {
-            this.deviceList = result;
+            this.deviceList = result.filter((device) => device.name.toLowerCase() == "solarflow");
+            this.log.info(
+              `[onReady] Found ${this.deviceList.length} SolarFlow devices.`
+            );
             (0, import_mqttService.connectMqttClient)(this);
             (0, import_jobSchedule.startReloginAndResetValuesJob)(this);
             (0, import_jobSchedule.startCheckStatesJob)(this);
-            (0, import_jobSchedule.startCalculationJob)(this);
+            if (this.config.useCalculation) {
+              (0, import_jobSchedule.startCalculationJob)(this);
+            }
           }
         }).catch(() => {
           var _a2;

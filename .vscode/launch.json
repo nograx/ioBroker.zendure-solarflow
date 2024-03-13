@@ -12,7 +12,7 @@
       "type": "node"
     },
     {
-      "command": "dev-server watch",
+      "command": "dev-server debug",
       "name": "Start Dev Server",
       "request": "launch",
       "type": "node-terminal"
@@ -21,7 +21,7 @@
       "name": "Launch Edge",
       "request": "launch",
       "type": "msedge",
-      "url": "http://localhost:8081",
+      "url": "http://localhost:20426",
       "webRoot": "${workspaceFolder}"
     }
   ],

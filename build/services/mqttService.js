@@ -439,7 +439,7 @@ const connectMqttClient = (_adapter) => {
     clean: true,
     protocolVersion: 5
   };
-  if (mqtt && adapter && adapter.paths) {
+  if (mqtt && adapter && adapter.paths && adapter.deviceList) {
     adapter.log.debug("[connectMqttClient] Connecting to MQTT client...");
     adapter.mqttClient = mqtt.connect(
       "mqtt://" + adapter.paths.mqttUrl + ":" + adapter.paths.mqttPort,
@@ -448,6 +448,9 @@ const connectMqttClient = (_adapter) => {
     if (adapter && adapter.mqttClient) {
       adapter.mqttClient.on("connect", onConnected);
       adapter.mqttClient.on("error", onError);
+      adapter.log.debug(
+        `[connectMqttClient] Found ${adapter.deviceList.length} SolarFlow devices.`
+      );
       adapter.deviceList.forEach((device) => {
         var _a, _b;
         if (adapter) {
