@@ -4,7 +4,6 @@ import { ZendureSolarflow } from "../main";
 import { ISolarFlowDeviceDetails } from "../models/ISolarFlowDeviceDetails";
 import { checkVoltage, updateSolarFlowState } from "./adapterService";
 import { toHoursAndMinutes } from "../helpers/timeHelper";
-import { createSolarFlowStates } from "../helpers/createSolarFlowStates";
 import { IPackData } from "../models/IPackData";
 import { setEnergyWhMax } from "./calculationService";
 
@@ -195,9 +194,27 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         obj.properties.electricLevel,
       );
 
-      if (adapter?.config.useCalculation && obj.properties.electricLevel == 100) {
+      if (
+        adapter?.config.useCalculation &&
+        obj.properties.electricLevel == 100
+      ) {
         setEnergyWhMax(adapter, productKey, deviceKey);
       }
+    }
+
+    if (
+      obj.properties?.packState != null &&
+      obj.properties?.packState != undefined
+    ) {
+      const value =
+        obj.properties?.packState == 0
+          ? "Idle"
+          : obj.properties?.packState == 1
+          ? "Charging"
+          : obj.properties?.packState == 2
+          ? "Discharging"
+          : "Unknown";
+      updateSolarFlowState(adapter, productKey, deviceKey, "packState", value);
     }
 
     if (
@@ -572,19 +589,7 @@ export const connectMqttClient = (_adapter: ZendureSolarflow): void => {
 
       // Subscribe to Topic (appkey von Zendure)
       adapter.deviceList.forEach((device: ISolarFlowDeviceDetails) => {
-        // States erstellen
         if (adapter) {
-          createSolarFlowStates(adapter, device.productKey, device.deviceKey);
-
-          // Set electricLevel (soc) from device details.
-          updateSolarFlowState(
-            adapter,
-            device.productKey,
-            device.deviceKey,
-            "electricLevel",
-            device.electricity,
-          );
-
           const reportTopic = `/${device.productKey}/${device.deviceKey}/properties/report`;
           const iotTopic = `iot/${device.productKey}/${device.deviceKey}/#`;
 

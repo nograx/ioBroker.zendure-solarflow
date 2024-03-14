@@ -72,6 +72,19 @@ export const createSolarFlowStates = async (
     native: {},
   });
 
+  await adapter?.extendObjectAsync(`${productKey}.${deviceKey}.packState`, {
+    type: "state",
+    common: {
+      name: { de: "Status der Batterien", en: "Status of batteries" },
+      type: "string",
+      desc: "packState",
+      role: "value",
+      read: true,
+      write: false,
+    },
+    native: {},
+  });
+
   await adapter?.extendObjectAsync(`${productKey}.${deviceKey}.electricLevel`, {
     type: "state",
     common: {
@@ -85,6 +98,61 @@ export const createSolarFlowStates = async (
     },
     native: {},
   });
+
+  await adapter?.extendObjectAsync(`${productKey}.${deviceKey}.name`, {
+    type: "state",
+    common: {
+      name: { de: "Name", en: "Name" },
+      type: "string",
+      desc: "name",
+      role: "value",
+      read: true,
+      write: false,
+    },
+    native: {},
+  });
+
+  await adapter?.extendObjectAsync(`${productKey}.${deviceKey}.snNumber`, {
+    type: "state",
+    common: {
+      name: { de: "Seriennnummer", en: "Serial ID" },
+      type: "string",
+      desc: "snNumber",
+      role: "value",
+      read: true,
+      write: false,
+    },
+    native: {},
+  });
+
+  await adapter?.extendObjectAsync(`${productKey}.${deviceKey}.productName`, {
+    type: "state",
+    common: {
+      name: { de: "Produkt Name", en: "Product name" },
+      type: "string",
+      desc: "productName",
+      role: "value",
+      read: true,
+      write: false,
+    },
+    native: {},
+  });
+
+  await adapter?.extendObjectAsync(
+    `${productKey}.${deviceKey}.registeredServer`,
+    {
+      type: "state",
+      common: {
+        name: { de: "Registrierter Server", en: "Registered server" },
+        type: "string",
+        desc: "registeredServer",
+        role: "value",
+        read: true,
+        write: false,
+      },
+      native: {},
+    },
+  );
 
   await adapter?.extendObjectAsync(
     `${productKey}.${deviceKey}.outputHomePower`,

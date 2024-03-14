@@ -23,6 +23,8 @@ import {
   startReloginAndResetValuesJob,
 } from "./services/jobSchedule";
 import { MqttClient } from "mqtt";
+import { updateSolarFlowState } from "./services/adapterService";
+import { createSolarFlowStates } from "./helpers/createSolarFlowStates";
 
 export class ZendureSolarflow extends utils.Adapter {
   public constructor(options: Partial<utils.AdapterOptions> = {}) {
@@ -76,10 +78,83 @@ export class ZendureSolarflow extends utils.Adapter {
                 // Device List found. Save in the adapter properties and connect to MQTT
 
                 // Filtering to SolarFlow devices
-                this.deviceList = result.filter((device) => device.name.toLowerCase() == "solarflow");
+                this.deviceList = result.filter((device) =>
+                  device.productName.toLowerCase().includes("solarflow"),
+                );
 
                 this.log.info(
-                  `[onReady] Found ${this.deviceList.length} SolarFlow devices.`
+                  `[onReady] Found ${this.deviceList.length} SolarFlow devices.`,
+                );
+
+                this.deviceList.forEach(
+                  async (device: ISolarFlowDeviceDetails) => {
+                    // States erstellen
+                    createSolarFlowStates(
+                      this,
+                      device.productKey,
+                      device.deviceKey,
+                    );
+
+                    // Set electricLevel (soc) from device details.
+                    updateSolarFlowState(
+                      this,
+                      device.productKey,
+                      device.deviceKey,
+                      "electricLevel",
+                      device.electricity,
+                    );
+
+                    // Set name from device details.
+                    updateSolarFlowState(
+                      this,
+                      device.productKey,
+                      device.deviceKey,
+                      "name",
+                      device.name,
+                    );
+
+                    // Set name from device details.
+                    updateSolarFlowState(
+                      this,
+                      device.productKey,
+                      device.deviceKey,
+                      "productName",
+                      device.productName,
+                    );
+
+                    // Set Serial ID from device details.
+                    updateSolarFlowState(
+                      this,
+                      device.productKey,
+                      device.deviceKey,
+                      "snNumber",
+                      device.snNumber,
+                    );
+
+                    // Set registered server from config.
+                    const currentServer = await this.getStateAsync(
+                      `${device.productKey}.${device.deviceKey}.registeredServer`,
+                    );
+
+                    if (currentServer) {
+                      if (
+                        currentServer?.val == undefined ||
+                        currentServer?.val == ""
+                      ) {
+                        updateSolarFlowState(
+                          this,
+                          device.productKey,
+                          device.deviceKey,
+                          "registeredServer",
+                          this.config.server,
+                        );
+                      } else if (currentServer?.val != this.config.server) {
+                        this.log.warn(
+                          `[onReady] Connected to server ${this.config.server}, but device ${device.productKey} / ${device.deviceKey} was registered on server ${currentServer.val}!`,
+                        );
+                      }
+                    }
+                  },
                 );
 
                 connectMqttClient(this);
@@ -88,8 +163,7 @@ export class ZendureSolarflow extends utils.Adapter {
                 startReloginAndResetValuesJob(this);
                 startCheckStatesJob(this);
 
-                if (this.config.useCalculation)
-                {
+                if (this.config.useCalculation) {
                   startCalculationJob(this);
                 }
               }
