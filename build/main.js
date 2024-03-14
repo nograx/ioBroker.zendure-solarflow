@@ -36,6 +36,8 @@ var import_mqttService = require("./services/mqttService");
 var import_webService = require("./services/webService");
 var import_paths = require("./constants/paths");
 var import_jobSchedule = require("./services/jobSchedule");
+var import_adapterService = require("./services/adapterService");
+var import_createSolarFlowStates = require("./helpers/createSolarFlowStates");
 class ZendureSolarflow extends utils.Adapter {
   constructor(options = {}) {
     super({
@@ -72,11 +74,58 @@ class ZendureSolarflow extends utils.Adapter {
         this.accessToken = _accessToken;
         this.connected = true;
         this.lastLogin = /* @__PURE__ */ new Date();
-        (0, import_webService.getDeviceList)(this).then((result) => {
+        (0, import_webService.getDeviceList)(this).then(async (result) => {
           if (result) {
-            this.deviceList = result.filter((device) => device.name.toLowerCase() == "solarflow");
+            this.deviceList = result.filter(
+              (device) => device.productName.toLowerCase().includes("solarflow")
+            );
+            await (0, import_adapterService.checkDevicesServer)(this);
             this.log.info(
-              `[onReady] Found ${this.deviceList.length} SolarFlow devices.`
+              `[onReady] Found ${this.deviceList.length} SolarFlow device(s).`
+            );
+            await this.deviceList.forEach(
+              async (device) => {
+                await (0, import_createSolarFlowStates.createSolarFlowStates)(
+                  this,
+                  device.productKey,
+                  device.deviceKey
+                );
+                await (0, import_adapterService.updateSolarFlowState)(
+                  this,
+                  device.productKey,
+                  device.deviceKey,
+                  "electricLevel",
+                  device.electricity
+                );
+                await (0, import_adapterService.updateSolarFlowState)(
+                  this,
+                  device.productKey,
+                  device.deviceKey,
+                  "name",
+                  device.name
+                );
+                await (0, import_adapterService.updateSolarFlowState)(
+                  this,
+                  device.productKey,
+                  device.deviceKey,
+                  "productName",
+                  device.productName
+                );
+                await (0, import_adapterService.updateSolarFlowState)(
+                  this,
+                  device.productKey,
+                  device.deviceKey,
+                  "snNumber",
+                  device.snNumber
+                );
+                await (0, import_adapterService.updateSolarFlowState)(
+                  this,
+                  device.productKey,
+                  device.deviceKey,
+                  "registeredServer",
+                  this.config.server
+                );
+              }
             );
             (0, import_mqttService.connectMqttClient)(this);
             (0, import_jobSchedule.startReloginAndResetValuesJob)(this);

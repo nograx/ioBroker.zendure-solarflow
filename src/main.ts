@@ -23,7 +23,7 @@ import {
   startReloginAndResetValuesJob,
 } from "./services/jobSchedule";
 import { MqttClient } from "mqtt";
-import { updateSolarFlowState } from "./services/adapterService";
+import { checkDevicesServer, updateSolarFlowState } from "./services/adapterService";
 import { createSolarFlowStates } from "./helpers/createSolarFlowStates";
 
 export class ZendureSolarflow extends utils.Adapter {
@@ -73,7 +73,7 @@ export class ZendureSolarflow extends utils.Adapter {
 
           // Try to get the device list
           getDeviceList(this)
-            .then((result: ISolarFlowDeviceDetails[]) => {
+            .then(async (result: ISolarFlowDeviceDetails[]) => {
               if (result) {
                 // Device List found. Save in the adapter properties and connect to MQTT
 
@@ -82,21 +82,23 @@ export class ZendureSolarflow extends utils.Adapter {
                   device.productName.toLowerCase().includes("solarflow"),
                 );
 
+                await checkDevicesServer(this);
+
                 this.log.info(
-                  `[onReady] Found ${this.deviceList.length} SolarFlow devices.`,
+                  `[onReady] Found ${this.deviceList.length} SolarFlow device(s).`,
                 );
 
-                this.deviceList.forEach(
+                await this.deviceList.forEach(
                   async (device: ISolarFlowDeviceDetails) => {
                     // States erstellen
-                    createSolarFlowStates(
+                    await createSolarFlowStates(
                       this,
                       device.productKey,
                       device.deviceKey,
                     );
 
                     // Set electricLevel (soc) from device details.
-                    updateSolarFlowState(
+                    await updateSolarFlowState(
                       this,
                       device.productKey,
                       device.deviceKey,
@@ -105,7 +107,7 @@ export class ZendureSolarflow extends utils.Adapter {
                     );
 
                     // Set name from device details.
-                    updateSolarFlowState(
+                    await updateSolarFlowState(
                       this,
                       device.productKey,
                       device.deviceKey,
@@ -114,7 +116,7 @@ export class ZendureSolarflow extends utils.Adapter {
                     );
 
                     // Set name from device details.
-                    updateSolarFlowState(
+                    await updateSolarFlowState(
                       this,
                       device.productKey,
                       device.deviceKey,
@@ -123,7 +125,7 @@ export class ZendureSolarflow extends utils.Adapter {
                     );
 
                     // Set Serial ID from device details.
-                    updateSolarFlowState(
+                    await updateSolarFlowState(
                       this,
                       device.productKey,
                       device.deviceKey,
@@ -131,29 +133,13 @@ export class ZendureSolarflow extends utils.Adapter {
                       device.snNumber,
                     );
 
-                    // Set registered server from config.
-                    const currentServer = await this.getStateAsync(
-                      `${device.productKey}.${device.deviceKey}.registeredServer`,
+                    await updateSolarFlowState(
+                      this,
+                      device.productKey,
+                      device.deviceKey,
+                      "registeredServer",
+                      this.config.server,
                     );
-
-                    if (currentServer) {
-                      if (
-                        currentServer?.val == undefined ||
-                        currentServer?.val == ""
-                      ) {
-                        updateSolarFlowState(
-                          this,
-                          device.productKey,
-                          device.deviceKey,
-                          "registeredServer",
-                          this.config.server,
-                        );
-                      } else if (currentServer?.val != this.config.server) {
-                        this.log.warn(
-                          `[onReady] Connected to server ${this.config.server}, but device ${device.productKey} / ${device.deviceKey} was registered on server ${currentServer.val}!`,
-                        );
-                      }
-                    }
                   },
                 );
 

@@ -43,6 +43,8 @@ If you find the adapter useful for you and want to support my work, feel free to
 
 - Fix issue that renamed devices could not be found.
 - Add states for name, product name, serial ID and configured server.
+- Make "energyWhMax" State writable, so you can adjust the max Value.
+- Sent a warning if a device is configured for a server not in use.
 
 ### 1.2.1 (2024-03-13)
 

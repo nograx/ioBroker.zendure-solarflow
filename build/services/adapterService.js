@@ -18,6 +18,7 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var adapterService_exports = {};
 __export(adapterService_exports, {
+  checkDevicesServer: () => checkDevicesServer,
   checkVoltage: () => checkVoltage,
   updateSolarFlowState: () => updateSolarFlowState
 });
@@ -68,8 +69,26 @@ const checkVoltage = async (adapter, productKey, deviceKey, voltage) => {
     }
   }
 };
+const checkDevicesServer = async (adapter) => {
+  const channels = await adapter.getChannelsAsync();
+  channels.forEach(async (channel) => {
+    if (channel._id) {
+      const splitted = channel._id.split(".");
+      console.log(splitted);
+      if (splitted.length == 4) {
+        const productKey = splitted[2];
+        const deviceKey = splitted[3];
+        const currentServerState = await adapter.getStateAsync(`${productKey}.${deviceKey}.registeredServer`);
+        if (currentServerState && currentServerState.val && currentServerState.val != adapter.config.server) {
+          adapter.log.warn(`Device with ProductKey ${productKey} and DeviceKey ${deviceKey} was configured on ${currentServerState.val}, but adapter configured for ${adapter.config.server}!`);
+        }
+      }
+    }
+  });
+};
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  checkDevicesServer,
   checkVoltage,
   updateSolarFlowState
 });

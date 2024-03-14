@@ -583,10 +583,6 @@ export const connectMqttClient = (_adapter: ZendureSolarflow): void => {
       adapter.mqttClient.on("connect", onConnected);
       adapter.mqttClient.on("error", onError);
 
-      adapter.log.debug(
-        `[connectMqttClient] Found ${adapter.deviceList.length} SolarFlow devices.`,
-      );
-
       // Subscribe to Topic (appkey von Zendure)
       adapter.deviceList.forEach((device: ISolarFlowDeviceDetails) => {
         if (adapter) {
