@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.2.1",
+    "version": "1.2.2",
     "news": {
+      "1.2.2": {
+        "en": "Fix issue that renamed devices could not be found.\nAdd states for name, product name, serial ID and configured server.\nMake \"energyWhMax\" State writable, so you can adjust the max Value.\nSent a warning if a device is configured for a server not in use.",
+        "de": "Problem behoben, dass umbenannte Geräte nicht gefunden werden konnten.\nFügen Sie Zustände für Name, Produktname, Serien-ID und konfigurierten Server hinzu.\nMachen Sie \"energyWhMax\" Zustand schreibbar, so können Sie den Maximalwert anpassen.\nGesendet eine Warnung, wenn ein Gerät für einen nicht im Einsatz befindlichen Server konfiguriert ist.",
+        "ru": "Исправьте проблему, которую переименованные устройства не удалось найти.\nДобавить состояния для имени, имени продукта, последовательного идентификатора и настроенного сервера.\nСделайте состояние «energyWhMax» действительным, так что вы можете настроить максимальное значение.\nОтправить предупреждение, если устройство настроено для сервера, не используемого.",
+        "pt": "Corrigir problema que os dispositivos renomeados não poderiam ser encontrados.\nAdicione estados para nome, nome do produto, ID serial e servidor configurado.\nFaça \"energyWhMax\" Estado writable, para que você possa ajustar o valor máximo.\nEnvia um aviso se um dispositivo estiver configurado para um servidor não estiver em uso.",
+        "nl": "Fix probleem dat hernoemde apparaten kon niet worden gevonden.\nVoeg statuss toe voor naam, productnaam, seriële ID en geconfigureerde server.\nMaak \"energyWhMax\" staat beschrijfbaar, zodat u de maximale waarde kunt aanpassen.\nVerzonden een waarschuwing als een apparaat is geconfigureerd voor een server die niet in gebruik is.",
+        "fr": "Correction d'un problème qui a été rebaptisé dispositifs ne pouvait pas être trouvé.\nAjouter des états pour le nom, le nom du produit, l'ID série et le serveur configuré.\nFaire \"energyWhMax\" État enregistrable, de sorte que vous pouvez ajuster la valeur maximale.\nEnvoyer un avertissement si un périphérique est configuré pour un serveur non utilisé.",
+        "it": "Risolvere il problema che i dispositivi ribattezzati non potrebbero essere trovati.\nAggiungi stati per nome, nome del prodotto, ID seriale e server configurato.\nRendere \"energyWhMax\" Stato scrivibile, in modo da poter regolare il valore massimo.\nInviare un avviso se un dispositivo è configurato per un server non in uso.",
+        "es": "Fijar el problema que no se pueden encontrar dispositivos renombrados.\nAñadir estados para nombre, nombre de producto, ID de serie y servidor configurado.\nHacer \"energíaWhMax\" estado writable, por lo que puede ajustar el valor máximo.\nEnviamos una advertencia si un dispositivo está configurado para un servidor que no está en uso.",
+        "pl": "Naprawiono problem, że nie można było znaleźć przemianowanych urządzeń.\nDodaj stany nazwy, nazwy produktu, seryjnego identyfikatora i skonfigurowanego serwera.\nDodać \"energyWhMax\" Stan zapisywalny, dzięki czemu można dostosować wartość max.\nWysłał ostrzeżenie, jeśli urządzenie jest skonfigurowane dla serwera, który nie jest używany.",
+        "uk": "Виправлення проблеми, які не можуть бути знайдені пристрої.\nДодайте штати для імені, назви товару, послідовний ідентифікатор і налаштований сервер.\nЗробіть \"енергетикаWhMax\" Держава, тому ви можете регулювати максимальну вартість.\nУвімкніть попередження, якщо пристрій налаштовано на сервер не у використанні.",
+        "zh-cn": "无法找到重命名的设备 .\n添加名称、产品名称、序列ID和配置服务器的状态 .\n让“ energyWhMax” 状态可写入, 这样您就可以调整最大值 .\n如果为服务器配置了设备, 则发送警告 ."
+      },
       "1.2.1": {
         "en": "Fix calculation of soc: Set energyMaxWh to current energyWh if Zendures SOC is 100%\nRound SOC to max 1 digit after comma.",
         "de": "Berechnung von soc: Energie einstellenMaxWh zur aktuellen Energie Wh, wenn Zendures SOC 100%\nRunder SOC bis max 1 Ziffer nach Komma.",
@@ -69,19 +82,6 @@
         "zh-cn": "固定计算时限"
       },
       "1.1.20": {
-        "en": "Fix negative values in calculation",
-        "de": "Negative Werte in der Berechnung festsetzen",
-        "ru": "Исправление отрицательных значений в расчетах",
-        "pt": "Corrigir valores negativos no cálculo",
-        "nl": "Vaststellen van negatieve waarden bij de berekening",
-        "fr": "Fixer des valeurs négatives dans le calcul",
-        "it": "Fissare i valori negativi nel calcolo",
-        "es": "Fijar valores negativos en el cálculo",
-        "pl": "Popraw wartości ujemne w obliczeniach",
-        "uk": "Виправлення негативних значень при розрахунку",
-        "zh-cn": "在计算中修正负值"
-      },
-      "1.1.19": {
         "en": "Fix negative values in calculation",
         "de": "Negative Werte in der Berechnung festsetzen",
         "ru": "Исправление отрицательных значений в расчетах",
