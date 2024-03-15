@@ -56,7 +56,7 @@ const checkVoltage = async (adapter, productKey, deviceKey, voltage) => {
       adapter == null ? void 0 : adapter.setStateAsync(
         `${productKey}.${deviceKey}.control.lowVoltageBlock`,
         true,
-        true
+        false
       );
     }
   } else if (voltage >= 48) {
@@ -64,7 +64,7 @@ const checkVoltage = async (adapter, productKey, deviceKey, voltage) => {
       adapter == null ? void 0 : adapter.setStateAsync(
         `${productKey}.${deviceKey}.control.lowVoltageBlock`,
         false,
-        true
+        false
       );
     }
   }
@@ -77,9 +77,13 @@ const checkDevicesServer = async (adapter) => {
       if (splitted.length == 4) {
         const productKey = splitted[2];
         const deviceKey = splitted[3];
-        const currentServerState = await adapter.getStateAsync(`${productKey}.${deviceKey}.registeredServer`);
+        const currentServerState = await adapter.getStateAsync(
+          `${productKey}.${deviceKey}.registeredServer`
+        );
         if (currentServerState && currentServerState.val && currentServerState.val != adapter.config.server) {
-          adapter.log.warn(`Device with ProductKey '${productKey}' and DeviceKey '${deviceKey}' was configured on server '${currentServerState.val}', but adapter is configured to use server '${adapter.config.server}'! No data will be available!`);
+          adapter.log.warn(
+            `Device with ProductKey '${productKey}' and DeviceKey '${deviceKey}' was configured on server '${currentServerState.val}', but adapter is configured to use server '${adapter.config.server}'! No data will be available!`
+          );
         }
       }
     }

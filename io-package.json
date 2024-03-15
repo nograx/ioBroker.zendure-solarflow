@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.2.2",
+    "version": "1.2.3",
     "news": {
+      "1.2.3": {
+        "en": "Fix ACK on onStateChange\nUpdate Readme",
+        "de": "Reparieren Sie ACK auf onState Veränderung\nUpdate Reader",
+        "ru": "Fix ACK onState Изменение\nReadme",
+        "pt": "Fix ACK onState Variação\nAtualizar o Readme",
+        "nl": "Fix ACK op onState Verschil\nReadme bijwerken",
+        "fr": "Correction de l'ACK sur l'état Changement\nMettre à jour Readme",
+        "it": "Riparare il back suState Cambiamento\nAggiornamento",
+        "es": "Arregla el estado Cambio\nActualización Readme",
+        "pl": "Napraw ACK w stanie Zmiana\nAktualizacja Readme",
+        "uk": "Виправлення ACK на onState Зареєструватися\nОновлення Readme",
+        "zh-cn": "在状态上修复ACK 变动\n更新读取器"
+      },
       "1.2.2": {
         "en": "Fix issue that renamed devices could not be found.\nAdd states for name, product name, serial ID and configured server.\nMake \"energyWhMax\" State writable, so you can adjust the max Value.\nSent a warning if a device is configured for a server not in use.",
         "de": "Problem behoben, dass umbenannte Geräte nicht gefunden werden konnten.\nFügen Sie Zustände für Name, Produktname, Serien-ID und konfigurierten Server hinzu.\nMachen Sie \"energyWhMax\" Zustand schreibbar, so können Sie den Maximalwert anpassen.\nGesendet eine Warnung, wenn ein Gerät für einen nicht im Einsatz befindlichen Server konfiguriert ist.",
@@ -80,19 +93,6 @@
         "pl": "Poprawiony harmonogram obliczeń",
         "uk": "Фіксація графіка розрахунку",
         "zh-cn": "固定计算时限"
-      },
-      "1.1.20": {
-        "en": "Fix negative values in calculation",
-        "de": "Negative Werte in der Berechnung festsetzen",
-        "ru": "Исправление отрицательных значений в расчетах",
-        "pt": "Corrigir valores negativos no cálculo",
-        "nl": "Vaststellen van negatieve waarden bij de berekening",
-        "fr": "Fixer des valeurs négatives dans le calcul",
-        "it": "Fissare i valori negativi nel calcolo",
-        "es": "Fijar valores negativos en el cálculo",
-        "pl": "Popraw wartości ujemne w obliczeniach",
-        "uk": "Виправлення негативних значень при розрахунку",
-        "zh-cn": "在计算中修正负值"
       }
     },
     "title": "Zendure Solarflow",

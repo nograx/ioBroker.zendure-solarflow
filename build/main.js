@@ -186,7 +186,7 @@ class ZendureSolarflow extends utils.Adapter {
       const deviceKey = splitted[3];
       const stateName1 = splitted[4];
       const stateName2 = splitted[5];
-      if (state.val != void 0 && state.val != null) {
+      if (state.val != void 0 && state.val != null && !state.ack) {
         switch (stateName1) {
           case "control":
             if (stateName2 == "setOutputLimit") {
