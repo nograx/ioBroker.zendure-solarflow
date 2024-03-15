@@ -23,7 +23,10 @@ import {
   startReloginAndResetValuesJob,
 } from "./services/jobSchedule";
 import { MqttClient } from "mqtt";
-import { checkDevicesServer, updateSolarFlowState } from "./services/adapterService";
+import {
+  checkDevicesServer,
+  updateSolarFlowState,
+} from "./services/adapterService";
 import { createSolarFlowStates } from "./helpers/createSolarFlowStates";
 
 export class ZendureSolarflow extends utils.Adapter {
@@ -222,7 +225,8 @@ export class ZendureSolarflow extends utils.Adapter {
       const stateName1 = splitted[4];
       const stateName2 = splitted[5];
 
-      if (state.val != undefined && state.val != null) {
+      // !!! Only stateChanges with ack==false are allowed to be processed.
+      if (state.val != undefined && state.val != null && !state.ack) {
         switch (stateName1) {
           case "control":
             if (stateName2 == "setOutputLimit") {

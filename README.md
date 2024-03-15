@@ -18,7 +18,7 @@ You can read more about the API here: https://github.com/Zendure/developer-devic
 
 Notes:
 
-1. Currently only working with SolarFlow devices. AIO is not supported (as I don't have such a device..)
+1. Currently only working with SolarFlow devices (currently tested only with HUB1200). AIO is not supported (as I don't have such a device..)
 
 2. It is possible to control the Output limit with the state created in the productId/deviceKey/control subfolder. Please deactivate/uncheck all modes in the Zendure App, otherwise it is not possible to set the output limit!
 
@@ -38,6 +38,11 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Fix ACK on onStateChange
+- Update Readme
 
 ### 1.2.2 (2024-03-14)
 
