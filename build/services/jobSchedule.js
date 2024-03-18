@@ -21,7 +21,7 @@ __export(jobSchedule_exports, {
   startCalculationJob: () => startCalculationJob,
   startCheckStatesJob: () => startCheckStatesJob,
   startRefreshAccessTokenTimerJob: () => startRefreshAccessTokenTimerJob,
-  startReloginAndResetValuesJob: () => startReloginAndResetValuesJob
+  startResetValuesJob: () => startResetValuesJob
 });
 module.exports = __toCommonJS(jobSchedule_exports);
 var import_node_schedule = require("node-schedule");
@@ -46,7 +46,7 @@ const startRefreshAccessTokenTimerJob = async (adapter) => {
     }
   }, 3 * 60 * 60 * 1e3);
 };
-const startReloginAndResetValuesJob = async (adapter) => {
+const startResetValuesJob = async (adapter) => {
   adapter.resetValuesJob = (0, import_node_schedule.scheduleJob)("5 0 0 * * *", () => {
     (0, import_calculationService.resetTodaysValues)(adapter);
   });
@@ -107,6 +107,6 @@ const startCheckStatesJob = async (adapter) => {
   startCalculationJob,
   startCheckStatesJob,
   startRefreshAccessTokenTimerJob,
-  startReloginAndResetValuesJob
+  startResetValuesJob
 });
 //# sourceMappingURL=jobSchedule.js.map

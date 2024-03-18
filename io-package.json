@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.2.3",
+    "version": "1.2.4",
     "news": {
+      "1.2.4": {
+        "en": "Use setInterval instead of cronjob for refreshing access token",
+        "de": "Verwenden Sie setInterval anstelle von cronjob für den erfrischenden Zugang zuken",
+        "ru": "Использовать setInterval вместо cronjob для обновления токена доступа",
+        "pt": "Use setInterval em vez de cronjob para atualizar o token de acesso",
+        "nl": "Gebruik setInterval in plaats van cronjob voor verfrissende toegang token",
+        "fr": "Utiliser setInterval au lieu de cronjob pour rafraîchir l'accès jeton",
+        "it": "Utilizzare setInterval invece di cronjob per rinfrescare l'accesso token",
+        "es": "Use setInterval en lugar de cronjob para el acceso refrescante token",
+        "pl": "Użyj setInterval zamiast cronjob do odświeżania token dostępu",
+        "uk": "Використовуйте setInterval замість cronjob для оновлення доступу token",
+        "zh-cn": "使用设置 Interval 而非 cronjob 来刷新访问符"
+      },
       "1.2.3": {
         "en": "Fix ACK on onStateChange\nUpdate Readme",
         "de": "Reparieren Sie ACK auf onState Veränderung\nUpdate Reader",
@@ -80,19 +93,6 @@
         "pl": "Spróbuj naprawić wartości reset o północy",
         "uk": "Спробуйте виправити значення скидання на ніч",
         "zh-cn": "尝试在午夜修复重置值"
-      },
-      "1.1.21": {
-        "en": "Fix calculation timeframe",
-        "de": "Berechnungs-Zeitrahmen",
-        "ru": "График расчета",
-        "pt": "Tempo de cálculo fixo",
-        "nl": "De berekeningsperiode vaststellen",
-        "fr": "Fixer le délai de calcul",
-        "it": "Fissare il tempo di calcolo",
-        "es": "Plazo de cálculo fijo",
-        "pl": "Poprawiony harmonogram obliczeń",
-        "uk": "Фіксація графіка розрахунку",
-        "zh-cn": "固定计算时限"
       }
     },
     "title": "Zendure Solarflow",
