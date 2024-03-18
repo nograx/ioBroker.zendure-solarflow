@@ -38,6 +38,11 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Use setInterval instead of cronjob for refreshing access token
+
 ### 1.2.3 (2024-03-15)
 
 - Fix ACK on onStateChange
