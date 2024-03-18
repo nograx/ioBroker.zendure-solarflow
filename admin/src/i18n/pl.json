@@ -23,5 +23,9 @@
     "electricLevel": "Obecne społeczeństwo",
     "settingsDesc": "Podaj dane logowania do Zendure Cloud (te same, które podałeś w oficjalnej aplikacji).",
     "donate1": "Jeśli uznasz, że adapter jest dla Ciebie przydatny i chcesz wesprzeć moją pracę, możesz przekazać darowiznę za pośrednictwem systemu PayPal. Dziękuję!",
-    "donate2": "(jest to osobisty link do przekazania darowizny na rzecz Nograx, niezwiązany z projektem ioBroker!)"
+    "donate2": "(jest to osobisty link do przekazania darowizny na rzecz Nograx, niezwiązany z projektem ioBroker!)",
+    "useCalculation": "Użyj obliczeń (wartości dzienne, soc)",
+    "useLowVoltageBlock": "Użyj bloku niskiego napięcia (wyłącza moc wyjściową, gdy napięcie jednego akumulatora spadnie poniżej napięcia krytycznego)",
+    "donateHeader": "Podarować",
+    "enterPassword": "Podaj hasło!"
 }

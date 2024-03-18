@@ -48,12 +48,12 @@ class ZendureSolarflow extends utils.Adapter {
     // Access Token for Zendure Rest API
     this.deviceList = [];
     this.paths = void 0;
-    this.interval = void 0;
     this.lastLogin = void 0;
     this.mqttClient = void 0;
     this.resetValuesJob = void 0;
     this.checkStatesJob = void 0;
     this.calculationJob = void 0;
+    this.refreshAccessTokenInterval = void 0;
     this.on("ready", this.onReady.bind(this));
     this.on("stateChange", this.onStateChange.bind(this));
     this.on("unload", this.onUnload.bind(this));
@@ -130,6 +130,7 @@ class ZendureSolarflow extends utils.Adapter {
             (0, import_mqttService.connectMqttClient)(this);
             (0, import_jobSchedule.startReloginAndResetValuesJob)(this);
             (0, import_jobSchedule.startCheckStatesJob)(this);
+            (0, import_jobSchedule.startRefreshAccessTokenTimerJob)(this);
             if (this.config.useCalculation) {
               (0, import_jobSchedule.startCalculationJob)(this);
             }
@@ -156,8 +157,8 @@ class ZendureSolarflow extends utils.Adapter {
   onUnload(callback) {
     var _a;
     try {
-      if (this.interval) {
-        this.clearInterval(this.interval);
+      if (this.refreshAccessTokenInterval) {
+        this.clearInterval(this.refreshAccessTokenInterval);
       }
       if (this.resetValuesJob) {
         this.resetValuesJob.cancel();

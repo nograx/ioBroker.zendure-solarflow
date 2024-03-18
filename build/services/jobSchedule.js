@@ -20,6 +20,7 @@ var jobSchedule_exports = {};
 __export(jobSchedule_exports, {
   startCalculationJob: () => startCalculationJob,
   startCheckStatesJob: () => startCheckStatesJob,
+  startRefreshAccessTokenTimerJob: () => startRefreshAccessTokenTimerJob,
   startReloginAndResetValuesJob: () => startReloginAndResetValuesJob
 });
 module.exports = __toCommonJS(jobSchedule_exports);
@@ -27,10 +28,10 @@ var import_node_schedule = require("node-schedule");
 var import_mqttService = require("./mqttService");
 var import_webService = require("./webService");
 var import_calculationService = require("./calculationService");
-const startReloginAndResetValuesJob = async (adapter) => {
-  adapter.resetValuesJob = (0, import_node_schedule.scheduleJob)("5 0 0 * * *", () => {
+const startRefreshAccessTokenTimerJob = async (adapter) => {
+  adapter.refreshAccessTokenInterval = adapter.setInterval(() => {
     var _a;
-    adapter.log.info(`[startReloginAndResetValuesJob] Refreshing accessToken!`);
+    adapter.log.info(`[startRefreshAccessTokenTimerJob] Refreshing accessToken!`);
     if (adapter.mqttClient) {
       adapter.mqttClient.end();
       adapter.mqttClient = void 0;
@@ -43,6 +44,10 @@ const startReloginAndResetValuesJob = async (adapter) => {
         (0, import_mqttService.connectMqttClient)(adapter);
       });
     }
+  }, 3 * 60 * 60 * 1e3);
+};
+const startReloginAndResetValuesJob = async (adapter) => {
+  adapter.resetValuesJob = (0, import_node_schedule.scheduleJob)("5 0 0 * * *", () => {
     (0, import_calculationService.resetTodaysValues)(adapter);
   });
 };
@@ -101,6 +106,7 @@ const startCheckStatesJob = async (adapter) => {
 0 && (module.exports = {
   startCalculationJob,
   startCheckStatesJob,
+  startRefreshAccessTokenTimerJob,
   startReloginAndResetValuesJob
 });
 //# sourceMappingURL=jobSchedule.js.map

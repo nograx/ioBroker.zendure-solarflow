@@ -6,12 +6,10 @@ import { getDeviceList, login } from "./webService";
 import { ISolarFlowDeviceDetails } from "../models/ISolarFlowDeviceDetails";
 import { calculateEnergy, resetTodaysValues } from "./calculationService";
 
-export const startReloginAndResetValuesJob = async (
-  adapter: ZendureSolarflow,
-): Promise<void> => {
-  adapter.resetValuesJob = scheduleJob("5 0 0 * * *", () => {
+export const startRefreshAccessTokenTimerJob = async (adapter: ZendureSolarflow): Promise<void> => {
+  adapter.refreshAccessTokenInterval = adapter.setInterval(() => {
     // Relogin at night to get a fresh accessToken!
-    adapter.log.info(`[startReloginAndResetValuesJob] Refreshing accessToken!`);
+    adapter.log.info(`[startRefreshAccessTokenTimerJob] Refreshing accessToken!`);
 
     if (adapter.mqttClient) {
       adapter.mqttClient.end();
@@ -27,7 +25,13 @@ export const startReloginAndResetValuesJob = async (
         connectMqttClient(adapter);
       });
     }
+  }, 3 * 60 * 60 * 1000)
+}
 
+export const startResetValuesJob = async (
+  adapter: ZendureSolarflow,
+): Promise<void> => {
+  adapter.resetValuesJob = scheduleJob("5 0 0 * * *", () => {
     // Reset Values
     resetTodaysValues(adapter);
   });

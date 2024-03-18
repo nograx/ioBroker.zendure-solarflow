@@ -20,7 +20,8 @@ import { Job } from "node-schedule";
 import {
   startCalculationJob,
   startCheckStatesJob,
-  startReloginAndResetValuesJob,
+  startRefreshAccessTokenTimerJob,
+  startResetValuesJob,
 } from "./services/jobSchedule";
 import { MqttClient } from "mqtt";
 import {
@@ -43,7 +44,7 @@ export class ZendureSolarflow extends utils.Adapter {
   public accessToken: string | undefined = undefined; // Access Token for Zendure Rest API
   public deviceList: ISolarFlowDeviceDetails[] = [];
   public paths: ISolarFlowPaths | undefined = undefined;
-  public interval: ioBroker.Interval | undefined = undefined;
+
   public lastLogin: Date | undefined = undefined;
 
   public mqttClient: MqttClient | undefined = undefined;
@@ -51,6 +52,7 @@ export class ZendureSolarflow extends utils.Adapter {
   public resetValuesJob: Job | undefined = undefined;
   public checkStatesJob: Job | undefined = undefined;
   public calculationJob: Job | undefined = undefined;
+  public refreshAccessTokenInterval: ioBroker.Interval | undefined = undefined;
 
   /**
    * Is called when databases are connected and adapter received configuration.
@@ -148,9 +150,10 @@ export class ZendureSolarflow extends utils.Adapter {
 
                 connectMqttClient(this);
 
-                // Schedule Job
-                startReloginAndResetValuesJob(this);
+                // Schedule Jobs
+                startResetValuesJob(this);
                 startCheckStatesJob(this);
+                startRefreshAccessTokenTimerJob(this);
 
                 if (this.config.useCalculation) {
                   startCalculationJob(this);
@@ -181,8 +184,8 @@ export class ZendureSolarflow extends utils.Adapter {
    */
   private onUnload(callback: () => void): void {
     try {
-      if (this.interval) {
-        this.clearInterval(this.interval);
+      if (this.refreshAccessTokenInterval) {
+        this.clearInterval(this.refreshAccessTokenInterval);
       }
 
       // Scheduler beenden

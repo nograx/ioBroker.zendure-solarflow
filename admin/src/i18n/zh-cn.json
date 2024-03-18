@@ -23,5 +23,9 @@
     "electricLevel": "当前社会",
     "settingsDesc": "请提供Zendure Cloud的登录信息（与您在官方应用程序中输入的信息相同）。",
     "donate1": "如果您发现该适配器对您有用并希望支持我的工作，请随时通过 Paypal 捐赠。谢谢你！",
-    "donate2": "（这是 Nograx 的个人捐赠链接，与 ioBroker 项目无关！）"
+    "donate2": "（这是 Nograx 的个人捐赠链接，与 ioBroker 项目无关！）",
+    "useCalculation": "使用计算（每日值、soc）",
+    "useLowVoltageBlock": "使用低电压模块（当一节电池的电压低于临界电压时停用电源输出）",
+    "donateHeader": "捐",
+    "enterPassword": "请提供密码！"
 }

@@ -23,5 +23,9 @@
     "electricLevel": "Sociedade atual",
     "settingsDesc": "Forneça as informações de login do Zendure Cloud (as mesmas que você inseriu no aplicativo oficial).",
     "donate1": "Se você achar o adaptador útil para você e quiser apoiar meu trabalho, fique à vontade para doar por Paypal. Obrigado!",
-    "donate2": "(este é um link de doação pessoal para Nograx, sem relação com o Projeto ioBroker!)"
+    "donate2": "(este é um link de doação pessoal para Nograx, sem relação com o Projeto ioBroker!)",
+    "useCalculation": "Use cálculos (valores diários, soc)",
+    "useLowVoltageBlock": "Use bloco de baixa tensão (desativa a saída de energia quando a tensão de uma bateria cai abaixo da tensão crítica)",
+    "donateHeader": "Doar",
+    "enterPassword": "Forneça uma senha!"
 }
