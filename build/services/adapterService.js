@@ -23,6 +23,7 @@ __export(adapterService_exports, {
   updateSolarFlowState: () => updateSolarFlowState
 });
 module.exports = __toCommonJS(adapterService_exports);
+var import_mqttService = require("./mqttService");
 const updateSolarFlowState = async (adapter, productKey, deviceKey, state, val) => {
   adapter == null ? void 0 : adapter.setStateAsync(`${productKey}.${deviceKey}.${state}`, val, true);
 };
@@ -56,15 +57,16 @@ const checkVoltage = async (adapter, productKey, deviceKey, voltage) => {
       adapter == null ? void 0 : adapter.setStateAsync(
         `${productKey}.${deviceKey}.control.lowVoltageBlock`,
         true,
-        false
+        true
       );
+      (0, import_mqttService.setOutputLimit)(adapter, productKey, deviceKey, 0);
     }
   } else if (voltage >= 48) {
     if (adapter.config.useLowVoltageBlock) {
       adapter == null ? void 0 : adapter.setStateAsync(
         `${productKey}.${deviceKey}.control.lowVoltageBlock`,
         false,
-        false
+        true
       );
     }
   }

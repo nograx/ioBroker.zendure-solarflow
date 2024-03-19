@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.2.4",
+    "version": "1.2.5",
     "news": {
+      "1.2.5": {
+        "en": "Fix error \"Read-only\" state written without ack-flag",
+        "de": "Fehler \"nur lesen\" Zustand ohne ack-flag geschrieben",
+        "ru": "Fix ошибка \"только для рекламы\" состояние написано без ack-flag",
+        "pt": "Corrigir erro \"apenas leitura\" estado escrito sem ack-flag",
+        "nl": "Fix error \"Alleen-lezen\" staat geschreven zonder ack-vlag",
+        "fr": "Correction de l'erreur \"Read-only\" état écrit sans ack-flag",
+        "it": "Corretto errore \"solo lettura\" stato scritto senza ack-flag",
+        "es": "Correr error \"sólo lectura\" estado escrito sin ack-flag",
+        "pl": "Popraw błąd \"Read- only\" stan napisany bez znacznika",
+        "uk": "Виправлення помилки \"Читання-тільки\" стан, написаний без ack-flag",
+        "zh-cn": "校正“ 仅读” 状态, 没有阿克旗"
+      },
       "1.2.4": {
         "en": "Use setInterval instead of cronjob for refreshing access token",
         "de": "Verwenden Sie setInterval anstelle von cronjob für den erfrischenden Zugang zuken",
@@ -80,19 +93,6 @@
         "pl": "Napraw obliczanie \"energii w bateriach\"\nSpróbuj wdrożyć serwer UE - nieprzetestowany -",
         "uk": "Фіксований розрахунок \"енергетики в батареях\"\nСпробуйте реалізувати сервер ЄС - не перевірено -",
         "zh-cn": "固定“电池中的能量”的计算\n尝试执行 EU 服务器 - 未测试 -"
-      },
-      "1.1.22": {
-        "en": "Try to fix reset values at midnight",
-        "de": "Versuchen Sie, Reset-Werte um Mitternacht zu beheben",
-        "ru": "Попробуйте исправить значения сброса в полночь",
-        "pt": "Tente corrigir valores de reset à meia-noite",
-        "nl": "Probeer resetwaarden om middernacht te repareren",
-        "fr": "Essayez de fixer les valeurs de réinitialisation à minuit",
-        "it": "Prova a correggere i valori di reset a mezzanotte",
-        "es": "Trate de fijar valores de reset a medianoche",
-        "pl": "Spróbuj naprawić wartości reset o północy",
-        "uk": "Спробуйте виправити значення скидання на ніч",
-        "zh-cn": "尝试在午夜修复重置值"
       }
     },
     "title": "Zendure Solarflow",

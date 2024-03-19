@@ -196,12 +196,6 @@ class ZendureSolarflow extends utils.Adapter {
               (0, import_mqttService.setDischargeLimit)(this, productKey, deviceKey, Number(state.val));
             } else if (stateName2 == "chargeLimit") {
               (0, import_mqttService.setChargeLimit)(this, productKey, deviceKey, Number(state.val));
-            } else if (stateName2 == "lowVoltageBlock") {
-              if (this.config.useLowVoltageBlock) {
-                if (state.val == true) {
-                  (0, import_mqttService.setOutputLimit)(this, productKey, deviceKey, 0);
-                }
-              }
             }
             break;
           default:

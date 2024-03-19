@@ -425,14 +425,8 @@ const setOutputLimit = async (adapter2, productKey, deviceKey, limit) => {
         }
         const topic = `iot/${productKey}/${deviceKey}/properties/write`;
         const outputlimit = { properties: { outputLimit: limit } };
-        adapter2.log.debug(
-          `[setOutputLimit] Setting Output Limit for device key ${deviceKey} to ${limit}!`
-        );
         (_b = adapter2.mqttClient) == null ? void 0 : _b.publish(topic, JSON.stringify(outputlimit));
       } else {
-        adapter2.log.debug(
-          `[setOutputLimit] Output Limit for device key ${deviceKey} is already at ${limit}!`
-        );
       }
     }
   }
