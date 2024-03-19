@@ -1,4 +1,5 @@
 import { ZendureSolarflow } from "../main";
+import { setOutputLimit } from "./mqttService";
 
 /* eslint-disable @typescript-eslint/indent */
 
@@ -57,8 +58,11 @@ export const checkVoltage = async (
       adapter?.setStateAsync(
         `${productKey}.${deviceKey}.control.lowVoltageBlock`,
         true,
-        false,
+        true,
       );
+
+      // Low Voltage Block activated, stop power input immediately
+      setOutputLimit(adapter, productKey, deviceKey, 0);
     }
   } else if (voltage >= 48.0) {
     if (adapter.config.useLowVoltageBlock) {
@@ -66,7 +70,7 @@ export const checkVoltage = async (
       adapter?.setStateAsync(
         `${productKey}.${deviceKey}.control.lowVoltageBlock`,
         false,
-        false,
+        true,
       );
     }
   }

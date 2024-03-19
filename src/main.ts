@@ -238,13 +238,6 @@ export class ZendureSolarflow extends utils.Adapter {
               setDischargeLimit(this, productKey, deviceKey, Number(state.val));
             } else if (stateName2 == "chargeLimit") {
               setChargeLimit(this, productKey, deviceKey, Number(state.val));
-            } else if (stateName2 == "lowVoltageBlock") {
-              if (this.config.useLowVoltageBlock) {
-                if (state.val == true) {
-                  // Low Voltage Block activated, stop power input
-                  setOutputLimit(this, productKey, deviceKey, 0);
-                }
-              }
             }
             break;
           default:

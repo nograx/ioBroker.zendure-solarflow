@@ -38,6 +38,10 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
+### **WORK IN PROGRESS**
+
+- Fix error "Read-only" state written without ack-flag
+
 ### 1.2.4 (2024-03-18)
 
 - Use setInterval instead of cronjob for refreshing access token
