@@ -38,8 +38,7 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 1.2.6 (2024-03-20)
 
 - Add states for pass (Bypass on/off), autoRecover (auto-mode for Bypass next day) and passMode (current bypass mode)
 - Add efficiency factor for calculations (96% charging, 92%-98%* for discharging)

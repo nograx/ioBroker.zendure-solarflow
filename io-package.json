@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.2.5",
+    "version": "1.2.6",
     "news": {
+      "1.2.6": {
+        "en": "Add states for pass (Bypass on/off), autoRecover (auto-mode for Bypass next day) and passMode (current bypass mode)\nAdd efficiency factor for calculations (96% charging, 92%-98%* for discharging)\nChanged calculations timeframe from 10secs to 30secs (performance related)",
+        "de": "Fügen Sie Zustände für Pass (Bypass on/off), autoRecover (Auto-Modus für Bypass nächsten Tag) und passMode (current bypass mode) hinzu\nEffizienzfaktor für Berechnungen hinzufügen (96% Aufladung, 92%-98%* zur Entladung)\nGeänderte Berechnungsdauer von 10 Sekunden auf 30 Sekunden (performance related)",
+        "ru": "Добавить состояния для прохода (Bypass on/off), autoRecover (автомод для Bypass на следующий день) и passMode (текущий режим обхода)\nДобавить коэффициент эффективности для расчетов (96% зарядки, 92%-98%* для разрядки)\nИзменение сроков расчетов с 10секс до 30секс (связанные с производительностью)",
+        "pt": "Adicionar estados para passe (Bypass on/off), autoRecover (automodo para Bypass no dia seguinte) e passMode (modo de bypass atual)\nAdicionar fator de eficiência para cálculos (carga de 96%, 92%-98%* para descarregamento)\nPrazo de cálculos alterados de 10secs para 30secs (relacionado com o desempenho)",
+        "nl": "Toevoegen statussen voor pass (Bypass aan/uit), autoRecover (auto-modus voor Bypass volgende dag) en passMode (huidige bypass modus)\nToevoegen efficiëntiefactor voor berekeningen (96% opladen, 92%-98%* voor het lossen)\nVeranderde berekeningsperiode van 10secs naar 30secs (prestatiegerelateerd)",
+        "fr": "Ajouter les états de passage (Bypass on/off), autoRecover (auto-mode pour Bypass le lendemain) et passMode (mode de contournement courant)\nAjouter le facteur d'efficacité pour les calculs (96% de charge, 92%-98%* de décharge)\nTemps de calcul modifié de 10secs à 30secs (lié à la performance)",
+        "it": "Aggiungi stati per pass (Bypass on/off), autoRecover (mode automatico per Bypass il giorno successivo) e passMode (modalità bypass corrente)\nAggiungi fattore di efficienza per i calcoli (96% di carica, 92%-98%* per lo scarico)\nTempo di calcolo modificato da 10sec a 30secs (correlazione delle prestazioni)",
+        "es": "Añadir estados para pasar (Bypass on/off), autoRecover (auto-mode for Bypass next day) y passMode (modo de bypass corriente)\nAgregue el factor de eficiencia para los cálculos (96% de carga, 92%-98%* para descarga)\nCambio de cálculos timeframe de 10 segundos a 30 segundos (con relación al desempeño)",
+        "pl": "Dodaj stany dla pass (Bypass włączone / wyłączone), autoRecover (tryb auto- dla Bypass następnego dnia) i passMode (obecny tryb bypass)\nDodać współczynnik wydajności do obliczeń (96% ładowania, 92% -98% * do rozładowania)\nZmienione ramy czasowe obliczeń od 10 do 30 sekund (związane z wydajnością)",
+        "uk": "Додати стани для проходу (Вхід на / вихід), autoRecover (auto-mode for Bypass наступного дня) і passMode (поточний режим обходу)\nДодавання коефіцієнта ефективності розрахунку (96% зарядки, 92%-98%* для розвантаження)\nЗмінено графіки розрахунку від 10secs до 30secs",
+        "zh-cn": "添加通过状态( Bypass on/off), 自动恢复( Auto-mode for Bypass 第二天) 和通过模式( 当前绕行模式)\n增加计算效率系数(充电96%,排气92%-98%)\n计算时限从10秒改为30秒(业绩相关)"
+      },
       "1.2.5": {
         "en": "Fix error \"Read-only\" state written without ack-flag",
         "de": "Fehler \"nur lesen\" Zustand ohne ack-flag geschrieben",
@@ -80,19 +93,6 @@
         "pl": "Serwer UE działa.\nPopraw błędy obliczeniowe w dzienniku, gdy obliczenia nie są używane\nWięcej wyników debugowania\nFiltr słoneczny Urządzenia przepływowe, więc nie będą dodawane żadne inne urządzenia (np. SmartPlugs).\nWyczyść hasło podczas wczytywania ustawień, ponieważ szyfrowane hasło jest wczytywane do wejścia i prowadzi do błędnego hasła.",
         "uk": "Сервер ЄС працює зараз.\nВиправлення помилок розрахунку в журналі при розрахунку не використовується\nДетальніше Debug Вихід\nФільтр Сонячний Пристрої потоку, тому не будуть додані інші пристрої (наприклад, SmartPlugs).\nОчистити пароль при навантаженні налаштувань, як зашифрований пароль завантажується в вхід і призводить до неправильного пароля.",
         "zh-cn": "欧盟服务器正在工作.\n不使用计算时纠正日志中的计算错误\n更多调试输出\n过滤太阳 流设备,所以不会添加其他设备(如SmartPlugs).\n装入设置时清除密码, 因为加密密码被装入输入, 并导致错误的密码 ."
-      },
-      "1.1.23": {
-        "en": "Fix calculation of \"energy in batteries\"\nTry to implement EU server - untested -",
-        "de": "Fixe Berechnung von \"Energie in Batterien\"\nVersuchen Sie, EU-Server zu implementieren - nicht getestet -",
-        "ru": "Исправленный расчет «энергии в батареях»\nПопробуйте реализовать сервер ЕС - непроверенный -",
-        "pt": "Cálculo fixo de \"energia em baterias\"\nTente implementar servidor da UE - não testado -",
-        "nl": "Berekening van \"energie in batterijen\"\nProbeer de EU-server te implementeren - niet getest -",
-        "fr": "Correction du calcul de \"l'énergie dans les batteries\"\nEssayez de mettre en œuvre le serveur UE - non testé -",
-        "it": "Fissare il calcolo di \"energia nelle batterie\"\nCerca di implementare il server UE - non testato -",
-        "es": "Cálculo de \"energía en baterías\"\nTrate de implementar el servidor de la UE - sin probar -",
-        "pl": "Napraw obliczanie \"energii w bateriach\"\nSpróbuj wdrożyć serwer UE - nieprzetestowany -",
-        "uk": "Фіксований розрахунок \"енергетики в батареях\"\nСпробуйте реалізувати сервер ЄС - не перевірено -",
-        "zh-cn": "固定“电池中的能量”的计算\n尝试执行 EU 服务器 - 未测试 -"
       }
     },
     "title": "Zendure Solarflow",
