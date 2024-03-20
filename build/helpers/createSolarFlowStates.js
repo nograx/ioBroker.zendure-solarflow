@@ -75,10 +75,46 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
     },
     native: {}
   }));
+  await (adapter == null ? void 0 : adapter.extendObjectAsync(`${productKey}.${deviceKey}.passMode`, {
+    type: "state",
+    common: {
+      name: { de: "Einstellung des Bypass Modus", en: "Setting of bypass mode" },
+      type: "string",
+      desc: "passMode",
+      role: "value",
+      read: true,
+      write: false
+    },
+    native: {}
+  }));
+  await (adapter == null ? void 0 : adapter.extendObjectAsync(`${productKey}.${deviceKey}.pass`, {
+    type: "state",
+    common: {
+      name: { de: "Bypass an/aus", en: "Bypass on/off" },
+      type: "boolean",
+      desc: "pass",
+      role: "value",
+      read: true,
+      write: false
+    },
+    native: {}
+  }));
+  await (adapter == null ? void 0 : adapter.extendObjectAsync(`${productKey}.${deviceKey}.autoRecover`, {
+    type: "state",
+    common: {
+      name: { de: "Am n\xE4chsten Tag Bypass auf Automatik", en: "Automatic recovery of bypass" },
+      type: "boolean",
+      desc: "autoRecover",
+      role: "value",
+      read: true,
+      write: false
+    },
+    native: {}
+  }));
   await (adapter == null ? void 0 : adapter.extendObjectAsync(`${productKey}.${deviceKey}.packState`, {
     type: "state",
     common: {
-      name: { de: "Status der Batterien", en: "Status of batteries" },
+      name: { de: "Systemstatus", en: "Status of system" },
       type: "string",
       desc: "packState",
       role: "value",

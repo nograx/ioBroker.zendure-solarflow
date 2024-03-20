@@ -8,9 +8,9 @@ export const updateSolarFlowState = async (
   productKey: string,
   deviceKey: string,
   state: string,
-  val: number | string,
+  val: number | string | boolean,
 ): Promise<void> => {
-  adapter?.setStateAsync(`${productKey}.${deviceKey}.${state}`, val, true);
+  await adapter?.setStateAsync(`${productKey}.${deviceKey}.${state}`, val, true);
 };
 
 export const checkVoltage = async (
@@ -22,7 +22,7 @@ export const checkVoltage = async (
   if (voltage < 46.1) {
     if (adapter.config.useCalculation) {
       // Set SOC to 0
-      adapter?.setStateAsync(
+      await adapter?.setStateAsync(
         `${productKey}.${deviceKey}.calculations.soc`,
         0,
         true,
@@ -39,14 +39,14 @@ export const checkVoltage = async (
       const newMax = Number(energyWhMaxState?.val) - Number(energyWhState?.val);
 
       // Set Max Energy to value minus current energy
-      adapter?.setStateAsync(
+      await adapter?.setStateAsync(
         `${productKey}.${deviceKey}.calculations.energyWhMax`,
         newMax,
         true,
       );
 
       // Set Energy in Battery to 0
-      adapter?.setStateAsync(
+      await adapter?.setStateAsync(
         `${productKey}.${deviceKey}.calculations.energyWh`,
         0,
         true,
@@ -55,7 +55,7 @@ export const checkVoltage = async (
 
     if (adapter.config.useLowVoltageBlock) {
       // Activate Low Voltage Block
-      adapter?.setStateAsync(
+      await adapter?.setStateAsync(
         `${productKey}.${deviceKey}.control.lowVoltageBlock`,
         true,
         true,
@@ -67,7 +67,7 @@ export const checkVoltage = async (
   } else if (voltage >= 48.0) {
     if (adapter.config.useLowVoltageBlock) {
       // Deactivate Low Voltage Block
-      adapter?.setStateAsync(
+      await adapter?.setStateAsync(
         `${productKey}.${deviceKey}.control.lowVoltageBlock`,
         false,
         true,
@@ -76,7 +76,7 @@ export const checkVoltage = async (
   }
 };
 
-export const checkDevicesServer = async (adapter: ZendureSolarflow) => {
+export const checkDevicesServer = async (adapter: ZendureSolarflow): Promise<void> => {
   const channels = await adapter.getChannelsAsync();
 
   channels.forEach(async (channel) => {

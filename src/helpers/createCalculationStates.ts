@@ -277,7 +277,7 @@ export const createCalculationStates = async (
         desc: "energyWhMax",
         role: "value",
         read: true,
-        write: false,
+        write: true,
         unit: "Wh",
       },
       native: {},

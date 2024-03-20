@@ -261,7 +261,7 @@ const createCalculationStates = async (adapter, productKey, deviceKey) => {
         desc: "energyWhMax",
         role: "value",
         read: true,
-        write: false,
+        write: true,
         unit: "Wh"
       },
       native: {}

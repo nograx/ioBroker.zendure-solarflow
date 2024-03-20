@@ -63,6 +63,25 @@ class ZendureSolarflow extends utils.Adapter {
    */
   async onReady() {
     var _a;
+    await this.extendObjectAsync("info", {
+      type: "channel",
+      common: {
+        name: "Information"
+      },
+      native: {}
+    });
+    await this.extendObjectAsync(`info.connection`, {
+      type: "state",
+      common: {
+        name: { de: "Mit Zendure Cloud verbunden", en: "Connected to Zendure cloud" },
+        type: "boolean",
+        desc: "connection",
+        role: "indicator.connected",
+        read: true,
+        write: false
+      },
+      native: {}
+    });
     if (this.config.server && this.config.server == "eu") {
       this.paths = import_paths.pathsEu;
     } else {
@@ -72,7 +91,7 @@ class ZendureSolarflow extends utils.Adapter {
     if (this.config.userName && this.config.password) {
       (_a = (0, import_webService.login)(this)) == null ? void 0 : _a.then((_accessToken) => {
         this.accessToken = _accessToken;
-        this.connected = true;
+        this.setState("info.connection", true, true);
         this.lastLogin = /* @__PURE__ */ new Date();
         (0, import_webService.getDeviceList)(this).then(async (result) => {
           if (result) {
@@ -137,17 +156,17 @@ class ZendureSolarflow extends utils.Adapter {
           }
         }).catch(() => {
           var _a2;
-          this.connected = false;
+          this.setState("info.connection", false, true);
           (_a2 = this.log) == null ? void 0 : _a2.error("[onReady] Retrieving device failed!");
         });
       }).catch((error) => {
-        this.connected = false;
+        this.setState("info.connection", false, true);
         this.log.error(
           "[onReady] Logon error at Zendure cloud service! Error: " + error.toString()
         );
       });
     } else {
-      this.connected = false;
+      this.setState("info.connection", false, true);
       this.log.error("[onReady] No Login Information provided!");
     }
   }
@@ -160,6 +179,7 @@ class ZendureSolarflow extends utils.Adapter {
       if (this.refreshAccessTokenInterval) {
         this.clearInterval(this.refreshAccessTokenInterval);
       }
+      this.setState("info.connection", false, true);
       if (this.resetValuesJob) {
         this.resetValuesJob.cancel();
         this.resetValuesJob = void 0;

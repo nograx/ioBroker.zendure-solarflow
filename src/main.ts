@@ -58,6 +58,27 @@ export class ZendureSolarflow extends utils.Adapter {
    * Is called when databases are connected and adapter received configuration.
    */
   private async onReady(): Promise<void> {
+    await this.extendObjectAsync("info", {
+      type: "channel",
+      common: {
+        name: "Information"
+      },
+      native: {},
+    });
+
+    await this.extendObjectAsync(`info.connection`, {
+      type: "state",
+      common: {
+        name: { de: "Mit Zendure Cloud verbunden", en: "Connected to Zendure cloud" },
+        type: "boolean",
+        desc: "connection",
+        role: "indicator.connected",
+        read: true,
+        write: false,
+      },
+      native: {},
+    });
+
     // Select paths by config value
     if (this.config.server && this.config.server == "eu") {
       this.paths = pathsEu;
@@ -73,7 +94,7 @@ export class ZendureSolarflow extends utils.Adapter {
         ?.then((_accessToken: string) => {
           this.accessToken = _accessToken;
 
-          this.connected = true;
+          this.setState("info.connection", true, true);
           this.lastLogin = new Date();
 
           // Try to get the device list
@@ -161,19 +182,19 @@ export class ZendureSolarflow extends utils.Adapter {
               }
             })
             .catch(() => {
-              this.connected = false;
+              this.setState("info.connection", false, true);
               this.log?.error("[onReady] Retrieving device failed!");
             });
         })
         .catch((error) => {
-          this.connected = false;
+          this.setState("info.connection", false, true);
           this.log.error(
             "[onReady] Logon error at Zendure cloud service! Error: " +
               error.toString(),
           );
         });
     } else {
-      this.connected = false;
+      this.setState("info.connection", false, true);
       this.log.error("[onReady] No Login Information provided!");
       //this.stop?.();
     }
@@ -187,6 +208,8 @@ export class ZendureSolarflow extends utils.Adapter {
       if (this.refreshAccessTokenInterval) {
         this.clearInterval(this.refreshAccessTokenInterval);
       }
+
+      this.setState("info.connection", false, true);
 
       // Scheduler beenden
       if (this.resetValuesJob) {

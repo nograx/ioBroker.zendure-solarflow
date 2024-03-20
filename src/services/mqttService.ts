@@ -165,7 +165,7 @@ export const addOrUpdatePackData = async (
 };
 
 const onMessage = async (topic: string, message: Buffer): Promise<void> => {
-  //adapter?.log.info(message.toString())
+  //console.log(message.toString())
   if (adapter) {
     const splitted = topic.split("/");
     const productKey = splitted[1];
@@ -215,6 +215,43 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
           ? "Discharging"
           : "Unknown";
       updateSolarFlowState(adapter, productKey, deviceKey, "packState", value);
+    }
+
+    if (
+      obj.properties?.passMode != null &&
+      obj.properties?.passMode != undefined
+    ) {
+      const value =
+        obj.properties?.passMode == 0
+          ? "Automatic"
+          : obj.properties?.passMode == 1
+          ? "Always off"
+          : obj.properties?.passMode == 2
+          ? "Always on"
+          : "Unknown";
+      updateSolarFlowState(adapter, productKey, deviceKey, "passMode", value);
+    }
+
+    if (
+      obj.properties?.pass != null &&
+      obj.properties?.pass != undefined
+    ) {
+      const value =
+        obj.properties?.pass == 0
+          ? false : true
+
+      updateSolarFlowState(adapter, productKey, deviceKey, "pass", value);
+    }
+
+    if (
+      obj.properties?.autoRecover != null &&
+      obj.properties?.autoRecover != undefined
+    ) {
+      const value =
+        obj.properties?.autoRecover == 0
+          ? false : true
+
+      updateSolarFlowState(adapter, productKey, deviceKey, "autoRecover", value);
     }
 
     if (

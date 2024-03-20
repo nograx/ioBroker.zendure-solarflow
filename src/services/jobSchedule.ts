@@ -20,7 +20,7 @@ export const startRefreshAccessTokenTimerJob = async (adapter: ZendureSolarflow)
       login(adapter)?.then((_accessToken: string) => {
         adapter.accessToken = _accessToken;
         adapter.lastLogin = new Date();
-        adapter.connected = true;
+        adapter.setState("info.connection", true, true);
 
         connectMqttClient(adapter);
       });
@@ -40,7 +40,7 @@ export const startResetValuesJob = async (
 export const startCalculationJob = async (
   adapter: ZendureSolarflow,
 ): Promise<void> => {
-  adapter.calculationJob = scheduleJob("*/10 * * * * *", () => {
+  adapter.calculationJob = scheduleJob("*/30 * * * * *", () => {
     adapter.deviceList.forEach((device) => {
       calculateEnergy(adapter, device.productKey, device.deviceKey);
     });

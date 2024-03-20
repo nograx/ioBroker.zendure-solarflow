@@ -25,16 +25,16 @@ __export(adapterService_exports, {
 module.exports = __toCommonJS(adapterService_exports);
 var import_mqttService = require("./mqttService");
 const updateSolarFlowState = async (adapter, productKey, deviceKey, state, val) => {
-  adapter == null ? void 0 : adapter.setStateAsync(`${productKey}.${deviceKey}.${state}`, val, true);
+  await (adapter == null ? void 0 : adapter.setStateAsync(`${productKey}.${deviceKey}.${state}`, val, true));
 };
 const checkVoltage = async (adapter, productKey, deviceKey, voltage) => {
   if (voltage < 46.1) {
     if (adapter.config.useCalculation) {
-      adapter == null ? void 0 : adapter.setStateAsync(
+      await (adapter == null ? void 0 : adapter.setStateAsync(
         `${productKey}.${deviceKey}.calculations.soc`,
         0,
         true
-      );
+      ));
       const energyWhState = await adapter.getStateAsync(
         `${productKey}.${deviceKey}.calculations.energyWh`
       );
@@ -42,32 +42,32 @@ const checkVoltage = async (adapter, productKey, deviceKey, voltage) => {
         `${productKey}.${deviceKey}.calculations.energyWhMax`
       );
       const newMax = Number(energyWhMaxState == null ? void 0 : energyWhMaxState.val) - Number(energyWhState == null ? void 0 : energyWhState.val);
-      adapter == null ? void 0 : adapter.setStateAsync(
+      await (adapter == null ? void 0 : adapter.setStateAsync(
         `${productKey}.${deviceKey}.calculations.energyWhMax`,
         newMax,
         true
-      );
-      adapter == null ? void 0 : adapter.setStateAsync(
+      ));
+      await (adapter == null ? void 0 : adapter.setStateAsync(
         `${productKey}.${deviceKey}.calculations.energyWh`,
         0,
         true
-      );
+      ));
     }
     if (adapter.config.useLowVoltageBlock) {
-      adapter == null ? void 0 : adapter.setStateAsync(
+      await (adapter == null ? void 0 : adapter.setStateAsync(
         `${productKey}.${deviceKey}.control.lowVoltageBlock`,
         true,
         true
-      );
+      ));
       (0, import_mqttService.setOutputLimit)(adapter, productKey, deviceKey, 0);
     }
   } else if (voltage >= 48) {
     if (adapter.config.useLowVoltageBlock) {
-      adapter == null ? void 0 : adapter.setStateAsync(
+      await (adapter == null ? void 0 : adapter.setStateAsync(
         `${productKey}.${deviceKey}.control.lowVoltageBlock`,
         false,
         true
-      );
+      ));
     }
   }
 };

@@ -38,6 +38,13 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Add states for pass (Bypass on/off), autoRecover (auto-mode for Bypass next day) and passMode (current bypass mode)
+- Add efficiency factor for calculations (96% charging, 92%-98%* for discharging)
+- Changed calculations timeframe from 10secs to 30secs (performance related)
+
 ### 1.2.5 (2024-03-19)
 
 - Fix error "Read-only" state written without ack-flag
