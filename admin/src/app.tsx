@@ -28,7 +28,7 @@ class App extends GenericApp {
   constructor(props: GenericAppProps) {
     const extendedProps: GenericAppSettings = {
       ...props,
-      encryptedFields: ["password"],
+      encryptedFields: [],
       translations: {
         de: de,
         en: en,
