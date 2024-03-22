@@ -87,6 +87,71 @@ export const createControlStates = async (
     },
   );
 
+  // State zum Setzen des Buzzers
+  await adapter?.extendObjectAsync(
+    `${productKey}.${deviceKey}.control.buzzerSwitch`,
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Sounds am HUB aktivieren",
+          en: "Enable buzzer on HUB",
+        },
+        type: "boolean",
+        desc: "buzzerSwitch",
+        role: "switch",
+        read: true,
+        write: true,
+      },
+      native: {},
+    },
+  );
+
+  // State zum Setzen des Buzzers
+  await adapter?.extendObjectAsync(
+    `${productKey}.${deviceKey}.control.passMode`,
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Einstellung des Bypass Modus",
+          en: "Setting of bypass mode",
+        },
+        type: "number",
+        desc: "passMode",
+        role: "switch",
+        read: true,
+        write: true,
+        states: {
+          0: "Automatic",
+          1: "Always off",
+          2: "Always on",
+        },
+      },
+      native: {},
+    },
+  );
+
+  // State zum Setzen des Auto-Modus vom Bypass
+  await adapter?.extendObjectAsync(
+    `${productKey}.${deviceKey}.control.autoRecover`,
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Am nächsten Tag Bypass auf Automatik",
+          en: "Automatic recovery of bypass",
+        },
+        type: "boolean",
+        desc: "autoRecover",
+        role: "switch",
+        read: true,
+        write: true,
+      },
+      native: {},
+    },
+  );
+
   if (adapter.config.useLowVoltageBlock) {
     // State zum Setzen des Output Limit
     await adapter?.extendObjectAsync(

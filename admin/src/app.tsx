@@ -54,6 +54,8 @@ class App extends GenericApp {
       return super.render();
     }
 
+    this.state.native["password"] = this.decrypt(this.state.native["password"]);
+
     return (
       <div className="App">
         <Settings

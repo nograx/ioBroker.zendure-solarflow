@@ -18,7 +18,7 @@ You can read more about the API here: https://github.com/Zendure/developer-devic
 
 Notes:
 
-1. Currently only working with SolarFlow devices (currently tested only with HUB1200). AIO is not supported (as I don't have such a device..)
+1. Currently only working with SolarFlow devices (tested only with HUB1200). AIO is not supported (as I don't have such a device..)
 
 2. It is possible to control the Output limit with the state created in the productId/deviceKey/control subfolder. Please deactivate/uncheck all modes in the Zendure App, otherwise it is not possible to set the output limit!
 
@@ -38,10 +38,19 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Fix calculation for outputPackEnergy and packInputEnergy
+- Fix password encryption on settings page
+- Trigger full telemetry update on adapter start
+- Add state and control for buzzer switch
+- Add state and control for bypass mode and automatic reset of bypass mode next day
+
 ### 1.2.6 (2024-03-20)
 
 - Add states for pass (Bypass on/off), autoRecover (auto-mode for Bypass next day) and passMode (current bypass mode)
-- Add efficiency factor for calculations (96% charging, 92%-98%* for discharging)
+- Add efficiency factor for calculations (96% charging, 92%-98%\* for discharging - based on measuring from VoltAmpereLux Youtube channel - THANKS!)
 - Changed calculations timeframe from 10secs to 30secs (performance related)
 
 ### 1.2.5 (2024-03-19)

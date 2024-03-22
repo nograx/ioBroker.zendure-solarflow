@@ -8,9 +8,12 @@
 import * as utils from "@iobroker/adapter-core";
 import {
   connectMqttClient,
+  setAutoRecover,
+  setBuzzerSwitch,
   setChargeLimit,
   setDischargeLimit,
   setOutputLimit,
+  setPassMode,
 } from "./services/mqttService";
 import { getDeviceList, login } from "./services/webService";
 import { ISolarFlowDeviceDetails } from "./models/ISolarFlowDeviceDetails";
@@ -61,7 +64,7 @@ export class ZendureSolarflow extends utils.Adapter {
     await this.extendObjectAsync("info", {
       type: "channel",
       common: {
-        name: "Information"
+        name: "Information",
       },
       native: {},
     });
@@ -69,7 +72,10 @@ export class ZendureSolarflow extends utils.Adapter {
     await this.extendObjectAsync(`info.connection`, {
       type: "state",
       common: {
-        name: { de: "Mit Zendure Cloud verbunden", en: "Connected to Zendure cloud" },
+        name: {
+          de: "Mit Zendure Cloud verbunden",
+          en: "Connected to Zendure cloud",
+        },
         type: "boolean",
         desc: "connection",
         role: "indicator.connected",
@@ -261,6 +267,22 @@ export class ZendureSolarflow extends utils.Adapter {
               setDischargeLimit(this, productKey, deviceKey, Number(state.val));
             } else if (stateName2 == "chargeLimit") {
               setChargeLimit(this, productKey, deviceKey, Number(state.val));
+            } else if (stateName2 == "passMode") {
+              setPassMode(this, productKey, deviceKey, Number(state.val));
+            } else if (stateName2 == "autoRecover") {
+              setAutoRecover(
+                this,
+                productKey,
+                deviceKey,
+                state.val ? true : false,
+              );
+            } else if (stateName2 == "buzzerSwitch") {
+              setBuzzerSwitch(
+                this,
+                productKey,
+                deviceKey,
+                state.val ? true : false,
+              );
             }
             break;
           default:

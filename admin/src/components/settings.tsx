@@ -62,7 +62,7 @@ class Settings extends React.Component<SettingsProps, SettingsState> {
     super(props);
     this.state = {};
 
-    this.props.onChange("password", "");
+    //this.props.onChange("password", "");
   }
 
   renderInput(title: AdminWord, attr: string, type: string) {
@@ -143,7 +143,7 @@ class Settings extends React.Component<SettingsProps, SettingsState> {
             <h3>{I18n.t("settings")}</h3>
           </div>
           <div>{I18n.t("settingsDesc")}</div>
-          <div style={{marginTop: 10, marginBottom: 5}}>
+          <div style={{ marginTop: 10, marginBottom: 5 }}>
             {this.renderSelect("server", "server", [
               { value: "global", title: "global" },
               { value: "eu", title: "eu" },
@@ -151,7 +151,10 @@ class Settings extends React.Component<SettingsProps, SettingsState> {
           </div>
           <div>{this.renderInput("userName", "userName", "text")}</div>
           <div>{this.renderInput("password", "password", "text")}</div>
-          {this.props.native["password"] == undefined || this.props.native["password"] == "" && <div style={{color: "red"}}>{I18n.t("enterPassword")}</div>}
+          {this.props.native["password"] == undefined ||
+            (this.props.native["password"] == "" && (
+              <div style={{ color: "red" }}>{I18n.t("enterPassword")}</div>
+            ))}
 
           <div>{this.renderCheckbox("useCalculation", "useCalculation")}</div>
           <div>
@@ -172,8 +175,10 @@ class Settings extends React.Component<SettingsProps, SettingsState> {
               rel="noreferrer"
             >
               <img
-              height={30}
-                src={"https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white"}
+                height={30}
+                src={
+                  "https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white"
+                }
               ></img>
             </a>
           </div>

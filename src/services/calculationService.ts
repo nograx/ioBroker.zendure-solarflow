@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/indent */
 
+import { toHoursAndMinutes } from "../helpers/timeHelper";
 import { ZendureSolarflow } from "../main";
 import { ISolarFlowDeviceDetails } from "../models/ISolarFlowDeviceDetails";
 
@@ -26,7 +27,7 @@ export const setEnergyWhMax = async (
       true,
     );
   }
-}
+};
 
 export const calculateSocAndEnergy = async (
   adapter: ZendureSolarflow,
@@ -58,10 +59,13 @@ export const calculateSocAndEnergy = async (
     );
 
     if (currentEnergyMaxState) {
-      const soc = Number(((newValue / Number(currentEnergyMaxState.val)) * 100).toFixed(1));
+      const soc = Number(
+        ((newValue / Number(currentEnergyMaxState.val)) * 100).toFixed(1),
+      );
+
       await adapter?.setStateAsync(
         `${productKey}.${deviceKey}.calculations.soc`,
-        soc,
+        soc > 100.0 ? 100 : soc,
         true,
       );
 
@@ -73,6 +77,36 @@ export const calculateSocAndEnergy = async (
           true,
         );
       }
+
+      if (stateKey == "outputPack") {
+        // Charging, calculate remaining charging time
+        const toCharge = Number(currentEnergyMaxState.val) - newValue;
+
+        const remainHoursAsDecimal = toCharge / value;
+        const remainFormatted = toHoursAndMinutes(remainHoursAsDecimal * 60);
+
+        await adapter?.setStateAsync(
+          `${productKey}.${deviceKey}.calculations.remainInputTime`,
+          remainFormatted,
+          true,
+        );
+      } else if (stateKey == "packInput") {
+        // Discharging, calculate remaining discharge time
+        const remainHoursAsDecimal = newValue / value;
+        const remainFormatted = toHoursAndMinutes(remainHoursAsDecimal * 60);
+
+        await adapter?.setStateAsync(
+          `${productKey}.${deviceKey}.calculations.remainInputTime`,
+          remainFormatted,
+          true,
+        );
+      }
+    } else {
+      await adapter?.setStateAsync(
+        `${productKey}.${deviceKey}.calculations.energyWhMax`,
+        newValue,
+        true,
+      );
     }
   }
 };
@@ -103,35 +137,49 @@ export const calculateEnergy = async (
       // Timeframe = 30000ms, Job runs every 30 seconds...
       const timeFrame = 30000;
 
-      const addValue = (Number(currentPowerState.val) * timeFrame) / 3600000; // Wh
-      let newValue = Number(currentEnergyState.val) + addValue;
+      // Calculate Energy value (Wh) from current power in the timeframe from last run...
+      let addEnergyValue =
+        (Number(currentPowerState.val) * timeFrame) / 3600000; // Wh
+
+      // Use efficiency factor (used the one from Youtube Channel VoltAmpereLux - thanks!)
+      const chargingFactor = 0.96; // Efficiency 96%
+      const dischargingFactor = 1.08 - addEnergyValue / 10000; // Efficiency 92% - 98% (92% + Energy / 10000 = 600W -> +6%)
+
+      // Calculate energy from efficiency factor if value for charging or discharging
+      addEnergyValue =
+        stateKey == "outputPack" && addEnergyValue > 0
+          ? addEnergyValue * chargingFactor
+          : addEnergyValue;
+      addEnergyValue =
+        stateKey == "packInput" && addEnergyValue > 0
+          ? addEnergyValue * dischargingFactor
+          : addEnergyValue;
+
+      let newEnergyValue = Number(currentEnergyState.val) + addEnergyValue;
 
       // Fix negative value
-      if (newValue < 0) {
-        newValue = 0;
+      if (newEnergyValue < 0) {
+        newEnergyValue = 0;
       }
 
-      const chargingFactor = 0.96; // Efficiency 96%
-      const dischargingFactor = 1.08 - (newValue / 10000); // Efficiency 92% - 98% (92% + Energy / 10000 = 600W -> + 0.06%)
-
-      newValue = stateKey == "outputPack" && newValue > 0 ? newValue * chargingFactor : newValue;
-      newValue = stateKey == "packInput" && newValue > 0 ? newValue * dischargingFactor : newValue;
-
-      await adapter?.setStateAsync(stateNameEnergyWh, newValue, true);
+      await adapter?.setStateAsync(stateNameEnergyWh, newEnergyValue, true);
       await adapter?.setStateAsync(
         stateNameEnergykWh,
-        Number((newValue / 1000).toFixed(2)),
+        Number((newEnergyValue / 1000).toFixed(2)),
         true,
       );
 
       // SOC and energy in batteries
-      if ((stateKey == "outputPack" || stateKey == "packInput") && addValue > 0) {
+      if (
+        (stateKey == "outputPack" || stateKey == "packInput") &&
+        addEnergyValue > 0
+      ) {
         await calculateSocAndEnergy(
           adapter,
           productKey,
           deviceKey,
           stateKey,
-          addValue,
+          addEnergyValue,
         );
       }
     } else {
