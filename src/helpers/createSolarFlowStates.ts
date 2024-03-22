@@ -72,6 +72,22 @@ export const createSolarFlowStates = async (
     native: {},
   });
 
+  await adapter?.extendObjectAsync(`${productKey}.${deviceKey}.buzzerSwitch`, {
+    type: "state",
+    common: {
+      name: {
+        de: "Sounds am HUB aktivieren",
+        en: "Enable buzzer on HUB",
+      },
+      type: "boolean",
+      desc: "passMode",
+      role: "value",
+      read: true,
+      write: false,
+    },
+    native: {},
+  });
+
   await adapter?.extendObjectAsync(`${productKey}.${deviceKey}.passMode`, {
     type: "state",
     common: {

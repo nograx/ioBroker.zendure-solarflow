@@ -269,6 +269,21 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
     }
 
     if (
+      obj.properties?.buzzerSwitch != null &&
+      obj.properties?.buzzerSwitch != undefined
+    ) {
+      const value = obj.properties?.buzzerSwitch == 0 ? false : true;
+
+      updateSolarFlowState(
+        adapter,
+        productKey,
+        deviceKey,
+        "buzzerSwitch",
+        value,
+      );
+    }
+
+    if (
       obj.properties?.outputPackPower != null &&
       obj.properties?.outputPackPower != undefined
     ) {

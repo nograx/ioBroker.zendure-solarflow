@@ -94,6 +94,65 @@ const createControlStates = async (adapter, productKey, deviceKey) => {
       native: {}
     }
   ));
+  await (adapter == null ? void 0 : adapter.extendObjectAsync(
+    `${productKey}.${deviceKey}.control.buzzerSwitch`,
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Sounds am HUB aktivieren",
+          en: "Enable buzzer on HUB"
+        },
+        type: "boolean",
+        desc: "buzzerSwitch",
+        role: "switch",
+        read: true,
+        write: true
+      },
+      native: {}
+    }
+  ));
+  await (adapter == null ? void 0 : adapter.extendObjectAsync(
+    `${productKey}.${deviceKey}.control.passMode`,
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Einstellung des Bypass Modus",
+          en: "Setting of bypass mode"
+        },
+        type: "number",
+        desc: "passMode",
+        role: "switch",
+        read: true,
+        write: true,
+        states: {
+          0: "Automatic",
+          1: "Always off",
+          2: "Always on"
+        }
+      },
+      native: {}
+    }
+  ));
+  await (adapter == null ? void 0 : adapter.extendObjectAsync(
+    `${productKey}.${deviceKey}.control.autoRecover`,
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Am n\xE4chsten Tag Bypass auf Automatik",
+          en: "Automatic recovery of bypass"
+        },
+        type: "boolean",
+        desc: "autoRecover",
+        role: "switch",
+        read: true,
+        write: true
+      },
+      native: {}
+    }
+  ));
   if (adapter.config.useLowVoltageBlock) {
     await (adapter == null ? void 0 : adapter.extendObjectAsync(
       `${productKey}.${deviceKey}.control.lowVoltageBlock`,
@@ -120,6 +179,9 @@ const createControlStates = async (adapter, productKey, deviceKey) => {
   adapter == null ? void 0 : adapter.subscribeStates(`${productKey}.${deviceKey}.control.setOutputLimit`);
   adapter == null ? void 0 : adapter.subscribeStates(`${productKey}.${deviceKey}.control.chargeLimit`);
   adapter == null ? void 0 : adapter.subscribeStates(`${productKey}.${deviceKey}.control.dischargeLimit`);
+  adapter == null ? void 0 : adapter.subscribeStates(`${productKey}.${deviceKey}.control.buzzerSwitch`);
+  adapter == null ? void 0 : adapter.subscribeStates(`${productKey}.${deviceKey}.control.autoRecover`);
+  adapter == null ? void 0 : adapter.subscribeStates(`${productKey}.${deviceKey}.control.passMode`);
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

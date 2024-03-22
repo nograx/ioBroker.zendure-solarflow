@@ -73,7 +73,10 @@ class ZendureSolarflow extends utils.Adapter {
     await this.extendObjectAsync(`info.connection`, {
       type: "state",
       common: {
-        name: { de: "Mit Zendure Cloud verbunden", en: "Connected to Zendure cloud" },
+        name: {
+          de: "Mit Zendure Cloud verbunden",
+          en: "Connected to Zendure cloud"
+        },
         type: "boolean",
         desc: "connection",
         role: "indicator.connected",
@@ -216,6 +219,22 @@ class ZendureSolarflow extends utils.Adapter {
               (0, import_mqttService.setDischargeLimit)(this, productKey, deviceKey, Number(state.val));
             } else if (stateName2 == "chargeLimit") {
               (0, import_mqttService.setChargeLimit)(this, productKey, deviceKey, Number(state.val));
+            } else if (stateName2 == "passMode") {
+              (0, import_mqttService.setPassMode)(this, productKey, deviceKey, Number(state.val));
+            } else if (stateName2 == "autoRecover") {
+              (0, import_mqttService.setAutoRecover)(
+                this,
+                productKey,
+                deviceKey,
+                state.val ? true : false
+              );
+            } else if (stateName2 == "buzzerSwitch") {
+              (0, import_mqttService.setBuzzerSwitch)(
+                this,
+                productKey,
+                deviceKey,
+                state.val ? true : false
+              );
             }
             break;
           default:

@@ -184,4 +184,10 @@ export const createControlStates = async (
   adapter?.subscribeStates(`${productKey}.${deviceKey}.control.chargeLimit`);
 
   adapter?.subscribeStates(`${productKey}.${deviceKey}.control.dischargeLimit`);
+
+  adapter?.subscribeStates(`${productKey}.${deviceKey}.control.buzzerSwitch`);
+
+  adapter?.subscribeStates(`${productKey}.${deviceKey}.control.autoRecover`);
+
+  adapter?.subscribeStates(`${productKey}.${deviceKey}.control.passMode`);
 };

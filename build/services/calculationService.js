@@ -24,6 +24,7 @@ __export(calculationService_exports, {
   setEnergyWhMax: () => setEnergyWhMax
 });
 module.exports = __toCommonJS(calculationService_exports);
+var import_timeHelper = require("../helpers/timeHelper");
 const calculationStateKeys = [
   "packInput",
   "outputHome",
@@ -58,10 +59,12 @@ const calculateSocAndEnergy = async (adapter, productKey, deviceKey, stateKey, v
       true
     );
     if (currentEnergyMaxState) {
-      const soc = Number((newValue / Number(currentEnergyMaxState.val) * 100).toFixed(1));
+      const soc = Number(
+        (newValue / Number(currentEnergyMaxState.val) * 100).toFixed(1)
+      );
       await (adapter == null ? void 0 : adapter.setStateAsync(
         `${productKey}.${deviceKey}.calculations.soc`,
-        soc,
+        soc > 100 ? 100 : soc,
         true
       ));
       if (newValue > Number(currentEnergyMaxState.val)) {
@@ -71,6 +74,30 @@ const calculateSocAndEnergy = async (adapter, productKey, deviceKey, stateKey, v
           true
         ));
       }
+      if (stateKey == "outputPack") {
+        const toCharge = Number(currentEnergyMaxState.val) - newValue;
+        const remainHoursAsDecimal = toCharge / value;
+        const remainFormatted = (0, import_timeHelper.toHoursAndMinutes)(remainHoursAsDecimal * 60);
+        await (adapter == null ? void 0 : adapter.setStateAsync(
+          `${productKey}.${deviceKey}.calculations.remainInputTime`,
+          remainFormatted,
+          true
+        ));
+      } else if (stateKey == "packInput") {
+        const remainHoursAsDecimal = newValue / value;
+        const remainFormatted = (0, import_timeHelper.toHoursAndMinutes)(remainHoursAsDecimal * 60);
+        await (adapter == null ? void 0 : adapter.setStateAsync(
+          `${productKey}.${deviceKey}.calculations.remainInputTime`,
+          remainFormatted,
+          true
+        ));
+      }
+    } else {
+      await (adapter == null ? void 0 : adapter.setStateAsync(
+        `${productKey}.${deviceKey}.calculations.energyWhMax`,
+        newValue,
+        true
+      ));
     }
   }
 };
@@ -85,28 +112,28 @@ const calculateEnergy = async (adapter, productKey, deviceKey) => {
       await (adapter == null ? void 0 : adapter.setStateAsync(stateNameEnergyWh, 1e-6, true));
     } else if (currentEnergyState && currentEnergyState.lc && currentPowerState && currentPowerState.val != void 0 && currentPowerState.val != null) {
       const timeFrame = 3e4;
-      const addValue = Number(currentPowerState.val) * timeFrame / 36e5;
-      let newValue = Number(currentEnergyState.val) + addValue;
-      if (newValue < 0) {
-        newValue = 0;
-      }
+      let addEnergyValue = Number(currentPowerState.val) * timeFrame / 36e5;
       const chargingFactor = 0.96;
-      const dischargingFactor = 1.08 - newValue / 1e4;
-      newValue = stateKey == "outputPack" && newValue > 0 ? newValue * chargingFactor : newValue;
-      newValue = stateKey == "packInput" && newValue > 0 ? newValue * dischargingFactor : newValue;
-      await (adapter == null ? void 0 : adapter.setStateAsync(stateNameEnergyWh, newValue, true));
+      const dischargingFactor = 1.08 - addEnergyValue / 1e4;
+      addEnergyValue = stateKey == "outputPack" && addEnergyValue > 0 ? addEnergyValue * chargingFactor : addEnergyValue;
+      addEnergyValue = stateKey == "packInput" && addEnergyValue > 0 ? addEnergyValue * dischargingFactor : addEnergyValue;
+      let newEnergyValue = Number(currentEnergyState.val) + addEnergyValue;
+      if (newEnergyValue < 0) {
+        newEnergyValue = 0;
+      }
+      await (adapter == null ? void 0 : adapter.setStateAsync(stateNameEnergyWh, newEnergyValue, true));
       await (adapter == null ? void 0 : adapter.setStateAsync(
         stateNameEnergykWh,
-        Number((newValue / 1e3).toFixed(2)),
+        Number((newEnergyValue / 1e3).toFixed(2)),
         true
       ));
-      if ((stateKey == "outputPack" || stateKey == "packInput") && addValue > 0) {
+      if ((stateKey == "outputPack" || stateKey == "packInput") && addEnergyValue > 0) {
         await calculateSocAndEnergy(
           adapter,
           productKey,
           deviceKey,
           stateKey,
-          addValue
+          addEnergyValue
         );
       }
     } else {
