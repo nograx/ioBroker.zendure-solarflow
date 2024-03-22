@@ -42,7 +42,6 @@ If you find the adapter useful for you and want to support my work, feel free to
 ### **WORK IN PROGRESS**
 
 - Fix calculation for outputPackEnergy and packInputEnergy
-- Fix password encryption on settings page
 - Trigger full telemetry update on adapter start
 - Add state and control for buzzer switch
 - Add state and control for bypass mode and automatic reset of bypass mode next day
