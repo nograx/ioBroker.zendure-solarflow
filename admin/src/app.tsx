@@ -57,7 +57,7 @@ class App extends GenericApp {
     return (
       <div className="App">
         <Settings
-          decrypt={this.decrypt}
+          decryptedPassword={this.decrypt(this.state.native["password"])}
           native={this.state.native}
           onChange={(attr, value) => this.updateNativeValue(attr, value)}
         />

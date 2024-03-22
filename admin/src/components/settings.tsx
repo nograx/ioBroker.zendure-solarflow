@@ -48,7 +48,7 @@ const styles = (): Record<string, CreateCSSProperties> => ({
 interface SettingsProps {
   classes: Record<string, string>;
   native: Record<string, any>;
-  decrypt: any;
+  decryptedPassword: string;
   onChange: (attr: string, value: any) => void;
 }
 
@@ -71,7 +71,7 @@ class Settings extends React.Component<SettingsProps, SettingsState> {
         autoComplete="off"
         label={I18n.t(title)}
         className={`${this.props.classes.input} ${this.props.classes.controlElement}`}
-        value={this.props.decrypt(this.props.native[attr])}
+        value={this.props.decryptedPassword}
         type={type || "text"}
         onChange={(e) => this.props.onChange(attr, e.target.value)}
         margin="normal"
