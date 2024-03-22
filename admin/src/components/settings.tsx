@@ -50,6 +50,7 @@ interface SettingsProps {
   native: Record<string, any>;
   decryptedPassword: string;
   onChange: (attr: string, value: any) => void;
+  onChangePassword: (password: string) => void;
 }
 
 interface SettingsState {

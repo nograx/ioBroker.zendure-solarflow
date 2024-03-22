@@ -60,6 +60,9 @@ class App extends GenericApp {
           decryptedPassword={this.decrypt(this.state.native["password"])}
           native={this.state.native}
           onChange={(attr, value) => this.updateNativeValue(attr, value)}
+          onChangePassword={(password: string) => {
+            this.updateNativeValue("password", this.encrypt(password))
+          }}
         />
         {this.renderError()}
         {this.renderToast()}
