@@ -28,7 +28,7 @@ class App extends GenericApp {
   constructor(props: GenericAppProps) {
     const extendedProps: GenericAppSettings = {
       ...props,
-      encryptedFields: [],
+      encryptedFields: ["password"],
       translations: {
         de: de,
         en: en,
@@ -57,12 +57,8 @@ class App extends GenericApp {
     return (
       <div className="App">
         <Settings
-          decryptedPassword={this.decrypt(this.state.native["password"])}
           native={this.state.native}
           onChange={(attr, value) => this.updateNativeValue(attr, value)}
-          onChangePassword={(password: string) => {
-            this.updateNativeValue("password", this.encrypt(password))
-          }}
         />
         {this.renderError()}
         {this.renderToast()}
