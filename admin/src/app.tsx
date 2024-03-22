@@ -54,11 +54,10 @@ class App extends GenericApp {
       return super.render();
     }
 
-    this.state.native["password"] = this.decrypt(this.state.native["password"]);
-
     return (
       <div className="App">
         <Settings
+          decrypt={this.decrypt}
           native={this.state.native}
           onChange={(attr, value) => this.updateNativeValue(attr, value)}
         />

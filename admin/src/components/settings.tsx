@@ -48,7 +48,7 @@ const styles = (): Record<string, CreateCSSProperties> => ({
 interface SettingsProps {
   classes: Record<string, string>;
   native: Record<string, any>;
-
+  decrypt: any;
   onChange: (attr: string, value: any) => void;
 }
 
@@ -63,6 +63,20 @@ class Settings extends React.Component<SettingsProps, SettingsState> {
     this.state = {};
 
     //this.props.onChange("password", "");
+  }
+
+  renderPassword(title: AdminWord, attr: string, type: string) {
+    return (
+      <TextField
+        autoComplete="off"
+        label={I18n.t(title)}
+        className={`${this.props.classes.input} ${this.props.classes.controlElement}`}
+        value={this.props.decrypt(this.props.native[attr])}
+        type={type || "text"}
+        onChange={(e) => this.props.onChange(attr, e.target.value)}
+        margin="normal"
+      />
+    );
   }
 
   renderInput(title: AdminWord, attr: string, type: string) {
@@ -150,7 +164,7 @@ class Settings extends React.Component<SettingsProps, SettingsState> {
             ])}
           </div>
           <div>{this.renderInput("userName", "userName", "text")}</div>
-          <div>{this.renderInput("password", "password", "text")}</div>
+          <div>{this.renderPassword("password", "password", "text")}</div>
           {this.props.native["password"] == undefined ||
             (this.props.native["password"] == "" && (
               <div style={{ color: "red" }}>{I18n.t("enterPassword")}</div>
