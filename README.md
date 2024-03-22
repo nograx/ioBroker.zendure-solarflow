@@ -38,8 +38,7 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 1.2.7 (2024-03-22)
 
 - Fix calculation for outputPackEnergy and packInputEnergy
 - Trigger full telemetry update on adapter start
