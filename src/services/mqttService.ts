@@ -160,7 +160,15 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
     const productKey = splitted[1];
     const deviceKey = splitted[2];
 
-    const obj = JSON.parse(message.toString());
+    let obj = {};
+    try{
+      obj = JSON.parse(message.toString());
+    } catch (e){
+      const txt = message.toString();
+      adapter.log.error(
+        `[JSON PARSE ERROR] ${txt}`
+      );
+    }
 
     // lastUpdate für den deviceKey setzen
     updateSolarFlowState(
@@ -205,6 +213,41 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
           : "Unknown";
       updateSolarFlowState(adapter, productKey, deviceKey, "packState", value);
     }
+
+    if (
+      obj.properties?.pvBrand != null &&
+      obj.properties?.pvBrand != undefined
+    ) {
+      const value =
+        obj.properties?.pvBrand == 0
+          ? "Others"
+          : obj.properties?.pvBrand == 1
+          ? "Hoymiles"
+          : obj.properties?.pvBrand == 2
+          ? "Enphase"
+          : obj.properties?.pvBrand == 3
+          ? "APSystems"
+          : obj.properties?.pvBrand == 4
+          ? "Anker"
+          : obj.properties?.pvBrand == 5
+          ? "Deye"
+          : obj.properties?.pvBrand == 6
+          ? "Bosswerk"
+          : "Unknown";
+      updateSolarFlowState(adapter, productKey, deviceKey, "pvBrand", value);
+    }
+
+    if (
+      obj.properties?.inverseMaxPower != null &&
+      obj.properties?.inverseMaxPower != undefined
+    ) {
+      updateSolarFlowState(
+        adapter,
+        productKey,
+        deviceKey,
+        "inverseMaxPower",
+        obj.properties.inverseMaxPower,
+      );
 
     if (
       obj.properties?.passMode != null &&
