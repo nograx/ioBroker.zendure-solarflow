@@ -86,28 +86,47 @@ export const calculateSocAndEnergy = async (
         productKey + "." + deviceKey + ".packInputPower",
       );
 
-      if (stateKey == "outputPack" && currentOutputPackPower?.val) {
+      if (stateKey == "outputPack" && currentOutputPackPower?.val != null && currentOutputPackPower != undefined) {
         // Charging, calculate remaining charging time
         const toCharge = Number(currentEnergyMaxState.val) - newValue;
 
         const remainHoursAsDecimal = toCharge / Number(currentOutputPackPower.val);
-        const remainFormatted = toHoursAndMinutes(remainHoursAsDecimal * 60);
 
-        await adapter?.setStateAsync(
-          `${productKey}.${deviceKey}.calculations.remainInputTime`,
-          remainFormatted,
-          true,
-        );
-      } else if (stateKey == "packInput" && currentPackInputPower) {
+        if (remainHoursAsDecimal < 10.0) {
+          const remainFormatted = toHoursAndMinutes(Math.round(remainHoursAsDecimal * 60));
+
+          await adapter?.setStateAsync(
+            `${productKey}.${deviceKey}.calculations.remainInputTime`,
+            remainFormatted,
+            true,
+          );
+        }
+        else {
+          await adapter?.setStateAsync(
+            `${productKey}.${deviceKey}.calculations.remainInputTime`,
+            "-",
+            true,
+          );
+        }
+      } else if (stateKey == "packInput" && currentPackInputPower != null && currentPackInputPower != undefined) {
         // Discharging, calculate remaining discharge time
         const remainHoursAsDecimal = newValue / Number(currentPackInputPower.val);
-        const remainFormatted = toHoursAndMinutes(remainHoursAsDecimal * 60);
+        const remainFormatted = toHoursAndMinutes(Math.round(remainHoursAsDecimal * 60));
 
-        await adapter?.setStateAsync(
-          `${productKey}.${deviceKey}.calculations.remainOutTime`,
-          remainFormatted,
-          true,
-        );
+        if (remainHoursAsDecimal < 40.0) {
+          await adapter?.setStateAsync(
+            `${productKey}.${deviceKey}.calculations.remainOutTime`,
+            remainFormatted,
+            true,
+          );
+        }
+        else {
+          await adapter?.setStateAsync(
+            `${productKey}.${deviceKey}.calculations.remainOutTime`,
+            "-",
+            true,
+          );
+        }
       }
     } else {
       await adapter?.setStateAsync(

@@ -80,23 +80,39 @@ const calculateSocAndEnergy = async (adapter, productKey, deviceKey, stateKey, v
       const currentPackInputPower = await (adapter == null ? void 0 : adapter.getStateAsync(
         productKey + "." + deviceKey + ".packInputPower"
       ));
-      if (stateKey == "outputPack" && (currentOutputPackPower == null ? void 0 : currentOutputPackPower.val)) {
+      if (stateKey == "outputPack" && (currentOutputPackPower == null ? void 0 : currentOutputPackPower.val) != null && currentOutputPackPower != void 0) {
         const toCharge = Number(currentEnergyMaxState.val) - newValue;
         const remainHoursAsDecimal = toCharge / Number(currentOutputPackPower.val);
-        const remainFormatted = (0, import_timeHelper.toHoursAndMinutes)(remainHoursAsDecimal * 60);
-        await (adapter == null ? void 0 : adapter.setStateAsync(
-          `${productKey}.${deviceKey}.calculations.remainInputTime`,
-          remainFormatted,
-          true
-        ));
-      } else if (stateKey == "packInput" && currentPackInputPower) {
+        if (remainHoursAsDecimal < 10) {
+          const remainFormatted = (0, import_timeHelper.toHoursAndMinutes)(Math.round(remainHoursAsDecimal * 60));
+          await (adapter == null ? void 0 : adapter.setStateAsync(
+            `${productKey}.${deviceKey}.calculations.remainInputTime`,
+            remainFormatted,
+            true
+          ));
+        } else {
+          await (adapter == null ? void 0 : adapter.setStateAsync(
+            `${productKey}.${deviceKey}.calculations.remainInputTime`,
+            "-",
+            true
+          ));
+        }
+      } else if (stateKey == "packInput" && currentPackInputPower != null && currentPackInputPower != void 0) {
         const remainHoursAsDecimal = newValue / Number(currentPackInputPower.val);
-        const remainFormatted = (0, import_timeHelper.toHoursAndMinutes)(remainHoursAsDecimal * 60);
-        await (adapter == null ? void 0 : adapter.setStateAsync(
-          `${productKey}.${deviceKey}.calculations.remainOutTime`,
-          remainFormatted,
-          true
-        ));
+        const remainFormatted = (0, import_timeHelper.toHoursAndMinutes)(Math.round(remainHoursAsDecimal * 60));
+        if (remainHoursAsDecimal < 40) {
+          await (adapter == null ? void 0 : adapter.setStateAsync(
+            `${productKey}.${deviceKey}.calculations.remainOutTime`,
+            remainFormatted,
+            true
+          ));
+        } else {
+          await (adapter == null ? void 0 : adapter.setStateAsync(
+            `${productKey}.${deviceKey}.calculations.remainOutTime`,
+            "-",
+            true
+          ));
+        }
       }
     } else {
       await (adapter == null ? void 0 : adapter.setStateAsync(
