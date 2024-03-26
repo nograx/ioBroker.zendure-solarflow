@@ -74,20 +74,26 @@ const calculateSocAndEnergy = async (adapter, productKey, deviceKey, stateKey, v
           true
         ));
       }
-      if (stateKey == "outputPack") {
+      const currentOutputPackPower = await (adapter == null ? void 0 : adapter.getStateAsync(
+        `${productKey}.${deviceKey}.outputPackPower`
+      ));
+      const currentPackInputPower = await (adapter == null ? void 0 : adapter.getStateAsync(
+        productKey + "." + deviceKey + ".packInputPower"
+      ));
+      if (stateKey == "outputPack" && (currentOutputPackPower == null ? void 0 : currentOutputPackPower.val)) {
         const toCharge = Number(currentEnergyMaxState.val) - newValue;
-        const remainHoursAsDecimal = toCharge / value;
+        const remainHoursAsDecimal = toCharge / Number(currentOutputPackPower.val);
         const remainFormatted = (0, import_timeHelper.toHoursAndMinutes)(remainHoursAsDecimal * 60);
         await (adapter == null ? void 0 : adapter.setStateAsync(
           `${productKey}.${deviceKey}.calculations.remainInputTime`,
           remainFormatted,
           true
         ));
-      } else if (stateKey == "packInput") {
-        const remainHoursAsDecimal = newValue / value;
+      } else if (stateKey == "packInput" && currentPackInputPower) {
+        const remainHoursAsDecimal = newValue / Number(currentPackInputPower.val);
         const remainFormatted = (0, import_timeHelper.toHoursAndMinutes)(remainHoursAsDecimal * 60);
         await (adapter == null ? void 0 : adapter.setStateAsync(
-          `${productKey}.${deviceKey}.calculations.remainInputTime`,
+          `${productKey}.${deviceKey}.calculations.remainOutTime`,
           remainFormatted,
           true
         ));

@@ -78,11 +78,19 @@ export const calculateSocAndEnergy = async (
         );
       }
 
-      if (stateKey == "outputPack") {
+      const currentOutputPackPower = await adapter?.getStateAsync(
+        `${productKey}.${deviceKey}.outputPackPower`,
+      );
+
+      const currentPackInputPower = await adapter?.getStateAsync(
+        productKey + "." + deviceKey + ".packInputPower",
+      );
+
+      if (stateKey == "outputPack" && currentOutputPackPower?.val) {
         // Charging, calculate remaining charging time
         const toCharge = Number(currentEnergyMaxState.val) - newValue;
 
-        const remainHoursAsDecimal = toCharge / value;
+        const remainHoursAsDecimal = toCharge / Number(currentOutputPackPower.val);
         const remainFormatted = toHoursAndMinutes(remainHoursAsDecimal * 60);
 
         await adapter?.setStateAsync(
@@ -90,13 +98,13 @@ export const calculateSocAndEnergy = async (
           remainFormatted,
           true,
         );
-      } else if (stateKey == "packInput") {
+      } else if (stateKey == "packInput" && currentPackInputPower) {
         // Discharging, calculate remaining discharge time
-        const remainHoursAsDecimal = newValue / value;
+        const remainHoursAsDecimal = newValue / Number(currentPackInputPower.val);
         const remainFormatted = toHoursAndMinutes(remainHoursAsDecimal * 60);
 
         await adapter?.setStateAsync(
-          `${productKey}.${deviceKey}.calculations.remainInputTime`,
+          `${productKey}.${deviceKey}.calculations.remainOutTime`,
           remainFormatted,
           true,
         );

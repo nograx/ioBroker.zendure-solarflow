@@ -38,15 +38,13 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
-### 1.2.7 (2024-03-22)
+
+### **WORK IN PROGRESS**
 
 - Fix calculation for outputPackEnergy and packInputEnergy
 - Trigger full telemetry update on adapter start
 - Add state and control for buzzer switch
 - Add state and control for bypass mode and automatic reset of bypass mode next day
-
-### 1.2.6 (2024-03-20)
-
 - Add states for pass (Bypass on/off), autoRecover (auto-mode for Bypass next day) and passMode (current bypass mode)
 - Add efficiency factor for calculations (96% charging, 92%-98%\* for discharging - based on measuring from VoltAmpereLux Youtube channel - THANKS!)
 - Changed calculations timeframe from 10secs to 30secs (performance related)
