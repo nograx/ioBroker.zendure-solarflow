@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.3.0",
+    "version": "1.3.1-alpha.0",
     "news": {
+      "1.3.1-alpha.0": {
+        "en": "Fix energyWh, energyWhMax and SOC in calculations if \"Low Voltage Check\" is not used, it will set the caluclation soc to 0 if minSoc (discharge limit) is reached.",
+        "de": "Energie Wh, energyWhMax und SOC in Berechnungen, wenn \"Low Voltage Check\" nicht verwendet wird, wird es die Caluclation soc auf 0 setzen, wenn minSoc (Entladungsgrenze) erreicht ist.",
+        "ru": "Исправить энергию В, energyWhMax и SOC в расчетах, если не используется \"Low Voltage Check\", он установит калькуляцию soc до 0, если minSoc (до предела разгрузки) будет достигнут.",
+        "pt": "Energia fixa Wh, EnergyWhMax e SOC em cálculos se \"Low Voltage Check\" não for usado, ele irá definir o soc de calucação para 0 se minSoc (limite de descarga) é alcançado.",
+        "nl": "Vaste energie Wh, energyWhMax en SOC in berekeningen als \"Low Voltage Check\" niet wordt gebruikt, zal het instellen van de caluclation Soc op 0 als minSoc (ontladingslimiet) wordt bereikt.",
+        "fr": "Fixer l'énergie Wh, energyWhMax et SOC dans les calculs si \"Low Voltage Check\" n'est pas utilisé, il mettra la caluclation soc à 0 si minSoc (limite de décharge) est atteint.",
+        "it": "Energia Wh, energyWhMax e SOC nei calcoli se \"Low Tensione Check\" non viene utilizzato, imposta il soc di caluclazione a 0 se si raggiunge minSoc (limite di scarico).",
+        "es": "Fijar energía Wh, energyWhMax y SOC en cálculos si \"Low Voltage Check\" no se utiliza, establecerá la caluclation soc a 0 si se alcanza minSoc (límite de descarga).",
+        "pl": "Napraw energię Wh, energyWhMax i SOC w obliczeniach, jeśli \"Low voltage Check\" nie jest używany, to ustawi kalkulację soc do 0, jeśli minSoc (limit zrzutu) zostanie osiągnięty.",
+        "uk": "Фіксована енергія Wh, energyWhMax і SOC в розрахунках, якщо не використовується перевірка напруги \"Low\", він буде встановлювати кальуляції соку до 0, якщо допускається мінімальний ліміт витрати.",
+        "zh-cn": "修复能量 Wh, energyWhMax和SOC在计算中如果不使用\"低压检查\", 它会在达到mensoc(放电极限)时将卡路里 soc设置为0."
+      },
       "1.3.0": {
         "en": "Fix calculation for outputPackEnergy and packInputEnergy\nTrigger full telemetry update on adapter start\nAdd state and control for buzzer switch\nAdd state and control for bypass mode and automatic reset of bypass mode next day\nAdd states for pass (Bypass on/off), autoRecover (auto-mode for Bypass next day) and passMode (current bypass mode)\nAdd efficiency factor for calculations (96% charging, 92%-98%\\* for discharging - based on measuring from VoltAmpereLux Youtube channel - THANKS!)\nChanged calculations timeframe from 10secs to 30secs (performance related)",
         "de": "Fixberechnung für die Ausgabe PackEnergy und PackInputEnergy\nTrigger Full Telemetrie Update auf Adapterstart\nZustand und Steuerung für Summer Switch hinzufügen\nZustand und Steuerung für Bypass-Modus und automatische Rückstellung des Bypass-Modus am nächsten Tag hinzufügen\nFügen Sie Zustände für Pass (Bypass on/off), autoRecover (Auto-Modus für Bypass nächsten Tag) und passMode (current bypass mode) hinzu\nEffizienzfaktor für Berechnungen hinzufügen (96% Aufladung, 92%-98%\\* zur Entladung - basierend auf der Messung von VoltAmpere Lux Youtube Kanal - THANKS!)\nGeänderte Berechnungsdauer von 10 Sekunden auf 30 Sekunden (performance related)",
@@ -80,19 +93,6 @@
         "pl": "Napraw ACK w stanie Zmiana\nAktualizacja Readme",
         "uk": "Виправлення ACK на onState Зареєструватися\nОновлення Readme",
         "zh-cn": "在状态上修复ACK 变动\n更新读取器"
-      },
-      "1.2.2": {
-        "en": "Fix issue that renamed devices could not be found.\nAdd states for name, product name, serial ID and configured server.\nMake \"energyWhMax\" State writable, so you can adjust the max Value.\nSent a warning if a device is configured for a server not in use.",
-        "de": "Problem behoben, dass umbenannte Geräte nicht gefunden werden konnten.\nFügen Sie Zustände für Name, Produktname, Serien-ID und konfigurierten Server hinzu.\nMachen Sie \"energyWhMax\" Zustand schreibbar, so können Sie den Maximalwert anpassen.\nGesendet eine Warnung, wenn ein Gerät für einen nicht im Einsatz befindlichen Server konfiguriert ist.",
-        "ru": "Исправьте проблему, которую переименованные устройства не удалось найти.\nДобавить состояния для имени, имени продукта, последовательного идентификатора и настроенного сервера.\nСделайте состояние «energyWhMax» действительным, так что вы можете настроить максимальное значение.\nОтправить предупреждение, если устройство настроено для сервера, не используемого.",
-        "pt": "Corrigir problema que os dispositivos renomeados não poderiam ser encontrados.\nAdicione estados para nome, nome do produto, ID serial e servidor configurado.\nFaça \"energyWhMax\" Estado writable, para que você possa ajustar o valor máximo.\nEnvia um aviso se um dispositivo estiver configurado para um servidor não estiver em uso.",
-        "nl": "Fix probleem dat hernoemde apparaten kon niet worden gevonden.\nVoeg statuss toe voor naam, productnaam, seriële ID en geconfigureerde server.\nMaak \"energyWhMax\" staat beschrijfbaar, zodat u de maximale waarde kunt aanpassen.\nVerzonden een waarschuwing als een apparaat is geconfigureerd voor een server die niet in gebruik is.",
-        "fr": "Correction d'un problème qui a été rebaptisé dispositifs ne pouvait pas être trouvé.\nAjouter des états pour le nom, le nom du produit, l'ID série et le serveur configuré.\nFaire \"energyWhMax\" État enregistrable, de sorte que vous pouvez ajuster la valeur maximale.\nEnvoyer un avertissement si un périphérique est configuré pour un serveur non utilisé.",
-        "it": "Risolvere il problema che i dispositivi ribattezzati non potrebbero essere trovati.\nAggiungi stati per nome, nome del prodotto, ID seriale e server configurato.\nRendere \"energyWhMax\" Stato scrivibile, in modo da poter regolare il valore massimo.\nInviare un avviso se un dispositivo è configurato per un server non in uso.",
-        "es": "Fijar el problema que no se pueden encontrar dispositivos renombrados.\nAñadir estados para nombre, nombre de producto, ID de serie y servidor configurado.\nHacer \"energíaWhMax\" estado writable, por lo que puede ajustar el valor máximo.\nEnviamos una advertencia si un dispositivo está configurado para un servidor que no está en uso.",
-        "pl": "Naprawiono problem, że nie można było znaleźć przemianowanych urządzeń.\nDodaj stany nazwy, nazwy produktu, seryjnego identyfikatora i skonfigurowanego serwera.\nDodać \"energyWhMax\" Stan zapisywalny, dzięki czemu można dostosować wartość max.\nWysłał ostrzeżenie, jeśli urządzenie jest skonfigurowane dla serwera, który nie jest używany.",
-        "uk": "Виправлення проблеми, які не можуть бути знайдені пристрої.\nДодайте штати для імені, назви товару, послідовний ідентифікатор і налаштований сервер.\nЗробіть \"енергетикаWhMax\" Держава, тому ви можете регулювати максимальну вартість.\nУвімкніть попередження, якщо пристрій налаштовано на сервер не у використанні.",
-        "zh-cn": "无法找到重命名的设备 .\n添加名称、产品名称、序列ID和配置服务器的状态 .\n让“ energyWhMax” 状态可写入, 这样您就可以调整最大值 .\n如果为服务器配置了设备, 则发送警告 ."
       }
     },
     "title": "Zendure Solarflow",
