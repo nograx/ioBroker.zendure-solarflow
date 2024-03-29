@@ -215,6 +215,8 @@ export class ZendureSolarflow extends utils.Adapter {
         this.clearInterval(this.refreshAccessTokenInterval);
       }
 
+      this.mqttClient?.end();
+
       this.setState("info.connection", false, true);
 
       // Scheduler beenden

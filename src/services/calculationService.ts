@@ -29,6 +29,43 @@ export const setEnergyWhMax = async (
   }
 };
 
+export const setSocToZero = async (
+  adapter: ZendureSolarflow,
+  productKey: string,
+  deviceKey: string,
+  ): Promise<void> => {
+  // Set SOC to 0
+  await adapter?.setStateAsync(
+    `${productKey}.${deviceKey}.calculations.soc`,
+    0,
+    true,
+  );
+
+  // Calculate new Wh Max Value
+  const energyWhState = await adapter.getStateAsync(
+    `${productKey}.${deviceKey}.calculations.energyWh`,
+  );
+  const energyWhMaxState = await adapter.getStateAsync(
+    `${productKey}.${deviceKey}.calculations.energyWhMax`,
+  );
+
+  const newMax = Number(energyWhMaxState?.val) - Number(energyWhState?.val);
+
+  // Set Max Energy to value minus current energy
+  await adapter?.setStateAsync(
+    `${productKey}.${deviceKey}.calculations.energyWhMax`,
+    newMax,
+    true,
+  );
+
+  // Set Energy in Battery to 0
+  await adapter?.setStateAsync(
+    `${productKey}.${deviceKey}.calculations.energyWh`,
+    0,
+    true,
+  );
+}
+
 export const calculateSocAndEnergy = async (
   adapter: ZendureSolarflow,
   productKey: string,
@@ -92,7 +129,7 @@ export const calculateSocAndEnergy = async (
 
         const remainHoursAsDecimal = toCharge / Number(currentOutputPackPower.val);
 
-        if (remainHoursAsDecimal < 10.0) {
+        if (remainHoursAsDecimal < 24.0) {
           const remainFormatted = toHoursAndMinutes(Math.round(remainHoursAsDecimal * 60));
 
           await adapter?.setStateAsync(
@@ -104,7 +141,7 @@ export const calculateSocAndEnergy = async (
         else {
           await adapter?.setStateAsync(
             `${productKey}.${deviceKey}.calculations.remainInputTime`,
-            "-",
+            "",
             true,
           );
         }
@@ -113,7 +150,7 @@ export const calculateSocAndEnergy = async (
         const remainHoursAsDecimal = newValue / Number(currentPackInputPower.val);
         const remainFormatted = toHoursAndMinutes(Math.round(remainHoursAsDecimal * 60));
 
-        if (remainHoursAsDecimal < 40.0) {
+        if (remainHoursAsDecimal < 48.0) {
           await adapter?.setStateAsync(
             `${productKey}.${deviceKey}.calculations.remainOutTime`,
             remainFormatted,
@@ -123,7 +160,7 @@ export const calculateSocAndEnergy = async (
         else {
           await adapter?.setStateAsync(
             `${productKey}.${deviceKey}.calculations.remainOutTime`,
-            "-",
+            "",
             true,
           );
         }
@@ -135,6 +172,20 @@ export const calculateSocAndEnergy = async (
         true,
       );
     }
+  }
+  else if (newValue == 0 && stateKey == "outputPack") {
+    await adapter?.setStateAsync(
+      `${productKey}.${deviceKey}.calculations.remainInputTime`,
+      "",
+      true,
+    );
+  }
+  else if (newValue == 0 && stateKey == "packInput") {
+    await adapter?.setStateAsync(
+      `${productKey}.${deviceKey}.calculations.remainOutTime`,
+      "",
+      true,
+    );
   }
 };
 

@@ -4,7 +4,7 @@ import { ZendureSolarflow } from "../main";
 import { ISolarFlowDeviceDetails } from "../models/ISolarFlowDeviceDetails";
 import { checkVoltage, updateSolarFlowState } from "./adapterService";
 import { IPackData } from "../models/IPackData";
-import { setEnergyWhMax } from "./calculationService";
+import { setEnergyWhMax, setSocToZero } from "./calculationService";
 
 let adapter: ZendureSolarflow | undefined = undefined;
 
@@ -188,6 +188,12 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         obj.properties.electricLevel == 100
       ) {
         setEnergyWhMax(adapter, productKey, deviceKey);
+      }
+
+      // if minSoc is reached, set the calculated soc to 0
+      const minSoc = await adapter?.getStateAsync(`${productKey}.${deviceKey}.minSoc`);
+      if (adapter?.config.useCalculation && minSoc && minSoc.val && minSoc.val == obj.properties.electricLevel) {
+        setSocToZero(adapter, productKey, deviceKey);
       }
     }
 

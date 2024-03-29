@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["../../src/helpers/timeHelper.ts"],
-  "sourcesContent": ["export const toHoursAndMinutes = (totalMinutes: number): string => {\n\tconst hours = Math.floor(totalMinutes / 60);\n\tconst minutes = totalMinutes % 60;\n\treturn hours + \":\" + (\"00\" + minutes).slice(-2);\n};\n"],
-  "mappings": ";;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAO,MAAM,oBAAoB,CAAC,iBAAiC;AAClE,QAAM,QAAQ,KAAK,MAAM,eAAe,EAAE;AAC1C,QAAM,UAAU,eAAe;AAC/B,SAAO,QAAQ,OAAO,OAAO,SAAS,MAAM,EAAE;AAC/C;",
+  "sourcesContent": ["export const toHoursAndMinutes = (totalMinutes: number): string => {\n\tconst hours = Math.floor(totalMinutes / 60);\n\tconst minutes = totalMinutes % 60;\n\treturn `${hours}h ${(\"00\" + minutes).slice(-2)}m`;\n};\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAO,MAAM,oBAAoB,CAAC,iBAAiC;AAClE,QAAM,QAAQ,KAAK,MAAM,eAAe,EAAE;AAC1C,QAAM,UAAU,eAAe;AAC/B,SAAO,GAAG,KAAK,MAAM,OAAO,SAAS,MAAM,EAAE,CAAC;AAC/C;",
   "names": []
 }

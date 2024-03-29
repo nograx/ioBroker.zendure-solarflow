@@ -23,6 +23,7 @@ __export(adapterService_exports, {
   updateSolarFlowState: () => updateSolarFlowState
 });
 module.exports = __toCommonJS(adapterService_exports);
+var import_calculationService = require("./calculationService");
 var import_mqttService = require("./mqttService");
 const updateSolarFlowState = async (adapter, productKey, deviceKey, state, val) => {
   await (adapter == null ? void 0 : adapter.setStateAsync(`${productKey}.${deviceKey}.${state}`, val, true));
@@ -30,28 +31,7 @@ const updateSolarFlowState = async (adapter, productKey, deviceKey, state, val) 
 const checkVoltage = async (adapter, productKey, deviceKey, voltage) => {
   if (voltage < 46.1) {
     if (adapter.config.useCalculation) {
-      await (adapter == null ? void 0 : adapter.setStateAsync(
-        `${productKey}.${deviceKey}.calculations.soc`,
-        0,
-        true
-      ));
-      const energyWhState = await adapter.getStateAsync(
-        `${productKey}.${deviceKey}.calculations.energyWh`
-      );
-      const energyWhMaxState = await adapter.getStateAsync(
-        `${productKey}.${deviceKey}.calculations.energyWhMax`
-      );
-      const newMax = Number(energyWhMaxState == null ? void 0 : energyWhMaxState.val) - Number(energyWhState == null ? void 0 : energyWhState.val);
-      await (adapter == null ? void 0 : adapter.setStateAsync(
-        `${productKey}.${deviceKey}.calculations.energyWhMax`,
-        newMax,
-        true
-      ));
-      await (adapter == null ? void 0 : adapter.setStateAsync(
-        `${productKey}.${deviceKey}.calculations.energyWh`,
-        0,
-        true
-      ));
+      (0, import_calculationService.setSocToZero)(adapter, productKey, deviceKey);
     }
     if (adapter.config.useLowVoltageBlock) {
       await (adapter == null ? void 0 : adapter.setStateAsync(

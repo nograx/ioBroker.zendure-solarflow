@@ -21,7 +21,8 @@ __export(calculationService_exports, {
   calculateEnergy: () => calculateEnergy,
   calculateSocAndEnergy: () => calculateSocAndEnergy,
   resetTodaysValues: () => resetTodaysValues,
-  setEnergyWhMax: () => setEnergyWhMax
+  setEnergyWhMax: () => setEnergyWhMax,
+  setSocToZero: () => setSocToZero
 });
 module.exports = __toCommonJS(calculationService_exports);
 var import_timeHelper = require("../helpers/timeHelper");
@@ -42,6 +43,30 @@ const setEnergyWhMax = async (adapter, productKey, deviceKey) => {
       true
     ));
   }
+};
+const setSocToZero = async (adapter, productKey, deviceKey) => {
+  await (adapter == null ? void 0 : adapter.setStateAsync(
+    `${productKey}.${deviceKey}.calculations.soc`,
+    0,
+    true
+  ));
+  const energyWhState = await adapter.getStateAsync(
+    `${productKey}.${deviceKey}.calculations.energyWh`
+  );
+  const energyWhMaxState = await adapter.getStateAsync(
+    `${productKey}.${deviceKey}.calculations.energyWhMax`
+  );
+  const newMax = Number(energyWhMaxState == null ? void 0 : energyWhMaxState.val) - Number(energyWhState == null ? void 0 : energyWhState.val);
+  await (adapter == null ? void 0 : adapter.setStateAsync(
+    `${productKey}.${deviceKey}.calculations.energyWhMax`,
+    newMax,
+    true
+  ));
+  await (adapter == null ? void 0 : adapter.setStateAsync(
+    `${productKey}.${deviceKey}.calculations.energyWh`,
+    0,
+    true
+  ));
 };
 const calculateSocAndEnergy = async (adapter, productKey, deviceKey, stateKey, value) => {
   const currentEnergyState = await (adapter == null ? void 0 : adapter.getStateAsync(
@@ -83,7 +108,7 @@ const calculateSocAndEnergy = async (adapter, productKey, deviceKey, stateKey, v
       if (stateKey == "outputPack" && (currentOutputPackPower == null ? void 0 : currentOutputPackPower.val) != null && currentOutputPackPower != void 0) {
         const toCharge = Number(currentEnergyMaxState.val) - newValue;
         const remainHoursAsDecimal = toCharge / Number(currentOutputPackPower.val);
-        if (remainHoursAsDecimal < 10) {
+        if (remainHoursAsDecimal < 24) {
           const remainFormatted = (0, import_timeHelper.toHoursAndMinutes)(Math.round(remainHoursAsDecimal * 60));
           await (adapter == null ? void 0 : adapter.setStateAsync(
             `${productKey}.${deviceKey}.calculations.remainInputTime`,
@@ -93,14 +118,14 @@ const calculateSocAndEnergy = async (adapter, productKey, deviceKey, stateKey, v
         } else {
           await (adapter == null ? void 0 : adapter.setStateAsync(
             `${productKey}.${deviceKey}.calculations.remainInputTime`,
-            "-",
+            "",
             true
           ));
         }
       } else if (stateKey == "packInput" && currentPackInputPower != null && currentPackInputPower != void 0) {
         const remainHoursAsDecimal = newValue / Number(currentPackInputPower.val);
         const remainFormatted = (0, import_timeHelper.toHoursAndMinutes)(Math.round(remainHoursAsDecimal * 60));
-        if (remainHoursAsDecimal < 40) {
+        if (remainHoursAsDecimal < 48) {
           await (adapter == null ? void 0 : adapter.setStateAsync(
             `${productKey}.${deviceKey}.calculations.remainOutTime`,
             remainFormatted,
@@ -109,7 +134,7 @@ const calculateSocAndEnergy = async (adapter, productKey, deviceKey, stateKey, v
         } else {
           await (adapter == null ? void 0 : adapter.setStateAsync(
             `${productKey}.${deviceKey}.calculations.remainOutTime`,
-            "-",
+            "",
             true
           ));
         }
@@ -121,6 +146,18 @@ const calculateSocAndEnergy = async (adapter, productKey, deviceKey, stateKey, v
         true
       ));
     }
+  } else if (newValue == 0 && stateKey == "outputPack") {
+    await (adapter == null ? void 0 : adapter.setStateAsync(
+      `${productKey}.${deviceKey}.calculations.remainInputTime`,
+      "",
+      true
+    ));
+  } else if (newValue == 0 && stateKey == "packInput") {
+    await (adapter == null ? void 0 : adapter.setStateAsync(
+      `${productKey}.${deviceKey}.calculations.remainOutTime`,
+      "",
+      true
+    ));
   }
 };
 const calculateEnergy = async (adapter, productKey, deviceKey) => {
@@ -179,6 +216,7 @@ const resetTodaysValues = async (adapter) => {
   calculateEnergy,
   calculateSocAndEnergy,
   resetTodaysValues,
-  setEnergyWhMax
+  setEnergyWhMax,
+  setSocToZero
 });
 //# sourceMappingURL=calculationService.js.map

@@ -177,18 +177,19 @@ class ZendureSolarflow extends utils.Adapter {
    * Is called when adapter shuts down - callback has to be called under any circumstances!
    */
   onUnload(callback) {
-    var _a;
+    var _a, _b;
     try {
       if (this.refreshAccessTokenInterval) {
         this.clearInterval(this.refreshAccessTokenInterval);
       }
+      (_a = this.mqttClient) == null ? void 0 : _a.end();
       this.setState("info.connection", false, true);
       if (this.resetValuesJob) {
         this.resetValuesJob.cancel();
         this.resetValuesJob = void 0;
       }
       if (this.checkStatesJob) {
-        (_a = this.checkStatesJob) == null ? void 0 : _a.cancel();
+        (_b = this.checkStatesJob) == null ? void 0 : _b.cancel();
         this.checkStatesJob = void 0;
       }
       if (this.calculationJob) {

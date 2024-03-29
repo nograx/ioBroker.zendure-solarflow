@@ -180,6 +180,10 @@ const onMessage = async (topic, message) => {
       if ((adapter == null ? void 0 : adapter.config.useCalculation) && obj.properties.electricLevel == 100) {
         (0, import_calculationService.setEnergyWhMax)(adapter, productKey, deviceKey);
       }
+      const minSoc = await (adapter == null ? void 0 : adapter.getStateAsync(`${productKey}.${deviceKey}.minSoc`));
+      if ((adapter == null ? void 0 : adapter.config.useCalculation) && minSoc && minSoc.val && minSoc.val == obj.properties.electricLevel) {
+        (0, import_calculationService.setSocToZero)(adapter, productKey, deviceKey);
+      }
     }
     if (((_c = obj.properties) == null ? void 0 : _c.packState) != null && ((_d = obj.properties) == null ? void 0 : _d.packState) != void 0) {
       const value = ((_e = obj.properties) == null ? void 0 : _e.packState) == 0 ? "Idle" : ((_f = obj.properties) == null ? void 0 : _f.packState) == 1 ? "Charging" : ((_g = obj.properties) == null ? void 0 : _g.packState) == 2 ? "Discharging" : "Unknown";
