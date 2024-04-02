@@ -129,9 +129,7 @@
       "Solarflow"
     ],
     "licenseInformation": {
-      "type": "free",
-      "license": "MIT",
-      "link": "https://github.com/nograx/ioBroker.zendure-solarflow?tab=MIT-1-ov-file#readme"
+      "type": "free"
     },
     "platform": "Javascript/Node.js",
     "main": "build/main.js",
