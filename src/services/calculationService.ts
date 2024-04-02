@@ -199,7 +199,7 @@ export const calculateEnergy = async (
   calculationStateKeys.forEach(async (stateKey) => {
     let stateNameEnergyWh = "";
     let stateNameEnergykWh = "";
-    let stateNamePower = "";
+      let stateNamePower = "";
 
     if (stateKey == "pvPower1") {
       stateNameEnergyWh = `${productKey}.${deviceKey}.calculations.solarInputPv1EnergyTodayWh`;
