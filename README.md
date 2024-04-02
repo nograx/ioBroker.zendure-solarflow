@@ -47,7 +47,7 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.3.1-alpha.2 (2024-04-02)
 
 - Fix energyWh, energyWhMax and SOC in calculations if "Low Voltage Check" is not used, it will set the calculation soc to 0 if minSoc (discharge limit) is reached.
 - Fix missleading title in settings 'Username' to 'E-Mail'
