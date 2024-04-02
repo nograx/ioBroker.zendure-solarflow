@@ -16,7 +16,15 @@
 This project is an ioBroker Adapter to read data from the Zendure Solarflow Cloud API. It uses the official API provided by Zendure.
 You can read more about the API here: https://github.com/Zendure/developer-device-data-report
 
-Notes:
+## Features
+
+- Get all telemetry data from your Solarflow devices, also those not visible in the offical app - like battery voltage
+- Control your Solarflow HUB like in the offical app. Most of the settings are available. 
+- Control the output limit - you are not limited to use a Shelly Pro EM to realize a zero feed-in. You can also design more complex scenarios via script or blockly in ioBroker.
+- Control more than one Solarflow at the same time!
+- Get more precise calculations!
+
+## Notes
 
 1. Currently only working with SolarFlow devices (tested only with HUB1200). AIO is not supported (as I don't have such a device..)
 
@@ -40,7 +48,7 @@ If you find the adapter useful for you and want to support my work, feel free to
 ## Changelog
 ### 1.3.1-alpha.0 (2024-03-29)
 
-- Fix energyWh, energyWhMax and SOC in calculations if "Low Voltage Check" is not used, it will set the caluclation soc to 0 if minSoc (discharge limit) is reached.
+- Fix energyWh, energyWhMax and SOC in calculations if "Low Voltage Check" is not used, it will set the calculation soc to 0 if minSoc (discharge limit) is reached.
 - Fix missleading title in settings 'Username' to 'E-Mail'
 - Add calculation states for solar input 1 & 2
 
