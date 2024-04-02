@@ -28,7 +28,7 @@ You can read more about the API here: https://github.com/Zendure/developer-devic
 
 1. Currently only working with SolarFlow devices (tested only with HUB1200). AIO is not supported (as I don't have such a device..)
 
-2. It is possible to control the Output limit with the state created in the productId/deviceKey/control subfolder. Please deactivate/uncheck all modes in the Zendure App, otherwise it is not possible to set the output limit!
+2. It is possible to control the Output limit and other settings with the states created in the productId/deviceKey/control subfolder. Please deactivate/uncheck all modes in the Zendure App, otherwise it is not possible to set the output limit!
 
    ![Solarflow Setings Window](https://raw.github.com/nograx/ioBroker.zendure-solarflow/master/Screenshots/ZendureSolarflowSettings.png)
 
