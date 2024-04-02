@@ -290,8 +290,21 @@ export const resetTodaysValues = async (
 ): Promise<void> => {
   adapter.deviceList.forEach((device: ISolarFlowDeviceDetails) => {
     calculationStateKeys.forEach(async (stateKey: string) => {
-      const stateNameEnergyWh = `${device.productKey}.${device.deviceKey}.calculations.${stateKey}EnergyTodayWh`;
-      const stateNameEnergykWh = `${device.productKey}.${device.deviceKey}.calculations.${stateKey}EnergyTodaykWh`;
+      let stateNameEnergyWh = "";
+      let stateNameEnergykWh = "";
+
+      if (stateKey == "pvPower1") {
+        stateNameEnergyWh = `${device.productKey}.${device.deviceKey}.calculations.solarInputPv1EnergyTodayWh`;
+        stateNameEnergykWh = `${device.productKey}.${device.deviceKey}.calculations.solarInputPv1EnergyTodaykWh`;
+      }
+      else if (stateKey == "pvPower2") {
+        stateNameEnergyWh = `${device.productKey}.${device.deviceKey}.calculations.solarInputPv2EnergyTodayWh`;
+        stateNameEnergykWh = `${device.productKey}.${device.deviceKey}.calculations.solarInputPv2EnergyTodaykWh`;
+      }
+      else {
+        stateNameEnergyWh = `${device.productKey}.${device.deviceKey}.calculations.${stateKey}EnergyTodayWh`;
+        stateNameEnergykWh = `${device.productKey}.${device.deviceKey}.calculations.${stateKey}EnergyTodaykWh`;
+      }
 
       await adapter?.setStateAsync(stateNameEnergyWh, 0, true);
       await adapter?.setStateAsync(stateNameEnergykWh, 0, true);
