@@ -9,6 +9,8 @@ const calculationStateKeys = [
   "outputHome",
   "outputPack",
   "solarInput",
+  "pvPower1",
+  "pvPower2"
 ];
 
 export const setEnergyWhMax = async (
@@ -195,9 +197,25 @@ export const calculateEnergy = async (
   deviceKey: string,
 ): Promise<void> => {
   calculationStateKeys.forEach(async (stateKey) => {
-    const stateNameEnergyWh = `${productKey}.${deviceKey}.calculations.${stateKey}EnergyTodayWh`;
-    const stateNameEnergykWh = `${productKey}.${deviceKey}.calculations.${stateKey}EnergyTodaykWh`;
-    const stateNamePower = `${productKey}.${deviceKey}.${stateKey}Power`;
+    let stateNameEnergyWh = "";
+    let stateNameEnergykWh = "";
+    let stateNamePower = "";
+
+    if (stateKey == "pvPower1") {
+      stateNameEnergyWh = `${productKey}.${deviceKey}.calculations.solarInputPv1EnergyTodayWh`;
+      stateNameEnergykWh = `${productKey}.${deviceKey}.calculations.solarInputPv1EnergyTodaykWh`;
+      stateNamePower = `${productKey}.${deviceKey}.pvPower1`;
+    }
+    else if (stateKey == "pvPower2") {
+      stateNameEnergyWh = `${productKey}.${deviceKey}.calculations.solarInputPv2EnergyTodayWh`;
+      stateNameEnergykWh = `${productKey}.${deviceKey}.calculations.solarInputPv2EnergyTodaykWh`;
+      stateNamePower = `${productKey}.${deviceKey}.pvPower2`;
+    }
+    else {
+      stateNameEnergyWh = `${productKey}.${deviceKey}.calculations.${stateKey}EnergyTodayWh`;
+      stateNameEnergykWh = `${productKey}.${deviceKey}.calculations.${stateKey}EnergyTodaykWh`;
+      stateNamePower = `${productKey}.${deviceKey}.${stateKey}Power`;
+    }
 
     const currentPowerState = await adapter?.getStateAsync(stateNamePower);
     const currentEnergyState = await adapter?.getStateAsync(stateNameEnergyWh);

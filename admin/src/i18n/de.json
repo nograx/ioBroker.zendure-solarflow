@@ -1,7 +1,7 @@
 {
     "zendure-solarflow adapter settings": "Adaptereinstelungen für Zendure Solarflow",
     "server": "Server",
-    "userName": "Benutzername",
+    "userName": "E-Mail Addresse",
     "password": "Passwort",
     "useCalculation": "Berechnungen vom Adapter nutzen (Tageswerte, SOC)",
     "useLowVoltageBlock": "Spannungs-Überwachung nutzen (deaktiviert die Einspeisung wenn die Spannung einer Batterie in kritischen Bereich fällt)",

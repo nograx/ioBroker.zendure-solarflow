@@ -49,6 +49,86 @@ export const createCalculationStates = async (
     },
   );
 
+  await adapter?.extendObjectAsync(
+    `${productKey}.${deviceKey}.calculations.solarInputPv1EnergyTodayWh`,
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Heutiger Solarertrag PV1 (Wh)",
+          en: "Todays solar input PV1 (Wh)",
+        },
+        type: "number",
+        desc: "solarInputEnergyTodayWh",
+        role: "value.energy",
+        read: true,
+        write: false,
+        unit: "Wh",
+      },
+      native: {},
+    },
+  );
+
+  await adapter?.extendObjectAsync(
+    `${productKey}.${deviceKey}.calculations.solarInputPv1EnergyTodaykWh`,
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Heutiger Solarertrag PV1 (kWh)",
+          en: "Todays solar input PV1 (kWh)",
+        },
+        type: "number",
+        desc: "solarInputEnergyTodaykWh",
+        role: "value.energy",
+        read: true,
+        write: false,
+        unit: "kWh",
+      },
+      native: {},
+    },
+  );
+
+  await adapter?.extendObjectAsync(
+    `${productKey}.${deviceKey}.calculations.solarInputPv2EnergyTodayWh`,
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Heutiger Solarertrag PV2 (Wh)",
+          en: "Todays solar input PV2 (Wh)",
+        },
+        type: "number",
+        desc: "solarInputEnergyTodayWh",
+        role: "value.energy",
+        read: true,
+        write: false,
+        unit: "Wh",
+      },
+      native: {},
+    },
+  );
+
+  await adapter?.extendObjectAsync(
+    `${productKey}.${deviceKey}.calculations.solarInputPv2EnergyTodaykWh`,
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Heutiger Solarertrag PV2 (kWh)",
+          en: "Todays solar input PV2 (kWh)",
+        },
+        type: "number",
+        desc: "solarInputEnergyTodaykWh",
+        role: "value.energy",
+        read: true,
+        write: false,
+        unit: "kWh",
+      },
+      native: {},
+    },
+  );
+
   /*
     Start output pack Energy states
     */

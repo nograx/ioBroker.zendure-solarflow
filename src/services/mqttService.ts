@@ -192,7 +192,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
 
       // if minSoc is reached, set the calculated soc to 0
       const minSoc = await adapter?.getStateAsync(`${productKey}.${deviceKey}.minSoc`);
-      if (adapter?.config.useCalculation && minSoc && minSoc.val && minSoc.val == obj.properties.electricLevel) {
+      if (adapter?.config.useCalculation && minSoc && minSoc.val && minSoc.val >= obj.properties.electricLevel) {
         setSocToZero(adapter, productKey, deviceKey);
       }
     }

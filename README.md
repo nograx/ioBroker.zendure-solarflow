@@ -41,6 +41,8 @@ If you find the adapter useful for you and want to support my work, feel free to
 ### 1.3.1-alpha.0 (2024-03-29)
 
 - Fix energyWh, energyWhMax and SOC in calculations if "Low Voltage Check" is not used, it will set the caluclation soc to 0 if minSoc (discharge limit) is reached.
+- Fix missleading title in settings 'Username' to 'E-Mail'
+- Add calculation states for solar input 1 & 2
 
 ### 1.3.0 (2024-03-26)
 

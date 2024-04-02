@@ -2,7 +2,7 @@
   "settings": "Adapter settings for Zendure Solarflow",
   "settingsDesc": "Please provide the login information for the Zendure Cloud (the same you entered in the official app).",
   "server": "Server",
-  "userName": "Username",
+  "userName": "E-Mail",
   "password": "Password",
   "useCalculation": "Use calculations (daily values, soc)",
   "useLowVoltageBlock": "Use low voltage block (deactivates power output when voltage of one battery drops below critical voltage)",
