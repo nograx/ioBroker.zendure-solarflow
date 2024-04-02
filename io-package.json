@@ -95,7 +95,6 @@
         "zh-cn": "在状态上修复ACK 变动\n更新读取器"
       }
     },
-    "title": "Zendure Solarflow",
     "titleLang": {
       "en": "Zendure Solarflow",
       "de": "Zendure Solarflow",
@@ -129,7 +128,7 @@
       "Zendure",
       "Solarflow"
     ],
-    "license": "MIT",
+    "licenseInformation": { "type": "free", "license": "MIT", "link": "https://github.com/nograx/ioBroker.zendure-solarflow?tab=MIT-1-ov-file#readme"},
     "platform": "Javascript/Node.js",
     "main": "build/main.js",
     "icon": "zendure-solarflow.png",
@@ -139,6 +138,7 @@
     "loglevel": "info",
     "mode": "daemon",
     "type": "energy",
+    "tier": 2,
     "compact": true,
     "connectionType": "cloud",
     "dataSource": "poll",

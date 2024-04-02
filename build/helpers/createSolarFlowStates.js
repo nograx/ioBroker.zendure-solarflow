@@ -361,6 +361,30 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
     },
     native: {}
   }));
+  await (adapter == null ? void 0 : adapter.extendObjectAsync(`${productKey}.${deviceKey}.pvBrand`, {
+    type: "state",
+    common: {
+      name: { de: "Wechselrichter Hersteller", en: "brand of inverter" },
+      type: "string",
+      desc: "pvBrand",
+      role: "value",
+      read: true,
+      write: false
+    },
+    native: {}
+  }));
+  await (adapter == null ? void 0 : adapter.extendObjectAsync(`${productKey}.${deviceKey}.inverseMaxPower`, {
+    type: "state",
+    common: {
+      name: { de: "Maximal akzeptabler Eingang des PV-Mikrowechselrichters", en: "highest acceptable input power" },
+      type: "number",
+      desc: "inverseMaxPower",
+      role: "value",
+      read: true,
+      write: false
+    },
+    native: {}
+  }));
   await (0, import_createControlStates.createControlStates)(adapter, productKey, deviceKey);
   if (adapter.config.useCalculation) {
     await (0, import_createCalculationStates.createCalculationStates)(adapter, productKey, deviceKey);

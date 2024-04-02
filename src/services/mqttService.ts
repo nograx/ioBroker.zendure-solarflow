@@ -438,6 +438,42 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
       );
     }
 
+    if (
+      obj.properties?.pvBrand != null &&
+      obj.properties?.pvBrand != undefined
+    ) {
+      const value =
+        obj.properties?.pvBrand == 0
+          ? "Others"
+          : obj.properties?.pvBrand == 1
+          ? "Hoymiles"
+          : obj.properties?.pvBrand == 2
+          ? "Enphase"
+          : obj.properties?.pvBrand == 3
+          ? "APSystems"
+          : obj.properties?.pvBrand == 4
+          ? "Anker"
+          : obj.properties?.pvBrand == 5
+          ? "Deye"
+          : obj.properties?.pvBrand == 6
+          ? "Bosswerk"
+          : "Unknown";
+      updateSolarFlowState(adapter, productKey, deviceKey, "pvBrand", value);
+    }
+
+    if (
+      obj.properties?.inverseMaxPower != null &&
+      obj.properties?.inverseMaxPower != undefined
+    ) {
+      updateSolarFlowState(
+        adapter,
+        productKey,
+        deviceKey,
+        "inverseMaxPower",
+        obj.properties.inverseMaxPower,
+      );
+    }
+
     if (obj.packData) {
       addOrUpdatePackData(productKey, deviceKey, obj.packData);
     }

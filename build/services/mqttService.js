@@ -156,7 +156,7 @@ const addOrUpdatePackData = async (productKey, deviceKey, packData) => {
   }
 };
 const onMessage = async (topic, message) => {
-  var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D, _E, _F, _G, _H, _I, _J, _K, _L, _M, _N, _O, _P, _Q, _R, _S, _T, _U;
+  var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D, _E, _F, _G, _H, _I, _J, _K, _L, _M, _N, _O, _P, _Q, _R, _S, _T, _U, _V, _W, _X, _Y, _Z, __, _$, _aa, _ba, _ca, _da;
   if (adapter) {
     const splitted = topic.split("/");
     const productKey = splitted[1];
@@ -181,7 +181,7 @@ const onMessage = async (topic, message) => {
         (0, import_calculationService.setEnergyWhMax)(adapter, productKey, deviceKey);
       }
       const minSoc = await (adapter == null ? void 0 : adapter.getStateAsync(`${productKey}.${deviceKey}.minSoc`));
-      if ((adapter == null ? void 0 : adapter.config.useCalculation) && minSoc && minSoc.val && minSoc.val == obj.properties.electricLevel) {
+      if ((adapter == null ? void 0 : adapter.config.useCalculation) && minSoc && minSoc.val && minSoc.val >= obj.properties.electricLevel) {
         (0, import_calculationService.setSocToZero)(adapter, productKey, deviceKey);
       }
     }
@@ -342,6 +342,19 @@ const onMessage = async (topic, message) => {
         deviceKey,
         "minSoc",
         Number(obj.properties.minSoc) / 10
+      );
+    }
+    if (((_V = obj.properties) == null ? void 0 : _V.pvBrand) != null && ((_W = obj.properties) == null ? void 0 : _W.pvBrand) != void 0) {
+      const value = ((_X = obj.properties) == null ? void 0 : _X.pvBrand) == 0 ? "Others" : ((_Y = obj.properties) == null ? void 0 : _Y.pvBrand) == 1 ? "Hoymiles" : ((_Z = obj.properties) == null ? void 0 : _Z.pvBrand) == 2 ? "Enphase" : ((__ = obj.properties) == null ? void 0 : __.pvBrand) == 3 ? "APSystems" : ((_$ = obj.properties) == null ? void 0 : _$.pvBrand) == 4 ? "Anker" : ((_aa = obj.properties) == null ? void 0 : _aa.pvBrand) == 5 ? "Deye" : ((_ba = obj.properties) == null ? void 0 : _ba.pvBrand) == 6 ? "Bosswerk" : "Unknown";
+      (0, import_adapterService.updateSolarFlowState)(adapter, productKey, deviceKey, "pvBrand", value);
+    }
+    if (((_ca = obj.properties) == null ? void 0 : _ca.inverseMaxPower) != null && ((_da = obj.properties) == null ? void 0 : _da.inverseMaxPower) != void 0) {
+      (0, import_adapterService.updateSolarFlowState)(
+        adapter,
+        productKey,
+        deviceKey,
+        "inverseMaxPower",
+        obj.properties.inverseMaxPower
       );
     }
     if (obj.packData) {

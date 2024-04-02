@@ -30,7 +30,9 @@ const calculationStateKeys = [
   "packInput",
   "outputHome",
   "outputPack",
-  "solarInput"
+  "solarInput",
+  "pvPower1",
+  "pvPower2"
 ];
 const setEnergyWhMax = async (adapter, productKey, deviceKey) => {
   const currentEnergyState = await (adapter == null ? void 0 : adapter.getStateAsync(
@@ -162,9 +164,22 @@ const calculateSocAndEnergy = async (adapter, productKey, deviceKey, stateKey, v
 };
 const calculateEnergy = async (adapter, productKey, deviceKey) => {
   calculationStateKeys.forEach(async (stateKey) => {
-    const stateNameEnergyWh = `${productKey}.${deviceKey}.calculations.${stateKey}EnergyTodayWh`;
-    const stateNameEnergykWh = `${productKey}.${deviceKey}.calculations.${stateKey}EnergyTodaykWh`;
-    const stateNamePower = `${productKey}.${deviceKey}.${stateKey}Power`;
+    let stateNameEnergyWh = "";
+    let stateNameEnergykWh = "";
+    let stateNamePower = "";
+    if (stateKey == "pvPower1") {
+      stateNameEnergyWh = `${productKey}.${deviceKey}.calculations.solarInputPv1EnergyTodayWh`;
+      stateNameEnergykWh = `${productKey}.${deviceKey}.calculations.solarInputPv1EnergyTodaykWh`;
+      stateNamePower = `${productKey}.${deviceKey}.pvPower1`;
+    } else if (stateKey == "pvPower2") {
+      stateNameEnergyWh = `${productKey}.${deviceKey}.calculations.solarInputPv2EnergyTodayWh`;
+      stateNameEnergykWh = `${productKey}.${deviceKey}.calculations.solarInputPv2EnergyTodaykWh`;
+      stateNamePower = `${productKey}.${deviceKey}.pvPower2`;
+    } else {
+      stateNameEnergyWh = `${productKey}.${deviceKey}.calculations.${stateKey}EnergyTodayWh`;
+      stateNameEnergykWh = `${productKey}.${deviceKey}.calculations.${stateKey}EnergyTodaykWh`;
+      stateNamePower = `${productKey}.${deviceKey}.${stateKey}Power`;
+    }
     const currentPowerState = await (adapter == null ? void 0 : adapter.getStateAsync(stateNamePower));
     const currentEnergyState = await (adapter == null ? void 0 : adapter.getStateAsync(stateNameEnergyWh));
     if ((currentEnergyState == null ? void 0 : currentEnergyState.val) == 0) {

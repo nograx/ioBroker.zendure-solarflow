@@ -20,7 +20,7 @@
     "node": ">= 18"
   },
   "dependencies": {
-    "@iobroker/adapter-core": "^3.0.4",
+    "@iobroker/adapter-core": "^3.0.6",
     "@types/node-schedule": "^2.1.6",
     "axios": "^1.5.1",
     "mqtt": "^5.1.3"
