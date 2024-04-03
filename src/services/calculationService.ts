@@ -10,7 +10,7 @@ const calculationStateKeys = [
   "outputPack",
   "solarInput",
   "pvPower1",
-  "pvPower2"
+  "pvPower2",
 ];
 
 export const setEnergyWhMax = async (
@@ -35,7 +35,7 @@ export const setSocToZero = async (
   adapter: ZendureSolarflow,
   productKey: string,
   deviceKey: string,
-  ): Promise<void> => {
+): Promise<void> => {
   // Set SOC to 0
   await adapter?.setStateAsync(
     `${productKey}.${deviceKey}.calculations.soc`,
@@ -66,7 +66,7 @@ export const setSocToZero = async (
     0,
     true,
   );
-}
+};
 
 export const calculateSocAndEnergy = async (
   adapter: ZendureSolarflow,
@@ -125,32 +125,45 @@ export const calculateSocAndEnergy = async (
         productKey + "." + deviceKey + ".packInputPower",
       );
 
-      if (stateKey == "outputPack" && currentOutputPackPower?.val != null && currentOutputPackPower != undefined) {
+      if (
+        stateKey == "outputPack" &&
+        currentOutputPackPower?.val != null &&
+        currentOutputPackPower != undefined
+      ) {
         // Charging, calculate remaining charging time
         const toCharge = Number(currentEnergyMaxState.val) - newValue;
 
-        const remainHoursAsDecimal = toCharge / Number(currentOutputPackPower.val);
+        const remainHoursAsDecimal =
+          toCharge / Number(currentOutputPackPower.val);
 
-        if (remainHoursAsDecimal < 24.0) {
-          const remainFormatted = toHoursAndMinutes(Math.round(remainHoursAsDecimal * 60));
+        if (remainHoursAsDecimal < 48.0) {
+          const remainFormatted = toHoursAndMinutes(
+            Math.round(remainHoursAsDecimal * 60),
+          );
 
           await adapter?.setStateAsync(
             `${productKey}.${deviceKey}.calculations.remainInputTime`,
             remainFormatted,
             true,
           );
-        }
-        else {
+        } else {
           await adapter?.setStateAsync(
             `${productKey}.${deviceKey}.calculations.remainInputTime`,
             "",
             true,
           );
         }
-      } else if (stateKey == "packInput" && currentPackInputPower != null && currentPackInputPower != undefined) {
+      } else if (
+        stateKey == "packInput" &&
+        currentPackInputPower != null &&
+        currentPackInputPower != undefined
+      ) {
         // Discharging, calculate remaining discharge time
-        const remainHoursAsDecimal = newValue / Number(currentPackInputPower.val);
-        const remainFormatted = toHoursAndMinutes(Math.round(remainHoursAsDecimal * 60));
+        const remainHoursAsDecimal =
+          newValue / Number(currentPackInputPower.val);
+        const remainFormatted = toHoursAndMinutes(
+          Math.round(remainHoursAsDecimal * 60),
+        );
 
         if (remainHoursAsDecimal < 48.0) {
           await adapter?.setStateAsync(
@@ -158,8 +171,7 @@ export const calculateSocAndEnergy = async (
             remainFormatted,
             true,
           );
-        }
-        else {
+        } else {
           await adapter?.setStateAsync(
             `${productKey}.${deviceKey}.calculations.remainOutTime`,
             "",
@@ -174,15 +186,13 @@ export const calculateSocAndEnergy = async (
         true,
       );
     }
-  }
-  else if (newValue == 0 && stateKey == "outputPack") {
+  } else if (newValue == 0 && stateKey == "outputPack") {
     await adapter?.setStateAsync(
       `${productKey}.${deviceKey}.calculations.remainInputTime`,
       "",
       true,
     );
-  }
-  else if (newValue == 0 && stateKey == "packInput") {
+  } else if (newValue == 0 && stateKey == "packInput") {
     await adapter?.setStateAsync(
       `${productKey}.${deviceKey}.calculations.remainOutTime`,
       "",
@@ -199,19 +209,17 @@ export const calculateEnergy = async (
   calculationStateKeys.forEach(async (stateKey) => {
     let stateNameEnergyWh = "";
     let stateNameEnergykWh = "";
-      let stateNamePower = "";
+    let stateNamePower = "";
 
     if (stateKey == "pvPower1") {
       stateNameEnergyWh = `${productKey}.${deviceKey}.calculations.solarInputPv1EnergyTodayWh`;
       stateNameEnergykWh = `${productKey}.${deviceKey}.calculations.solarInputPv1EnergyTodaykWh`;
       stateNamePower = `${productKey}.${deviceKey}.pvPower1`;
-    }
-    else if (stateKey == "pvPower2") {
+    } else if (stateKey == "pvPower2") {
       stateNameEnergyWh = `${productKey}.${deviceKey}.calculations.solarInputPv2EnergyTodayWh`;
       stateNameEnergykWh = `${productKey}.${deviceKey}.calculations.solarInputPv2EnergyTodaykWh`;
       stateNamePower = `${productKey}.${deviceKey}.pvPower2`;
-    }
-    else {
+    } else {
       stateNameEnergyWh = `${productKey}.${deviceKey}.calculations.${stateKey}EnergyTodayWh`;
       stateNameEnergykWh = `${productKey}.${deviceKey}.calculations.${stateKey}EnergyTodaykWh`;
       stateNamePower = `${productKey}.${deviceKey}.${stateKey}Power`;
@@ -277,6 +285,20 @@ export const calculateEnergy = async (
           stateKey,
           addEnergyValue,
         );
+      } else {
+        if (stateKey == "outputPack") {
+          await adapter?.setStateAsync(
+            `${productKey}.${deviceKey}.calculations.remainInputTime`,
+            "",
+            true,
+          );
+        } else if (stateKey == "packInput") {
+          await adapter?.setStateAsync(
+            `${productKey}.${deviceKey}.calculations.remainOutTime`,
+            "",
+            true,
+          );
+        }
       }
     } else {
       await adapter?.setStateAsync(stateNameEnergyWh, 0, true);
@@ -296,12 +318,10 @@ export const resetTodaysValues = async (
       if (stateKey == "pvPower1") {
         stateNameEnergyWh = `${device.productKey}.${device.deviceKey}.calculations.solarInputPv1EnergyTodayWh`;
         stateNameEnergykWh = `${device.productKey}.${device.deviceKey}.calculations.solarInputPv1EnergyTodaykWh`;
-      }
-      else if (stateKey == "pvPower2") {
+      } else if (stateKey == "pvPower2") {
         stateNameEnergyWh = `${device.productKey}.${device.deviceKey}.calculations.solarInputPv2EnergyTodayWh`;
         stateNameEnergykWh = `${device.productKey}.${device.deviceKey}.calculations.solarInputPv2EnergyTodaykWh`;
-      }
-      else {
+      } else {
         stateNameEnergyWh = `${device.productKey}.${device.deviceKey}.calculations.${stateKey}EnergyTodayWh`;
         stateNameEnergykWh = `${device.productKey}.${device.deviceKey}.calculations.${stateKey}EnergyTodaykWh`;
       }

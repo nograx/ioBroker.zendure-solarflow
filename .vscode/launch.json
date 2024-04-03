@@ -12,7 +12,7 @@
       "type": "node"
     },
     {
-      "command": "dev-server watch",
+      "command": "dev-server watch default",
       "name": "Start Dev Server",
       "request": "launch",
       "type": "node-terminal"

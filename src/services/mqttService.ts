@@ -5,10 +5,9 @@ import { ISolarFlowDeviceDetails } from "../models/ISolarFlowDeviceDetails";
 import { checkVoltage, updateSolarFlowState } from "./adapterService";
 import { IPackData } from "../models/IPackData";
 import { setEnergyWhMax, setSocToZero } from "./calculationService";
+import { IMqttData } from "../models/ISolarFlowMqttProperties";
 
 let adapter: ZendureSolarflow | undefined = undefined;
-
-//triggerFullTelemetryUpdate
 
 export const addOrUpdatePackData = async (
   productKey: string,
@@ -160,9 +159,15 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
     const productKey = splitted[1];
     const deviceKey = splitted[2];
 
-    const obj = JSON.parse(message.toString());
+    let obj: IMqttData = {};
+    try {
+      obj = JSON.parse(message.toString());
+    } catch (e) {
+      const txt = message.toString();
+      adapter.log.error(`[JSON PARSE ERROR] ${txt}`);
+    }
 
-    // lastUpdate für den deviceKey setzen
+    // set lastUpdate for deviceKey
     updateSolarFlowState(
       adapter,
       productKey,
@@ -191,8 +196,15 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
       }
 
       // if minSoc is reached, set the calculated soc to 0
-      const minSoc = await adapter?.getStateAsync(`${productKey}.${deviceKey}.minSoc`);
-      if (adapter?.config.useCalculation && minSoc && minSoc.val && minSoc.val >= obj.properties.electricLevel) {
+      const minSoc = await adapter?.getStateAsync(
+        `${productKey}.${deviceKey}.minSoc`,
+      );
+      if (
+        adapter?.config.useCalculation &&
+        minSoc &&
+        minSoc.val &&
+        obj.properties.electricLevel <= Number(minSoc.val)
+      ) {
         setSocToZero(adapter, productKey, deviceKey);
       }
     }
@@ -474,13 +486,37 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
       );
     }
 
+    if (
+      obj.properties?.wifiState != null &&
+      obj.properties?.wifiState != undefined
+    ) {
+      updateSolarFlowState(
+        adapter,
+        productKey,
+        deviceKey,
+        "wifiState",
+        obj.properties.wifiState == 1 ? "Connected" : "Disconnected",
+      );
+    }
+
+    if (
+      obj.properties?.hubState != null &&
+      obj.properties?.hubState != undefined
+    ) {
+      updateSolarFlowState(
+        adapter,
+        productKey,
+        deviceKey,
+        "hubState",
+        obj.properties.hubState == 0
+          ? "Stop output and standby"
+          : "Stop output and shut down",
+      );
+    }
+
     if (obj.packData) {
       addOrUpdatePackData(productKey, deviceKey, obj.packData);
     }
-  }
-
-  if (adapter?.mqttClient) {
-    //client.end();
   }
 };
 

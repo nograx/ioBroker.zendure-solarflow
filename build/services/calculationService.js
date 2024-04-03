@@ -110,8 +110,10 @@ const calculateSocAndEnergy = async (adapter, productKey, deviceKey, stateKey, v
       if (stateKey == "outputPack" && (currentOutputPackPower == null ? void 0 : currentOutputPackPower.val) != null && currentOutputPackPower != void 0) {
         const toCharge = Number(currentEnergyMaxState.val) - newValue;
         const remainHoursAsDecimal = toCharge / Number(currentOutputPackPower.val);
-        if (remainHoursAsDecimal < 24) {
-          const remainFormatted = (0, import_timeHelper.toHoursAndMinutes)(Math.round(remainHoursAsDecimal * 60));
+        if (remainHoursAsDecimal < 48) {
+          const remainFormatted = (0, import_timeHelper.toHoursAndMinutes)(
+            Math.round(remainHoursAsDecimal * 60)
+          );
           await (adapter == null ? void 0 : adapter.setStateAsync(
             `${productKey}.${deviceKey}.calculations.remainInputTime`,
             remainFormatted,
@@ -126,7 +128,9 @@ const calculateSocAndEnergy = async (adapter, productKey, deviceKey, stateKey, v
         }
       } else if (stateKey == "packInput" && currentPackInputPower != null && currentPackInputPower != void 0) {
         const remainHoursAsDecimal = newValue / Number(currentPackInputPower.val);
-        const remainFormatted = (0, import_timeHelper.toHoursAndMinutes)(Math.round(remainHoursAsDecimal * 60));
+        const remainFormatted = (0, import_timeHelper.toHoursAndMinutes)(
+          Math.round(remainHoursAsDecimal * 60)
+        );
         if (remainHoursAsDecimal < 48) {
           await (adapter == null ? void 0 : adapter.setStateAsync(
             `${productKey}.${deviceKey}.calculations.remainOutTime`,
@@ -209,6 +213,20 @@ const calculateEnergy = async (adapter, productKey, deviceKey) => {
           stateKey,
           addEnergyValue
         );
+      } else {
+        if (stateKey == "outputPack") {
+          await (adapter == null ? void 0 : adapter.setStateAsync(
+            `${productKey}.${deviceKey}.calculations.remainInputTime`,
+            "",
+            true
+          ));
+        } else if (stateKey == "packInput") {
+          await (adapter == null ? void 0 : adapter.setStateAsync(
+            `${productKey}.${deviceKey}.calculations.remainOutTime`,
+            "",
+            true
+          ));
+        }
       }
     } else {
       await (adapter == null ? void 0 : adapter.setStateAsync(stateNameEnergyWh, 0, true));

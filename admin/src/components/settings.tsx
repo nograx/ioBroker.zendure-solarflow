@@ -1,16 +1,21 @@
 /* eslint-disable @typescript-eslint/indent */
-import React from "react";
+import React, { useEffect, useState } from "react";
+
+// Import material UI
 import { withStyles } from "@material-ui/core/styles";
 import { CreateCSSProperties } from "@material-ui/core/styles/withStyles";
 import TextField from "@material-ui/core/TextField";
 import Input from "@material-ui/core/Input";
-import FormHelperText from "@material-ui/core/FormHelperText";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
+
+// Import I18n
 import I18n from "@iobroker/adapter-react/i18n";
+import GenericApp from "@iobroker/adapter-react/GenericApp";
+import { FormLabel } from "@material-ui/core";
 
 const styles = (): Record<string, CreateCSSProperties> => ({
   input: {
@@ -46,59 +51,57 @@ const styles = (): Record<string, CreateCSSProperties> => ({
 });
 
 interface SettingsProps {
+  app: GenericApp;
   classes: Record<string, string>;
   native: Record<string, any>;
   onChange: (attr: string, value: any) => void;
 }
 
-interface SettingsState {
-  // add your state properties here
-  dummy?: undefined;
-}
+function Settings(props: SettingsProps) {
+  const [password, setPassword] = useState<string>("");
 
-class Settings extends React.Component<SettingsProps, SettingsState> {
-  constructor(props: SettingsProps) {
-    super(props);
-    this.state = {};
+  useEffect(() => {
+    if (props.native.password) {
+      const password = props.native.password;
+      const decryptedPassword = props.app.decrypt(password);
+      setPassword(decryptedPassword);
+    }
+  }, []);
 
-    this.props.onChange("password", "");
-  }
+  useEffect(() => {
+    props.onChange("password", password);
+  }, [password]);
 
-  renderInput(title: AdminWord, attr: string, type: string) {
+  function renderInput(attr: string, type: string) {
     return (
       <TextField
         autoComplete="off"
-        label={I18n.t(title)}
-        className={`${this.props.classes.input} ${this.props.classes.controlElement}`}
-        value={this.props.native[attr]}
+        className={`${props.classes.input} ${props.classes.controlElement}`}
+        value={props.native[attr]}
         type={type || "text"}
-        onChange={(e) => this.props.onChange(attr, e.target.value)}
+        onChange={(e) => props.onChange(attr, e.target.value)}
         margin="normal"
       />
     );
   }
 
-  renderSelect(
-    title: AdminWord,
+  function renderSelect(
     attr: string,
     options: { value: string; title: AdminWord }[],
     style?: React.CSSProperties,
   ) {
     return (
       <FormControl
-        className={`${this.props.classes.input} ${this.props.classes.controlElement}`}
+        className={`${props.classes.input} ${props.classes.controlElement}`}
         style={{
           paddingTop: 5,
           ...style,
         }}
       >
         <Select
-          value={this.props.native[attr] || "_"}
+          value={props.native[attr] || "_"}
           onChange={(e) =>
-            this.props.onChange(
-              attr,
-              e.target.value === "_" ? "" : e.target.value,
-            )
+            props.onChange(attr, e.target.value === "_" ? "" : e.target.value)
           }
           input={<Input name={attr} id={attr + "-helper"} />}
         >
@@ -108,12 +111,15 @@ class Settings extends React.Component<SettingsProps, SettingsState> {
             </MenuItem>
           ))}
         </Select>
-        <FormHelperText>{I18n.t(title)}</FormHelperText>
       </FormControl>
     );
   }
 
-  renderCheckbox(title: AdminWord, attr: string, style?: React.CSSProperties) {
+  function renderCheckbox(
+    title: AdminWord,
+    attr: string,
+    style?: React.CSSProperties,
+  ) {
     return (
       <FormControlLabel
         key={attr}
@@ -121,11 +127,11 @@ class Settings extends React.Component<SettingsProps, SettingsState> {
           paddingTop: 5,
           ...style,
         }}
-        className={this.props.classes.controlElement}
+        className={props.classes.controlElement}
         control={
           <Checkbox
-            checked={this.props.native[attr]}
-            onChange={() => this.props.onChange(attr, !this.props.native[attr])}
+            checked={props.native[attr]}
+            onChange={() => props.onChange(attr, !props.native[attr])}
             color="primary"
           />
         }
@@ -134,57 +140,70 @@ class Settings extends React.Component<SettingsProps, SettingsState> {
     );
   }
 
-  render() {
-    return (
-      <div style={{ margin: 20 }}>
-        <form autoComplete="off" className={this.props.classes.tab}>
-          <div style={{ marginBottom: 20 }}>
-            <h3>{I18n.t("settings")}</h3>
-          </div>
-          <div>{I18n.t("settingsDesc")}</div>
-          <div style={{ marginTop: 10, marginBottom: 5 }}>
-            {this.renderSelect("server", "server", [
+  return (
+    <div style={{ margin: 20 }}>
+      <form autoComplete="off" className={props.classes.tab}>
+        <div style={{ marginBottom: 20 }}>
+          <h3>{I18n.t("settings")}</h3>
+        </div>
+        <div>{I18n.t("settingsDesc")}</div>
+        <div style={{ marginTop: 30 }}>
+          <FormLabel>{I18n.t("server")}:</FormLabel>
+          <div>
+            {renderSelect("server", [
               { value: "global", title: "global" },
               { value: "eu", title: "eu" },
             ])}
           </div>
-          <div>{this.renderInput("userName", "userName", "text")}</div>
-          <div>{this.renderInput("password", "password", "text")}</div>
-          {this.props.native["password"] == undefined ||
-            (this.props.native["password"] == "" && (
-              <div style={{ color: "red" }}>{I18n.t("enterPassword")}</div>
-            ))}
-
-          <div>{this.renderCheckbox("useCalculation", "useCalculation")}</div>
+        </div>
+        <div style={{ marginTop: 10 }}>
+          <FormLabel>{I18n.t("userName")}:</FormLabel>
+          <div>{renderInput("userName", "text")}</div>
+        </div>
+        <div style={{ marginTop: 10 }}>
+          <FormLabel>{I18n.t("password")}:</FormLabel>
           <div>
-            {this.renderCheckbox("useLowVoltageBlock", "useLowVoltageBlock")}
+            <TextField
+              autoComplete="off"
+              className={`${props.classes.input} ${props.classes.controlElement}`}
+              value={password}
+              type={"password"}
+              onChange={(e) => setPassword(e.target.value)}
+              margin="normal"
+            />
           </div>
+        </div>
+        {password == "" && (
+          <div style={{ color: "red" }}>{I18n.t("enterPassword")}</div>
+        )}
 
-          <h3>{I18n.t("donateHeader")}</h3>
-          <div style={{ marginTop: 20 }}>
-            {I18n.t("donate1")}
+        <div>{renderCheckbox("useCalculation", "useCalculation")}</div>
+        <div>{renderCheckbox("useLowVoltageBlock", "useLowVoltageBlock")}</div>
 
-            <br />
-            {I18n.t("donate2")}
-          </div>
-          <div style={{ marginTop: 20 }}>
-            <a
-              href="https://www.paypal.com/paypalme/PeterFrommert"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <img
-                height={30}
-                src={
-                  "https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white"
-                }
-              ></img>
-            </a>
-          </div>
-        </form>
-      </div>
-    );
-  }
+        <h3>{I18n.t("donateHeader")}</h3>
+        <div style={{ marginTop: 20 }}>
+          {I18n.t("donate1")}
+
+          <br />
+          {I18n.t("donate2")}
+        </div>
+        <div style={{ marginTop: 20 }}>
+          <a
+            href="https://www.paypal.com/paypalme/PeterFrommert"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <img
+              height={30}
+              src={
+                "https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white"
+              }
+            ></img>
+          </a>
+        </div>
+      </form>
+    </div>
+  );
 }
 
 export default withStyles(styles)(Settings);

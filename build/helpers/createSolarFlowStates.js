@@ -93,7 +93,10 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
   await (adapter == null ? void 0 : adapter.extendObjectAsync(`${productKey}.${deviceKey}.passMode`, {
     type: "state",
     common: {
-      name: { de: "Einstellung des Bypass Modus", en: "Setting of bypass mode" },
+      name: {
+        de: "Einstellung des Bypass Modus",
+        en: "Setting of bypass mode"
+      },
       type: "string",
       desc: "passMode",
       role: "value",
@@ -117,7 +120,10 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
   await (adapter == null ? void 0 : adapter.extendObjectAsync(`${productKey}.${deviceKey}.autoRecover`, {
     type: "state",
     common: {
-      name: { de: "Am n\xE4chsten Tag Bypass auf Automatik", en: "Automatic recovery of bypass" },
+      name: {
+        de: "Am n\xE4chsten Tag Bypass auf Automatik",
+        en: "Automatic recovery of bypass"
+      },
       type: "boolean",
       desc: "autoRecover",
       role: "value",
@@ -373,12 +379,48 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
     },
     native: {}
   }));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(`${productKey}.${deviceKey}.inverseMaxPower`, {
+  await (adapter == null ? void 0 : adapter.extendObjectAsync(
+    `${productKey}.${deviceKey}.inverseMaxPower`,
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Maximal akzeptabler Eingang des PV-Mikrowechselrichters",
+          en: "highest acceptable input power"
+        },
+        type: "number",
+        desc: "inverseMaxPower",
+        role: "value",
+        read: true,
+        write: false
+      },
+      native: {}
+    }
+  ));
+  await (adapter == null ? void 0 : adapter.extendObjectAsync(`${productKey}.${deviceKey}.wifiState`, {
     type: "state",
     common: {
-      name: { de: "Maximal akzeptabler Eingang des PV-Mikrowechselrichters", en: "highest acceptable input power" },
-      type: "number",
-      desc: "inverseMaxPower",
+      name: {
+        de: "WiFi Status",
+        en: "WiFi Status"
+      },
+      type: "string",
+      desc: "wifiState",
+      role: "value",
+      read: true,
+      write: false
+    },
+    native: {}
+  }));
+  await (adapter == null ? void 0 : adapter.extendObjectAsync(`${productKey}.${deviceKey}.hubState`, {
+    type: "state",
+    common: {
+      name: {
+        de: "Verhalten wenn minimale reservierte Ladung erreicht",
+        en: "Hub output status (when minimal reserved soc reached)"
+      },
+      type: "string",
+      desc: "hubState",
       role: "value",
       read: true,
       write: false

@@ -91,7 +91,10 @@ export const createSolarFlowStates = async (
   await adapter?.extendObjectAsync(`${productKey}.${deviceKey}.passMode`, {
     type: "state",
     common: {
-      name: { de: "Einstellung des Bypass Modus", en: "Setting of bypass mode" },
+      name: {
+        de: "Einstellung des Bypass Modus",
+        en: "Setting of bypass mode",
+      },
       type: "string",
       desc: "passMode",
       role: "value",
@@ -117,7 +120,10 @@ export const createSolarFlowStates = async (
   await adapter?.extendObjectAsync(`${productKey}.${deviceKey}.autoRecover`, {
     type: "state",
     common: {
-      name: { de: "Am nächsten Tag Bypass auf Automatik", en: "Automatic recovery of bypass" },
+      name: {
+        de: "Am nächsten Tag Bypass auf Automatik",
+        en: "Automatic recovery of bypass",
+      },
       type: "boolean",
       desc: "autoRecover",
       role: "value",
@@ -392,12 +398,50 @@ export const createSolarFlowStates = async (
     native: {},
   });
 
-  await adapter?.extendObjectAsync(`${productKey}.${deviceKey}.inverseMaxPower`, {
+  await adapter?.extendObjectAsync(
+    `${productKey}.${deviceKey}.inverseMaxPower`,
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Maximal akzeptabler Eingang des PV-Mikrowechselrichters",
+          en: "highest acceptable input power",
+        },
+        type: "number",
+        desc: "inverseMaxPower",
+        role: "value",
+        read: true,
+        write: false,
+      },
+      native: {},
+    },
+  );
+
+  await adapter?.extendObjectAsync(`${productKey}.${deviceKey}.wifiState`, {
     type: "state",
     common: {
-      name: { de: "Maximal akzeptabler Eingang des PV-Mikrowechselrichters", en: "highest acceptable input power" },
-      type: "number",
-      desc: "inverseMaxPower",
+      name: {
+        de: "WiFi Status",
+        en: "WiFi Status",
+      },
+      type: "string",
+      desc: "wifiState",
+      role: "value",
+      read: true,
+      write: false,
+    },
+    native: {},
+  });
+
+  await adapter?.extendObjectAsync(`${productKey}.${deviceKey}.hubState`, {
+    type: "state",
+    common: {
+      name: {
+        de: "Verhalten wenn minimale reservierte Ladung erreicht",
+        en: "Behavior when minimum reserved charge is reached",
+      },
+      type: "string",
+      desc: "hubState",
       role: "value",
       read: true,
       write: false,

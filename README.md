@@ -19,21 +19,20 @@ You can read more about the API here: https://github.com/Zendure/developer-devic
 ## Features
 
 - Get all telemetry data from your Solarflow devices, also those not visible in the offical app - like battery voltage
-- Control your Solarflow HUB like in the offical app. Most of the settings are available. 
+- Control your Solarflow HUB like in the offical app. Most of the settings are available.
 - Control the output limit - you are not limited to use a Shelly Pro EM to realize a zero feed-in. You can also design more complex scenarios via script or blockly in ioBroker.
-- Stop input if one battery drops into low voltage (battery protect). Only working when settings the output limit other the adapter
+- Stop input if one battery drops into low voltage (battery protect). Works only when setting the output limit via the adapter
 - Control more than one Solarflow at the same time!
 - Get more precise calculations!
+- Works with all Zendure SolarFlow devices: HUB1200 (tested), HUB2000 and AIO (both untested)!
 
 ## Notes
 
-1. Currently only working with SolarFlow devices (tested only with HUB1200). AIO is not supported (as I don't have such a device..)
+1. Please deactivate/uncheck all modes in the Zendure App, otherwise it is not possible to set the output limit!
 
-2. It is possible to control the Output limit and other settings with the states created in the productId/deviceKey/control subfolder. Please deactivate/uncheck all modes in the Zendure App, otherwise it is not possible to set the output limit!
+   ![Solarflow Settings Window](https://raw.github.com/nograx/ioBroker.zendure-solarflow/master/Screenshots/ZendureSolarflowSettings.png)
 
-   ![Solarflow Setings Window](https://raw.github.com/nograx/ioBroker.zendure-solarflow/master/Screenshots/ZendureSolarflowSettings.png)
-
-3. You will be logged out of the official iOS or Android App after logging in with the ioBroker adapter. This is a normal behavior. As a workaround you can create an second Zendure account with another e-mail and grant access to your Solarflow HUB to this account. Then use the second account for ioBroker / the Zendure Solarflow adapter.
+2. You will be logged out of the official iOS or Android App after logging in with the ioBroker adapter. This is a normal behavior. As a workaround you can create an second Zendure account with another e-mail and grant access to your Solarflow HUB to this account. Then use the second account for ioBroker / the Zendure Solarflow adapter.
 
 ## Credits
 
@@ -47,11 +46,14 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
-### 1.3.1-alpha.6 (2024-04-02)
 
-- Fix energyWh, energyWhMax and SOC in calculations if "Low Voltage Check" is not used, it will set the calculation soc to 0 if minSoc (discharge limit) is reached.
-- Fix missleading title in settings 'Username' to 'E-Mail'
+### **WORK IN PROGRESS**
+
 - Add calculation states for solar input 1 & 2
+- Add states for wifiState, hubState, pvBrand and inverseMaxPower
+- Rename missleading title for input field 'Username' in settings to 'E-Mail'
+- Fix energyWh, energyWhMax and SOC in calculations if "Low Voltage Check" is not used, it will set the calculation soc to 0 if minSoc (discharge limit) is reached
+- Fix password input in settings
 
 ### 1.3.0 (2024-03-26)
 

@@ -57,6 +57,7 @@ class App extends GenericApp {
     return (
       <div className="App">
         <Settings
+          app={this}
           native={this.state.native}
           onChange={(attr, value) => this.updateNativeValue(attr, value)}
         />

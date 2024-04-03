@@ -6,4 +6,5 @@ export interface IPackData {
   minVol: number;
   maxVol: number;
   totalVol: number;
+  //softVersion: number
 }
