@@ -46,7 +46,7 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
-### 1.4.0-alpha.0 (2024-04-03)
+### **WORK IN PROGRESS**
 
 - Add calculation states for solar input 1 & 2
 - Add states for wifiState, hubState, pvBrand and inverseMaxPower
