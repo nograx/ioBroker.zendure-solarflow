@@ -417,7 +417,7 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
     common: {
       name: {
         de: "Verhalten wenn minimale reservierte Ladung erreicht",
-        en: "Hub output status (when minimal reserved soc reached)"
+        en: "Behavior when minimum reserved charge is reached"
       },
       type: "string",
       desc: "hubState",
