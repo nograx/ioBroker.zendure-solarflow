@@ -449,7 +449,10 @@ export const createSolarFlowStates = async (
     native: {},
   });
 
-  await createControlStates(adapter, productKey, deviceKey);
+  // Create control states only when using App MQTT servers - and not the fallback one!
+  if (!adapter.config.useFallbackService) {
+    await createControlStates(adapter, productKey, deviceKey);
+  }
 
   if (adapter.config.useCalculation) {
     await createCalculationStates(adapter, productKey, deviceKey);

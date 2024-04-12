@@ -7,6 +7,9 @@
     "email": "peter.frommert@outlook.com"
   },
   "license": "MIT",
+  "licenseInformation": {
+    "type": "free"
+  },
   "homepage": "https://github.com/nograx/ioBroker.zendure-solarflow",
   "keywords": [
     "Zendure",

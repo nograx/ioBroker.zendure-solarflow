@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/models/ISolarflowDevRegisterResponse.ts"],
+  "sourcesContent": ["/* eslint-disable @typescript-eslint/indent */\r\nexport interface ISolarFlowDevRegisterResponse {\r\n  code: number;\r\n  success: boolean;\r\n  data: ISolarFlowDevRegisterData;\r\n  msg: string;\r\n}\r\n\r\nexport interface ISolarFlowDevRegisterData {\r\n  appKey: string;\r\n  secret: string;\r\n  mqttUrl: string;\r\n  port: number;\r\n}\r\n"],
+  "mappings": ";;;;;;;;;;;;;;AAAA;AAAA;",
+  "names": []
+}

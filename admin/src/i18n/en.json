@@ -24,5 +24,8 @@
   "donate1": "If you find the adapter useful for you and want to support my work, feel free to donate by Paypal. Thank You!",
   "donate2": "(this is an personal Donate link for Nograx, in no relation to the ioBroker Project!)",
   "donateHeader": "Donate",
-  "enterPassword": "Please provide an password!"
+  "enterPassword": "Please provide an password!",
+  "useFallbackService": "Use Fallback server (Connect to developer MQTT server - read only!)",
+  "snNumber": "Serial ID of Solarflow device",
+  "enterSnNumber": "Please enter a valid serial id!"
 }

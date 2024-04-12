@@ -155,9 +155,9 @@ export const addOrUpdatePackData = async (
 const onMessage = async (topic: string, message: Buffer): Promise<void> => {
   //console.log(message.toString())
   if (adapter) {
-    const splitted = topic.split("/");
-    const productKey = splitted[1];
-    const deviceKey = splitted[2];
+    const topicSplitted = topic.split("/");
+    const productKey = topicSplitted[1];
+    const deviceKey = topicSplitted[2];
 
     let obj: IMqttData = {};
     try {
@@ -705,7 +705,7 @@ const onError = (error: any): void => {
   adapter?.log.error("Connection to MQTT failed! Error: " + error);
 };
 
-const onSubscriberReportTopic: any = (error: Error | null) => {
+const onSubscribeReportTopic: any = (error: Error | null) => {
   if (error) {
     adapter?.log.error("Subscription to MQTT failed! Error: " + error);
   } else {
@@ -741,7 +741,11 @@ export const connectMqttClient = (_adapter: ZendureSolarflow): void => {
   };
 
   if (mqtt && adapter && adapter.paths && adapter.deviceList) {
-    adapter.log.debug("[connectMqttClient] Connecting to MQTT client...");
+    adapter.log.debug(
+      `[connectMqttClient] Connecting to MQTT broker ${
+        adapter.paths.mqttUrl + ":" + adapter.paths.mqttPort
+      }...`,
+    );
     adapter.mqttClient = mqtt.connect(
       "mqtt://" + adapter.paths.mqttUrl + ":" + adapter.paths.mqttPort,
       options,
@@ -760,7 +764,7 @@ export const connectMqttClient = (_adapter: ZendureSolarflow): void => {
           adapter.log.debug(
             `[connectMqttClient] Subscribing to MQTT Topic: ${reportTopic}`,
           );
-          adapter.mqttClient?.subscribe(reportTopic, onSubscriberReportTopic);
+          adapter.mqttClient?.subscribe(reportTopic, onSubscribeReportTopic);
           adapter.log.debug(
             `[connectMqttClient] Subscribing to MQTT Topic: ${iotTopic}`,
           );

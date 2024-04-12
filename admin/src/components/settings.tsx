@@ -156,25 +156,47 @@ function Settings(props: SettingsProps) {
             ])}
           </div>
         </div>
+
+        <div>{renderCheckbox("useFallbackService", "useFallbackService")}</div>
+
         <div style={{ marginTop: 10 }}>
           <FormLabel>{I18n.t("userName")}:</FormLabel>
           <div>{renderInput("userName", "text")}</div>
         </div>
-        <div style={{ marginTop: 10 }}>
-          <FormLabel>{I18n.t("password")}:</FormLabel>
-          <div>
-            <TextField
-              autoComplete="off"
-              className={`${props.classes.input} ${props.classes.controlElement}`}
-              value={password}
-              type={"password"}
-              onChange={(e) => setPassword(e.target.value)}
-              margin="normal"
-            />
+
+        {(props.native["useFallbackService"] == undefined ||
+          props.native["useFallbackService"] == null ||
+          props.native["useFallbackService"] == false) && (
+          <div style={{ marginTop: 10 }}>
+            <FormLabel>{I18n.t("password")}:</FormLabel>
+            <div>
+              <TextField
+                autoComplete="off"
+                className={`${props.classes.input} ${props.classes.controlElement}`}
+                value={password}
+                type={"password"}
+                onChange={(e) => setPassword(e.target.value)}
+                margin="normal"
+              />
+            </div>
+
+            {password == "" && (
+              <div style={{ color: "red" }}>{I18n.t("enterPassword")}</div>
+            )}
           </div>
-        </div>
-        {password == "" && (
-          <div style={{ color: "red" }}>{I18n.t("enterPassword")}</div>
+        )}
+
+        {props.native["useFallbackService"] == true && (
+          <div style={{ marginTop: 10 }}>
+            <FormLabel>{I18n.t("snNumber")}:</FormLabel>
+            <div>{renderInput("snNumber", "text")}</div>
+
+            {(props.native["snNumber"] == undefined ||
+              props.native["snNumber"] == null ||
+              props.native["snNumber"] == "") && (
+              <div style={{ color: "red" }}>{I18n.t("enterSnNumber")}</div>
+            )}
+          </div>
         )}
 
         <div>{renderCheckbox("useCalculation", "useCalculation")}</div>

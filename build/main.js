@@ -38,6 +38,8 @@ var import_paths = require("./constants/paths");
 var import_jobSchedule = require("./services/jobSchedule");
 var import_adapterService = require("./services/adapterService");
 var import_createSolarFlowStates = require("./helpers/createSolarFlowStates");
+var import_fallbackWebService = require("./services/fallbackWebService");
+var import_fallbackMqttService = require("./services/fallbackMqttService");
 class ZendureSolarflow extends utils.Adapter {
   constructor(options = {}) {
     super({
@@ -54,6 +56,7 @@ class ZendureSolarflow extends utils.Adapter {
     this.checkStatesJob = void 0;
     this.calculationJob = void 0;
     this.refreshAccessTokenInterval = void 0;
+    this.createdSnNumberSolarflowStates = [];
     this.on("ready", this.onReady.bind(this));
     this.on("stateChange", this.onStateChange.bind(this));
     this.on("unload", this.onUnload.bind(this));
@@ -91,7 +94,19 @@ class ZendureSolarflow extends utils.Adapter {
       this.paths = import_paths.pathsGlobal;
     }
     this.log.debug("[onReady] Using server " + this.config.server);
-    if (this.config.userName && this.config.password) {
+    if (this.config.useFallbackService && this.config.snNumber) {
+      (0, import_fallbackWebService.createDeveloperAccount)(this).then((data) => {
+        if (data.appKey && data.mqttUrl && data.port && data.secret) {
+          (0, import_fallbackMqttService.connectFallbackMqttClient)(
+            this,
+            data.appKey,
+            data.secret,
+            data.mqttUrl,
+            data.port
+          );
+        }
+      });
+    } else if (!this.config.useFallbackService && this.config.userName && this.config.password) {
       (_a = (0, import_webService.login)(this)) == null ? void 0 : _a.then((_accessToken) => {
         this.accessToken = _accessToken;
         this.setState("info.connection", true, true);
@@ -111,34 +126,6 @@ class ZendureSolarflow extends utils.Adapter {
                   this,
                   device.productKey,
                   device.deviceKey
-                );
-                await (0, import_adapterService.updateSolarFlowState)(
-                  this,
-                  device.productKey,
-                  device.deviceKey,
-                  "electricLevel",
-                  device.electricity
-                );
-                await (0, import_adapterService.updateSolarFlowState)(
-                  this,
-                  device.productKey,
-                  device.deviceKey,
-                  "name",
-                  device.name
-                );
-                await (0, import_adapterService.updateSolarFlowState)(
-                  this,
-                  device.productKey,
-                  device.deviceKey,
-                  "productName",
-                  device.productName
-                );
-                await (0, import_adapterService.updateSolarFlowState)(
-                  this,
-                  device.productKey,
-                  device.deviceKey,
-                  "snNumber",
-                  device.snNumber
                 );
                 await (0, import_adapterService.updateSolarFlowState)(
                   this,
@@ -211,7 +198,11 @@ class ZendureSolarflow extends utils.Adapter {
       const deviceKey = splitted[3];
       const stateName1 = splitted[4];
       const stateName2 = splitted[5];
-      if (state.val != void 0 && state.val != null && !state.ack) {
+      if (this.config.useFallbackService && stateName1 == "control") {
+        this.log.warn(
+          `[onStateChange] Using Fallback server, control of Solarflow device is not possible!`
+        );
+      } else if (state.val != void 0 && state.val != null && !state.ack) {
         switch (stateName1) {
           case "control":
             if (stateName2 == "setOutputLimit") {
@@ -242,7 +233,6 @@ class ZendureSolarflow extends utils.Adapter {
             break;
         }
       } else {
-        this.log.debug(`state ${id} deleted`);
       }
     }
   }

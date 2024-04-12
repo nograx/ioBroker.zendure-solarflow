@@ -158,9 +158,9 @@ const addOrUpdatePackData = async (productKey, deviceKey, packData) => {
 const onMessage = async (topic, message) => {
   var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D, _E, _F, _G, _H, _I, _J, _K, _L, _M, _N, _O, _P, _Q, _R, _S, _T, _U, _V, _W, _X, _Y, _Z, __, _$, _aa, _ba, _ca, _da, _ea, _fa, _ga, _ha;
   if (adapter) {
-    const splitted = topic.split("/");
-    const productKey = splitted[1];
-    const deviceKey = splitted[2];
+    const topicSplitted = topic.split("/");
+    const productKey = topicSplitted[1];
+    const deviceKey = topicSplitted[2];
     let obj = {};
     try {
       obj = JSON.parse(message.toString());
@@ -507,7 +507,7 @@ const onConnected = () => {
 const onError = (error) => {
   adapter == null ? void 0 : adapter.log.error("Connection to MQTT failed! Error: " + error);
 };
-const onSubscriberReportTopic = (error) => {
+const onSubscribeReportTopic = (error) => {
   if (error) {
     adapter == null ? void 0 : adapter.log.error("Subscription to MQTT failed! Error: " + error);
   } else {
@@ -532,7 +532,9 @@ const connectMqttClient = (_adapter) => {
     protocolVersion: 5
   };
   if (mqtt && adapter && adapter.paths && adapter.deviceList) {
-    adapter.log.debug("[connectMqttClient] Connecting to MQTT client...");
+    adapter.log.debug(
+      `[connectMqttClient] Connecting to MQTT broker ${adapter.paths.mqttUrl + ":" + adapter.paths.mqttPort}...`
+    );
     adapter.mqttClient = mqtt.connect(
       "mqtt://" + adapter.paths.mqttUrl + ":" + adapter.paths.mqttPort,
       options
@@ -548,7 +550,7 @@ const connectMqttClient = (_adapter) => {
           adapter.log.debug(
             `[connectMqttClient] Subscribing to MQTT Topic: ${reportTopic}`
           );
-          (_a = adapter.mqttClient) == null ? void 0 : _a.subscribe(reportTopic, onSubscriberReportTopic);
+          (_a = adapter.mqttClient) == null ? void 0 : _a.subscribe(reportTopic, onSubscribeReportTopic);
           adapter.log.debug(
             `[connectMqttClient] Subscribing to MQTT Topic: ${iotTopic}`
           );

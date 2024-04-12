@@ -8,6 +8,7 @@ export interface IMqttData {
 
 export interface ISolarFlowMqttProperties {
   electricLevel?: number;
+  packData?: IPackData[];
   packState?: number;
   pass?: number;
   passMode?: number;
@@ -30,6 +31,7 @@ export interface ISolarFlowMqttProperties {
   inverseMaxPower?: number;
   wifiState?: number;
   hubState?: number;
+  sn?: string;
   // ambientLightNess
   // ambientLightColor
   // ambientLightMode

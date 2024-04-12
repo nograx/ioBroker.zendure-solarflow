@@ -91,7 +91,11 @@ const getDeviceList = (adapter) => {
   if (adapter && adapter.paths && adapter.accessToken && config && config.headers) {
     config.headers["Blade-Auth"] = "bearer " + adapter.accessToken;
     const body = {};
-    return import_axios.default.post(adapter.paths.solarFlowQueryDeviceListUrl, JSON.stringify(body), config).then(function(response) {
+    return import_axios.default.post(
+      adapter.paths.solarFlowQueryDeviceListUrl,
+      JSON.stringify(body),
+      config
+    ).then(function(response) {
       if (response.data.data && response.data.data.length > 0) {
         return response.data.data;
       } else {

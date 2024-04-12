@@ -71,13 +71,23 @@ export const getDeviceList = (
     "[getDeviceList] Getting device list from Zendure Rest API!",
   );
 
-  if (adapter && adapter.paths && adapter.accessToken && config && config.headers) {
+  if (
+    adapter &&
+    adapter.paths &&
+    adapter.accessToken &&
+    config &&
+    config.headers
+  ) {
     config.headers["Blade-Auth"] = "bearer " + adapter.accessToken;
 
     const body = {};
 
     return axios
-      .post(adapter.paths.solarFlowQueryDeviceListUrl, JSON.stringify(body), config)
+      .post(
+        adapter.paths.solarFlowQueryDeviceListUrl,
+        JSON.stringify(body),
+        config,
+      )
       .then(function (response) {
         if (response.data.data && response.data.data.length > 0) {
           return response.data.data as ISolarFlowDeviceDetails[];
@@ -90,65 +100,3 @@ export const getDeviceList = (
     return Promise.reject("No Access Token found!");
   }
 };
-
-/* export const createDeveloperAccount = (adapter: ZendureSolarflow) => {
-  adapter.log.info("Function createDeveloperAccount");
-
-  adapter.setState("errorMessage", "");
-
-  const body = {
-    snNumber: adapter.snNumber,
-    account: adapter.config.userName,
-  };
-
-  let paths = undefined;
-
-  if (adapter.config.server == "eu") {
-    paths = pathsEu;
-  } else {
-    paths = pathsGlobal;
-  }
-
-  return axios
-    .post(paths.solarFlowDevRegisterUrl, JSON.stringify(body), config)
-    .then(function (response) {
-      adapter.log.info("Successfully created Developer Account!");
-
-      if (response.data && response.data.success == true) {
-        return response.data.data;
-      } else {
-        console.warn("No Response Data!");
-        return undefined;
-      }
-    })
-    .catch(function (error) {
-      adapter.setObjectNotExists("errorMessage", {
-        type: "state",
-        common: {
-          name: "errorMessage",
-          type: "string",
-          role: "indicator",
-          read: true,
-          write: true,
-        },
-        native: {},
-      });
-      adapter.setState(
-        "errorMessage",
-        error.response?.data?.code + " - " + error.response.data.msg,
-      );
-
-      if (error.response?.data?.code && error.response?.data?.msg) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
-        adapter.log.error(
-          "Failed to created Zendure Developer Account: " +
-            error.response?.data?.code +
-            " - " +
-            error.response.data.msg,
-        );
-      }
-
-      return Promise.reject("Failed to created Zendure Developer Account!");
-    });
-};*/

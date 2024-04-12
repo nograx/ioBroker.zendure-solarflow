@@ -10,6 +10,8 @@ declare global {
       password: string;
       useCalculation: boolean;
       useLowVoltageBlock: boolean;
+      useFallbackService: boolean;
+      snNumber: string;
     }
   }
 }

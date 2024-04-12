@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/helpers/uuidHelper.ts"],
+  "sourcesContent": ["/* eslint-disable @typescript-eslint/indent */\r\nexport const generateUniqSerial = (): string => {\r\n  return \"xxxx-xxxx-xxx-xxxx\".replace(/[x]/g, function (c) {\r\n    const r = (Math.random() * 16) | 0,\r\n      v = c == \"x\" ? r : (r & 0x3) | 0x8;\r\n    return v.toString(16);\r\n  });\r\n};\r\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AACO,MAAM,qBAAqB,MAAc;AAC9C,SAAO,qBAAqB,QAAQ,QAAQ,SAAU,GAAG;AACvD,UAAM,IAAK,KAAK,OAAO,IAAI,KAAM,GAC/B,IAAI,KAAK,MAAM,IAAK,IAAI,IAAO;AACjC,WAAO,EAAE,SAAS,EAAE;AAAA,EACtB,CAAC;AACH;",
+  "names": []
+}

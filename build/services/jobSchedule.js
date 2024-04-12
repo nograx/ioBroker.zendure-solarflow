@@ -29,22 +29,27 @@ var import_mqttService = require("./mqttService");
 var import_webService = require("./webService");
 var import_calculationService = require("./calculationService");
 const startRefreshAccessTokenTimerJob = async (adapter) => {
-  adapter.refreshAccessTokenInterval = adapter.setInterval(() => {
-    var _a;
-    adapter.log.info(`[startRefreshAccessTokenTimerJob] Refreshing accessToken!`);
-    if (adapter.mqttClient) {
-      adapter.mqttClient.end();
-      adapter.mqttClient = void 0;
-    }
-    if (adapter.config.userName && adapter.config.password) {
-      (_a = (0, import_webService.login)(adapter)) == null ? void 0 : _a.then((_accessToken) => {
-        adapter.accessToken = _accessToken;
-        adapter.lastLogin = /* @__PURE__ */ new Date();
-        adapter.setState("info.connection", true, true);
-        (0, import_mqttService.connectMqttClient)(adapter);
-      });
-    }
-  }, 3 * 60 * 60 * 1e3);
+  adapter.refreshAccessTokenInterval = adapter.setInterval(
+    () => {
+      var _a;
+      adapter.log.info(
+        `[startRefreshAccessTokenTimerJob] Refreshing accessToken!`
+      );
+      if (adapter.mqttClient) {
+        adapter.mqttClient.end();
+        adapter.mqttClient = void 0;
+      }
+      if (adapter.config.userName && adapter.config.password) {
+        (_a = (0, import_webService.login)(adapter)) == null ? void 0 : _a.then((_accessToken) => {
+          adapter.accessToken = _accessToken;
+          adapter.lastLogin = /* @__PURE__ */ new Date();
+          adapter.setState("info.connection", true, true);
+          (0, import_mqttService.connectMqttClient)(adapter);
+        });
+      }
+    },
+    3 * 60 * 60 * 1e3
+  );
 };
 const startResetValuesJob = async (adapter) => {
   adapter.resetValuesJob = (0, import_node_schedule.scheduleJob)("5 0 0 * * *", () => {
@@ -66,39 +71,32 @@ const startCheckStatesJob = async (adapter) => {
     "solarInputPower"
   ];
   adapter.checkStatesJob = (0, import_node_schedule.scheduleJob)("*/10 * * * *", async () => {
-    (0, import_webService.getDeviceList)(adapter).then((deviceList) => {
-      deviceList.forEach(async (device) => {
-        const lastUpdate = await (adapter == null ? void 0 : adapter.getStateAsync(
-          device.productKey + "." + device.deviceKey + ".lastUpdate"
-        ));
-        const tenMinutesAgo = Date.now() / 1e3 - 10 * 60;
-        if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < tenMinutesAgo) {
-          adapter.log.debug(
-            `[checkStatesJob] Last update for deviceKey ${device.deviceKey} was at ${new Date(
-              Number(lastUpdate)
-            )}, checking for pseudo power values!`
-          );
-          await statesToReset.forEach(async (stateName) => {
-            await (adapter == null ? void 0 : adapter.setStateAsync(
-              device.productKey + "." + device.deviceKey + "." + stateName,
-              0,
-              true
-            ));
-          });
-          if (device.electricity) {
-            await (adapter == null ? void 0 : adapter.setStateAsync(
-              device.productKey + "." + device.deviceKey + ".electricLevel",
-              device.electricity,
-              true
-            ));
-          }
+    adapter.deviceList.forEach(async (device) => {
+      const lastUpdate = await (adapter == null ? void 0 : adapter.getStateAsync(
+        device.productKey + "." + device.deviceKey + ".lastUpdate"
+      ));
+      const tenMinutesAgo = Date.now() / 1e3 - 10 * 60;
+      if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < tenMinutesAgo) {
+        adapter.log.debug(
+          `[checkStatesJob] Last update for deviceKey ${device.deviceKey} was at ${new Date(
+            Number(lastUpdate)
+          )}, checking for pseudo power values!`
+        );
+        await statesToReset.forEach(async (stateName) => {
+          await (adapter == null ? void 0 : adapter.setStateAsync(
+            device.productKey + "." + device.deviceKey + "." + stateName,
+            0,
+            true
+          ));
+        });
+        if (device.electricity) {
+          await (adapter == null ? void 0 : adapter.setStateAsync(
+            device.productKey + "." + device.deviceKey + ".electricLevel",
+            device.electricity,
+            true
+          ));
         }
-      });
-    }).catch(() => {
-      var _a;
-      (_a = adapter.log) == null ? void 0 : _a.error(
-        "[checkStatesJob] Retrieving device failedRetrieving device failed!"
-      );
+      }
     });
   });
 };

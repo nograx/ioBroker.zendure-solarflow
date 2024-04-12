@@ -427,7 +427,9 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
     },
     native: {}
   }));
-  await (0, import_createControlStates.createControlStates)(adapter, productKey, deviceKey);
+  if (!adapter.config.useFallbackService) {
+    await (0, import_createControlStates.createControlStates)(adapter, productKey, deviceKey);
+  }
   if (adapter.config.useCalculation) {
     await (0, import_createCalculationStates.createCalculationStates)(adapter, productKey, deviceKey);
   } else {

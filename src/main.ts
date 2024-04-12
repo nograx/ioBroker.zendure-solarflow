@@ -32,6 +32,9 @@ import {
   updateSolarFlowState,
 } from "./services/adapterService";
 import { createSolarFlowStates } from "./helpers/createSolarFlowStates";
+import { createDeveloperAccount } from "./services/fallbackWebService";
+import { ISolarFlowDevRegisterData } from "./models/ISolarflowDevRegisterResponse";
+import { connectFallbackMqttClient } from "./services/fallbackMqttService";
 
 export class ZendureSolarflow extends utils.Adapter {
   public constructor(options: Partial<utils.AdapterOptions> = {}) {
@@ -56,6 +59,8 @@ export class ZendureSolarflow extends utils.Adapter {
   public checkStatesJob: Job | undefined = undefined;
   public calculationJob: Job | undefined = undefined;
   public refreshAccessTokenInterval: ioBroker.Interval | undefined = undefined;
+
+  public createdSnNumberSolarflowStates: string[] = [];
 
   /**
    * Is called when databases are connected and adapter received configuration.
@@ -94,8 +99,26 @@ export class ZendureSolarflow extends utils.Adapter {
 
     this.log.debug("[onReady] Using server " + this.config.server);
 
-    // If Username and Password is provided, try to login and get the access token.
-    if (this.config.userName && this.config.password) {
+    if (this.config.useFallbackService && this.config.snNumber) {
+      // Use Fallback service. Using the developer version of the MQTT and Webservice from zendure
+      createDeveloperAccount(this).then((data: ISolarFlowDevRegisterData) => {
+        //console.log(data);
+        if (data.appKey && data.mqttUrl && data.port && data.secret) {
+          connectFallbackMqttClient(
+            this,
+            data.appKey,
+            data.secret,
+            data.mqttUrl,
+            data.port,
+          );
+        }
+      });
+    } else if (
+      !this.config.useFallbackService &&
+      this.config.userName &&
+      this.config.password
+    ) {
+      // App mode: If Username and Password is provided, try to login and get the access token.
       login(this)
         ?.then((_accessToken: string) => {
           this.accessToken = _accessToken;
@@ -129,42 +152,6 @@ export class ZendureSolarflow extends utils.Adapter {
                       device.deviceKey,
                     );
 
-                    // Set electricLevel (soc) from device details.
-                    await updateSolarFlowState(
-                      this,
-                      device.productKey,
-                      device.deviceKey,
-                      "electricLevel",
-                      device.electricity,
-                    );
-
-                    // Set name from device details.
-                    await updateSolarFlowState(
-                      this,
-                      device.productKey,
-                      device.deviceKey,
-                      "name",
-                      device.name,
-                    );
-
-                    // Set name from device details.
-                    await updateSolarFlowState(
-                      this,
-                      device.productKey,
-                      device.deviceKey,
-                      "productName",
-                      device.productName,
-                    );
-
-                    // Set Serial ID from device details.
-                    await updateSolarFlowState(
-                      this,
-                      device.productKey,
-                      device.deviceKey,
-                      "snNumber",
-                      device.snNumber,
-                    );
-
                     await updateSolarFlowState(
                       this,
                       device.productKey,
@@ -178,10 +165,17 @@ export class ZendureSolarflow extends utils.Adapter {
                 connectMqttClient(this);
 
                 // Schedule Jobs
+
+                // Job starten die states in der Nacht zu resetten
                 startResetValuesJob(this);
+
+                // Job starten die States zu checken
                 startCheckStatesJob(this);
+
+                // Den Access Token aktualiseren
                 startRefreshAccessTokenTimerJob(this);
 
+                // Calculation Job starten sofern aktiviert
                 if (this.config.useCalculation) {
                   startCalculationJob(this);
                 }
@@ -259,8 +253,13 @@ export class ZendureSolarflow extends utils.Adapter {
       const stateName1 = splitted[4];
       const stateName2 = splitted[5];
 
+      if (this.config.useFallbackService && stateName1 == "control") {
+        this.log.warn(
+          `[onStateChange] Using Fallback server, control of Solarflow device is not possible!`,
+        );
+      }
       // !!! Only stateChanges with ack==false are allowed to be processed.
-      if (state.val != undefined && state.val != null && !state.ack) {
+      else if (state.val != undefined && state.val != null && !state.ack) {
         switch (stateName1) {
           case "control":
             if (stateName2 == "setOutputLimit") {
@@ -292,7 +291,7 @@ export class ZendureSolarflow extends utils.Adapter {
         }
       } else {
         // The state was deleted
-        this.log.debug(`state ${id} deleted`);
+        //this.log.debug(`state ${id} deleted`);
       }
     }
   }
