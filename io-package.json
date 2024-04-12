@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.4.0",
+    "version": "1.5.0",
     "news": {
+      "1.5.0": {
+        "en": "Add the possibility to connect to the 'Fallback' MQTT server known as 'Developer MQTT'. This server is read-only - so no control is possible!",
+        "de": "Fügen Sie die Möglichkeit hinzu, sich mit dem MQTT-Server 'Fallback' zu verbinden. Dieser Server ist nur lesbar - so ist keine Kontrolle möglich!",
+        "ru": "Добавить возможность подключения к серверу MQTT 'Fallback', известному как 'Developer MQTT'. Этот сервер только для чтения - так что никакого контроля невозможно!",
+        "pt": "Adicione a possibilidade de se conectar ao servidor MQTT 'Fallback' conhecido como 'Developer MQTT'. Este servidor é somente leitura - então nenhum controle é possível!",
+        "nl": "Voeg de mogelijkheid toe om verbinding te maken met de 'Fallback' MQTT server bekend als 'Developer MQTT'. Deze server is alleen-lezen - dus geen controle mogelijk!",
+        "fr": "Ajoutez la possibilité de vous connecter au serveur MQTT 'Fallback' connu sous le nom de 'Developer MQTT'. Ce serveur est en lecture seule - donc aucun contrôle n'est possible!",
+        "it": "Aggiungi la possibilità di connettersi al server MQTT 'Fallback' conosciuto come 'Developer MQTT'. Questo server è in sola lettura - quindi nessun controllo è possibile!",
+        "es": "Añadir la posibilidad de conectarse al servidor MQTT 'Fallback' conocido como 'Developer MQTT'. Este servidor es sólo lectura - así que ningún control es posible!",
+        "pl": "Dodaj możliwość podłączenia do 'Fallback' serwera MQTT znanego jako 'Developer MQTT'. Ten serwer jest tylko read- więc nie jest możliwe sterowanie!",
+        "uk": "Додайте можливість підключення до сервера MQTT «Fallback» від «Developer MQTT». Цей сервер читає-тільки - так не можна керувати!",
+        "zh-cn": "添加连接到名为“ 开发者 MQTT” 的“ Fallback” MQTT 服务器的可能性 。 此服务器只读 - 因此无法控制 !"
+      },
       "1.4.0": {
         "en": "Add calculation states for solar input 1 & 2\nAdd states for wifiState, hubState, pvBrand and inverseMaxPower\nRename missleading title for input field 'Username' in settings to 'E-Mail'\nFix energyWh, energyWhMax and SOC in calculations if \"Low Voltage Check\" is not used, it will set the calculation soc to 0 if minSoc (discharge limit) is reached\nFix password input in settings",
         "de": "Berechnungszustände für den Solareingang 1 & 2 hinzufügen\nFügen Sie Zustände für wifiState, hubState, pvBrand und inverse hinzu Max Power\nUmbenennen verfehlter Titel für Eingabefeld 'Username' in Einstellungen auf 'E-Mail'\nEnergie Wh, energyWhMax und SOC in Berechnungen, wenn \"Low Voltage Check\" nicht verwendet wird, wird die Berechnung soc auf 0 gesetzt, wenn minSoc (Entladungsgrenze) erreicht ist\nPassworteingabe in Einstellungen festlegen",

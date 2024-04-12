@@ -154,7 +154,6 @@ const onMessage = async (topic, message) => {
   if (adapter) {
     let obj = {};
     try {
-      console.log("Message: " + message.toString());
       obj = JSON.parse(message.toString());
     } catch (e) {
       const txt = message.toString();
