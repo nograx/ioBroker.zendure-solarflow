@@ -20,13 +20,25 @@ var adapterService_exports = {};
 __export(adapterService_exports, {
   checkDevicesServer: () => checkDevicesServer,
   checkVoltage: () => checkVoltage,
+  updateSolarFlowControlState: () => updateSolarFlowControlState,
   updateSolarFlowState: () => updateSolarFlowState
 });
 module.exports = __toCommonJS(adapterService_exports);
 var import_calculationService = require("./calculationService");
 var import_mqttService = require("./mqttService");
 const updateSolarFlowState = async (adapter, productKey, deviceKey, state, val) => {
-  await (adapter == null ? void 0 : adapter.setStateAsync(`${productKey}.${deviceKey}.${state}`, val, true));
+  await (adapter == null ? void 0 : adapter.setStateAsync(
+    `${productKey}.${deviceKey}.${state}`,
+    val,
+    true
+  ));
+};
+const updateSolarFlowControlState = async (adapter, productKey, deviceKey, state, val) => {
+  await (adapter == null ? void 0 : adapter.setStateAsync(
+    `${productKey}.${deviceKey}.control.${state}`,
+    val,
+    true
+  ));
 };
 const checkVoltage = async (adapter, productKey, deviceKey, voltage) => {
   if (voltage < 46.1) {
@@ -75,6 +87,7 @@ const checkDevicesServer = async (adapter) => {
 0 && (module.exports = {
   checkDevicesServer,
   checkVoltage,
+  updateSolarFlowControlState,
   updateSolarFlowState
 });
 //# sourceMappingURL=adapterService.js.map

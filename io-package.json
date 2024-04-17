@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.5.0",
+    "version": "1.5.1",
     "news": {
+      "1.5.1": {
+        "en": "Minor bugfixes and improvements",
+        "de": "Minor Bugfixes und Verbesserungen",
+        "ru": "Незначительные исправления и улучшения",
+        "pt": "Pequenas correções e melhorias",
+        "nl": "Kleine bugfixes en verbeteringen",
+        "fr": "Corrections mineures et améliorations",
+        "it": "Minor bugfix e miglioramenti",
+        "es": "Fixes menores y mejoras",
+        "pl": "Niewielkie poprawki i ulepszenia",
+        "uk": "Мінорні виправлення та вдосконалення",
+        "zh-cn": "小错误修正和改进"
+      },
       "1.5.0": {
         "en": "Add the possibility to connect to the 'Fallback' MQTT server known as 'Developer MQTT'. This server is read-only - so no control is possible!",
         "de": "Fügen Sie die Möglichkeit hinzu, sich mit dem MQTT-Server 'Fallback' zu verbinden. Dieser Server ist nur lesbar - so ist keine Kontrolle möglich!",
@@ -82,8 +95,13 @@
       "uk": "zendure-solarflow",
       "zh-cn": "zendure-solarflow"
     },
-    "authors": ["Peter <peter.frommert@outlook.com>"],
-    "keywords": ["Zendure", "Solarflow"],
+    "authors": [
+      "Peter <peter.frommert@outlook.com>"
+    ],
+    "keywords": [
+      "Zendure",
+      "Solarflow"
+    ],
     "licenseInformation": {
       "license": "GPL-3.0-only",
       "type": "free"
@@ -122,8 +140,12 @@
     "useCalculation": false,
     "useLowVoltageBlock": false
   },
-  "encryptedNative": ["password"],
-  "protectedNative": ["password"],
+  "encryptedNative": [
+    "password"
+  ],
+  "protectedNative": [
+    "password"
+  ],
   "objects": [],
   "instanceObjects": []
 }
