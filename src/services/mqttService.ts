@@ -2,7 +2,11 @@
 import * as mqtt from "mqtt";
 import { ZendureSolarflow } from "../main";
 import { ISolarFlowDeviceDetails } from "../models/ISolarFlowDeviceDetails";
-import { checkVoltage, updateSolarFlowState } from "./adapterService";
+import {
+  checkVoltage,
+  updateSolarFlowControlState,
+  updateSolarFlowState,
+} from "./adapterService";
 import { IPackData } from "../models/IPackData";
 import { setEnergyWhMax, setSocToZero } from "./calculationService";
 import { IMqttData } from "../models/ISolarFlowMqttProperties";
@@ -237,6 +241,14 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
           ? "Always on"
           : "Unknown";
       updateSolarFlowState(adapter, productKey, deviceKey, "passMode", value);
+
+      updateSolarFlowControlState(
+        adapter,
+        productKey,
+        deviceKey,
+        "autoRecover",
+        obj.properties?.passMode,
+      );
     }
 
     if (obj.properties?.pass != null && obj.properties?.pass != undefined) {
@@ -252,6 +264,14 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
       const value = obj.properties?.autoRecover == 0 ? false : true;
 
       updateSolarFlowState(
+        adapter,
+        productKey,
+        deviceKey,
+        "autoRecover",
+        value,
+      );
+
+      updateSolarFlowControlState(
         adapter,
         productKey,
         deviceKey,
@@ -284,6 +304,14 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         "outputLimit",
         obj.properties.outputLimit,
       );
+
+      updateSolarFlowControlState(
+        adapter,
+        productKey,
+        deviceKey,
+        "setOutputLimit",
+        obj.properties.outputLimit,
+      );
     }
 
     if (
@@ -293,6 +321,14 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
       const value = obj.properties?.buzzerSwitch == 0 ? false : true;
 
       updateSolarFlowState(
+        adapter,
+        productKey,
+        deviceKey,
+        "buzzerSwitch",
+        value,
+      );
+
+      updateSolarFlowControlState(
         adapter,
         productKey,
         deviceKey,
@@ -438,6 +474,14 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         "socSet",
         Number(obj.properties.socSet) / 10,
       );
+
+      updateSolarFlowControlState(
+        adapter,
+        productKey,
+        deviceKey,
+        "chargeLimit",
+        Number(obj.properties.socSet) / 10,
+      );
     }
 
     if (obj.properties?.minSoc != null && obj.properties?.minSoc != undefined) {
@@ -446,6 +490,14 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "minSoc",
+        Number(obj.properties.minSoc) / 10,
+      );
+
+      updateSolarFlowControlState(
+        adapter,
+        productKey,
+        deviceKey,
+        "dischargeLimit",
         Number(obj.properties.minSoc) / 10,
       );
     }

@@ -82,15 +82,10 @@
       "uk": "zendure-solarflow",
       "zh-cn": "zendure-solarflow"
     },
-    "authors": [
-      "Peter <peter.frommert@outlook.com>"
-    ],
-    "keywords": [
-      "Zendure",
-      "Solarflow"
-    ],
-    "license": "MIT",
+    "authors": ["Peter <peter.frommert@outlook.com>"],
+    "keywords": ["Zendure", "Solarflow"],
     "licenseInformation": {
+      "license": "GPL-3.0-only",
       "type": "free"
     },
     "platform": "Javascript/Node.js",
@@ -127,12 +122,8 @@
     "useCalculation": false,
     "useLowVoltageBlock": false
   },
-  "encryptedNative": [
-    "password"
-  ],
-  "protectedNative": [
-    "password"
-  ],
+  "encryptedNative": ["password"],
+  "protectedNative": ["password"],
   "objects": [],
   "instanceObjects": []
 }

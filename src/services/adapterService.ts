@@ -11,7 +11,25 @@ export const updateSolarFlowState = async (
   state: string,
   val: number | string | boolean,
 ): Promise<void> => {
-  await adapter?.setStateAsync(`${productKey}.${deviceKey}.${state}`, val, true);
+  await adapter?.setStateAsync(
+    `${productKey}.${deviceKey}.${state}`,
+    val,
+    true,
+  );
+};
+
+export const updateSolarFlowControlState = async (
+  adapter: ZendureSolarflow,
+  productKey: string,
+  deviceKey: string,
+  state: string,
+  val: number | string | boolean,
+): Promise<void> => {
+  await adapter?.setStateAsync(
+    `${productKey}.${deviceKey}.control.${state}`,
+    val,
+    true,
+  );
 };
 
 export const checkVoltage = async (
@@ -22,7 +40,7 @@ export const checkVoltage = async (
 ): Promise<void> => {
   if (voltage < 46.1) {
     if (adapter.config.useCalculation) {
-      setSocToZero(adapter, productKey,deviceKey);
+      setSocToZero(adapter, productKey, deviceKey);
     }
 
     if (adapter.config.useLowVoltageBlock) {
@@ -48,7 +66,9 @@ export const checkVoltage = async (
   }
 };
 
-export const checkDevicesServer = async (adapter: ZendureSolarflow): Promise<void> => {
+export const checkDevicesServer = async (
+  adapter: ZendureSolarflow,
+): Promise<void> => {
   const channels = await adapter.getChannelsAsync();
 
   channels.forEach(async (channel) => {
