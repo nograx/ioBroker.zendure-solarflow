@@ -246,7 +246,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         adapter,
         productKey,
         deviceKey,
-        "autoRecover",
+        "passMode",
         obj.properties?.passMode,
       );
     }
