@@ -204,7 +204,7 @@ const onMessage = async (topic, message) => {
         adapter,
         productKey,
         deviceKey,
-        "autoRecover",
+        "passMode",
         (_m = obj.properties) == null ? void 0 : _m.passMode
       );
     }

@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.5.2",
+    "version": "1.5.3",
     "news": {
+      "1.5.3": {
+        "en": "Fix autoRecover datatype issue",
+        "de": "AutoRecover Datatype Problem",
+        "ru": "Вопрос о типе данных autoRecover",
+        "pt": "Corrigir problema do tipo de dados autoRecover",
+        "nl": "Repareren autoRecover datatype probleem",
+        "fr": "Correction problème de type de données autoRecover",
+        "it": "Risolvere il problema del tipo di dati autoRecover",
+        "es": "Corrección de autoRecover datatype problema",
+        "pl": "Napraw wydanie typu danych autoRecover",
+        "uk": "Фіксувати автоматичнийВихід даних",
+        "zh-cn": "自动恢复数据类型问题"
+      },
       "1.5.2": {
         "en": "Minor bugfixes and improvements",
         "de": "Minor Bugfixes und Verbesserungen",
