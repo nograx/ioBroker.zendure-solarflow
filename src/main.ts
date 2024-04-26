@@ -22,7 +22,7 @@ import { pathsEu, pathsGlobal } from "./constants/paths";
 import { Job } from "node-schedule";
 import {
   startCalculationJob,
-  startCheckStatesJob,
+  startCheckStatesAndConnectionJob,
   startRefreshAccessTokenTimerJob,
   startResetValuesJob,
 } from "./services/jobSchedule";
@@ -170,7 +170,7 @@ export class ZendureSolarflow extends utils.Adapter {
                 startResetValuesJob(this);
 
                 // Job starten die States zu checken
-                startCheckStatesJob(this);
+                startCheckStatesAndConnectionJob(this);
 
                 // Den Access Token aktualiseren
                 startRefreshAccessTokenTimerJob(this);
