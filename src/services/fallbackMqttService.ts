@@ -9,7 +9,7 @@ import { setEnergyWhMax } from "./calculationService";
 import { createSolarFlowStates } from "../helpers/createSolarFlowStates";
 import {
   startCalculationJob,
-  startCheckStatesJob,
+  startCheckStatesAndConnectionJob,
   startResetValuesJob,
 } from "./jobSchedule";
 
@@ -212,7 +212,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
       startResetValuesJob(adapter);
 
       // Job starten die States zu checken
-      startCheckStatesJob(adapter);
+      startCheckStatesAndConnectionJob(adapter);
 
       // Calculation Job starten sofern aktiviert
       if (adapter.config.useCalculation) {
