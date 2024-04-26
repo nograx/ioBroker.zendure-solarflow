@@ -6,30 +6,32 @@ import { login } from "./webService";
 import { ISolarFlowDeviceDetails } from "../models/ISolarFlowDeviceDetails";
 import { calculateEnergy, resetTodaysValues } from "./calculationService";
 
+const refreshAccessToken = (adapter: ZendureSolarflow): void => {
+  // Relogin every 3 hours to get a fresh accessToken!
+  adapter.log.info(`[startRefreshAccessTokenTimerJob] Refreshing accessToken!`);
+
+  if (adapter.mqttClient) {
+    adapter.mqttClient.end();
+    adapter.mqttClient = undefined;
+  }
+
+  if (adapter.config.userName && adapter.config.password) {
+    login(adapter)?.then((_accessToken: string) => {
+      adapter.accessToken = _accessToken;
+      adapter.lastLogin = new Date();
+      adapter.setState("info.connection", true, true);
+
+      connectMqttClient(adapter);
+    });
+  }
+};
+
 export const startRefreshAccessTokenTimerJob = async (
   adapter: ZendureSolarflow,
 ): Promise<void> => {
   adapter.refreshAccessTokenInterval = adapter.setInterval(
     () => {
-      // Relogin at night to get a fresh accessToken!
-      adapter.log.info(
-        `[startRefreshAccessTokenTimerJob] Refreshing accessToken!`,
-      );
-
-      if (adapter.mqttClient) {
-        adapter.mqttClient.end();
-        adapter.mqttClient = undefined;
-      }
-
-      if (adapter.config.userName && adapter.config.password) {
-        login(adapter)?.then((_accessToken: string) => {
-          adapter.accessToken = _accessToken;
-          adapter.lastLogin = new Date();
-          adapter.setState("info.connection", true, true);
-
-          connectMqttClient(adapter);
-        });
-      }
+      refreshAccessToken(adapter);
     },
     3 * 60 * 60 * 1000,
   );
@@ -54,7 +56,7 @@ export const startCalculationJob = async (
   });
 };
 
-export const startCheckStatesJob = async (
+export const startCheckStatesAndConnectionJob = async (
   adapter: ZendureSolarflow,
 ): Promise<void> => {
   // Check for states that has no updates in the last 5 minutes and set them to 0
@@ -65,13 +67,44 @@ export const startCheckStatesJob = async (
     "solarInputPower",
   ];
 
+  let refreshAccessTokenNeeded = false;
+
   adapter.checkStatesJob = scheduleJob("*/10 * * * *", async () => {
     adapter.deviceList.forEach(async (device: ISolarFlowDeviceDetails) => {
+      if (refreshAccessTokenNeeded) {
+        return;
+      }
+
       const lastUpdate = await adapter?.getStateAsync(
         device.productKey + "." + device.deviceKey + ".lastUpdate",
       );
 
+      const wifiState = await adapter?.getStateAsync(
+        device.productKey + "." + device.deviceKey + ".wifiState",
+      );
+
+      const fiveMinutesAgo = Date.now() / 1000 - 5 * 60; // Ten minutes ago
       const tenMinutesAgo = Date.now() / 1000 - 10 * 60; // Ten minutes ago
+
+      if (
+        lastUpdate &&
+        lastUpdate.val &&
+        Number(lastUpdate.val) < fiveMinutesAgo &&
+        wifiState?.val == 1
+      ) {
+        adapter.log.debug(
+          `[checkStatesJob] Last update for deviceKey ${
+            device.deviceKey
+          } was at ${new Date(
+            Number(lastUpdate),
+          )}, device seems to be online - so maybe connection is broken - reconnect!`,
+        );
+
+        refreshAccessToken(adapter);
+
+        // set marker, so we discontinue the forEach Loop because of reconnect!
+        refreshAccessTokenNeeded = true;
+      }
 
       if (
         lastUpdate &&

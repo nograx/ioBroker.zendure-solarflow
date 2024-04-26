@@ -808,23 +808,35 @@ export const connectMqttClient = (_adapter: ZendureSolarflow): void => {
       adapter.mqttClient.on("error", onError);
 
       // Subscribe to Topic (appkey von Zendure)
-      adapter.deviceList.forEach((device: ISolarFlowDeviceDetails) => {
-        if (adapter) {
-          const reportTopic = `/${device.productKey}/${device.deviceKey}/properties/report`;
-          const iotTopic = `iot/${device.productKey}/${device.deviceKey}/#`;
+      adapter.deviceList.forEach(
+        (device: ISolarFlowDeviceDetails, index: number) => {
+          if (adapter) {
+            const reportTopic = `/${device.productKey}/${device.deviceKey}/properties/report`;
+            const iotTopic = `iot/${device.productKey}/${device.deviceKey}/#`;
 
-          adapter.log.debug(
-            `[connectMqttClient] Subscribing to MQTT Topic: ${reportTopic}`,
-          );
-          adapter.mqttClient?.subscribe(reportTopic, onSubscribeReportTopic);
-          adapter.log.debug(
-            `[connectMqttClient] Subscribing to MQTT Topic: ${iotTopic}`,
-          );
-          adapter.mqttClient?.subscribe(iotTopic, (error) => {
-            onSubscribeIotTopic(error, device.productKey, device.deviceKey);
-          });
-        }
-      });
+            setTimeout(() => {
+              if (adapter) {
+                adapter.log.debug(
+                  `[connectMqttClient] Subscribing to MQTT Topic: ${reportTopic}`,
+                );
+                adapter.mqttClient?.subscribe(
+                  reportTopic,
+                  onSubscribeReportTopic,
+                );
+              }
+            }, 1000 * index);
+
+            setTimeout(() => {
+              adapter?.log.debug(
+                `[connectMqttClient] Subscribing to MQTT Topic: ${iotTopic}`,
+              );
+              adapter?.mqttClient?.subscribe(iotTopic, (error) => {
+                onSubscribeIotTopic(error, device.productKey, device.deviceKey);
+              });
+            }, 1500 * index);
+          }
+        },
+      );
 
       adapter.mqttClient.on("message", onMessage);
     }
