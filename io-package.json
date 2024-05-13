@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.5.3",
+    "version": "1.6.0",
     "news": {
+      "1.6.0": {
+        "en": "Fix issue that sometime data is not updated\nAdd standby usage of HUB (20W) when solarinput is low",
+        "de": "Problem behoben, dass einige Zeitdaten nicht aktualisiert werden\nFügen Sie Standby-Nutzung von HUB (20W) hinzu, wenn Solarinput niedrig ist",
+        "ru": "Исправить вопрос, что когда-то данные не обновляются\nДобавить резервное использование HUB (20W), когда солнечный вход низкий",
+        "pt": "Corrigir problema que alguns dados de tempo não é atualizado\nAdicionar uso standby de HUB (20W) quando a entrada solar é baixa",
+        "nl": "Fix probleem dat sommige gegevens niet is bijgewerkt\nToevoegen stand-by gebruik van HUB (20W) wanneer zonne-input laag is",
+        "fr": "Correction de problème que parfois les données ne sont pas mises à jour\nAjouter l'utilisation en veille de HUB (20W) lorsque l'apport solaire est faible",
+        "it": "Risolvi il problema che alcuni dati non sono aggiornati\nAggiungere l'uso standby di HUB (20W) quando l'input solare è basso",
+        "es": "Problema de fijación que algunos datos no se actualizan\nAñadir el uso de reserva de HUB (20W) cuando la energía solar es baja",
+        "pl": "Popraw problem, że czasem dane nie są aktualizowane\nDodawanie trybu czuwania HUB (20W) w przypadku niskiego wejścia solarinput",
+        "uk": "Виправлення проблеми, які одноразові дані не оновлено\nДодайте автономне використання HUB (20W) при низькому доступі",
+        "zh-cn": "解决数据有时不更新的问题\n当太阳输入量低时添加 HUB( 20W) 的备用用法"
+      },
       "1.5.3": {
         "en": "Fix autoRecover datatype issue",
         "de": "AutoRecover Datatype Problem",
@@ -80,19 +93,6 @@
         "pl": "Napraw obliczenie dla wyjścia PackEnergy and packInputEnergy\nPełna aktualizacja telemetrii podczas uruchamiania adaptera\nDodaj stan i sterowanie przełącznika brzęczyka\nDodaj stan i sterowanie dla trybu bajpasu i automatycznego resetowania trybu bajpasu następnego dnia\nDodaj stany dla pass (Bypass włączone / wyłączone), autoRecover (tryb auto- dla Bypass następnego dnia) i passMode (obecny tryb bypass)\nDodać współczynnik wydajności do obliczeń (96% doładowania, 92% -98%\\ * do rozładowania - w oparciu o pomiar z VoltaAmpere Lux YouTube kanał - Dzięki!)\nZmienione ramy czasowe obliczeń od 10 do 30 sekund (związane z wydajnością)",
         "uk": "Фіксований розрахунок на виході ПакетЕнергія та пакетІнпутаціяЕнергія\nТригер повного оновлення телеметрії на старті адаптера\nДодати стан та контроль за комутатором\nДодати стан та контроль за режимом обходу та автоматичним скиданням режиму обходу наступного дня\nДодати стани для проходу (Вхід на / вихід), autoRecover (auto-mode for Bypass наступного дня) і passMode (поточний режим обходу)\nДодавання коефіцієнта ефективності розрахунку (96% зарядки, 92%-98%\\* для розвантаження - на основі вимірювання від VoltAmpere Lux Youtube канал - ДЯКУ!)\nЗмінено графіки розрахунку від 10secs до 30secs",
         "zh-cn": "修正输出计算 包能源与包投入能源\n适配器启动时触发全遥测更新\n为铃声开关添加状态和控制\n第二天添加绕行模式和绕行模式自动重置的状态和控制\n添加通过状态( Bypass on/off), 自动恢复( Auto-mode for Bypass 第二天) 和通过模式( 当前绕行模式)\n增加计算效率系数(充电96%,放电92%-98%)——根据VoltAmpere的测量结果 Lux Youtube频道 - 谢谢\n计算时限从10秒改为30秒(业绩相关)"
-      },
-      "1.2.7": {
-        "en": "Fix calculation for outputPackEnergy and packInputEnergy\nTrigger full telemetry update on adapter start\nAdd state and control for buzzer switch\nAdd state and control for bypass mode and automatic reset of bypass mode next day",
-        "de": "Fixberechnung für die Ausgabe PackEnergy und PackInputEnergy\nTrigger Full Telemetrie Update auf Adapterstart\nZustand und Steuerung für Summer Switch hinzufügen\nZustand und Steuerung für Bypass-Modus und automatische Rückstellung des Bypass-Modus am nächsten Tag hinzufügen",
-        "ru": "Исчисление на основе исходных данных PackEnergy и packInputEnergy\nТреггер полного обновления телеметрии на запуске адаптера\nДобавить состояние и управление для выключателя\nДобавить состояние и управление для шунт-режима и автоматическая перезагрузка режима шунтирования на следующий день",
-        "pt": "Cálculo fixo para saída PackEnergy e packInputEnergy\nAtivar atualização de telemetria completa no início do adaptador\nAdicionar estado e controle para interruptor de buzzer\nAdicionar estado e controle para o modo bypass e reset automático do modo bypass no dia seguinte",
-        "nl": "Fix berekening voor output PackEnergy en PackInputEnergy\nVolledige telemetrie-update van de adapter starten\nStatus en controle voor zoemerschakelaar toevoegen\nToevoegen status en controle voor bypass modus en automatische reset van bypass modus volgende dag",
-        "fr": "Correction du calcul de la sortie PackÉnergie et packInputÉnergie\nMise à jour complète de la télémétrie sur le démarrage de l'adaptateur\nAjouter l'état et le contrôle pour interrupteur de buzzer\nAjouter l'état et la commande pour le mode de contournement et la remise automatique du mode de contournement le lendemain",
-        "it": "Fissare il calcolo per l'output PackEnergy e packInputEnergia\nAggiornamento completo della telemetria del trigger all'avvio dell'adattatore\nAggiungi stato e controllo per interruttore buzzer\nAggiungi stato e controllo per la modalità bypass e reset automatico della modalità bypass il giorno successivo",
-        "es": "Cálculo fijo para la salida PackEnergía y paqueteInputEnergía\nTrigger actualización completa de telemetría en el comienzo del adaptador\nAñadir estado y control para interruptor de zumbido\nAgregar estado y control para modo bypass y reinicio automático del modo bypass al día siguiente",
-        "pl": "Napraw obliczenie dla wyjścia PackEnergy and packInputEnergy\nPełna aktualizacja telemetrii podczas uruchamiania adaptera\nDodaj stan i sterowanie przełącznika brzęczyka\nDodaj stan i sterowanie dla trybu bajpasu i automatycznego resetowania trybu bajpasu następnego dnia",
-        "uk": "Фіксований розрахунок на виході ПакетЕнергія та пакетІнпутаціяЕнергія\nТригер повного оновлення телеметрії на старті адаптера\nДодати стан та контроль за комутатором\nДодати стан та контроль за режимом обходу та автоматичним скиданням режиму обходу наступного дня",
-        "zh-cn": "修正输出计算 包能源与包投入能源\n适配器启动时触发全遥测更新\n为铃声开关添加状态和控制\n第二天添加绕行模式和绕行模式自动重置的状态和控制"
       }
     },
     "titleLang": {
