@@ -138,7 +138,7 @@ class ZendureSolarflow extends utils.Adapter {
             );
             (0, import_mqttService.connectMqttClient)(this);
             (0, import_jobSchedule.startResetValuesJob)(this);
-            (0, import_jobSchedule.startCheckStatesJob)(this);
+            (0, import_jobSchedule.startCheckStatesAndConnectionJob)(this);
             (0, import_jobSchedule.startRefreshAccessTokenTimerJob)(this);
             if (this.config.useCalculation) {
               (0, import_jobSchedule.startCalculationJob)(this);

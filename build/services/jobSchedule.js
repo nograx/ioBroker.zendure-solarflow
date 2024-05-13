@@ -19,7 +19,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 var jobSchedule_exports = {};
 __export(jobSchedule_exports, {
   startCalculationJob: () => startCalculationJob,
-  startCheckStatesJob: () => startCheckStatesJob,
+  startCheckStatesAndConnectionJob: () => startCheckStatesAndConnectionJob,
   startRefreshAccessTokenTimerJob: () => startRefreshAccessTokenTimerJob,
   startResetValuesJob: () => startResetValuesJob
 });
@@ -28,25 +28,26 @@ var import_node_schedule = require("node-schedule");
 var import_mqttService = require("./mqttService");
 var import_webService = require("./webService");
 var import_calculationService = require("./calculationService");
+const refreshAccessToken = (adapter) => {
+  var _a;
+  adapter.log.info(`[startRefreshAccessTokenTimerJob] Refreshing accessToken!`);
+  if (adapter.mqttClient) {
+    adapter.mqttClient.end();
+    adapter.mqttClient = void 0;
+  }
+  if (adapter.config.userName && adapter.config.password) {
+    (_a = (0, import_webService.login)(adapter)) == null ? void 0 : _a.then((_accessToken) => {
+      adapter.accessToken = _accessToken;
+      adapter.lastLogin = /* @__PURE__ */ new Date();
+      adapter.setState("info.connection", true, true);
+      (0, import_mqttService.connectMqttClient)(adapter);
+    });
+  }
+};
 const startRefreshAccessTokenTimerJob = async (adapter) => {
   adapter.refreshAccessTokenInterval = adapter.setInterval(
     () => {
-      var _a;
-      adapter.log.info(
-        `[startRefreshAccessTokenTimerJob] Refreshing accessToken!`
-      );
-      if (adapter.mqttClient) {
-        adapter.mqttClient.end();
-        adapter.mqttClient = void 0;
-      }
-      if (adapter.config.userName && adapter.config.password) {
-        (_a = (0, import_webService.login)(adapter)) == null ? void 0 : _a.then((_accessToken) => {
-          adapter.accessToken = _accessToken;
-          adapter.lastLogin = /* @__PURE__ */ new Date();
-          adapter.setState("info.connection", true, true);
-          (0, import_mqttService.connectMqttClient)(adapter);
-        });
-      }
+      refreshAccessToken(adapter);
     },
     3 * 60 * 60 * 1e3
   );
@@ -63,19 +64,36 @@ const startCalculationJob = async (adapter) => {
     });
   });
 };
-const startCheckStatesJob = async (adapter) => {
+const startCheckStatesAndConnectionJob = async (adapter) => {
   const statesToReset = [
     "outputHomePower",
     "outputPackPower",
     "packInputPower",
     "solarInputPower"
   ];
+  let refreshAccessTokenNeeded = false;
   adapter.checkStatesJob = (0, import_node_schedule.scheduleJob)("*/10 * * * *", async () => {
     adapter.deviceList.forEach(async (device) => {
+      if (refreshAccessTokenNeeded) {
+        return;
+      }
       const lastUpdate = await (adapter == null ? void 0 : adapter.getStateAsync(
         device.productKey + "." + device.deviceKey + ".lastUpdate"
       ));
+      const wifiState = await (adapter == null ? void 0 : adapter.getStateAsync(
+        device.productKey + "." + device.deviceKey + ".wifiState"
+      ));
+      const fiveMinutesAgo = Date.now() / 1e3 - 5 * 60;
       const tenMinutesAgo = Date.now() / 1e3 - 10 * 60;
+      if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < fiveMinutesAgo && (wifiState == null ? void 0 : wifiState.val) == 1) {
+        adapter.log.debug(
+          `[checkStatesJob] Last update for deviceKey ${device.deviceKey} was at ${new Date(
+            Number(lastUpdate)
+          )}, device seems to be online - so maybe connection is broken - reconnect!`
+        );
+        refreshAccessToken(adapter);
+        refreshAccessTokenNeeded = true;
+      }
       if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < tenMinutesAgo) {
         adapter.log.debug(
           `[checkStatesJob] Last update for deviceKey ${device.deviceKey} was at ${new Date(
@@ -103,7 +121,7 @@ const startCheckStatesJob = async (adapter) => {
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   startCalculationJob,
-  startCheckStatesJob,
+  startCheckStatesAndConnectionJob,
   startRefreshAccessTokenTimerJob,
   startResetValuesJob
 });

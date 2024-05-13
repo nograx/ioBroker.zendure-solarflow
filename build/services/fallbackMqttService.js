@@ -186,7 +186,7 @@ const onMessage = async (topic, message) => {
         adapter.config.server
       );
       (0, import_jobSchedule.startResetValuesJob)(adapter);
-      (0, import_jobSchedule.startCheckStatesJob)(adapter);
+      (0, import_jobSchedule.startCheckStatesAndConnectionJob)(adapter);
       if (adapter.config.useCalculation) {
         (0, import_jobSchedule.startCalculationJob)(adapter);
       }

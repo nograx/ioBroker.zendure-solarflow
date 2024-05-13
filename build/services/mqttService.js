@@ -282,12 +282,19 @@ const onMessage = async (topic, message) => {
       (0, import_adapterService.updateSolarFlowState)(adapter, productKey, deviceKey, "packInputPower", 0);
     }
     if (((_C = obj.properties) == null ? void 0 : _C.packInputPower) != null && ((_D = obj.properties) == null ? void 0 : _D.packInputPower) != void 0) {
+      let standbyUsage = 0;
+      const solarInputPower = await (adapter == null ? void 0 : adapter.getStateAsync(
+        `${productKey}.${deviceKey}.solarInputPower`
+      ));
+      if (solarInputPower && Number(solarInputPower.val) < 20) {
+        standbyUsage = 20 - Number(solarInputPower.val);
+      }
       (0, import_adapterService.updateSolarFlowState)(
         adapter,
         productKey,
         deviceKey,
         "packInputPower",
-        obj.properties.packInputPower
+        obj.properties.packInputPower + standbyUsage
       );
       (0, import_adapterService.updateSolarFlowState)(
         adapter,
@@ -584,23 +591,35 @@ const connectMqttClient = (_adapter) => {
     if (adapter && adapter.mqttClient) {
       adapter.mqttClient.on("connect", onConnected);
       adapter.mqttClient.on("error", onError);
-      adapter.deviceList.forEach((device) => {
-        var _a, _b;
-        if (adapter) {
-          const reportTopic = `/${device.productKey}/${device.deviceKey}/properties/report`;
-          const iotTopic = `iot/${device.productKey}/${device.deviceKey}/#`;
-          adapter.log.debug(
-            `[connectMqttClient] Subscribing to MQTT Topic: ${reportTopic}`
-          );
-          (_a = adapter.mqttClient) == null ? void 0 : _a.subscribe(reportTopic, onSubscribeReportTopic);
-          adapter.log.debug(
-            `[connectMqttClient] Subscribing to MQTT Topic: ${iotTopic}`
-          );
-          (_b = adapter.mqttClient) == null ? void 0 : _b.subscribe(iotTopic, (error) => {
-            onSubscribeIotTopic(error, device.productKey, device.deviceKey);
-          });
+      adapter.deviceList.forEach(
+        (device, index) => {
+          if (adapter) {
+            const reportTopic = `/${device.productKey}/${device.deviceKey}/properties/report`;
+            const iotTopic = `iot/${device.productKey}/${device.deviceKey}/#`;
+            setTimeout(() => {
+              var _a;
+              if (adapter) {
+                adapter.log.debug(
+                  `[connectMqttClient] Subscribing to MQTT Topic: ${reportTopic}`
+                );
+                (_a = adapter.mqttClient) == null ? void 0 : _a.subscribe(
+                  reportTopic,
+                  onSubscribeReportTopic
+                );
+              }
+            }, 1e3 * index);
+            setTimeout(() => {
+              var _a;
+              adapter == null ? void 0 : adapter.log.debug(
+                `[connectMqttClient] Subscribing to MQTT Topic: ${iotTopic}`
+              );
+              (_a = adapter == null ? void 0 : adapter.mqttClient) == null ? void 0 : _a.subscribe(iotTopic, (error) => {
+                onSubscribeIotTopic(error, device.productKey, device.deviceKey);
+              });
+            }, 1500 * index);
+          }
         }
-      });
+      );
       adapter.mqttClient.on("message", onMessage);
     }
   }
