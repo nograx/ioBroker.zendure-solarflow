@@ -83,14 +83,14 @@ export const startCheckStatesAndConnectionJob = async (
         device.productKey + "." + device.deviceKey + ".wifiState",
       );
 
-      const fiveMinutesAgo = Date.now() / 1000 - 5 * 60; // Ten minutes ago
+      const fiveMinutesAgo = Date.now() / 1000 - 5 * 60; // Five minutes ago
       const tenMinutesAgo = Date.now() / 1000 - 10 * 60; // Ten minutes ago
 
       if (
         lastUpdate &&
         lastUpdate.val &&
         Number(lastUpdate.val) < fiveMinutesAgo &&
-        wifiState?.val == 1
+        wifiState?.val == "Connected"
       ) {
         adapter.log.debug(
           `[checkStatesJob] Last update for deviceKey ${
