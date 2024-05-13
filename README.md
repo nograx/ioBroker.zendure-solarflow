@@ -46,6 +46,12 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Fix issue that sometime data is not updated
+- Add standby usage of HUB (20W) when solarinput is low
+
 ### 1.5.3 (2024-04-19)
 
 - Fix autoRecover datatype issue

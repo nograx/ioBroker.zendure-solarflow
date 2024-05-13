@@ -357,12 +357,23 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
       obj.properties?.packInputPower != null &&
       obj.properties?.packInputPower != undefined
     ) {
+      let standbyUsage = 0;
+
+      // Aktuelle Solar-Power abfragen, wenn 0 Standby-Verbrauch dazu rechnen
+      const solarInputPower = await adapter?.getStateAsync(
+        `${productKey}.${deviceKey}.solarInputPower`,
+      );
+
+      if (solarInputPower && Number(solarInputPower.val) < 20) {
+        standbyUsage = 20 - Number(solarInputPower.val);
+      }
+
       updateSolarFlowState(
         adapter,
         productKey,
         deviceKey,
         "packInputPower",
-        obj.properties.packInputPower,
+        obj.properties.packInputPower + standbyUsage,
       );
 
       // if packInputPower set outputPackPower to 0
