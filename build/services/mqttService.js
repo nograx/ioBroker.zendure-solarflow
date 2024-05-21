@@ -286,8 +286,8 @@ const onMessage = async (topic, message) => {
       const solarInputPower = await (adapter == null ? void 0 : adapter.getStateAsync(
         `${productKey}.${deviceKey}.solarInputPower`
       ));
-      if (solarInputPower && Number(solarInputPower.val) < 20) {
-        standbyUsage = 20 - Number(solarInputPower.val);
+      if (solarInputPower && Number(solarInputPower.val) < 10) {
+        standbyUsage = 10 - Number(solarInputPower.val);
       }
       (0, import_adapterService.updateSolarFlowState)(
         adapter,

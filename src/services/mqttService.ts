@@ -364,8 +364,8 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         `${productKey}.${deviceKey}.solarInputPower`,
       );
 
-      if (solarInputPower && Number(solarInputPower.val) < 20) {
-        standbyUsage = 20 - Number(solarInputPower.val);
+      if (solarInputPower && Number(solarInputPower.val) < 10) {
+        standbyUsage = 10 - Number(solarInputPower.val);
       }
 
       updateSolarFlowState(
