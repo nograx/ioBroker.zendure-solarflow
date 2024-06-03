@@ -35,7 +35,6 @@ var utils = __toESM(require("@iobroker/adapter-core"));
 var import_mqttService = require("./services/mqttService");
 var import_webService = require("./services/webService");
 var import_paths = require("./constants/paths");
-var import_jobSchedule = require("./services/jobSchedule");
 var import_adapterService = require("./services/adapterService");
 var import_createSolarFlowStates = require("./helpers/createSolarFlowStates");
 var import_fallbackWebService = require("./services/fallbackWebService");
@@ -137,12 +136,6 @@ class ZendureSolarflow extends utils.Adapter {
               }
             );
             (0, import_mqttService.connectMqttClient)(this);
-            (0, import_jobSchedule.startResetValuesJob)(this);
-            (0, import_jobSchedule.startCheckStatesAndConnectionJob)(this);
-            (0, import_jobSchedule.startRefreshAccessTokenTimerJob)(this);
-            if (this.config.useCalculation) {
-              (0, import_jobSchedule.startCalculationJob)(this);
-            }
           }
         }).catch(() => {
           var _a2;

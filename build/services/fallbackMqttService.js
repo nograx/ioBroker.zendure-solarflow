@@ -185,11 +185,6 @@ const onMessage = async (topic, message) => {
         "registeredServer",
         adapter.config.server
       );
-      (0, import_jobSchedule.startResetValuesJob)(adapter);
-      (0, import_jobSchedule.startCheckStatesAndConnectionJob)(adapter);
-      if (adapter.config.useCalculation) {
-        (0, import_jobSchedule.startCalculationJob)(adapter);
-      }
     }
     (0, import_adapterService.updateSolarFlowState)(
       adapter,
@@ -447,6 +442,11 @@ const connectFallbackMqttClient = (_adapter, appKey, secret, mqttServer, mqttPor
         (_a = adapter.mqttClient) == null ? void 0 : _a.subscribe(reportTopic, onSubscribeReportTopic);
       }
       adapter.mqttClient.on("message", onMessage);
+      (0, import_jobSchedule.startResetValuesJob)(adapter);
+      (0, import_jobSchedule.startCheckStatesAndConnectionJob)(adapter);
+      if (adapter.config.useCalculation) {
+        (0, import_jobSchedule.startCalculationJob)(adapter);
+      }
       return true;
     }
   }

@@ -100,9 +100,6 @@ const startCheckStatesAndConnectionJob = async (adapter) => {
       ));
       const fiveMinutesAgo = (Date.now() / 1e3 - 5 * 60) * 1e3;
       const tenMinutesAgo = (Date.now() / 1e3 - 10 * 60) * 1e3;
-      adapter.log.debug(
-        `[checkStatesJob] lastUpdate for device ${device.deviceKey} was at ${lastUpdate == null ? void 0 : lastUpdate.val}, timestamp fiveMinutes ago: ${fiveMinutesAgo}, Wifi State: ${wifiState == null ? void 0 : wifiState.val}!`
-      );
       if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < fiveMinutesAgo && (wifiState == null ? void 0 : wifiState.val) == "Connected") {
         adapter.log.debug(
           `[checkStatesJob] Last update for deviceKey ${device.deviceKey} was at ${new Date(

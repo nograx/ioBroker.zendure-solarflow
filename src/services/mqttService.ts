@@ -10,6 +10,7 @@ import {
 import { IPackData } from "../models/IPackData";
 import { setEnergyWhMax, setSocToZero } from "./calculationService";
 import { IMqttData } from "../models/ISolarFlowMqttProperties";
+import { startCalculationJob, startCheckStatesAndConnectionJob, startRefreshAccessTokenTimerJob, startResetValuesJob } from "./jobSchedule";
 
 let adapter: ZendureSolarflow | undefined = undefined;
 
@@ -850,6 +851,20 @@ export const connectMqttClient = (_adapter: ZendureSolarflow): void => {
       );
 
       adapter.mqttClient.on("message", onMessage);
+
+      // Job starten die states in der Nacht zu resetten
+      startResetValuesJob(adapter);
+
+      // Job starten die States zu checken
+      startCheckStatesAndConnectionJob(adapter);
+
+      // Den Access Token aktualiseren
+      startRefreshAccessTokenTimerJob(adapter);
+
+      // Calculation Job starten sofern aktiviert
+      if (adapter.config.useCalculation) {
+        startCalculationJob(adapter);
+      }
     }
   }
 };

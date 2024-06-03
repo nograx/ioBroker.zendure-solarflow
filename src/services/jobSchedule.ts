@@ -106,9 +106,9 @@ export const startCheckStatesAndConnectionJob = async (
       const fiveMinutesAgo = (Date.now() / 1000 - 5 * 60) * 1000; // Five minutes ago
       const tenMinutesAgo = (Date.now() / 1000 - 10 * 60) * 1000; // Ten minutes ago
 
-      adapter.log.debug(
-        `[checkStatesJob] lastUpdate for device ${device.deviceKey} was at ${lastUpdate?.val}, timestamp fiveMinutes ago: ${fiveMinutesAgo}, Wifi State: ${wifiState?.val}!`,
-      );
+      //adapter.log.debug(
+      //  `[checkStatesJob] lastUpdate for device ${device.deviceKey} was at ${lastUpdate?.val}, timestamp fiveMinutes ago: ${fiveMinutesAgo}, Wifi State: ${wifiState?.val}!`,
+      //);
 
       if (
         lastUpdate &&

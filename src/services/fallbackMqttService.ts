@@ -207,17 +207,6 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         "registeredServer",
         adapter.config.server,
       );
-
-      // Job starten die states in der Nacht zu resetten
-      startResetValuesJob(adapter);
-
-      // Job starten die States zu checken
-      startCheckStatesAndConnectionJob(adapter);
-
-      // Calculation Job starten sofern aktiviert
-      if (adapter.config.useCalculation) {
-        startCalculationJob(adapter);
-      }
     }
 
     // set lastUpdate for deviceKey
@@ -558,6 +547,17 @@ export const connectFallbackMqttClient = (
       }
 
       adapter.mqttClient.on("message", onMessage);
+
+      // Job starten die states in der Nacht zu resetten
+      startResetValuesJob(adapter);
+
+      // Job starten die States zu checken
+      startCheckStatesAndConnectionJob(adapter);
+
+      // Calculation Job starten sofern aktiviert
+      if (adapter.config.useCalculation) {
+        startCalculationJob(adapter);
+      }
 
       return true;
     }

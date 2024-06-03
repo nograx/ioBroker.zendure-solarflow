@@ -42,6 +42,7 @@ module.exports = __toCommonJS(mqttService_exports);
 var mqtt = __toESM(require("mqtt"));
 var import_adapterService = require("./adapterService");
 var import_calculationService = require("./calculationService");
+var import_jobSchedule = require("./jobSchedule");
 let adapter = void 0;
 const addOrUpdatePackData = async (productKey, deviceKey, packData) => {
   if (adapter && productKey && deviceKey) {
@@ -621,6 +622,12 @@ const connectMqttClient = (_adapter) => {
         }
       );
       adapter.mqttClient.on("message", onMessage);
+      (0, import_jobSchedule.startResetValuesJob)(adapter);
+      (0, import_jobSchedule.startCheckStatesAndConnectionJob)(adapter);
+      (0, import_jobSchedule.startRefreshAccessTokenTimerJob)(adapter);
+      if (adapter.config.useCalculation) {
+        (0, import_jobSchedule.startCalculationJob)(adapter);
+      }
     }
   }
 };

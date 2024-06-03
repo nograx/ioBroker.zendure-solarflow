@@ -20,12 +20,6 @@ import { ISolarFlowDeviceDetails } from "./models/ISolarFlowDeviceDetails";
 import { ISolarFlowPaths } from "./models/ISolarFlowPaths";
 import { pathsEu, pathsGlobal } from "./constants/paths";
 import { Job } from "node-schedule";
-import {
-  startCalculationJob,
-  startCheckStatesAndConnectionJob,
-  startRefreshAccessTokenTimerJob,
-  startResetValuesJob,
-} from "./services/jobSchedule";
 import { MqttClient } from "mqtt";
 import {
   checkDevicesServer,
@@ -163,22 +157,6 @@ export class ZendureSolarflow extends utils.Adapter {
                 );
 
                 connectMqttClient(this);
-
-                // Schedule Jobs
-
-                // Job starten die states in der Nacht zu resetten
-                startResetValuesJob(this);
-
-                // Job starten die States zu checken
-                startCheckStatesAndConnectionJob(this);
-
-                // Den Access Token aktualiseren
-                startRefreshAccessTokenTimerJob(this);
-
-                // Calculation Job starten sofern aktiviert
-                if (this.config.useCalculation) {
-                  startCalculationJob(this);
-                }
               }
             })
             .catch(() => {
