@@ -10,6 +10,22 @@ const refreshAccessToken = (adapter: ZendureSolarflow): void => {
   // Relogin every 3 hours to get a fresh accessToken!
   adapter.log.info(`[startRefreshAccessTokenTimerJob] Refreshing accessToken!`);
 
+  // Scheduler beenden
+  if (adapter.resetValuesJob) {
+    adapter.resetValuesJob.cancel();
+    adapter.resetValuesJob = undefined;
+  }
+
+  if (adapter.checkStatesJob) {
+    adapter.checkStatesJob?.cancel();
+    adapter.checkStatesJob = undefined;
+  }
+
+  if (adapter.calculationJob) {
+    adapter.calculationJob.cancel();
+    adapter.calculationJob = undefined;
+  }
+
   if (adapter.mqttClient) {
     adapter.mqttClient.end();
     adapter.mqttClient = undefined;
@@ -69,7 +85,11 @@ export const startCheckStatesAndConnectionJob = async (
 
   let refreshAccessTokenNeeded = false;
 
-  adapter.checkStatesJob = scheduleJob("*/10 * * * *", async () => {
+  adapter.log.debug(
+    `[checkStatesJob] Starting check of states and connection!`,
+  );
+
+  adapter.checkStatesJob = scheduleJob("*/5 * * * *", async () => {
     adapter.deviceList.forEach(async (device: ISolarFlowDeviceDetails) => {
       if (refreshAccessTokenNeeded) {
         return;
@@ -83,8 +103,12 @@ export const startCheckStatesAndConnectionJob = async (
         device.productKey + "." + device.deviceKey + ".wifiState",
       );
 
-      const fiveMinutesAgo = Date.now() / 1000 - 5 * 60; // Five minutes ago
-      const tenMinutesAgo = Date.now() / 1000 - 10 * 60; // Ten minutes ago
+      const fiveMinutesAgo = (Date.now() / 1000 - 5 * 60) * 1000; // Five minutes ago
+      const tenMinutesAgo = (Date.now() / 1000 - 10 * 60) * 1000; // Ten minutes ago
+
+      adapter.log.debug(
+        `[checkStatesJob] lastUpdate for device ${device.deviceKey} was at ${lastUpdate?.val}, timestamp fiveMinutes ago: ${fiveMinutesAgo}, Wifi State: ${wifiState?.val}!`,
+      );
 
       if (
         lastUpdate &&
@@ -96,7 +120,7 @@ export const startCheckStatesAndConnectionJob = async (
           `[checkStatesJob] Last update for deviceKey ${
             device.deviceKey
           } was at ${new Date(
-            Number(lastUpdate),
+            Number(lastUpdate)
           )}, device seems to be online - so maybe connection is broken - reconnect!`,
         );
 
