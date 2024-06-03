@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.6.3",
+    "version": "1.6.4",
     "news": {
+      "1.6.4": {
+        "en": "Fix services",
+        "de": "Dienstleistungen",
+        "ru": "Исправление услуг",
+        "pt": "Serviços de fixação",
+        "nl": "Reparatie",
+        "fr": "Services de réparation",
+        "it": "Servizi fissi",
+        "es": "Servicios de fijación",
+        "pl": "Usługi naprawcze",
+        "uk": "Фіксація послуг",
+        "zh-cn": "修复服务"
+      },
       "1.6.3": {
         "en": "Fixed reconnect when connection seems to be dead.",
         "de": "Feste Wiederverbindung, wenn die Verbindung tot ist.",
@@ -69,19 +82,6 @@
         "zh-cn": "自动恢复数据类型问题"
       },
       "1.5.2": {
-        "en": "Minor bugfixes and improvements",
-        "de": "Minor Bugfixes und Verbesserungen",
-        "ru": "Незначительные исправления и улучшения",
-        "pt": "Pequenas correções e melhorias",
-        "nl": "Kleine bugfixes en verbeteringen",
-        "fr": "Corrections mineures et améliorations",
-        "it": "Minor bugfix e miglioramenti",
-        "es": "Fixes menores y mejoras",
-        "pl": "Niewielkie poprawki i ulepszenia",
-        "uk": "Мінорні виправлення та вдосконалення",
-        "zh-cn": "小错误修正和改进"
-      },
-      "1.5.1": {
         "en": "Minor bugfixes and improvements",
         "de": "Minor Bugfixes und Verbesserungen",
         "ru": "Незначительные исправления и улучшения",
