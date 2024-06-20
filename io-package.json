@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.6.4",
+    "version": "1.6.5",
     "news": {
+      "1.6.5": {
+        "en": "Fix reconnect issue. Adapter will now restart if connection semms to be broken.",
+        "de": "Reconnect Problem behoben. Adapter wird jetzt neu starten, wenn Verbindungssemms gebrochen werden.",
+        "ru": "Переключение. Адаптер теперь перезапустится, если соединение будет сломано.",
+        "pt": "Corrigir problema de reconectar. O adaptador reiniciará agora se os semms de conexão forem quebrados.",
+        "nl": "Maak opnieuw verbinding probleem. Adapter zal nu herstarten als verbinding sems worden verbroken.",
+        "fr": "Correction du problème de reconnect. L'adaptateur redémarre maintenant si la connexion semms doit être cassée.",
+        "it": "Risolvi il problema della riconnette. L'adattatore riavvia ora se la connessione semms per essere rotto.",
+        "es": "Arregla el problema de reconexión. El adaptador se reiniciará ahora si semms de conexión para ser roto.",
+        "pl": "Napraw ponownie połączenie. Adapter ponownie uruchomi się, jeśli semms połączenia zostanie przerwany.",
+        "uk": "Виправлення проблеми відключення. Перехідник тепер перезавантажить, якщо з'єднання зламається.",
+        "zh-cn": "修复重联问题. 如果连接 semms 要中断, 适配器现在将重新启动 ."
+      },
       "1.6.4": {
         "en": "Fix services",
         "de": "Dienstleistungen",
@@ -80,19 +93,6 @@
         "pl": "Napraw wydanie typu danych autoRecover",
         "uk": "Фіксувати автоматичнийВихід даних",
         "zh-cn": "自动恢复数据类型问题"
-      },
-      "1.5.2": {
-        "en": "Minor bugfixes and improvements",
-        "de": "Minor Bugfixes und Verbesserungen",
-        "ru": "Незначительные исправления и улучшения",
-        "pt": "Pequenas correções e melhorias",
-        "nl": "Kleine bugfixes en verbeteringen",
-        "fr": "Corrections mineures et améliorations",
-        "it": "Minor bugfix e miglioramenti",
-        "es": "Fixes menores y mejoras",
-        "pl": "Niewielkie poprawki i ulepszenia",
-        "uk": "Мінорні виправлення та вдосконалення",
-        "zh-cn": "小错误修正和改进"
       }
     },
     "titleLang": {
