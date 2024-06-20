@@ -106,25 +106,22 @@ export const startCheckStatesAndConnectionJob = async (
       const fiveMinutesAgo = (Date.now() / 1000 - 5 * 60) * 1000; // Five minutes ago
       const tenMinutesAgo = (Date.now() / 1000 - 10 * 60) * 1000; // Ten minutes ago
 
-      //adapter.log.debug(
-      //  `[checkStatesJob] lastUpdate for device ${device.deviceKey} was at ${lastUpdate?.val}, timestamp fiveMinutes ago: ${fiveMinutesAgo}, Wifi State: ${wifiState?.val}!`,
-      //);
-
       if (
         lastUpdate &&
         lastUpdate.val &&
         Number(lastUpdate.val) < fiveMinutesAgo &&
         wifiState?.val == "Connected"
       ) {
-        adapter.log.debug(
+        adapter.log.warn(
           `[checkStatesJob] Last update for deviceKey ${
             device.deviceKey
           } was at ${new Date(
-            Number(lastUpdate)
-          )}, device seems to be online - so maybe connection is broken - reconnect!`,
+            Number(lastUpdate),
+          )}, device seems to be online - so maybe connection is broken - restart adapter in 20 seconds!`,
         );
 
-        refreshAccessToken(adapter);
+        await adapter.delay(20 * 1000);
+        adapter.restart();
 
         // set marker, so we discontinue the forEach Loop because of reconnect!
         refreshAccessTokenNeeded = true;
@@ -133,7 +130,8 @@ export const startCheckStatesAndConnectionJob = async (
       if (
         lastUpdate &&
         lastUpdate.val &&
-        Number(lastUpdate.val) < tenMinutesAgo
+        Number(lastUpdate.val) < tenMinutesAgo &&
+        !refreshAccessTokenNeeded
       ) {
         adapter.log.debug(
           `[checkStatesJob] Last update for deviceKey ${

@@ -101,15 +101,16 @@ const startCheckStatesAndConnectionJob = async (adapter) => {
       const fiveMinutesAgo = (Date.now() / 1e3 - 5 * 60) * 1e3;
       const tenMinutesAgo = (Date.now() / 1e3 - 10 * 60) * 1e3;
       if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < fiveMinutesAgo && (wifiState == null ? void 0 : wifiState.val) == "Connected") {
-        adapter.log.debug(
+        adapter.log.warn(
           `[checkStatesJob] Last update for deviceKey ${device.deviceKey} was at ${new Date(
             Number(lastUpdate)
-          )}, device seems to be online - so maybe connection is broken - reconnect!`
+          )}, device seems to be online - so maybe connection is broken - restart adapter in 20 seconds!`
         );
-        refreshAccessToken(adapter);
+        await adapter.delay(20 * 1e3);
+        adapter.restart();
         refreshAccessTokenNeeded = true;
       }
-      if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < tenMinutesAgo) {
+      if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < tenMinutesAgo && !refreshAccessTokenNeeded) {
         adapter.log.debug(
           `[checkStatesJob] Last update for deviceKey ${device.deviceKey} was at ${new Date(
             Number(lastUpdate)
