@@ -6,30 +6,36 @@ import { login } from "./webService";
 import { ISolarFlowDeviceDetails } from "../models/ISolarFlowDeviceDetails";
 import { calculateEnergy, resetTodaysValues } from "./calculationService";
 
-const refreshAccessToken = (adapter: ZendureSolarflow): void => {
+const refreshAccessToken = async (adapter: ZendureSolarflow): Promise<void> => {
   // Relogin every 3 hours to get a fresh accessToken!
-  adapter.log.info(`[startRefreshAccessTokenTimerJob] Refreshing accessToken!`);
+  adapter.log.info(`[startRefreshAccessTokenTimerJob] Stop connections!`);
 
   // Scheduler beenden
   if (adapter.resetValuesJob) {
     adapter.resetValuesJob.cancel();
-    adapter.resetValuesJob = undefined;
   }
 
   if (adapter.checkStatesJob) {
     adapter.checkStatesJob?.cancel();
-    adapter.checkStatesJob = undefined;
   }
 
   if (adapter.calculationJob) {
     adapter.calculationJob.cancel();
-    adapter.calculationJob = undefined;
   }
 
   if (adapter.mqttClient) {
     adapter.mqttClient.end();
-    adapter.mqttClient = undefined;
   }
+
+  adapter.log.info(
+    `[startRefreshAccessTokenTimerJob] Refreshing accessToken in 10 seconds!`,
+  );
+  await adapter.delay(10 * 1000);
+
+  adapter.resetValuesJob = undefined;
+  adapter.checkStatesJob = undefined;
+  adapter.calculationJob = undefined;
+  adapter.mqttClient = undefined;
 
   if (adapter.config.userName && adapter.config.password) {
     login(adapter)?.then((_accessToken: string) => {
