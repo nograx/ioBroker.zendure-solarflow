@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.6.5",
+    "version": "1.6.6",
     "news": {
+      "1.6.6": {
+        "en": "Tweaked recurring refresh of access token.",
+        "de": "Tweaked wiederkehrende Erfrischung des Zugangs zu Token.",
+        "ru": "Сжатое повторяющееся обновление токена доступа.",
+        "pt": "Atualização recorrente de token de acesso.",
+        "nl": "Getweaked returning refresh of access token.",
+        "fr": "Changez de jeton d'accès.",
+        "it": "Tweaked rinfresco ricorrente di accesso token.",
+        "es": "Refrigerio recurrente de token de acceso.",
+        "pl": "Podmienił powtarzające się odświeżanie tokena dostępu.",
+        "uk": "Запечена рецидивна обробка токени доступу.",
+        "zh-cn": "不断刷新访问标志."
+      },
       "1.6.5": {
         "en": "Fix reconnect issue. Adapter will now restart if connection semms to be broken.",
         "de": "Reconnect Problem behoben. Adapter wird jetzt neu starten, wenn Verbindungssemms gebrochen werden.",
@@ -80,19 +93,6 @@
         "pl": "Popraw problem, że czasem dane nie są aktualizowane\nDodawanie trybu czuwania HUB (20W) w przypadku niskiego wejścia solarinput",
         "uk": "Виправлення проблеми, які одноразові дані не оновлено\nДодайте автономне використання HUB (20W) при низькому доступі",
         "zh-cn": "解决数据有时不更新的问题\n当太阳输入量低时添加 HUB( 20W) 的备用用法"
-      },
-      "1.5.3": {
-        "en": "Fix autoRecover datatype issue",
-        "de": "AutoRecover Datatype Problem",
-        "ru": "Вопрос о типе данных autoRecover",
-        "pt": "Corrigir problema do tipo de dados autoRecover",
-        "nl": "Repareren autoRecover datatype probleem",
-        "fr": "Correction problème de type de données autoRecover",
-        "it": "Risolvere il problema del tipo di dati autoRecover",
-        "es": "Corrección de autoRecover datatype problema",
-        "pl": "Napraw wydanie typu danych autoRecover",
-        "uk": "Фіксувати автоматичнийВихід даних",
-        "zh-cn": "自动恢复数据类型问题"
       }
     },
     "titleLang": {
