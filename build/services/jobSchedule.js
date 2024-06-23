@@ -25,45 +25,15 @@ __export(jobSchedule_exports, {
 });
 module.exports = __toCommonJS(jobSchedule_exports);
 var import_node_schedule = require("node-schedule");
-var import_mqttService = require("./mqttService");
-var import_webService = require("./webService");
 var import_calculationService = require("./calculationService");
-const refreshAccessToken = async (adapter) => {
-  var _a, _b;
-  adapter.log.info(`[startRefreshAccessTokenTimerJob] Stop connections!`);
-  if (adapter.resetValuesJob) {
-    adapter.resetValuesJob.cancel();
-  }
-  if (adapter.checkStatesJob) {
-    (_a = adapter.checkStatesJob) == null ? void 0 : _a.cancel();
-  }
-  if (adapter.calculationJob) {
-    adapter.calculationJob.cancel();
-  }
-  if (adapter.mqttClient) {
-    adapter.mqttClient.end();
-  }
-  adapter.log.info(
-    `[startRefreshAccessTokenTimerJob] Refreshing accessToken in 10 seconds!`
-  );
-  await adapter.delay(10 * 1e3);
-  adapter.resetValuesJob = void 0;
-  adapter.checkStatesJob = void 0;
-  adapter.calculationJob = void 0;
-  adapter.mqttClient = void 0;
-  if (adapter.config.userName && adapter.config.password) {
-    (_b = (0, import_webService.login)(adapter)) == null ? void 0 : _b.then((_accessToken) => {
-      adapter.accessToken = _accessToken;
-      adapter.lastLogin = /* @__PURE__ */ new Date();
-      adapter.setState("info.connection", true, true);
-      (0, import_mqttService.connectMqttClient)(adapter);
-    });
-  }
-};
 const startRefreshAccessTokenTimerJob = async (adapter) => {
   adapter.refreshAccessTokenInterval = adapter.setInterval(
-    () => {
-      refreshAccessToken(adapter);
+    async () => {
+      adapter.log.info(
+        `Refresh Access Token - Adapter will restart in 20 seconds!`
+      );
+      await adapter.delay(20 * 1e3);
+      adapter.restart();
     },
     3 * 60 * 60 * 1e3
   );

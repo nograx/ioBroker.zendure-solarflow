@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/indent */
 import { scheduleJob } from "node-schedule";
 import { ZendureSolarflow } from "../main";
-import { connectMqttClient } from "./mqttService";
-import { login } from "./webService";
+/* import { connectMqttClient } from "./mqttService";
+import { login } from "./webService"; */
 import { ISolarFlowDeviceDetails } from "../models/ISolarFlowDeviceDetails";
 import { calculateEnergy, resetTodaysValues } from "./calculationService";
 
-const refreshAccessToken = async (adapter: ZendureSolarflow): Promise<void> => {
+/* const refreshAccessToken = async (adapter: ZendureSolarflow): Promise<void> => {
   // Relogin every 3 hours to get a fresh accessToken!
   adapter.log.info(`[startRefreshAccessTokenTimerJob] Stop connections!`);
 
@@ -46,14 +46,19 @@ const refreshAccessToken = async (adapter: ZendureSolarflow): Promise<void> => {
       connectMqttClient(adapter);
     });
   }
-};
+}; */
 
 export const startRefreshAccessTokenTimerJob = async (
   adapter: ZendureSolarflow,
 ): Promise<void> => {
   adapter.refreshAccessTokenInterval = adapter.setInterval(
-    () => {
-      refreshAccessToken(adapter);
+    async () => {
+      adapter.log.info(
+        `Refresh Access Token - Adapter will restart in 20 seconds!`,
+      );
+
+      await adapter.delay(20 * 1000);
+      adapter.restart();
     },
     3 * 60 * 60 * 1000,
   );
