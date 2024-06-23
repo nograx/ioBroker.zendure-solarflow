@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.6.6",
+    "version": "1.6.7",
     "news": {
+      "1.6.7": {
+        "en": "Fix reconnect again. Adapter will now restart every 3 hours to cleanup fully.",
+        "de": "Reconnect wieder reparieren. Adapter wird jetzt alle 3 Stunden neu starten, um vollständig zu reinigen.",
+        "ru": "Повторите подключение. Адаптер теперь перезапускается каждые 3 часа, чтобы полностью очиститься.",
+        "pt": "Reconectar novamente. O adaptador agora reiniciará a cada 3 horas para limpar totalmente.",
+        "nl": "Maak opnieuw verbinding. Adapter zal nu om de 3 uur opnieuw opstarten om volledig op te ruimen.",
+        "fr": "Réparer la connexion. Adaptateur va maintenant redémarrer toutes les 3 heures pour nettoyer complètement.",
+        "it": "Risolvi di nuovo la connessione. L'adattatore si riavvia ogni 3 ore per pulire completamente.",
+        "es": "Arregla la reconexión de nuevo. El adaptador se reiniciará cada 3 horas para limpiar completamente.",
+        "pl": "Napraw ponownie połączenie. Adapter będzie teraz ponownie uruchomić co 3 godziny, aby w pełni posprzątać.",
+        "uk": "Виправлення повторного підключення. Адаптер тепер перезавантажить кожні 3 години для очищення повністю.",
+        "zh-cn": "恢复连接 适配器现在将每3小时重新启动一次,以全面清理."
+      },
       "1.6.6": {
         "en": "Tweaked recurring refresh of access token.",
         "de": "Tweaked wiederkehrende Erfrischung des Zugangs zu Token.",
@@ -69,19 +82,6 @@
         "zh-cn": "将备用使用改为10W"
       },
       "1.6.1": {
-        "en": "Fix issue that sometime data is not updated\nAdd standby usage of HUB (20W) when solarinput is low",
-        "de": "Problem behoben, dass einige Zeitdaten nicht aktualisiert werden\nFügen Sie Standby-Nutzung von HUB (20W) hinzu, wenn Solarinput niedrig ist",
-        "ru": "Исправить вопрос, что когда-то данные не обновляются\nДобавить резервное использование HUB (20W), когда солнечный вход низкий",
-        "pt": "Corrigir problema que alguns dados de tempo não é atualizado\nAdicionar uso standby de HUB (20W) quando a entrada solar é baixa",
-        "nl": "Fix probleem dat sommige gegevens niet is bijgewerkt\nToevoegen stand-by gebruik van HUB (20W) wanneer zonne-input laag is",
-        "fr": "Correction de problème que parfois les données ne sont pas mises à jour\nAjouter l'utilisation en veille de HUB (20W) lorsque l'apport solaire est faible",
-        "it": "Risolvi il problema che alcuni dati non sono aggiornati\nAggiungere l'uso standby di HUB (20W) quando l'input solare è basso",
-        "es": "Problema de fijación que algunos datos no se actualizan\nAñadir el uso de reserva de HUB (20W) cuando la energía solar es baja",
-        "pl": "Popraw problem, że czasem dane nie są aktualizowane\nDodawanie trybu czuwania HUB (20W) w przypadku niskiego wejścia solarinput",
-        "uk": "Виправлення проблеми, які одноразові дані не оновлено\nДодайте автономне використання HUB (20W) при низькому доступі",
-        "zh-cn": "解决数据有时不更新的问题\n当太阳输入量低时添加 HUB( 20W) 的备用用法"
-      },
-      "1.6.0": {
         "en": "Fix issue that sometime data is not updated\nAdd standby usage of HUB (20W) when solarinput is low",
         "de": "Problem behoben, dass einige Zeitdaten nicht aktualisiert werden\nFügen Sie Standby-Nutzung von HUB (20W) hinzu, wenn Solarinput niedrig ist",
         "ru": "Исправить вопрос, что когда-то данные не обновляются\nДобавить резервное использование HUB (20W), когда солнечный вход низкий",
