@@ -12,13 +12,14 @@ import {
   startCheckStatesAndConnectionJob,
   startResetValuesJob,
 } from "./jobSchedule";
+import { ISolarFlowDeviceDetails } from "../models/ISolarFlowDeviceDetails";
 
 let adapter: ZendureSolarflow | undefined = undefined;
 
 export const addOrUpdatePackData = async (
   productKey: string,
   deviceKey: string,
-  packData: IPackData[],
+  packData: IPackData[]
 ): Promise<void> => {
   if (adapter && productKey && deviceKey) {
     await packData.forEach(async (x) => {
@@ -33,7 +34,7 @@ export const addOrUpdatePackData = async (
           x.sn
         ).replace(adapter.FORBIDDEN_CHARS, "");
 
-        await adapter?.extendObjectAsync(key + ".sn", {
+        await adapter?.extendObject(key + ".sn", {
           type: "state",
           common: {
             name: {
@@ -53,7 +54,7 @@ export const addOrUpdatePackData = async (
 
         if (x.socLevel) {
           // State für socLevel
-          await adapter?.extendObjectAsync(key + ".socLevel", {
+          await adapter?.extendObject(key + ".socLevel", {
             type: "state",
             common: {
               name: {
@@ -74,7 +75,7 @@ export const addOrUpdatePackData = async (
 
         if (x.maxTemp) {
           // State für maxTemp
-          await adapter?.extendObjectAsync(key + ".maxTemp", {
+          await adapter?.extendObject(key + ".maxTemp", {
             type: "state",
             common: {
               name: {
@@ -94,12 +95,12 @@ export const addOrUpdatePackData = async (
           await adapter?.setStateAsync(
             key + ".maxTemp",
             x.maxTemp / 10 - 273.15,
-            true,
+            true
           );
         }
 
         if (x.minVol) {
-          await adapter?.extendObjectAsync(key + ".minVol", {
+          await adapter?.extendObject(key + ".minVol", {
             type: "state",
             common: {
               name: "minVol",
@@ -116,7 +117,7 @@ export const addOrUpdatePackData = async (
         }
 
         if (x.maxVol) {
-          await adapter?.extendObjectAsync(key + ".maxVol", {
+          await adapter?.extendObject(key + ".maxVol", {
             type: "state",
             common: {
               name: "maxVol",
@@ -133,7 +134,7 @@ export const addOrUpdatePackData = async (
         }
 
         if (x.totalVol) {
-          await adapter?.extendObjectAsync(key + ".totalVol", {
+          await adapter?.extendObject(key + ".totalVol", {
             type: "state",
             common: {
               name: "totalVol",
@@ -188,24 +189,26 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
 
     if (
       !adapter.deviceList.some(
-        (x) => x.deviceKey == deviceKey && x.productKey == productKey,
+        (x) => x.deviceKey == deviceKey && x.productKey == productKey
       )
     ) {
-      adapter.deviceList.push({
+      // Create an "fake" device
+      const device: ISolarFlowDeviceDetails = {
         productName: "Solarflow",
         deviceKey: deviceKey,
         productKey: productKey,
-      });
+      };
+      adapter.deviceList.push(device);
 
       // Wir erstellen bzw. aktualisieren die States, erfolgt im "normalen" MQTT in der main.ts
-      await createSolarFlowStates(adapter, productKey, deviceKey);
+      await createSolarFlowStates(adapter, device, "solarflow");
 
       await updateSolarFlowState(
         adapter,
         productKey,
         deviceKey,
         "registeredServer",
-        adapter.config.server,
+        adapter.config.server
       );
     }
 
@@ -215,7 +218,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
       productKey,
       deviceKey,
       "lastUpdate",
-      new Date().getTime(),
+      new Date().getTime()
     );
 
     if (obj?.electricLevel != null && obj?.electricLevel != undefined) {
@@ -224,7 +227,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "electricLevel",
-        obj.electricLevel,
+        obj.electricLevel
       );
 
       if (adapter?.config.useCalculation && obj.electricLevel == 100) {
@@ -237,10 +240,10 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         obj?.packState == 0
           ? "Idle"
           : obj?.packState == 1
-          ? "Charging"
-          : obj?.packState == 2
-          ? "Discharging"
-          : "Unknown";
+            ? "Charging"
+            : obj?.packState == 2
+              ? "Discharging"
+              : "Unknown";
       updateSolarFlowState(adapter, productKey, deviceKey, "packState", value);
     }
 
@@ -249,10 +252,10 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         obj?.passMode == 0
           ? "Automatic"
           : obj?.passMode == 1
-          ? "Always off"
-          : obj?.passMode == 2
-          ? "Always on"
-          : "Unknown";
+            ? "Always off"
+            : obj?.passMode == 2
+              ? "Always on"
+              : "Unknown";
       updateSolarFlowState(adapter, productKey, deviceKey, "passMode", value);
     }
 
@@ -270,7 +273,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "autoRecover",
-        value,
+        value
       );
     }
 
@@ -280,7 +283,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "outputHomePower",
-        obj.outputHomePower,
+        obj.outputHomePower
       );
     }
 
@@ -290,7 +293,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "outputLimit",
-        obj.outputLimit,
+        obj.outputLimit
       );
     }
 
@@ -302,7 +305,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "buzzerSwitch",
-        value,
+        value
       );
     }
 
@@ -312,7 +315,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "outputPackPower",
-        obj.outputPackPower,
+        obj.outputPackPower
       );
 
       // if outPutPackPower set packInputPower to 0
@@ -325,7 +328,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "packInputPower",
-        obj.packInputPower,
+        obj.packInputPower
       );
 
       // if packInputPower set outputPackPower to 0
@@ -334,7 +337,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "outputPackPower",
-        0,
+        0
       );
     }
 
@@ -344,7 +347,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "solarInputPower",
-        obj.solarInputPower,
+        obj.solarInputPower
       );
     }
 
@@ -354,7 +357,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "pvPower2", // Reversed to adjust like offical app
-        obj.pvPower1,
+        obj.pvPower1
       );
     }
 
@@ -364,7 +367,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "pvPower1", // Reversed to adjust like offical app
-        obj.pvPower2,
+        obj.pvPower2
       );
     }
 
@@ -374,7 +377,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "pvPower1",
-        obj.solarPower1,
+        obj.solarPower1
       );
     }
 
@@ -384,7 +387,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "pvPower2",
-        obj.solarPower2,
+        obj.solarPower2
       );
     }
 
@@ -394,7 +397,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "remainOutTime",
-        obj.remainOutTime,
+        obj.remainOutTime
       );
     }
 
@@ -404,7 +407,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "remainInputTime",
-        obj.remainInputTime,
+        obj.remainInputTime
       );
     }
 
@@ -414,7 +417,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "socSet",
-        Number(obj.socSet) / 10,
+        Number(obj.socSet) / 10
       );
     }
 
@@ -424,7 +427,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "minSoc",
-        Number(obj.minSoc) / 10,
+        Number(obj.minSoc) / 10
       );
     }
 
@@ -433,18 +436,18 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         obj?.pvBrand == 0
           ? "Others"
           : obj?.pvBrand == 1
-          ? "Hoymiles"
-          : obj?.pvBrand == 2
-          ? "Enphase"
-          : obj?.pvBrand == 3
-          ? "APSystems"
-          : obj?.pvBrand == 4
-          ? "Anker"
-          : obj?.pvBrand == 5
-          ? "Deye"
-          : obj?.pvBrand == 6
-          ? "Bosswerk"
-          : "Unknown";
+            ? "Hoymiles"
+            : obj?.pvBrand == 2
+              ? "Enphase"
+              : obj?.pvBrand == 3
+                ? "APSystems"
+                : obj?.pvBrand == 4
+                  ? "Anker"
+                  : obj?.pvBrand == 5
+                    ? "Deye"
+                    : obj?.pvBrand == 6
+                      ? "Bosswerk"
+                      : "Unknown";
       updateSolarFlowState(adapter, productKey, deviceKey, "pvBrand", value);
     }
 
@@ -454,7 +457,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "inverseMaxPower",
-        obj.inverseMaxPower,
+        obj.inverseMaxPower
       );
     }
 
@@ -464,7 +467,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "wifiState",
-        obj.wifiState == 1 ? "Connected" : "Disconnected",
+        obj.wifiState == 1 ? "Connected" : "Disconnected"
       );
     }
 
@@ -476,7 +479,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         "hubState",
         obj.hubState == 0
           ? "Stop output and standby"
-          : "Stop output and shut down",
+          : "Stop output and shut down"
       );
     }
 
@@ -507,7 +510,7 @@ export const connectFallbackMqttClient = (
   appKey: string,
   secret: string,
   mqttServer: string,
-  mqttPort: number,
+  mqttPort: number
 ): boolean => {
   //console.log("connectFallbackMqttClient");
   adapter = _adapter;
@@ -524,11 +527,11 @@ export const connectFallbackMqttClient = (
     adapter.log.debug(
       `[connectMqttClient] Connecting to DEV MQTT broker ${
         mqttServer + ":" + mqttPort
-      }...`,
+      }...`
     );
     adapter.mqttClient = mqtt.connect(
       "mqtt://" + mqttServer + ":" + mqttPort,
-      options,
+      options
     ); // create a client
 
     if (adapter && adapter.mqttClient) {
@@ -541,7 +544,7 @@ export const connectFallbackMqttClient = (
         const reportTopic = `${appKey}/#`;
 
         adapter.log.debug(
-          `[connectMqttClient] Subscribing to MQTT Topic: ${reportTopic}`,
+          `[connectMqttClient] Subscribing to MQTT Topic: ${reportTopic}`
         );
         adapter.mqttClient?.subscribe(reportTopic, onSubscribeReportTopic);
       }

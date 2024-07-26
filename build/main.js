@@ -65,14 +65,14 @@ class ZendureSolarflow extends utils.Adapter {
    */
   async onReady() {
     var _a;
-    await this.extendObjectAsync("info", {
+    await this.extendObject("info", {
       type: "channel",
       common: {
         name: "Information"
       },
       native: {}
     });
-    await this.extendObjectAsync(`info.connection`, {
+    await this.extendObject(`info.connection`, {
       type: "state",
       common: {
         name: {
@@ -113,7 +113,7 @@ class ZendureSolarflow extends utils.Adapter {
         (0, import_webService.getDeviceList)(this).then(async (result) => {
           if (result) {
             this.deviceList = result.filter(
-              (device) => device.productName.toLowerCase().includes("solarflow")
+              (device) => device.productName.toLowerCase().includes("solarflow") || device.productName.toLocaleLowerCase() == "hyper 2000" || device.productName.toLocaleLowerCase() == "ace 1500"
             );
             await (0, import_adapterService.checkDevicesServer)(this);
             this.log.info(
@@ -121,11 +121,13 @@ class ZendureSolarflow extends utils.Adapter {
             );
             await this.deviceList.forEach(
               async (device) => {
-                await (0, import_createSolarFlowStates.createSolarFlowStates)(
-                  this,
-                  device.productKey,
-                  device.deviceKey
-                );
+                let type = "solarflow";
+                if (device.productName.toLocaleLowerCase() == "hyper 2000") {
+                  type = "hyper";
+                } else if (device.productName.toLocaleLowerCase() == "ace 1500") {
+                  type = "ace";
+                }
+                await (0, import_createSolarFlowStates.createSolarFlowStates)(this, device, type);
                 await (0, import_adapterService.updateSolarFlowState)(
                   this,
                   device.productKey,
@@ -200,12 +202,28 @@ class ZendureSolarflow extends utils.Adapter {
           case "control":
             if (stateName2 == "setOutputLimit") {
               (0, import_mqttService.setOutputLimit)(this, productKey, deviceKey, Number(state.val));
+            } else if (stateName2 == "setInputLimit") {
+              (0, import_mqttService.setInputLimit)(this, productKey, deviceKey, Number(state.val));
             } else if (stateName2 == "dischargeLimit") {
               (0, import_mqttService.setDischargeLimit)(this, productKey, deviceKey, Number(state.val));
             } else if (stateName2 == "chargeLimit") {
               (0, import_mqttService.setChargeLimit)(this, productKey, deviceKey, Number(state.val));
             } else if (stateName2 == "passMode") {
               (0, import_mqttService.setPassMode)(this, productKey, deviceKey, Number(state.val));
+            } else if (stateName2 == "dcSwitch") {
+              (0, import_mqttService.setDcSwitch)(
+                this,
+                productKey,
+                deviceKey,
+                state.val ? true : false
+              );
+            } else if (stateName2 == "acSwitch") {
+              (0, import_mqttService.setAcSwitch)(
+                this,
+                productKey,
+                deviceKey,
+                state.val ? true : false
+              );
             } else if (stateName2 == "autoRecover") {
               (0, import_mqttService.setAutoRecover)(
                 this,

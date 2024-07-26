@@ -6,9 +6,10 @@ export const createControlStates = async (
   adapter: ZendureSolarflow,
   productKey: string,
   deviceKey: string,
+  type: string
 ): Promise<void> => {
   // Create control folder
-  await adapter?.extendObjectAsync(`${productKey}.${deviceKey}.control`, {
+  await adapter?.extendObject(`${productKey}.${deviceKey}.control`, {
     type: "channel",
     common: {
       name: {
@@ -19,98 +20,110 @@ export const createControlStates = async (
     native: {},
   });
 
-  // State zum Setzen des Output Limit
-  await adapter?.extendObjectAsync(
-    `${productKey}.${deviceKey}.control.setOutputLimit`,
-    {
-      type: "state",
-      common: {
-        name: {
-          de: "Einzustellende Ausgangsleistung",
-          en: "Control of the output limit",
+  if (type == "solarflow" || type == "hyper") {
+    // State zum Setzen des Output Limit
+    await adapter?.extendObject(
+      `${productKey}.${deviceKey}.control.setOutputLimit`,
+      {
+        type: "state",
+        common: {
+          name: {
+            de: "Einzustellende Ausgangsleistung",
+            en: "Control of the output limit",
+          },
+          type: "number",
+          desc: "setOutputLimit",
+          role: "value.power",
+          read: true,
+          write: true,
+          min: 0,
+          unit: "W",
         },
-        type: "number",
-        desc: "setOutputLimit",
-        role: "value.power",
-        read: true,
-        write: true,
-        min: 0,
-        unit: "W",
-      },
-      native: {},
-    },
-  );
+        native: {},
+      }
+    );
 
-  // State zum Setzen des Charge Limit
-  await adapter?.extendObjectAsync(
-    `${productKey}.${deviceKey}.control.chargeLimit`,
-    {
-      type: "state",
-      common: {
-        name: {
-          de: "Setzen des Lade-Limits",
-          en: "Control of the charge limit",
+    // Subcribe to control states
+    adapter?.subscribeStates(
+      `${productKey}.${deviceKey}.control.setOutputLimit`
+    );
+
+    // State zum Setzen des Charge Limit
+    await adapter?.extendObject(
+      `${productKey}.${deviceKey}.control.chargeLimit`,
+      {
+        type: "state",
+        common: {
+          name: {
+            de: "Setzen des Lade-Limits",
+            en: "Control of the charge limit",
+          },
+          type: "number",
+          desc: "chargeLimit",
+          role: "value.battery",
+          read: true,
+          write: true,
+          min: 40,
+          max: 100,
+          unit: "%",
         },
-        type: "number",
-        desc: "chargeLimit",
-        role: "value.battery",
-        read: true,
-        write: true,
-        min: 40,
-        max: 100,
-        unit: "%",
-      },
-      native: {},
-    },
-  );
+        native: {},
+      }
+    );
 
-  // State zum Setzen des Discharge Limit
-  await adapter?.extendObjectAsync(
-    `${productKey}.${deviceKey}.control.dischargeLimit`,
-    {
-      type: "state",
-      common: {
-        name: {
-          de: "Setzen des Entlade-Limits",
-          en: "Control of the discharge limit",
+    adapter?.subscribeStates(`${productKey}.${deviceKey}.control.chargeLimit`);
+
+    // State zum Setzen des Discharge Limit
+    await adapter?.extendObject(
+      `${productKey}.${deviceKey}.control.dischargeLimit`,
+      {
+        type: "state",
+        common: {
+          name: {
+            de: "Setzen des Entlade-Limits",
+            en: "Control of the discharge limit",
+          },
+          type: "number",
+          desc: "dischargeLimit",
+          role: "value.battery",
+          read: true,
+          write: true,
+          min: 0,
+          max: 90,
+          unit: "%",
         },
-        type: "number",
-        desc: "dischargeLimit",
-        role: "value.battery",
-        read: true,
-        write: true,
-        min: 0,
-        max: 90,
-        unit: "%",
-      },
-      native: {},
-    },
-  );
+        native: {},
+      }
+    );
 
-  // State zum Setzen des Buzzers
-  await adapter?.extendObjectAsync(
-    `${productKey}.${deviceKey}.control.buzzerSwitch`,
-    {
-      type: "state",
-      common: {
-        name: {
-          de: "Sounds am HUB aktivieren",
-          en: "Enable buzzer on HUB",
+    adapter?.subscribeStates(
+      `${productKey}.${deviceKey}.control.dischargeLimit`
+    );
+
+    // State zum Setzen des Buzzers
+    await adapter?.extendObject(
+      `${productKey}.${deviceKey}.control.buzzerSwitch`,
+      {
+        type: "state",
+        common: {
+          name: {
+            de: "Sounds am HUB aktivieren",
+            en: "Enable buzzer on HUB",
+          },
+          type: "boolean",
+          desc: "buzzerSwitch",
+          role: "switch",
+          read: true,
+          write: true,
         },
-        type: "boolean",
-        desc: "buzzerSwitch",
-        role: "switch",
-        read: true,
-        write: true,
-      },
-      native: {},
-    },
-  );
+        native: {},
+      }
+    );
 
-  // State zum Setzen des Buzzers
-  await adapter?.extendObjectAsync(
-    `${productKey}.${deviceKey}.control.passMode`,
-    {
+    adapter?.subscribeStates(`${productKey}.${deviceKey}.control.buzzerSwitch`);
+
+    // State zum Setzen des Bypass Modus
+    await adapter?.extendObject(`${productKey}.${deviceKey}.control.passMode`, {
       type: "state",
       common: {
         name: {
@@ -129,65 +142,126 @@ export const createControlStates = async (
         },
       },
       native: {},
-    },
-  );
+    });
 
-  // State zum Setzen des Auto-Modus vom Bypass
-  await adapter?.extendObjectAsync(
-    `${productKey}.${deviceKey}.control.autoRecover`,
-    {
+    adapter?.subscribeStates(`${productKey}.${deviceKey}.control.passMode`);
+
+    // State zum Setzen des Auto-Modus vom Bypass
+    await adapter?.extendObject(
+      `${productKey}.${deviceKey}.control.autoRecover`,
+      {
+        type: "state",
+        common: {
+          name: {
+            de: "Am nächsten Tag Bypass auf Automatik",
+            en: "Automatic recovery of bypass",
+          },
+          type: "boolean",
+          desc: "autoRecover",
+          role: "switch",
+          read: true,
+          write: true,
+        },
+        native: {},
+      }
+    );
+
+    adapter?.subscribeStates(`${productKey}.${deviceKey}.control.autoRecover`);
+
+    if (adapter.config.useLowVoltageBlock) {
+      // State zum Setzen des Output Limit
+      await adapter?.extendObject(
+        `${productKey}.${deviceKey}.control.lowVoltageBlock`,
+        {
+          type: "state",
+          common: {
+            name: {
+              de: "Niedrige Batteriespannung erkannt",
+              en: "Low Voltage on battery detected",
+            },
+            type: "boolean",
+            desc: "lowVoltageBlock",
+            role: "indicator.lowbat",
+            read: true,
+            write: false,
+          },
+          native: {},
+        }
+      );
+
+      adapter?.subscribeStates(
+        `${productKey}.${deviceKey}.control.lowVoltageBlock`
+      );
+    }
+  }
+
+  // States for Hyper 2000 and ACE 1500
+  if (type == "hyper" || type == "ace") {
+    // State zum Setzen des Input Limit (AC)
+    await adapter?.extendObject(
+      `${productKey}.${deviceKey}.control.setInputLimit`,
+      {
+        type: "state",
+        common: {
+          name: {
+            de: "Einzustellende Eingangsleistung",
+            en: "Control of the input limit",
+          },
+          type: "number",
+          desc: "setInputLimit",
+          role: "value.power",
+          read: true,
+          write: true,
+          min: 0,
+          unit: "W",
+        },
+        native: {},
+      }
+    );
+
+    adapter?.subscribeStates(
+      `${productKey}.${deviceKey}.control.setInputLimit`
+    );
+
+    // State zum Setzen des AC Schalters
+    await adapter?.extendObject(`${productKey}.${deviceKey}.control.acSwitch`, {
       type: "state",
       common: {
         name: {
-          de: "Am nächsten Tag Bypass auf Automatik",
-          en: "Automatic recovery of bypass",
+          de: "AC Schalter",
+          en: "AC switch",
         },
         type: "boolean",
-        desc: "autoRecover",
+        desc: "acSwitch",
         role: "switch",
         read: true,
         write: true,
       },
       native: {},
-    },
-  );
+    });
 
-  if (adapter.config.useLowVoltageBlock) {
-    // State zum Setzen des Output Limit
-    await adapter?.extendObjectAsync(
-      `${productKey}.${deviceKey}.control.lowVoltageBlock`,
-      {
-        type: "state",
-        common: {
-          name: {
-            de: "Niedrige Batteriespannung erkannt",
-            en: "Low Voltage on battery detected",
-          },
-          type: "boolean",
-          desc: "lowVoltageBlock",
-          role: "indicator.lowbat",
-          read: true,
-          write: false,
-        },
-        native: {},
-      },
-    );
-
-    adapter?.subscribeStates(
-      `${productKey}.${deviceKey}.control.lowVoltageBlock`,
-    );
+    adapter?.subscribeStates(`${productKey}.${deviceKey}.control.acSwitch`);
   }
 
-  // Subcribe to control states
-  adapter?.subscribeStates(`${productKey}.${deviceKey}.control.setOutputLimit`);
+  // States only for ACE 1500
+  if (type == "ace") {
+    // State zum Setzen des DC Schalters
+    await adapter?.extendObject(`${productKey}.${deviceKey}.control.dcSwitch`, {
+      type: "state",
+      common: {
+        name: {
+          de: "DC Schalter",
+          en: "DC switch",
+        },
+        type: "boolean",
+        desc: "dcSwitch",
+        role: "switch",
+        read: true,
+        write: true,
+      },
+      native: {},
+    });
 
-  adapter?.subscribeStates(`${productKey}.${deviceKey}.control.chargeLimit`);
-
-  adapter?.subscribeStates(`${productKey}.${deviceKey}.control.dischargeLimit`);
-
-  adapter?.subscribeStates(`${productKey}.${deviceKey}.control.buzzerSwitch`);
-
-  adapter?.subscribeStates(`${productKey}.${deviceKey}.control.autoRecover`);
-
-  adapter?.subscribeStates(`${productKey}.${deviceKey}.control.passMode`);
+    adapter?.subscribeStates(`${productKey}.${deviceKey}.control.dcSwitch`);
+  }
 };

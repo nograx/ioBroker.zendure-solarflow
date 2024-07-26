@@ -21,29 +21,30 @@ __export(createSolarFlowStates_exports, {
   createSolarFlowStates: () => createSolarFlowStates
 });
 module.exports = __toCommonJS(createSolarFlowStates_exports);
+var import_adapterService = require("../services/adapterService");
 var import_createCalculationStates = require("./createCalculationStates");
 var import_createControlStates = require("./createControlStates");
-const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
-  productKey = productKey.replace(adapter.FORBIDDEN_CHARS, "");
-  deviceKey = deviceKey.replace(adapter.FORBIDDEN_CHARS, "");
+const createSolarFlowStates = async (adapter, device, type) => {
+  const productKey = device.productKey.replace(adapter.FORBIDDEN_CHARS, "");
+  const deviceKey = device.deviceKey.replace(adapter.FORBIDDEN_CHARS, "");
   adapter.log.debug(
     `[createSolarFlowStates] Creating or updating SolarFlow states for productKey ${productKey} and deviceKey ${deviceKey}.`
   );
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(productKey, {
+  await (adapter == null ? void 0 : adapter.extendObject(productKey, {
     type: "device",
     common: {
       name: { de: "Produkt " + productKey, en: "Product " + productKey }
     },
     native: {}
   }));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(productKey + "." + deviceKey, {
+  await (adapter == null ? void 0 : adapter.extendObject(productKey + "." + deviceKey, {
     type: "channel",
     common: {
       name: { de: "Device Key " + deviceKey, en: "Device Key " + deviceKey }
     },
     native: {}
   }));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(`${productKey}.${deviceKey}.calculations`, {
+  await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.calculations`, {
     type: "channel",
     common: {
       name: {
@@ -53,7 +54,7 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
     },
     native: {}
   }));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(`${productKey}.${deviceKey}.packData`, {
+  await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.packData`, {
     type: "channel",
     common: {
       name: {
@@ -63,7 +64,7 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
     },
     native: {}
   }));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(`${productKey}.${deviceKey}.lastUpdate`, {
+  await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.lastUpdate`, {
     type: "state",
     common: {
       name: { de: "Letztes Update", en: "Last Update" },
@@ -75,7 +76,7 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
     },
     native: {}
   }));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(`${productKey}.${deviceKey}.buzzerSwitch`, {
+  await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.buzzerSwitch`, {
     type: "state",
     common: {
       name: {
@@ -83,56 +84,14 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
         en: "Enable buzzer on HUB"
       },
       type: "boolean",
-      desc: "passMode",
+      desc: "buzzerSwitch",
       role: "value",
       read: true,
       write: false
     },
     native: {}
   }));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(`${productKey}.${deviceKey}.passMode`, {
-    type: "state",
-    common: {
-      name: {
-        de: "Einstellung des Bypass Modus",
-        en: "Setting of bypass mode"
-      },
-      type: "string",
-      desc: "passMode",
-      role: "value",
-      read: true,
-      write: false
-    },
-    native: {}
-  }));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(`${productKey}.${deviceKey}.pass`, {
-    type: "state",
-    common: {
-      name: { de: "Bypass an/aus", en: "Bypass on/off" },
-      type: "boolean",
-      desc: "pass",
-      role: "value",
-      read: true,
-      write: false
-    },
-    native: {}
-  }));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(`${productKey}.${deviceKey}.autoRecover`, {
-    type: "state",
-    common: {
-      name: {
-        de: "Am n\xE4chsten Tag Bypass auf Automatik",
-        en: "Automatic recovery of bypass"
-      },
-      type: "boolean",
-      desc: "autoRecover",
-      role: "value",
-      read: true,
-      write: false
-    },
-    native: {}
-  }));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(`${productKey}.${deviceKey}.packState`, {
+  await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.packState`, {
     type: "state",
     common: {
       name: { de: "Systemstatus", en: "Status of system" },
@@ -144,7 +103,7 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
     },
     native: {}
   }));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(`${productKey}.${deviceKey}.electricLevel`, {
+  await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.electricLevel`, {
     type: "state",
     common: {
       name: { de: "SOC Gesamtsystem", en: "SOC of the system" },
@@ -157,7 +116,16 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
     },
     native: {}
   }));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(`${productKey}.${deviceKey}.name`, {
+  if (device.electricity) {
+    await (0, import_adapterService.updateSolarFlowState)(
+      adapter,
+      device.productKey,
+      device.deviceKey,
+      "electricLevel",
+      device.electricity
+    );
+  }
+  await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.name`, {
     type: "state",
     common: {
       name: { de: "Name", en: "Name" },
@@ -169,7 +137,7 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
     },
     native: {}
   }));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(`${productKey}.${deviceKey}.snNumber`, {
+  await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.snNumber`, {
     type: "state",
     common: {
       name: { de: "Seriennnummer", en: "Serial ID" },
@@ -181,7 +149,16 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
     },
     native: {}
   }));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(`${productKey}.${deviceKey}.productName`, {
+  if (device.snNumber) {
+    await (0, import_adapterService.updateSolarFlowState)(
+      adapter,
+      device.productKey,
+      device.deviceKey,
+      "snNumber",
+      device.snNumber.toString()
+    );
+  }
+  await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.productName`, {
     type: "state",
     common: {
       name: { de: "Produkt Name", en: "Product name" },
@@ -193,43 +170,31 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
     },
     native: {}
   }));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(
-    `${productKey}.${deviceKey}.registeredServer`,
-    {
-      type: "state",
-      common: {
-        name: { de: "Registrierter Server", en: "Registered server" },
-        type: "string",
-        desc: "registeredServer",
-        role: "value",
-        read: true,
-        write: false
-      },
-      native: {}
-    }
-  ));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(
-    `${productKey}.${deviceKey}.outputHomePower`,
-    {
-      type: "state",
-      common: {
-        name: { de: "Ausgangsleistung", en: "output power" },
-        type: "number",
-        desc: "outputHomePower",
-        role: "value.power",
-        read: true,
-        write: false,
-        unit: "W"
-      },
-      native: {}
-    }
-  ));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(`${productKey}.${deviceKey}.outputLimit`, {
+  await (0, import_adapterService.updateSolarFlowState)(
+    adapter,
+    device.productKey,
+    device.deviceKey,
+    "productName",
+    device.productName
+  );
+  await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.registeredServer`, {
     type: "state",
     common: {
-      name: { de: "Limit der Ausgangsleistung", en: "limit of output power" },
+      name: { de: "Registrierter Server", en: "Registered server" },
+      type: "string",
+      desc: "registeredServer",
+      role: "value",
+      read: true,
+      write: false
+    },
+    native: {}
+  }));
+  await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.outputPackPower`, {
+    type: "state",
+    common: {
+      name: { de: "Ladeleistung zur Batterie", en: "charge power" },
       type: "number",
-      desc: "outputLimit",
+      desc: "outputPackPower",
       role: "value.power",
       read: true,
       write: false,
@@ -237,55 +202,33 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
     },
     native: {}
   }));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(
-    `${productKey}.${deviceKey}.outputPackPower`,
-    {
-      type: "state",
-      common: {
-        name: { de: "Ladeleistung zur Batterie", en: "charge power" },
-        type: "number",
-        desc: "outputPackPower",
-        role: "value.power",
-        read: true,
-        write: false,
-        unit: "W"
-      },
-      native: {}
-    }
-  ));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(
-    `${productKey}.${deviceKey}.packInputPower`,
-    {
-      type: "state",
-      common: {
-        name: { de: "Entladeleistung aus Batterie", en: "discharge power" },
-        type: "number",
-        desc: "packInputPower",
-        role: "value.power",
-        read: true,
-        write: false,
-        unit: "W"
-      },
-      native: {}
-    }
-  ));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(
-    `${productKey}.${deviceKey}.solarInputPower`,
-    {
-      type: "state",
-      common: {
-        name: { de: "Leistung der Solarmodule", en: "solar power" },
-        type: "number",
-        desc: "solarInputPower",
-        role: "value.power",
-        read: true,
-        write: false,
-        unit: "W"
-      },
-      native: {}
-    }
-  ));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(`${productKey}.${deviceKey}.pvPower1`, {
+  await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.packInputPower`, {
+    type: "state",
+    common: {
+      name: { de: "Entladeleistung aus Batterie", en: "discharge power" },
+      type: "number",
+      desc: "packInputPower",
+      role: "value.power",
+      read: true,
+      write: false,
+      unit: "W"
+    },
+    native: {}
+  }));
+  await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.solarInputPower`, {
+    type: "state",
+    common: {
+      name: { de: "Leistung der Solarmodule", en: "solar power" },
+      type: "number",
+      desc: "solarInputPower",
+      role: "value.power",
+      read: true,
+      write: false,
+      unit: "W"
+    },
+    native: {}
+  }));
+  await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.pvPower1`, {
     type: "state",
     common: {
       name: { de: "Leistung PV 1", en: "solar power channel 1" },
@@ -298,7 +241,7 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
     },
     native: {}
   }));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(`${productKey}.${deviceKey}.pvPower2`, {
+  await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.pvPower2`, {
     type: "state",
     common: {
       name: { de: "Leistung PV 2", en: "solar power channel 2" },
@@ -311,22 +254,19 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
     },
     native: {}
   }));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(
-    `${productKey}.${deviceKey}.remainInputTime`,
-    {
-      type: "state",
-      common: {
-        name: { de: "Erwartete Ladedauer", en: "remaining charge time" },
-        type: "number",
-        desc: "remainInputTime",
-        role: "value.interval",
-        read: true,
-        write: false
-      },
-      native: {}
-    }
-  ));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(`${productKey}.${deviceKey}.remainOutTime`, {
+  await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.remainInputTime`, {
+    type: "state",
+    common: {
+      name: { de: "Erwartete Ladedauer", en: "remaining charge time" },
+      type: "number",
+      desc: "remainInputTime",
+      role: "value.interval",
+      read: true,
+      write: false
+    },
+    native: {}
+  }));
+  await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.remainOutTime`, {
     type: "state",
     common: {
       name: {
@@ -341,7 +281,7 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
     },
     native: {}
   }));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(`${productKey}.${deviceKey}.socSet`, {
+  await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.socSet`, {
     type: "state",
     common: {
       name: { de: "Max. SOC", en: "max. SOC" },
@@ -354,7 +294,7 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
     },
     native: {}
   }));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(`${productKey}.${deviceKey}.minSoc`, {
+  await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.minSoc`, {
     type: "state",
     common: {
       name: { de: "Min. SOC", en: "min. SOC" },
@@ -367,37 +307,22 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
     },
     native: {}
   }));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(`${productKey}.${deviceKey}.pvBrand`, {
+  await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.inverseMaxPower`, {
     type: "state",
     common: {
-      name: { de: "Wechselrichter Hersteller", en: "brand of inverter" },
-      type: "string",
-      desc: "pvBrand",
+      name: {
+        de: "Maximal akzeptabler Eingang des PV-Mikrowechselrichters",
+        en: "highest acceptable input power"
+      },
+      type: "number",
+      desc: "inverseMaxPower",
       role: "value",
       read: true,
       write: false
     },
     native: {}
   }));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(
-    `${productKey}.${deviceKey}.inverseMaxPower`,
-    {
-      type: "state",
-      common: {
-        name: {
-          de: "Maximal akzeptabler Eingang des PV-Mikrowechselrichters",
-          en: "highest acceptable input power"
-        },
-        type: "number",
-        desc: "inverseMaxPower",
-        role: "value",
-        read: true,
-        write: false
-      },
-      native: {}
-    }
-  ));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(`${productKey}.${deviceKey}.wifiState`, {
+  await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.wifiState`, {
     type: "state",
     common: {
       name: {
@@ -412,7 +337,14 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
     },
     native: {}
   }));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(`${productKey}.${deviceKey}.hubState`, {
+  await (0, import_adapterService.updateSolarFlowState)(
+    adapter,
+    device.productKey,
+    device.deviceKey,
+    "wifiStatus",
+    device.wifiStatus ? "Connected" : "Disconnected"
+  );
+  await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.hubState`, {
     type: "state",
     common: {
       name: {
@@ -427,10 +359,189 @@ const createSolarFlowStates = async (adapter, productKey, deviceKey) => {
     },
     native: {}
   }));
-  if (!adapter.config.useFallbackService) {
-    await (0, import_createControlStates.createControlStates)(adapter, productKey, deviceKey);
+  if (type == "solarflow") {
+    await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.pvBrand`, {
+      type: "state",
+      common: {
+        name: { de: "Wechselrichter Hersteller", en: "brand of inverter" },
+        type: "string",
+        desc: "pvBrand",
+        role: "value",
+        read: true,
+        write: false
+      },
+      native: {}
+    }));
   }
-  if (adapter.config.useCalculation) {
+  if (type == "ace") {
+    await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.dcOutputPower`, {
+      type: "state",
+      common: {
+        name: {
+          de: "Aktuelle DC Ausgangsleistung",
+          en: "Current DC output power"
+        },
+        type: "number",
+        desc: "dcOutputPower",
+        role: "value.power",
+        read: true,
+        write: false,
+        unit: "W"
+      },
+      native: {}
+    }));
+    await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.dcSwitch`, {
+      type: "state",
+      common: {
+        name: {
+          de: "DC Schalter",
+          en: "DC switch"
+        },
+        type: "boolean",
+        desc: "dcSwitch",
+        role: "value",
+        read: true,
+        write: false
+      },
+      native: {}
+    }));
+  }
+  if (type == "solarflow" || type == "hyper") {
+    await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.passMode`, {
+      type: "state",
+      common: {
+        name: {
+          de: "Einstellung des Bypass Modus",
+          en: "Setting of bypass mode"
+        },
+        type: "string",
+        desc: "passMode",
+        role: "value",
+        read: true,
+        write: false
+      },
+      native: {}
+    }));
+    await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.pass`, {
+      type: "state",
+      common: {
+        name: { de: "Bypass an/aus", en: "Bypass on/off" },
+        type: "boolean",
+        desc: "pass",
+        role: "value",
+        read: true,
+        write: false
+      },
+      native: {}
+    }));
+    await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.autoRecover`, {
+      type: "state",
+      common: {
+        name: {
+          de: "Am n\xE4chsten Tag Bypass auf Automatik",
+          en: "Automatic recovery of bypass"
+        },
+        type: "boolean",
+        desc: "autoRecover",
+        role: "value",
+        read: true,
+        write: false
+      },
+      native: {}
+    }));
+    await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.outputHomePower`, {
+      type: "state",
+      common: {
+        name: { de: "Ausgangsleistung", en: "output power" },
+        type: "number",
+        desc: "outputHomePower",
+        role: "value.power",
+        read: true,
+        write: false,
+        unit: "W"
+      },
+      native: {}
+    }));
+    await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.outputLimit`, {
+      type: "state",
+      common: {
+        name: { de: "Limit der Ausgangsleistung", en: "limit of output power" },
+        type: "number",
+        desc: "outputLimit",
+        role: "value.power",
+        read: true,
+        write: false,
+        unit: "W"
+      },
+      native: {}
+    }));
+  }
+  if (type == "ace" || type == "hyper") {
+    await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.inputLimit`, {
+      type: "state",
+      common: {
+        name: { de: "Limit der Eingangsleistung", en: "limit of input power" },
+        type: "number",
+        desc: "inputLimit",
+        role: "value.power",
+        read: true,
+        write: false,
+        unit: "W"
+      },
+      native: {}
+    }));
+    await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.gridInputPower`, {
+      type: "state",
+      common: {
+        name: {
+          de: "Aktuelle AC Eingangsleistung",
+          en: "current ac input power"
+        },
+        type: "number",
+        desc: "gridInputPower",
+        role: "value.power",
+        read: true,
+        write: false,
+        unit: "W"
+      },
+      native: {}
+    }));
+    await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.acOutputPower`, {
+      type: "state",
+      common: {
+        name: {
+          de: "Aktuelle AC Ausgangsleistung",
+          en: "Current AC output power"
+        },
+        type: "number",
+        desc: "acOutputPower",
+        role: "value.power",
+        read: true,
+        write: false,
+        unit: "W"
+      },
+      native: {}
+    }));
+    await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.acSwitch`, {
+      type: "state",
+      common: {
+        name: {
+          de: "AC Schalter",
+          en: "AC switch"
+        },
+        type: "boolean",
+        desc: "acSwitch",
+        role: "value",
+        read: true,
+        write: false
+      },
+      native: {}
+    }));
+  }
+  if (!adapter.config.useFallbackService) {
+    await (0, import_createControlStates.createControlStates)(adapter, productKey, deviceKey, type);
+  }
+  if (adapter.config.useCalculation && (type == "solarflow" || type == "hyper")) {
     await (0, import_createCalculationStates.createCalculationStates)(adapter, productKey, deviceKey);
   } else {
   }

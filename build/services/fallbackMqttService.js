@@ -44,7 +44,7 @@ const addOrUpdatePackData = async (productKey, deviceKey, packData) => {
     await packData.forEach(async (x) => {
       if (x.sn && adapter) {
         const key = (productKey + "." + deviceKey + ".packData." + x.sn).replace(adapter.FORBIDDEN_CHARS, "");
-        await (adapter == null ? void 0 : adapter.extendObjectAsync(key + ".sn", {
+        await (adapter == null ? void 0 : adapter.extendObject(key + ".sn", {
           type: "state",
           common: {
             name: {
@@ -61,7 +61,7 @@ const addOrUpdatePackData = async (productKey, deviceKey, packData) => {
         }));
         await (adapter == null ? void 0 : adapter.setStateAsync(key + ".sn", x.sn, true));
         if (x.socLevel) {
-          await (adapter == null ? void 0 : adapter.extendObjectAsync(key + ".socLevel", {
+          await (adapter == null ? void 0 : adapter.extendObject(key + ".socLevel", {
             type: "state",
             common: {
               name: {
@@ -79,7 +79,7 @@ const addOrUpdatePackData = async (productKey, deviceKey, packData) => {
           await (adapter == null ? void 0 : adapter.setStateAsync(key + ".socLevel", x.socLevel, true));
         }
         if (x.maxTemp) {
-          await (adapter == null ? void 0 : adapter.extendObjectAsync(key + ".maxTemp", {
+          await (adapter == null ? void 0 : adapter.extendObject(key + ".maxTemp", {
             type: "state",
             common: {
               name: {
@@ -101,7 +101,7 @@ const addOrUpdatePackData = async (productKey, deviceKey, packData) => {
           ));
         }
         if (x.minVol) {
-          await (adapter == null ? void 0 : adapter.extendObjectAsync(key + ".minVol", {
+          await (adapter == null ? void 0 : adapter.extendObject(key + ".minVol", {
             type: "state",
             common: {
               name: "minVol",
@@ -116,7 +116,7 @@ const addOrUpdatePackData = async (productKey, deviceKey, packData) => {
           await (adapter == null ? void 0 : adapter.setStateAsync(key + ".minVol", x.minVol / 100, true));
         }
         if (x.maxVol) {
-          await (adapter == null ? void 0 : adapter.extendObjectAsync(key + ".maxVol", {
+          await (adapter == null ? void 0 : adapter.extendObject(key + ".maxVol", {
             type: "state",
             common: {
               name: "maxVol",
@@ -131,7 +131,7 @@ const addOrUpdatePackData = async (productKey, deviceKey, packData) => {
           await (adapter == null ? void 0 : adapter.setStateAsync(key + ".maxVol", x.maxVol / 100, true));
         }
         if (x.totalVol) {
-          await (adapter == null ? void 0 : adapter.extendObjectAsync(key + ".totalVol", {
+          await (adapter == null ? void 0 : adapter.extendObject(key + ".totalVol", {
             type: "state",
             common: {
               name: "totalVol",
@@ -172,12 +172,13 @@ const onMessage = async (topic, message) => {
     if (!adapter.deviceList.some(
       (x) => x.deviceKey == deviceKey && x.productKey == productKey
     )) {
-      adapter.deviceList.push({
+      const device = {
         productName: "Solarflow",
         deviceKey,
         productKey
-      });
-      await (0, import_createSolarFlowStates.createSolarFlowStates)(adapter, productKey, deviceKey);
+      };
+      adapter.deviceList.push(device);
+      await (0, import_createSolarFlowStates.createSolarFlowStates)(adapter, device, "solarflow");
       await (0, import_adapterService.updateSolarFlowState)(
         adapter,
         productKey,

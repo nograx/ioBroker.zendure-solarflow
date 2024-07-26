@@ -10,7 +10,12 @@ import {
 import { IPackData } from "../models/IPackData";
 import { setEnergyWhMax, setSocToZero } from "./calculationService";
 import { IMqttData } from "../models/ISolarFlowMqttProperties";
-import { startCalculationJob, startCheckStatesAndConnectionJob, startRefreshAccessTokenTimerJob, startResetValuesJob } from "./jobSchedule";
+import {
+  startCalculationJob,
+  startCheckStatesAndConnectionJob,
+  startRefreshAccessTokenTimerJob,
+  startResetValuesJob,
+} from "./jobSchedule";
 
 let adapter: ZendureSolarflow | undefined = undefined;
 
@@ -18,6 +23,7 @@ export const addOrUpdatePackData = async (
   productKey: string,
   deviceKey: string,
   packData: IPackData[],
+  isSolarFlow: boolean
 ): Promise<void> => {
   if (adapter && productKey && deviceKey) {
     await packData.forEach(async (x) => {
@@ -32,7 +38,7 @@ export const addOrUpdatePackData = async (
           x.sn
         ).replace(adapter.FORBIDDEN_CHARS, "");
 
-        await adapter?.extendObjectAsync(key + ".sn", {
+        await adapter?.extendObject(key + ".sn", {
           type: "state",
           common: {
             name: {
@@ -52,7 +58,7 @@ export const addOrUpdatePackData = async (
 
         if (x.socLevel) {
           // State für socLevel
-          await adapter?.extendObjectAsync(key + ".socLevel", {
+          await adapter?.extendObject(key + ".socLevel", {
             type: "state",
             common: {
               name: {
@@ -73,7 +79,7 @@ export const addOrUpdatePackData = async (
 
         if (x.maxTemp) {
           // State für maxTemp
-          await adapter?.extendObjectAsync(key + ".maxTemp", {
+          await adapter?.extendObject(key + ".maxTemp", {
             type: "state",
             common: {
               name: {
@@ -93,12 +99,12 @@ export const addOrUpdatePackData = async (
           await adapter?.setStateAsync(
             key + ".maxTemp",
             x.maxTemp / 10 - 273.15,
-            true,
+            true
           );
         }
 
         if (x.minVol) {
-          await adapter?.extendObjectAsync(key + ".minVol", {
+          await adapter?.extendObject(key + ".minVol", {
             type: "state",
             common: {
               name: "minVol",
@@ -115,7 +121,7 @@ export const addOrUpdatePackData = async (
         }
 
         if (x.maxVol) {
-          await adapter?.extendObjectAsync(key + ".maxVol", {
+          await adapter?.extendObject(key + ".maxVol", {
             type: "state",
             common: {
               name: "maxVol",
@@ -128,11 +134,11 @@ export const addOrUpdatePackData = async (
             native: {},
           });
 
-          await adapter?.setStateAsync(key + ".maxVol", x.maxVol / 100, true);
+          await adapter?.setState(key + ".maxVol", x.maxVol / 100, true);
         }
 
         if (x.totalVol) {
-          await adapter?.extendObjectAsync(key + ".totalVol", {
+          await adapter?.extendObject(key + ".totalVol", {
             type: "state",
             common: {
               name: "totalVol",
@@ -147,10 +153,12 @@ export const addOrUpdatePackData = async (
 
           const totalVol = x.totalVol / 100;
 
-          await adapter?.setStateAsync(key + ".totalVol", totalVol, true);
+          await adapter?.setState(key + ".totalVol", totalVol, true);
 
-          // Send Voltage to checkVoltage Method
-          checkVoltage(adapter, productKey, deviceKey, totalVol);
+          // Send Voltage to checkVoltage Method (only if is Solarflow device)
+          if (isSolarFlow) {
+            checkVoltage(adapter, productKey, deviceKey, totalVol);
+          }
         }
       }
     });
@@ -158,7 +166,6 @@ export const addOrUpdatePackData = async (
 };
 
 const onMessage = async (topic: string, message: Buffer): Promise<void> => {
-  //console.log(message.toString())
   if (adapter) {
     const topicSplitted = topic.split("/");
     const productKey = topicSplitted[1];
@@ -172,13 +179,26 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
       adapter.log.error(`[JSON PARSE ERROR] ${txt}`);
     }
 
+    let isSolarFlow = false;
+    const productName = await adapter.getStateAsync(
+      `${productKey}.${deviceKey}.productName`
+    );
+
+    // Check if device is an solarflow or hyper device. Don't use LowVoltageBlock on an ACE device?
+    if (
+      productName?.val?.toString().toLowerCase().includes("solarflow") ||
+      productName?.val?.toString().toLowerCase().includes("hyper")
+    ) {
+      isSolarFlow = true;
+    }
+
     // set lastUpdate for deviceKey
     updateSolarFlowState(
       adapter,
       productKey,
       deviceKey,
       "lastUpdate",
-      new Date().getTime(),
+      new Date().getTime()
     );
 
     if (
@@ -190,25 +210,27 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "electricLevel",
-        obj.properties.electricLevel,
+        obj.properties.electricLevel
       );
 
       if (
         adapter?.config.useCalculation &&
-        obj.properties.electricLevel == 100
+        obj.properties.electricLevel == 100 &&
+        isSolarFlow
       ) {
         setEnergyWhMax(adapter, productKey, deviceKey);
       }
 
       // if minSoc is reached, set the calculated soc to 0
       const minSoc = await adapter?.getStateAsync(
-        `${productKey}.${deviceKey}.minSoc`,
+        `${productKey}.${deviceKey}.minSoc`
       );
       if (
         adapter?.config.useCalculation &&
         minSoc &&
         minSoc.val &&
-        obj.properties.electricLevel <= Number(minSoc.val)
+        obj.properties.electricLevel <= Number(minSoc.val) &&
+        isSolarFlow
       ) {
         setSocToZero(adapter, productKey, deviceKey);
       }
@@ -222,10 +244,10 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         obj.properties?.packState == 0
           ? "Idle"
           : obj.properties?.packState == 1
-          ? "Charging"
-          : obj.properties?.packState == 2
-          ? "Discharging"
-          : "Unknown";
+            ? "Charging"
+            : obj.properties?.packState == 2
+              ? "Discharging"
+              : "Unknown";
       updateSolarFlowState(adapter, productKey, deviceKey, "packState", value);
     }
 
@@ -237,10 +259,10 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         obj.properties?.passMode == 0
           ? "Automatic"
           : obj.properties?.passMode == 1
-          ? "Always off"
-          : obj.properties?.passMode == 2
-          ? "Always on"
-          : "Unknown";
+            ? "Always off"
+            : obj.properties?.passMode == 2
+              ? "Always on"
+              : "Unknown";
       updateSolarFlowState(adapter, productKey, deviceKey, "passMode", value);
 
       updateSolarFlowControlState(
@@ -248,7 +270,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "passMode",
-        obj.properties?.passMode,
+        obj.properties?.passMode
       );
     }
 
@@ -269,7 +291,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "autoRecover",
-        value,
+        value
       );
 
       updateSolarFlowControlState(
@@ -277,7 +299,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "autoRecover",
-        value,
+        value
       );
     }
 
@@ -290,7 +312,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "outputHomePower",
-        obj.properties.outputHomePower,
+        obj.properties.outputHomePower
       );
     }
 
@@ -303,7 +325,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "outputLimit",
-        obj.properties.outputLimit,
+        obj.properties.outputLimit
       );
 
       updateSolarFlowControlState(
@@ -311,7 +333,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "setOutputLimit",
-        obj.properties.outputLimit,
+        obj.properties.outputLimit
       );
     }
 
@@ -326,7 +348,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "buzzerSwitch",
-        value,
+        value
       );
 
       updateSolarFlowControlState(
@@ -334,7 +356,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "buzzerSwitch",
-        value,
+        value
       );
     }
 
@@ -347,7 +369,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "outputPackPower",
-        obj.properties.outputPackPower,
+        obj.properties.outputPackPower
       );
 
       // if outPutPackPower set packInputPower to 0
@@ -362,7 +384,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
 
       // Aktuelle Solar-Power abfragen, wenn 0 Standby-Verbrauch dazu rechnen
       const solarInputPower = await adapter?.getStateAsync(
-        `${productKey}.${deviceKey}.solarInputPower`,
+        `${productKey}.${deviceKey}.solarInputPower`
       );
 
       if (solarInputPower && Number(solarInputPower.val) < 10) {
@@ -374,7 +396,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "packInputPower",
-        obj.properties.packInputPower + standbyUsage,
+        obj.properties.packInputPower + standbyUsage
       );
 
       // if packInputPower set outputPackPower to 0
@@ -383,7 +405,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "outputPackPower",
-        0,
+        0
       );
     }
 
@@ -396,7 +418,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "solarInputPower",
-        obj.properties.solarInputPower,
+        obj.properties.solarInputPower
       );
     }
 
@@ -409,7 +431,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "pvPower2", // Reversed to adjust like offical app
-        obj.properties.pvPower1,
+        obj.properties.pvPower1
       );
     }
 
@@ -422,7 +444,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "pvPower1", // Reversed to adjust like offical app
-        obj.properties.pvPower2,
+        obj.properties.pvPower2
       );
     }
 
@@ -435,7 +457,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "pvPower1",
-        obj.properties.solarPower1,
+        obj.properties.solarPower1
       );
     }
 
@@ -448,7 +470,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "pvPower2",
-        obj.properties.solarPower2,
+        obj.properties.solarPower2
       );
     }
 
@@ -461,7 +483,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "remainOutTime",
-        obj.properties.remainOutTime,
+        obj.properties.remainOutTime
       );
     }
 
@@ -474,7 +496,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "remainInputTime",
-        obj.properties.remainInputTime,
+        obj.properties.remainInputTime
       );
     }
 
@@ -484,7 +506,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "socSet",
-        Number(obj.properties.socSet) / 10,
+        Number(obj.properties.socSet) / 10
       );
 
       updateSolarFlowControlState(
@@ -492,7 +514,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "chargeLimit",
-        Number(obj.properties.socSet) / 10,
+        Number(obj.properties.socSet) / 10
       );
     }
 
@@ -502,7 +524,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "minSoc",
-        Number(obj.properties.minSoc) / 10,
+        Number(obj.properties.minSoc) / 10
       );
 
       updateSolarFlowControlState(
@@ -510,7 +532,77 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "dischargeLimit",
-        Number(obj.properties.minSoc) / 10,
+        Number(obj.properties.minSoc) / 10
+      );
+    }
+
+    if (
+      obj.properties?.inputLimit != null &&
+      obj.properties?.inputLimit != undefined
+    ) {
+      updateSolarFlowState(
+        adapter,
+        productKey,
+        deviceKey,
+        "inputLimit",
+        obj.properties.inputLimit
+      );
+    }
+
+    if (
+      obj.properties?.gridInputPower != null &&
+      obj.properties?.gridInputPower != undefined
+    ) {
+      updateSolarFlowState(
+        adapter,
+        productKey,
+        deviceKey,
+        "gridInputPower",
+        obj.properties.gridInputPower
+      );
+    }
+
+    if (
+      obj.properties?.acOutputPower != null &&
+      obj.properties?.acOutputPower != undefined
+    ) {
+      updateSolarFlowState(
+        adapter,
+        productKey,
+        deviceKey,
+        "acOutputPower",
+        obj.properties.acOutputPower
+      );
+    }
+
+    if (
+      obj.properties?.acSwitch != null &&
+      obj.properties?.acSwitch != undefined
+    ) {
+      const value = obj.properties?.acSwitch == 0 ? false : true;
+
+      updateSolarFlowState(adapter, productKey, deviceKey, "acSwitch", value);
+    }
+
+    if (
+      obj.properties?.dcSwitch != null &&
+      obj.properties?.dcSwitch != undefined
+    ) {
+      const value = obj.properties?.dcSwitch == 0 ? false : true;
+
+      updateSolarFlowState(adapter, productKey, deviceKey, "dcSwitch", value);
+    }
+
+    if (
+      obj.properties?.dcOutputPower != null &&
+      obj.properties?.dcOutputPower != undefined
+    ) {
+      updateSolarFlowState(
+        adapter,
+        productKey,
+        deviceKey,
+        "dcOutputPower",
+        obj.properties.dcOutputPower
       );
     }
 
@@ -522,18 +614,18 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         obj.properties?.pvBrand == 0
           ? "Others"
           : obj.properties?.pvBrand == 1
-          ? "Hoymiles"
-          : obj.properties?.pvBrand == 2
-          ? "Enphase"
-          : obj.properties?.pvBrand == 3
-          ? "APSystems"
-          : obj.properties?.pvBrand == 4
-          ? "Anker"
-          : obj.properties?.pvBrand == 5
-          ? "Deye"
-          : obj.properties?.pvBrand == 6
-          ? "Bosswerk"
-          : "Unknown";
+            ? "Hoymiles"
+            : obj.properties?.pvBrand == 2
+              ? "Enphase"
+              : obj.properties?.pvBrand == 3
+                ? "APSystems"
+                : obj.properties?.pvBrand == 4
+                  ? "Anker"
+                  : obj.properties?.pvBrand == 5
+                    ? "Deye"
+                    : obj.properties?.pvBrand == 6
+                      ? "Bosswerk"
+                      : "Unknown";
       updateSolarFlowState(adapter, productKey, deviceKey, "pvBrand", value);
     }
 
@@ -546,7 +638,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "inverseMaxPower",
-        obj.properties.inverseMaxPower,
+        obj.properties.inverseMaxPower
       );
     }
 
@@ -559,7 +651,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "wifiState",
-        obj.properties.wifiState == 1 ? "Connected" : "Disconnected",
+        obj.properties.wifiState == 1 ? "Connected" : "Disconnected"
       );
     }
 
@@ -574,13 +666,23 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         "hubState",
         obj.properties.hubState == 0
           ? "Stop output and standby"
-          : "Stop output and shut down",
+          : "Stop output and shut down"
       );
     }
 
     if (obj.packData) {
-      addOrUpdatePackData(productKey, deviceKey, obj.packData);
+      addOrUpdatePackData(productKey, deviceKey, obj.packData, isSolarFlow);
     }
+
+    /* if (obj.properties) {
+      Object.entries(obj.properties).forEach(([key, value]) => {
+        if (knownMqttProps.includes(key)) {
+          //console.log(`${key} with value ${value} is a known Mqtt Prop!`);
+        } else {
+          console.log(`${key} with value ${value} is a UNKNOWN Mqtt Prop!`);
+        }
+      });
+    } */
   }
 };
 
@@ -588,7 +690,7 @@ export const setChargeLimit = async (
   adapter: ZendureSolarflow,
   productKey: string,
   deviceKey: string,
-  socSet: number,
+  socSet: number
 ): Promise<void> => {
   if (adapter.mqttClient && productKey && deviceKey) {
     if (socSet > 40 && socSet <= 100) {
@@ -596,12 +698,12 @@ export const setChargeLimit = async (
 
       const socSetLimit = { properties: { socSet: socSet * 10 } };
       adapter.log.debug(
-        `[setChargeLimit] Setting ChargeLimit for device key ${deviceKey} to ${socSet}!`,
+        `[setChargeLimit] Setting ChargeLimit for device key ${deviceKey} to ${socSet}!`
       );
       adapter.mqttClient?.publish(topic, JSON.stringify(socSetLimit));
     } else {
       adapter.log.debug(
-        `[setChargeLimit] Charge limit is not in range 40<>100!`,
+        `[setChargeLimit] Charge limit is not in range 40<>100!`
       );
     }
   }
@@ -611,7 +713,7 @@ export const setDischargeLimit = async (
   adapter: ZendureSolarflow,
   productKey: string,
   deviceKey: string,
-  minSoc: number,
+  minSoc: number
 ): Promise<void> => {
   if (adapter.mqttClient && productKey && deviceKey) {
     if (minSoc > 0 && minSoc < 90) {
@@ -619,12 +721,12 @@ export const setDischargeLimit = async (
 
       const socSetLimit = { properties: { minSoc: minSoc * 10 } };
       adapter.log.debug(
-        `[setDischargeLimit] Setting Discharge Limit for device key ${deviceKey} to ${minSoc}!`,
+        `[setDischargeLimit] Setting Discharge Limit for device key ${deviceKey} to ${minSoc}!`
       );
       adapter.mqttClient?.publish(topic, JSON.stringify(socSetLimit));
     } else {
       adapter.log.debug(
-        `[setDischargeLimit] Discharge limit is not in range 0<>90!`,
+        `[setDischargeLimit] Discharge limit is not in range 0<>90!`
       );
     }
   }
@@ -634,12 +736,12 @@ export const setOutputLimit = async (
   adapter: ZendureSolarflow,
   productKey: string,
   deviceKey: string,
-  limit: number,
+  limit: number
 ): Promise<void> => {
   if (adapter.mqttClient && productKey && deviceKey) {
     if (adapter.config.useLowVoltageBlock) {
       const lowVoltageBlockState = await adapter.getStateAsync(
-        productKey + "." + deviceKey + ".control.lowVoltageBlock",
+        productKey + "." + deviceKey + ".control.lowVoltageBlock"
       );
       if (
         lowVoltageBlockState &&
@@ -675,18 +777,40 @@ export const setOutputLimit = async (
           }
         }
 
-        // 'iot/{auth.productKey}/{auth.deviceKey}/properties/write' == Topic? Oder productKey,deviceKey aus Device Details?
         const topic = `iot/${productKey}/${deviceKey}/properties/write`;
 
         const outputlimit = { properties: { outputLimit: limit } };
-        /* adapter.log.debug(
-          `[setOutputLimit] Setting Output Limit for device key ${deviceKey} to ${limit}!`,
-        ); */
         adapter.mqttClient?.publish(topic, JSON.stringify(outputlimit));
-      } else {
-        /* adapter.log.debug(
-          `[setOutputLimit] Output Limit for device key ${deviceKey} is already at ${limit}!`,
-        ); */
+      }
+    }
+  }
+};
+
+export const setInputLimit = async (
+  adapter: ZendureSolarflow,
+  productKey: string,
+  deviceKey: string,
+  limit: number
+): Promise<void> => {
+  if (adapter.mqttClient && productKey && deviceKey) {
+    const currentLimit = (
+      await adapter.getStateAsync(productKey + "." + deviceKey + ".inputLimit")
+    )?.val;
+
+    // Das Limit kann nur in 100er Schritten gesetzt werden
+    limit = Math.ceil(limit / 100) * 100;
+    if (limit < 0) {
+      limit = 0;
+    } else if (limit > 900) {
+      limit = 900;
+    }
+
+    if (currentLimit != null && currentLimit != undefined) {
+      if (currentLimit != limit) {
+        const topic = `iot/${productKey}/${deviceKey}/properties/write`;
+
+        const inputLimitContent = { properties: { inputLimit: limit } };
+        adapter.mqttClient?.publish(topic, JSON.stringify(inputLimitContent));
       }
     }
   }
@@ -696,14 +820,14 @@ export const setBuzzerSwitch = async (
   adapter: ZendureSolarflow,
   productKey: string,
   deviceKey: string,
-  buzzerOn: boolean,
+  buzzerOn: boolean
 ): Promise<void> => {
   if (adapter.mqttClient && productKey && deviceKey) {
     const topic = `iot/${productKey}/${deviceKey}/properties/write`;
 
     const socSetLimit = { properties: { buzzerSwitch: buzzerOn ? 1 : 0 } };
     adapter.log.debug(
-      `[setBuzzer] Setting Buzzer for device key ${deviceKey} to ${buzzerOn}!`,
+      `[setBuzzer] Setting Buzzer for device key ${deviceKey} to ${buzzerOn}!`
     );
     adapter.mqttClient?.publish(topic, JSON.stringify(socSetLimit));
   }
@@ -712,14 +836,14 @@ export const setBuzzerSwitch = async (
 export const triggerFullTelemetryUpdate = async (
   adapter: ZendureSolarflow,
   productKey: string,
-  deviceKey: string,
+  deviceKey: string
 ): Promise<void> => {
   if (adapter.mqttClient && productKey && deviceKey) {
     const topic = `iot/${productKey}/${deviceKey}/properties/read`;
 
     const getAllContent = { properties: ["getAll"] };
     adapter.log.debug(
-      `[triggerFullTelemetryUpdate] Triggering full telemetry update for device key ${deviceKey}!`,
+      `[triggerFullTelemetryUpdate] Triggering full telemetry update for device key ${deviceKey}!`
     );
     adapter.mqttClient?.publish(topic, JSON.stringify(getAllContent));
   }
@@ -729,14 +853,14 @@ export const setPassMode = async (
   adapter: ZendureSolarflow,
   productKey: string,
   deviceKey: string,
-  passMode: number,
+  passMode: number
 ): Promise<void> => {
   if (adapter.mqttClient && productKey && deviceKey) {
     const topic = `iot/${productKey}/${deviceKey}/properties/write`;
 
     const setPassModeContent = { properties: { passMode: passMode } };
     adapter.log.debug(
-      `[setPassMode] Set passMode for device ${deviceKey} to ${passMode}!`,
+      `[setPassMode] Set passMode for device ${deviceKey} to ${passMode}!`
     );
     adapter.mqttClient?.publish(topic, JSON.stringify(setPassModeContent));
   }
@@ -746,7 +870,7 @@ export const setAutoRecover = async (
   adapter: ZendureSolarflow,
   productKey: string,
   deviceKey: string,
-  autoRecover: boolean,
+  autoRecover: boolean
 ): Promise<void> => {
   if (adapter.mqttClient && productKey && deviceKey) {
     const topic = `iot/${productKey}/${deviceKey}/properties/write`;
@@ -755,9 +879,47 @@ export const setAutoRecover = async (
       properties: { autoRecover: autoRecover ? 1 : 0 },
     };
     adapter.log.debug(
-      `[setPassMode] Set autoRecover for device ${deviceKey} to ${autoRecover}!`,
+      `[setPassMode] Set autoRecover for device ${deviceKey} to ${autoRecover}!`
     );
     adapter.mqttClient?.publish(topic, JSON.stringify(setAutoRecoverContent));
+  }
+};
+
+export const setDcSwitch = async (
+  adapter: ZendureSolarflow,
+  productKey: string,
+  deviceKey: string,
+  dcSwitch: boolean
+): Promise<void> => {
+  if (adapter.mqttClient && productKey && deviceKey) {
+    const topic = `iot/${productKey}/${deviceKey}/properties/write`;
+
+    const setDcSwitchContent = {
+      properties: { dcSwitch: dcSwitch ? 1 : 0 },
+    };
+    adapter.log.debug(
+      `[setPassMode] Set DC Switch for device ${deviceKey} to ${dcSwitch}!`
+    );
+    adapter.mqttClient?.publish(topic, JSON.stringify(setDcSwitchContent));
+  }
+};
+
+export const setAcSwitch = async (
+  adapter: ZendureSolarflow,
+  productKey: string,
+  deviceKey: string,
+  dcSwitch: boolean
+): Promise<void> => {
+  if (adapter.mqttClient && productKey && deviceKey) {
+    const topic = `iot/${productKey}/${deviceKey}/properties/write`;
+
+    const setDcSwitchContent = {
+      properties: { dcSwitch: dcSwitch ? 1 : 0 },
+    };
+    adapter.log.debug(
+      `[setPassMode] Set AC Switch for device ${deviceKey} to ${dcSwitch}!`
+    );
+    adapter.mqttClient?.publish(topic, JSON.stringify(setDcSwitchContent));
   }
 };
 
@@ -780,7 +942,7 @@ const onSubscribeReportTopic: any = (error: Error | null) => {
 const onSubscribeIotTopic: any = (
   error: Error | null,
   productKey: string,
-  deviceKey: string,
+  deviceKey: string
 ) => {
   if (error) {
     adapter?.log.error("Subscription to MQTT failed! Error: " + error);
@@ -808,11 +970,11 @@ export const connectMqttClient = (_adapter: ZendureSolarflow): void => {
     adapter.log.debug(
       `[connectMqttClient] Connecting to MQTT broker ${
         adapter.paths.mqttUrl + ":" + adapter.paths.mqttPort
-      }...`,
+      }...`
     );
     adapter.mqttClient = mqtt.connect(
       "mqtt://" + adapter.paths.mqttUrl + ":" + adapter.paths.mqttPort,
-      options,
+      options
     ); // create a client
 
     if (adapter && adapter.mqttClient) {
@@ -829,25 +991,25 @@ export const connectMqttClient = (_adapter: ZendureSolarflow): void => {
             setTimeout(() => {
               if (adapter) {
                 adapter.log.debug(
-                  `[connectMqttClient] Subscribing to MQTT Topic: ${reportTopic}`,
+                  `[connectMqttClient] Subscribing to MQTT Topic: ${reportTopic}`
                 );
                 adapter.mqttClient?.subscribe(
                   reportTopic,
-                  onSubscribeReportTopic,
+                  onSubscribeReportTopic
                 );
               }
             }, 1000 * index);
 
             setTimeout(() => {
               adapter?.log.debug(
-                `[connectMqttClient] Subscribing to MQTT Topic: ${iotTopic}`,
+                `[connectMqttClient] Subscribing to MQTT Topic: ${iotTopic}`
               );
               adapter?.mqttClient?.subscribe(iotTopic, (error) => {
                 onSubscribeIotTopic(error, device.productKey, device.deviceKey);
               });
             }, 1500 * index);
           }
-        },
+        }
       );
 
       adapter.mqttClient.on("message", onMessage);

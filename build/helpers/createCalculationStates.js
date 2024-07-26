@@ -22,7 +22,7 @@ __export(createCalculationStates_exports, {
 });
 module.exports = __toCommonJS(createCalculationStates_exports);
 const createCalculationStates = async (adapter, productKey, deviceKey) => {
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(
+  await (adapter == null ? void 0 : adapter.extendObject(
     `${productKey}.${deviceKey}.calculations.solarInputEnergyTodayWh`,
     {
       type: "state",
@@ -41,7 +41,7 @@ const createCalculationStates = async (adapter, productKey, deviceKey) => {
       native: {}
     }
   ));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(
+  await (adapter == null ? void 0 : adapter.extendObject(
     `${productKey}.${deviceKey}.calculations.solarInputEnergyTodaykWh`,
     {
       type: "state",
@@ -60,7 +60,7 @@ const createCalculationStates = async (adapter, productKey, deviceKey) => {
       native: {}
     }
   ));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(
+  await (adapter == null ? void 0 : adapter.extendObject(
     `${productKey}.${deviceKey}.calculations.solarInputPv1EnergyTodayWh`,
     {
       type: "state",
@@ -79,7 +79,7 @@ const createCalculationStates = async (adapter, productKey, deviceKey) => {
       native: {}
     }
   ));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(
+  await (adapter == null ? void 0 : adapter.extendObject(
     `${productKey}.${deviceKey}.calculations.solarInputPv1EnergyTodaykWh`,
     {
       type: "state",
@@ -98,7 +98,7 @@ const createCalculationStates = async (adapter, productKey, deviceKey) => {
       native: {}
     }
   ));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(
+  await (adapter == null ? void 0 : adapter.extendObject(
     `${productKey}.${deviceKey}.calculations.solarInputPv2EnergyTodayWh`,
     {
       type: "state",
@@ -117,7 +117,7 @@ const createCalculationStates = async (adapter, productKey, deviceKey) => {
       native: {}
     }
   ));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(
+  await (adapter == null ? void 0 : adapter.extendObject(
     `${productKey}.${deviceKey}.calculations.solarInputPv2EnergyTodaykWh`,
     {
       type: "state",
@@ -136,7 +136,7 @@ const createCalculationStates = async (adapter, productKey, deviceKey) => {
       native: {}
     }
   ));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(
+  await (adapter == null ? void 0 : adapter.extendObject(
     `${productKey}.${deviceKey}.calculations.outputPackEnergyTodayWh`,
     {
       type: "state",
@@ -155,7 +155,7 @@ const createCalculationStates = async (adapter, productKey, deviceKey) => {
       native: {}
     }
   ));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(
+  await (adapter == null ? void 0 : adapter.extendObject(
     `${productKey}.${deviceKey}.calculations.outputPackEnergyTodaykWh`,
     {
       type: "state",
@@ -174,7 +174,7 @@ const createCalculationStates = async (adapter, productKey, deviceKey) => {
       native: {}
     }
   ));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(
+  await (adapter == null ? void 0 : adapter.extendObject(
     `${productKey}.${deviceKey}.calculations.packInputEnergyTodayWh`,
     {
       type: "state",
@@ -193,7 +193,7 @@ const createCalculationStates = async (adapter, productKey, deviceKey) => {
       native: {}
     }
   ));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(
+  await (adapter == null ? void 0 : adapter.extendObject(
     `${productKey}.${deviceKey}.calculations.packInputEnergyTodaykWh`,
     {
       type: "state",
@@ -212,7 +212,7 @@ const createCalculationStates = async (adapter, productKey, deviceKey) => {
       native: {}
     }
   ));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(
+  await (adapter == null ? void 0 : adapter.extendObject(
     `${productKey}.${deviceKey}.calculations.outputHomeEnergyTodayWh`,
     {
       type: "state",
@@ -231,7 +231,7 @@ const createCalculationStates = async (adapter, productKey, deviceKey) => {
       native: {}
     }
   ));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(
+  await (adapter == null ? void 0 : adapter.extendObject(
     `${productKey}.${deviceKey}.calculations.outputHomeEnergyTodaykWh`,
     {
       type: "state",
@@ -250,7 +250,7 @@ const createCalculationStates = async (adapter, productKey, deviceKey) => {
       native: {}
     }
   ));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(
+  await (adapter == null ? void 0 : adapter.extendObject(
     `${productKey}.${deviceKey}.calculations.remainInputTime`,
     {
       type: "state",
@@ -268,7 +268,7 @@ const createCalculationStates = async (adapter, productKey, deviceKey) => {
       native: {}
     }
   ));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(
+  await (adapter == null ? void 0 : adapter.extendObject(
     `${productKey}.${deviceKey}.calculations.remainOutTime`,
     {
       type: "state",
@@ -286,26 +286,23 @@ const createCalculationStates = async (adapter, productKey, deviceKey) => {
       native: {}
     }
   ));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(
-    `${productKey}.${deviceKey}.calculations.soc`,
-    {
-      type: "state",
-      common: {
-        name: {
-          de: "Ladezustand in %",
-          en: "State of Charge %"
-        },
-        type: "number",
-        desc: "soc",
-        role: "value",
-        read: true,
-        write: false,
-        unit: "%"
+  await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.calculations.soc`, {
+    type: "state",
+    common: {
+      name: {
+        de: "Ladezustand in %",
+        en: "State of Charge %"
       },
-      native: {}
-    }
-  ));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(
+      type: "number",
+      desc: "soc",
+      role: "value",
+      read: true,
+      write: false,
+      unit: "%"
+    },
+    native: {}
+  }));
+  await (adapter == null ? void 0 : adapter.extendObject(
     `${productKey}.${deviceKey}.calculations.energyWh`,
     {
       type: "state",
@@ -324,7 +321,7 @@ const createCalculationStates = async (adapter, productKey, deviceKey) => {
       native: {}
     }
   ));
-  await (adapter == null ? void 0 : adapter.extendObjectAsync(
+  await (adapter == null ? void 0 : adapter.extendObject(
     `${productKey}.${deviceKey}.calculations.energyWhMax`,
     {
       type: "state",

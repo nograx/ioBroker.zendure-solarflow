@@ -8,10 +8,13 @@
 import * as utils from "@iobroker/adapter-core";
 import {
   connectMqttClient,
+  setAcSwitch,
   setAutoRecover,
   setBuzzerSwitch,
   setChargeLimit,
+  setDcSwitch,
   setDischargeLimit,
+  setInputLimit,
   setOutputLimit,
   setPassMode,
 } from "./services/mqttService";
@@ -60,7 +63,7 @@ export class ZendureSolarflow extends utils.Adapter {
    * Is called when databases are connected and adapter received configuration.
    */
   private async onReady(): Promise<void> {
-    await this.extendObjectAsync("info", {
+    await this.extendObject("info", {
       type: "channel",
       common: {
         name: "Information",
@@ -68,7 +71,7 @@ export class ZendureSolarflow extends utils.Adapter {
       native: {},
     });
 
-    await this.extendObjectAsync(`info.connection`, {
+    await this.extendObject(`info.connection`, {
       type: "state",
       common: {
         name: {
@@ -103,7 +106,7 @@ export class ZendureSolarflow extends utils.Adapter {
             data.appKey,
             data.secret,
             data.mqttUrl,
-            data.port,
+            data.port
           );
         }
       });
@@ -127,33 +130,44 @@ export class ZendureSolarflow extends utils.Adapter {
                 // Device List found. Save in the adapter properties and connect to MQTT
 
                 // Filtering to SolarFlow devices
-                this.deviceList = result.filter((device) =>
-                  device.productName.toLowerCase().includes("solarflow"),
+                this.deviceList = result.filter(
+                  (device) =>
+                    device.productName.toLowerCase().includes("solarflow") ||
+                    device.productName.toLocaleLowerCase() == "hyper 2000" ||
+                    device.productName.toLocaleLowerCase() == "ace 1500"
                 );
 
                 await checkDevicesServer(this);
 
                 this.log.info(
-                  `[onReady] Found ${this.deviceList.length} SolarFlow device(s).`,
+                  `[onReady] Found ${this.deviceList.length} SolarFlow device(s).`
                 );
 
                 await this.deviceList.forEach(
                   async (device: ISolarFlowDeviceDetails) => {
+                    let type = "solarflow";
+
+                    if (
+                      device.productName.toLocaleLowerCase() == "hyper 2000"
+                    ) {
+                      type = "hyper";
+                    } else if (
+                      device.productName.toLocaleLowerCase() == "ace 1500"
+                    ) {
+                      type = "ace";
+                    }
+
                     // States erstellen
-                    await createSolarFlowStates(
-                      this,
-                      device.productKey,
-                      device.deviceKey,
-                    );
+                    await createSolarFlowStates(this, device, type);
 
                     await updateSolarFlowState(
                       this,
                       device.productKey,
                       device.deviceKey,
                       "registeredServer",
-                      this.config.server,
+                      this.config.server
                     );
-                  },
+                  }
                 );
 
                 connectMqttClient(this);
@@ -168,7 +182,7 @@ export class ZendureSolarflow extends utils.Adapter {
           this.setState("info.connection", false, true);
           this.log.error(
             "[onReady] Logon error at Zendure cloud service! Error: " +
-              error.toString(),
+              error.toString()
           );
         });
     } else {
@@ -218,7 +232,7 @@ export class ZendureSolarflow extends utils.Adapter {
    */
   private onStateChange(
     id: string,
-    state: ioBroker.State | null | undefined,
+    state: ioBroker.State | null | undefined
   ): void {
     if (state) {
       // The state was changed
@@ -233,7 +247,7 @@ export class ZendureSolarflow extends utils.Adapter {
 
       if (this.config.useFallbackService && stateName1 == "control") {
         this.log.warn(
-          `[onStateChange] Using Fallback server, control of Solarflow device is not possible!`,
+          `[onStateChange] Using Fallback server, control of Solarflow device is not possible!`
         );
       }
       // !!! Only stateChanges with ack==false are allowed to be processed.
@@ -242,25 +256,41 @@ export class ZendureSolarflow extends utils.Adapter {
           case "control":
             if (stateName2 == "setOutputLimit") {
               setOutputLimit(this, productKey, deviceKey, Number(state.val));
+            } else if (stateName2 == "setInputLimit") {
+              setInputLimit(this, productKey, deviceKey, Number(state.val));
             } else if (stateName2 == "dischargeLimit") {
               setDischargeLimit(this, productKey, deviceKey, Number(state.val));
             } else if (stateName2 == "chargeLimit") {
               setChargeLimit(this, productKey, deviceKey, Number(state.val));
             } else if (stateName2 == "passMode") {
               setPassMode(this, productKey, deviceKey, Number(state.val));
+            } else if (stateName2 == "dcSwitch") {
+              setDcSwitch(
+                this,
+                productKey,
+                deviceKey,
+                state.val ? true : false
+              );
+            } else if (stateName2 == "acSwitch") {
+              setAcSwitch(
+                this,
+                productKey,
+                deviceKey,
+                state.val ? true : false
+              );
             } else if (stateName2 == "autoRecover") {
               setAutoRecover(
                 this,
                 productKey,
                 deviceKey,
-                state.val ? true : false,
+                state.val ? true : false
               );
             } else if (stateName2 == "buzzerSwitch") {
               setBuzzerSwitch(
                 this,
                 productKey,
                 deviceKey,
-                state.val ? true : false,
+                state.val ? true : false
               );
             }
             break;

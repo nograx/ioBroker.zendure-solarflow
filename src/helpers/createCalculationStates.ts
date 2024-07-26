@@ -4,12 +4,12 @@ import { ZendureSolarflow } from "../main";
 export const createCalculationStates = async (
   adapter: ZendureSolarflow,
   productKey: string,
-  deviceKey: string,
+  deviceKey: string
 ): Promise<void> => {
   /*
     Start Solar Input Energy states
     */
-  await adapter?.extendObjectAsync(
+  await adapter?.extendObject(
     `${productKey}.${deviceKey}.calculations.solarInputEnergyTodayWh`,
     {
       type: "state",
@@ -26,10 +26,10 @@ export const createCalculationStates = async (
         unit: "Wh",
       },
       native: {},
-    },
+    }
   );
 
-  await adapter?.extendObjectAsync(
+  await adapter?.extendObject(
     `${productKey}.${deviceKey}.calculations.solarInputEnergyTodaykWh`,
     {
       type: "state",
@@ -46,10 +46,10 @@ export const createCalculationStates = async (
         unit: "kWh",
       },
       native: {},
-    },
+    }
   );
 
-  await adapter?.extendObjectAsync(
+  await adapter?.extendObject(
     `${productKey}.${deviceKey}.calculations.solarInputPv1EnergyTodayWh`,
     {
       type: "state",
@@ -66,10 +66,10 @@ export const createCalculationStates = async (
         unit: "Wh",
       },
       native: {},
-    },
+    }
   );
 
-  await adapter?.extendObjectAsync(
+  await adapter?.extendObject(
     `${productKey}.${deviceKey}.calculations.solarInputPv1EnergyTodaykWh`,
     {
       type: "state",
@@ -86,10 +86,10 @@ export const createCalculationStates = async (
         unit: "kWh",
       },
       native: {},
-    },
+    }
   );
 
-  await adapter?.extendObjectAsync(
+  await adapter?.extendObject(
     `${productKey}.${deviceKey}.calculations.solarInputPv2EnergyTodayWh`,
     {
       type: "state",
@@ -106,10 +106,10 @@ export const createCalculationStates = async (
         unit: "Wh",
       },
       native: {},
-    },
+    }
   );
 
-  await adapter?.extendObjectAsync(
+  await adapter?.extendObject(
     `${productKey}.${deviceKey}.calculations.solarInputPv2EnergyTodaykWh`,
     {
       type: "state",
@@ -126,13 +126,13 @@ export const createCalculationStates = async (
         unit: "kWh",
       },
       native: {},
-    },
+    }
   );
 
   /*
     Start output pack Energy states
     */
-  await adapter?.extendObjectAsync(
+  await adapter?.extendObject(
     `${productKey}.${deviceKey}.calculations.outputPackEnergyTodayWh`,
     {
       type: "state",
@@ -149,10 +149,10 @@ export const createCalculationStates = async (
         unit: "Wh",
       },
       native: {},
-    },
+    }
   );
 
-  await adapter?.extendObjectAsync(
+  await adapter?.extendObject(
     `${productKey}.${deviceKey}.calculations.outputPackEnergyTodaykWh`,
     {
       type: "state",
@@ -169,13 +169,13 @@ export const createCalculationStates = async (
         unit: "kWh",
       },
       native: {},
-    },
+    }
   );
 
   /*
     Start Pack Input Energy states
     */
-  await adapter?.extendObjectAsync(
+  await adapter?.extendObject(
     `${productKey}.${deviceKey}.calculations.packInputEnergyTodayWh`,
     {
       type: "state",
@@ -192,10 +192,10 @@ export const createCalculationStates = async (
         unit: "Wh",
       },
       native: {},
-    },
+    }
   );
 
-  await adapter?.extendObjectAsync(
+  await adapter?.extendObject(
     `${productKey}.${deviceKey}.calculations.packInputEnergyTodaykWh`,
     {
       type: "state",
@@ -212,13 +212,13 @@ export const createCalculationStates = async (
         unit: "kWh",
       },
       native: {},
-    },
+    }
   );
 
   /*
     Start outputHome Energy states
     */
-  await adapter?.extendObjectAsync(
+  await adapter?.extendObject(
     `${productKey}.${deviceKey}.calculations.outputHomeEnergyTodayWh`,
     {
       type: "state",
@@ -235,10 +235,10 @@ export const createCalculationStates = async (
         unit: "Wh",
       },
       native: {},
-    },
+    }
   );
 
-  await adapter?.extendObjectAsync(
+  await adapter?.extendObject(
     `${productKey}.${deviceKey}.calculations.outputHomeEnergyTodaykWh`,
     {
       type: "state",
@@ -255,14 +255,14 @@ export const createCalculationStates = async (
         unit: "kWh",
       },
       native: {},
-    },
+    }
   );
   /*
     End Energy states
     */
 
   // Calculation input time
-  await adapter?.extendObjectAsync(
+  await adapter?.extendObject(
     `${productKey}.${deviceKey}.calculations.remainInputTime`,
     {
       type: "state",
@@ -278,11 +278,11 @@ export const createCalculationStates = async (
         write: false,
       },
       native: {},
-    },
+    }
   );
 
   // Calculation remainOutTime
-  await adapter?.extendObjectAsync(
+  await adapter?.extendObject(
     `${productKey}.${deviceKey}.calculations.remainOutTime`,
     {
       type: "state",
@@ -298,32 +298,29 @@ export const createCalculationStates = async (
         write: false,
       },
       native: {},
-    },
+    }
   );
 
   // Calculation SOC
-  await adapter?.extendObjectAsync(
-    `${productKey}.${deviceKey}.calculations.soc`,
-    {
-      type: "state",
-      common: {
-        name: {
-          de: "Ladezustand in %",
-          en: "State of Charge %",
-        },
-        type: "number",
-        desc: "soc",
-        role: "value",
-        read: true,
-        write: false,
-        unit: "%",
+  await adapter?.extendObject(`${productKey}.${deviceKey}.calculations.soc`, {
+    type: "state",
+    common: {
+      name: {
+        de: "Ladezustand in %",
+        en: "State of Charge %",
       },
-      native: {},
+      type: "number",
+      desc: "soc",
+      role: "value",
+      read: true,
+      write: false,
+      unit: "%",
     },
-  );
+    native: {},
+  });
 
   // Energy Wh
-  await adapter?.extendObjectAsync(
+  await adapter?.extendObject(
     `${productKey}.${deviceKey}.calculations.energyWh`,
     {
       type: "state",
@@ -340,11 +337,11 @@ export const createCalculationStates = async (
         unit: "Wh",
       },
       native: {},
-    },
+    }
   );
 
   // Max. Energy for alle batteries Wh
-  await adapter?.extendObjectAsync(
+  await adapter?.extendObject(
     `${productKey}.${deviceKey}.calculations.energyWhMax`,
     {
       type: "state",
@@ -361,6 +358,6 @@ export const createCalculationStates = async (
         unit: "Wh",
       },
       native: {},
-    },
+    }
   );
 };

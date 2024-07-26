@@ -46,6 +46,12 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Add support for Hyper 2000 and ACE 1500. Maybe not all states and control parameter are available. Still need to do some investigation.
+- Some minor bugfixes.
+
 ### 1.6.7 (2024-06-23)
 
 - Fix reconnect again. Adapter will now restart every 3 hours to cleanup fully.
@@ -222,7 +228,7 @@ If you find the adapter useful for you and want to support my work, feel free to
 ### 1.0.1 (2023-11-03)
 
 - Fix translationscd so
-- Use 'extendObjectAsync' instead of 'setObjectNotExistsAsync'
+- Use 'extendObject' instead of 'setObjectNotExistsAsync'
 - First official release version
 
 ### 0.1.0-alpha.2 (2023-10-27)
