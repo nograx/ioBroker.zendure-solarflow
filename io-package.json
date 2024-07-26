@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.6.7",
+    "version": "1.7.0",
     "news": {
+      "1.7.0": {
+        "en": "Add support for Hyper 2000 and ACE 1500. Maybe not all states and control parameter are available. Still need to do some investigation.\nSome minor bugfixes.",
+        "de": "Unterstützung für Hyper 2000 und ACE 1500 hinzufügen. Möglicherweise sind nicht alle Zustände und Kontrollparameter verfügbar. Ich muss noch etwas untersuchen.\nEinige kleinere Bugfixes.",
+        "ru": "Добавьте поддержку Hyper 2000 и ACE 1500. Может быть, не все состояния и контрольный параметр доступны. Все еще нужно провести расследование.\nНебольшие исправления.",
+        "pt": "Adicione suporte para Hyper 2000 e ACE 1500. Talvez nem todos os estados e o parâmetro de controle estejam disponíveis. Ainda precisa de investigar.\nAlguns pequenos bugfixes.",
+        "nl": "Voeg steun toe voor Hyper 2000 en ACE 1500. Misschien zijn niet alle staten en controle parameter beschikbaar. Ik moet nog wat onderzoek doen.\nEnkele kleine fouten.",
+        "fr": "Ajouter un support pour Hyper 2000 et ACE 1500. Peut-être que tous les états et paramètres de contrôle ne sont pas disponibles. Il faut encore enquêter.\nQuelques corrections mineures.",
+        "it": "Aggiungi supporto per Hyper 2000 e ACE 1500. Forse non tutti gli stati e il parametro di controllo sono disponibili. Devo ancora fare delle indagini.\nAlcuni bugfix minori.",
+        "es": "Añadir soporte para Hyper 2000 y ACE 1500. Tal vez no todos los estados y parámetro de control están disponibles. Todavía tiene que hacer una investigación.\nAlgunos bugfijos menores.",
+        "pl": "Dodaj wsparcie dla Hyper 2000 i ACE 1500. Może nie wszystkie stany i parametry sterowania są dostępne. Nadal muszę przeprowadzić śledztwo.\nKilka drobnych poprawek.",
+        "uk": "Додайте підтримку Hyper 2000 і ACE 1500. Може бути не всі стани і контрольний параметр. Наскільки потрібно робити деякі дослідження.\nДеякі незначні виправлення.",
+        "zh-cn": "添加支持Hyper 2000和ACE 1500. 也许并非所有状态和控制参数都可用。 还需要调查一下.\n一些小错误修正."
+      },
       "1.6.7": {
         "en": "Fix reconnect again. Adapter will now restart every 3 hours to cleanup fully.",
         "de": "Reconnect wieder reparieren. Adapter wird jetzt alle 3 Stunden neu starten, um vollständig zu reinigen.",
@@ -80,19 +93,6 @@
         "pl": "Zmienione użycie trybu czuwania do 10W",
         "uk": "Змінене використання стендів до 10 Вт",
         "zh-cn": "将备用使用改为10W"
-      },
-      "1.6.1": {
-        "en": "Fix issue that sometime data is not updated\nAdd standby usage of HUB (20W) when solarinput is low",
-        "de": "Problem behoben, dass einige Zeitdaten nicht aktualisiert werden\nFügen Sie Standby-Nutzung von HUB (20W) hinzu, wenn Solarinput niedrig ist",
-        "ru": "Исправить вопрос, что когда-то данные не обновляются\nДобавить резервное использование HUB (20W), когда солнечный вход низкий",
-        "pt": "Corrigir problema que alguns dados de tempo não é atualizado\nAdicionar uso standby de HUB (20W) quando a entrada solar é baixa",
-        "nl": "Fix probleem dat sommige gegevens niet is bijgewerkt\nToevoegen stand-by gebruik van HUB (20W) wanneer zonne-input laag is",
-        "fr": "Correction de problème que parfois les données ne sont pas mises à jour\nAjouter l'utilisation en veille de HUB (20W) lorsque l'apport solaire est faible",
-        "it": "Risolvi il problema che alcuni dati non sono aggiornati\nAggiungere l'uso standby di HUB (20W) quando l'input solare è basso",
-        "es": "Problema de fijación que algunos datos no se actualizan\nAñadir el uso de reserva de HUB (20W) cuando la energía solar es baja",
-        "pl": "Popraw problem, że czasem dane nie są aktualizowane\nDodawanie trybu czuwania HUB (20W) w przypadku niskiego wejścia solarinput",
-        "uk": "Виправлення проблеми, які одноразові дані не оновлено\nДодайте автономне використання HUB (20W) при низькому доступі",
-        "zh-cn": "解决数据有时不更新的问题\n当太阳输入量低时添加 HUB( 20W) 的备用用法"
       }
     },
     "titleLang": {

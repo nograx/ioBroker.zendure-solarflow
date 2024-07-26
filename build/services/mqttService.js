@@ -45,7 +45,6 @@ module.exports = __toCommonJS(mqttService_exports);
 var mqtt = __toESM(require("mqtt"));
 var import_adapterService = require("./adapterService");
 var import_calculationService = require("./calculationService");
-var import_ISolarFlowMqttProperties = require("../models/ISolarFlowMqttProperties");
 var import_jobSchedule = require("./jobSchedule");
 let adapter = void 0;
 const addOrUpdatePackData = async (productKey, deviceKey, packData, isSolarFlow) => {
@@ -493,13 +492,6 @@ const onMessage = async (topic, message) => {
     if (obj.packData) {
       addOrUpdatePackData(productKey, deviceKey, obj.packData, isSolarFlow);
     }
-    if (obj.properties)
-      Object.entries(obj.properties).forEach(([key, value]) => {
-        if (import_ISolarFlowMqttProperties.knownMqttProps.includes(key)) {
-        } else {
-          console.log(`${key} with value ${value} is a UNKNOWN Mqtt Prop!`);
-        }
-      });
   }
 };
 const setChargeLimit = async (adapter2, productKey, deviceKey, socSet) => {
