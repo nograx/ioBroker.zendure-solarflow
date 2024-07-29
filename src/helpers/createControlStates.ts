@@ -20,6 +20,76 @@ export const createControlStates = async (
     native: {},
   });
 
+  // State zum Setzen des Charge Limit
+  await adapter?.extendObject(
+    `${productKey}.${deviceKey}.control.chargeLimit`,
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Setzen des Lade-Limits",
+          en: "Control of the charge limit",
+        },
+        type: "number",
+        desc: "chargeLimit",
+        role: "value.battery",
+        read: true,
+        write: true,
+        min: 40,
+        max: 100,
+        unit: "%",
+      },
+      native: {},
+    }
+  );
+
+  adapter?.subscribeStates(`${productKey}.${deviceKey}.control.chargeLimit`);
+
+  // State zum Setzen des Discharge Limit
+  await adapter?.extendObject(
+    `${productKey}.${deviceKey}.control.dischargeLimit`,
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Setzen des Entlade-Limits",
+          en: "Control of the discharge limit",
+        },
+        type: "number",
+        desc: "dischargeLimit",
+        role: "value.battery",
+        read: true,
+        write: true,
+        min: 0,
+        max: 90,
+        unit: "%",
+      },
+      native: {},
+    }
+  );
+
+  adapter?.subscribeStates(`${productKey}.${deviceKey}.control.dischargeLimit`);
+
+  // State zum Setzen des Buzzers
+  await adapter?.extendObject(
+    `${productKey}.${deviceKey}.control.buzzerSwitch`,
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Sounds am HUB aktivieren",
+          en: "Enable buzzer on HUB",
+        },
+        type: "boolean",
+        desc: "buzzerSwitch",
+        role: "switch",
+        read: true,
+        write: true,
+      },
+      native: {},
+    }
+  );
+
   if (type == "solarflow" || type == "hyper") {
     // State zum Setzen des Output Limit
     await adapter?.extendObject(
@@ -46,78 +116,6 @@ export const createControlStates = async (
     // Subcribe to control states
     adapter?.subscribeStates(
       `${productKey}.${deviceKey}.control.setOutputLimit`
-    );
-
-    // State zum Setzen des Charge Limit
-    await adapter?.extendObject(
-      `${productKey}.${deviceKey}.control.chargeLimit`,
-      {
-        type: "state",
-        common: {
-          name: {
-            de: "Setzen des Lade-Limits",
-            en: "Control of the charge limit",
-          },
-          type: "number",
-          desc: "chargeLimit",
-          role: "value.battery",
-          read: true,
-          write: true,
-          min: 40,
-          max: 100,
-          unit: "%",
-        },
-        native: {},
-      }
-    );
-
-    adapter?.subscribeStates(`${productKey}.${deviceKey}.control.chargeLimit`);
-
-    // State zum Setzen des Discharge Limit
-    await adapter?.extendObject(
-      `${productKey}.${deviceKey}.control.dischargeLimit`,
-      {
-        type: "state",
-        common: {
-          name: {
-            de: "Setzen des Entlade-Limits",
-            en: "Control of the discharge limit",
-          },
-          type: "number",
-          desc: "dischargeLimit",
-          role: "value.battery",
-          read: true,
-          write: true,
-          min: 0,
-          max: 90,
-          unit: "%",
-        },
-        native: {},
-      }
-    );
-
-    adapter?.subscribeStates(
-      `${productKey}.${deviceKey}.control.dischargeLimit`
-    );
-
-    // State zum Setzen des Buzzers
-    await adapter?.extendObject(
-      `${productKey}.${deviceKey}.control.buzzerSwitch`,
-      {
-        type: "state",
-        common: {
-          name: {
-            de: "Sounds am HUB aktivieren",
-            en: "Enable buzzer on HUB",
-          },
-          type: "boolean",
-          desc: "buzzerSwitch",
-          role: "switch",
-          read: true,
-          write: true,
-        },
-        native: {},
-      }
     );
 
     adapter?.subscribeStates(`${productKey}.${deviceKey}.control.buzzerSwitch`);

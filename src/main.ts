@@ -97,6 +97,7 @@ export class ZendureSolarflow extends utils.Adapter {
     this.log.debug("[onReady] Using server " + this.config.server);
 
     if (this.config.useFallbackService && this.config.snNumber) {
+      this.log.debug("[onReady] Using Fallback Mode (Dev-Server)");
       // Use Fallback service. Using the developer version of the MQTT and Webservice from zendure
       createDeveloperAccount(this).then((data: ISolarFlowDevRegisterData) => {
         //console.log(data);
@@ -167,6 +168,27 @@ export class ZendureSolarflow extends utils.Adapter {
                       "registeredServer",
                       this.config.server
                     );
+
+                    // Check if has subdevice e.g. ACE?
+                    if (device.packList && device.packList.length > 0) {
+                      device.packList.forEach(async (subDevice) => {
+                        if (
+                          subDevice.productName.toLocaleLowerCase() ==
+                          "ace 1500"
+                        ) {
+                          // States erstellen
+                          await createSolarFlowStates(this, subDevice, "ace");
+
+                          await updateSolarFlowState(
+                            this,
+                            subDevice.productKey,
+                            subDevice.deviceKey,
+                            "registeredServer",
+                            this.config.server
+                          );
+                        }
+                      });
+                    }
                   }
                 );
 

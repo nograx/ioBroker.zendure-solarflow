@@ -32,6 +32,68 @@ const createControlStates = async (adapter, productKey, deviceKey, type) => {
     },
     native: {}
   }));
+  await (adapter == null ? void 0 : adapter.extendObject(
+    `${productKey}.${deviceKey}.control.chargeLimit`,
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Setzen des Lade-Limits",
+          en: "Control of the charge limit"
+        },
+        type: "number",
+        desc: "chargeLimit",
+        role: "value.battery",
+        read: true,
+        write: true,
+        min: 40,
+        max: 100,
+        unit: "%"
+      },
+      native: {}
+    }
+  ));
+  adapter == null ? void 0 : adapter.subscribeStates(`${productKey}.${deviceKey}.control.chargeLimit`);
+  await (adapter == null ? void 0 : adapter.extendObject(
+    `${productKey}.${deviceKey}.control.dischargeLimit`,
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Setzen des Entlade-Limits",
+          en: "Control of the discharge limit"
+        },
+        type: "number",
+        desc: "dischargeLimit",
+        role: "value.battery",
+        read: true,
+        write: true,
+        min: 0,
+        max: 90,
+        unit: "%"
+      },
+      native: {}
+    }
+  ));
+  adapter == null ? void 0 : adapter.subscribeStates(`${productKey}.${deviceKey}.control.dischargeLimit`);
+  await (adapter == null ? void 0 : adapter.extendObject(
+    `${productKey}.${deviceKey}.control.buzzerSwitch`,
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Sounds am HUB aktivieren",
+          en: "Enable buzzer on HUB"
+        },
+        type: "boolean",
+        desc: "buzzerSwitch",
+        role: "switch",
+        read: true,
+        write: true
+      },
+      native: {}
+    }
+  ));
   if (type == "solarflow" || type == "hyper") {
     await (adapter == null ? void 0 : adapter.extendObject(
       `${productKey}.${deviceKey}.control.setOutputLimit`,
@@ -56,70 +118,6 @@ const createControlStates = async (adapter, productKey, deviceKey, type) => {
     adapter == null ? void 0 : adapter.subscribeStates(
       `${productKey}.${deviceKey}.control.setOutputLimit`
     );
-    await (adapter == null ? void 0 : adapter.extendObject(
-      `${productKey}.${deviceKey}.control.chargeLimit`,
-      {
-        type: "state",
-        common: {
-          name: {
-            de: "Setzen des Lade-Limits",
-            en: "Control of the charge limit"
-          },
-          type: "number",
-          desc: "chargeLimit",
-          role: "value.battery",
-          read: true,
-          write: true,
-          min: 40,
-          max: 100,
-          unit: "%"
-        },
-        native: {}
-      }
-    ));
-    adapter == null ? void 0 : adapter.subscribeStates(`${productKey}.${deviceKey}.control.chargeLimit`);
-    await (adapter == null ? void 0 : adapter.extendObject(
-      `${productKey}.${deviceKey}.control.dischargeLimit`,
-      {
-        type: "state",
-        common: {
-          name: {
-            de: "Setzen des Entlade-Limits",
-            en: "Control of the discharge limit"
-          },
-          type: "number",
-          desc: "dischargeLimit",
-          role: "value.battery",
-          read: true,
-          write: true,
-          min: 0,
-          max: 90,
-          unit: "%"
-        },
-        native: {}
-      }
-    ));
-    adapter == null ? void 0 : adapter.subscribeStates(
-      `${productKey}.${deviceKey}.control.dischargeLimit`
-    );
-    await (adapter == null ? void 0 : adapter.extendObject(
-      `${productKey}.${deviceKey}.control.buzzerSwitch`,
-      {
-        type: "state",
-        common: {
-          name: {
-            de: "Sounds am HUB aktivieren",
-            en: "Enable buzzer on HUB"
-          },
-          type: "boolean",
-          desc: "buzzerSwitch",
-          role: "switch",
-          read: true,
-          write: true
-        },
-        native: {}
-      }
-    ));
     adapter == null ? void 0 : adapter.subscribeStates(`${productKey}.${deviceKey}.control.buzzerSwitch`);
     await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.control.passMode`, {
       type: "state",

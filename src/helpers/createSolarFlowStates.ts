@@ -19,17 +19,6 @@ export const createSolarFlowStates = async (
     `[createSolarFlowStates] Creating or updating SolarFlow states for productKey ${productKey} and deviceKey ${deviceKey}.`
   );
 
-  let solarflowWithAce = false;
-
-  // Check if has subdevice e.g. ACE?
-  if (device.packList && device.packList.length > 0) {
-    if (
-      device.packList.some((x) => x.productName.toLowerCase() == "ace 1500")
-    ) {
-      solarflowWithAce = true;
-    }
-  }
-
   // Create device (e.g. the product type -> SolarFlow)
   await adapter?.extendObject(productKey, {
     type: "device",
@@ -211,6 +200,20 @@ export const createSolarFlowStates = async (
     native: {},
   });
 
+  await adapter?.extendObject(`${productKey}.${deviceKey}.energyPower`, {
+    type: "state",
+    common: {
+      name: { de: "Leistung am Smartmeter", en: "Smartmeter energy power" },
+      type: "number",
+      desc: "energyPower",
+      role: "value.power",
+      read: true,
+      write: false,
+      unit: "W",
+    },
+    native: {},
+  });
+
   await adapter?.extendObject(`${productKey}.${deviceKey}.outputPackPower`, {
     type: "state",
     common: {
@@ -375,7 +378,7 @@ export const createSolarFlowStates = async (
     adapter,
     device.productKey,
     device.deviceKey,
-    "wifiStatus",
+    "wifiState",
     device.wifiStatus ? "Connected" : "Disconnected"
   );
 
@@ -411,33 +414,9 @@ export const createSolarFlowStates = async (
     native: {},
   });
 
-  await adapter?.extendObject(`${productKey}.${deviceKey}.solarflowWithAce`, {
-    type: "state",
-    common: {
-      name: {
-        de: "ACE 1500 erkannt",
-        en: "ACE 1500 detected",
-      },
-      type: "boolean",
-      desc: "solarflowWithAce",
-      role: "value",
-      read: true,
-      write: false,
-    },
-    native: {},
-  });
-
-  await updateSolarFlowState(
-    adapter,
-    device.productKey,
-    device.deviceKey,
-    "solarflowWithAce",
-    solarflowWithAce
-  );
-
   /* ACE only States */
 
-  if (type == "ace" || solarflowWithAce) {
+  if (type == "ace") {
     await adapter?.extendObject(`${productKey}.${deviceKey}.dcOutputPower`, {
       type: "state",
       common: {
@@ -471,6 +450,20 @@ export const createSolarFlowStates = async (
       native: {},
     });
   }
+
+  await adapter?.extendObject(`${productKey}.${deviceKey}.inputLimit`, {
+    type: "state",
+    common: {
+      name: { de: "Limit der Eingangsleistung", en: "limit of input power" },
+      type: "number",
+      desc: "inputLimit",
+      role: "value.power",
+      read: true,
+      write: false,
+      unit: "W",
+    },
+    native: {},
+  });
 
   /* Solarflow only States */
 
@@ -566,7 +559,7 @@ export const createSolarFlowStates = async (
     });
   }
 
-  if (type == "ace" || type == "hyper" || solarflowWithAce) {
+  if (type == "ace" || type == "hyper") {
     await adapter?.extendObject(`${productKey}.${deviceKey}.gridPower`, {
       type: "state",
       common: {
@@ -581,12 +574,12 @@ export const createSolarFlowStates = async (
       native: {},
     });
 
-    await adapter?.extendObject(`${productKey}.${deviceKey}.inputLimit`, {
+    await adapter?.extendObject(`${productKey}.${deviceKey}.batteryElectric`, {
       type: "state",
       common: {
-        name: { de: "Limit der Eingangsleistung", en: "limit of input power" },
+        name: { de: "Batterie Leistung", en: "Battery electric" },
         type: "number",
-        desc: "inputLimit",
+        desc: "batteryElectric",
         role: "value.power",
         read: true,
         write: false,

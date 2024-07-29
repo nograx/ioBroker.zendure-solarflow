@@ -94,6 +94,7 @@ class ZendureSolarflow extends utils.Adapter {
     }
     this.log.debug("[onReady] Using server " + this.config.server);
     if (this.config.useFallbackService && this.config.snNumber) {
+      this.log.debug("[onReady] Using Fallback Mode (Dev-Server)");
       (0, import_fallbackWebService.createDeveloperAccount)(this).then((data) => {
         if (data.appKey && data.mqttUrl && data.port && data.secret) {
           (0, import_fallbackMqttService.connectFallbackMqttClient)(
@@ -136,6 +137,20 @@ class ZendureSolarflow extends utils.Adapter {
                   "registeredServer",
                   this.config.server
                 );
+                if (device.packList && device.packList.length > 0) {
+                  device.packList.forEach(async (subDevice) => {
+                    if (subDevice.productName.toLocaleLowerCase() == "ace 1500") {
+                      await (0, import_createSolarFlowStates.createSolarFlowStates)(this, subDevice, "ace");
+                      await (0, import_adapterService.updateSolarFlowState)(
+                        this,
+                        subDevice.productKey,
+                        subDevice.deviceKey,
+                        "registeredServer",
+                        this.config.server
+                      );
+                    }
+                  });
+                }
               }
             );
             (0, import_mqttService.connectMqttClient)(this);

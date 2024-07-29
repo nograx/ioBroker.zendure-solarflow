@@ -317,6 +317,19 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
     }
 
     if (
+      obj.properties?.energyPower != null &&
+      obj.properties?.energyPower != undefined
+    ) {
+      updateSolarFlowState(
+        adapter,
+        productKey,
+        deviceKey,
+        "energyPower",
+        obj.properties.energyPower
+      );
+    }
+
+    if (
       obj.properties?.outputLimit != null &&
       obj.properties?.outputLimit != undefined
     ) {
@@ -1036,6 +1049,41 @@ export const connectMqttClient = (_adapter: ZendureSolarflow): void => {
                 onSubscribeIotTopic(error, device.productKey, device.deviceKey);
               });
             }, 1500 * index);
+
+            // Check if has subdevice e.g. ACE and connect to this also?
+            if (device.packList && device.packList.length > 0) {
+              device.packList.forEach(async (subDevice) => {
+                if (subDevice.productName.toLocaleLowerCase() == "ace 1500") {
+                  const reportTopic = `/${subDevice.productKey}/${subDevice.deviceKey}/properties/report`;
+                  const iotTopic = `iot/${subDevice.productKey}/${subDevice.deviceKey}/#`;
+
+                  setTimeout(() => {
+                    if (adapter) {
+                      adapter.log.debug(
+                        `[connectMqttClient] Subscribing to MQTT Topic: ${reportTopic}`
+                      );
+                      adapter.mqttClient?.subscribe(
+                        reportTopic,
+                        onSubscribeReportTopic
+                      );
+                    }
+                  }, 1000 * index);
+
+                  setTimeout(() => {
+                    adapter?.log.debug(
+                      `[connectMqttClient] Subscribing to MQTT Topic: ${iotTopic}`
+                    );
+                    adapter?.mqttClient?.subscribe(iotTopic, (error) => {
+                      onSubscribeIotTopic(
+                        error,
+                        subDevice.productKey,
+                        subDevice.deviceKey
+                      );
+                    });
+                  }, 1500 * index);
+                }
+              });
+            }
           }
         }
       );
