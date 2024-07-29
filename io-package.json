@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.7.0",
+    "version": "1.7.1",
     "news": {
+      "1.7.1": {
+        "en": "Fix missing ACE 1500 when connected with HUB1200 / HUB2000\nFix some missing states",
+        "de": "Fehlerbehebung ACE 1500 bei Verbindung mit HUB1200 / HUB2000\nEinige fehlende Staaten beheben",
+        "ru": "Fix отсутствует ACE 1500 при подключении к HUB1200 / HUB2000\nИсправить некоторые отсутствующие состояния",
+        "pt": "Corrigir ACE 1500 ausente quando conectado com HUB1200 / HUB2000\nCorrigir alguns estados em falta",
+        "nl": "Fix ontbrekende ACE 1500 wanneer verbonden met HUB1200 / HUB2000\nRepareer enkele ontbrekende staten",
+        "fr": "Correction de l'ACE 1500 manquant lors d'une connexion avec HUB1200 / HUB2000\nCorrection de certains états manquants",
+        "it": "Fissare ACE 1500 mancante quando collegato a HUB1200 / HUB2000\nFissare alcuni stati mancanti",
+        "es": "Fijar ACE 1500 desaparecido cuando está conectado con HUB1200 / HUB2000\nArreglar algunos estados perdidos",
+        "pl": "Popraw brak ACE 1500 w połączeniu z HUB1200 / HUB2000\nNapraw kilka brakujących stanów",
+        "uk": "Виправлення відсутніх ACE 1500 при підключенні до HUB1200 / HUB2000\nВиправлення деяких відсутніх штатів",
+        "zh-cn": "与 HUB1200 / HUB2000 连接时, 修复缺失 ACE 1500\n修复一些缺失状态"
+      },
       "1.7.0": {
         "en": "Add support for Hyper 2000 and ACE 1500. Maybe not all states and control parameter are available. Still need to do some investigation.\nSome minor bugfixes.",
         "de": "Unterstützung für Hyper 2000 und ACE 1500 hinzufügen. Möglicherweise sind nicht alle Zustände und Kontrollparameter verfügbar. Ich muss noch etwas untersuchen.\nEinige kleinere Bugfixes.",
@@ -80,19 +93,6 @@
         "pl": "Naprawiono połączenie, gdy połączenie wydaje się martwe.",
         "uk": "Виправлено відключення при з'єднанні з'являється мертвим.",
         "zh-cn": "连接似乎已失效时固定重联 ."
-      },
-      "1.6.2": {
-        "en": "Changed standby usage to 10W",
-        "de": "Geänderte Standby-Nutzung auf 10W",
-        "ru": "Изменение резервного использования до 10W",
-        "pt": "Uso de espera alterado para 10W",
-        "nl": "Veranderd standby-gebruik naar 10W",
-        "fr": "Changement de l'utilisation en attente à 10W",
-        "it": "Cambiato uso standby a 10W",
-        "es": "Cambio de uso de reserva a 10W",
-        "pl": "Zmienione użycie trybu czuwania do 10W",
-        "uk": "Змінене використання стендів до 10 Вт",
-        "zh-cn": "将备用使用改为10W"
       }
     },
     "titleLang": {
