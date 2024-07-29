@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.7.1",
+    "version": "1.7.2",
     "news": {
+      "1.7.2": {
+        "en": "Fix acSwitch for ACE and Hyper",
+        "de": "Fix acSwitch für ACE und Hyper",
+        "ru": "Fix acSwitch для ACE и Hyper",
+        "pt": "Fix acSwitch para ACE e Hyper",
+        "nl": "Fix acSwitch voor ACE en Hyper",
+        "fr": "Correction acSwitch pour ACE et Hyper",
+        "it": "Fissare acSwitch per ACE e Hyper",
+        "es": "Fijar acSwitch para ACE e Hyper",
+        "pl": "Napraw acSwitch dla ACE i Hyper",
+        "uk": "Виправлення acSwitch для ACE і Hyper",
+        "zh-cn": "修正ACE 和 Hyper 的 ACE 开关"
+      },
       "1.7.1": {
         "en": "Fix missing ACE 1500 when connected with HUB1200 / HUB2000\nFix some missing states",
         "de": "Fehlerbehebung ACE 1500 bei Verbindung mit HUB1200 / HUB2000\nEinige fehlende Staaten beheben",
@@ -80,19 +93,6 @@
         "pl": "Usługi naprawcze",
         "uk": "Фіксація послуг",
         "zh-cn": "修复服务"
-      },
-      "1.6.3": {
-        "en": "Fixed reconnect when connection seems to be dead.",
-        "de": "Feste Wiederverbindung, wenn die Verbindung tot ist.",
-        "ru": "Переключение, когда связь кажется мертвой.",
-        "pt": "Reconexão fixa quando a conexão parece estar morta.",
-        "nl": "Vaste verbinding wanneer de verbinding lijkt te zijn uitgeschakeld.",
-        "fr": "Réconnecter quand la connexion semble morte.",
-        "it": "Ricollegamento fisso quando la connessione sembra essere morta.",
-        "es": "Reconexión fija cuando la conexión parece estar muerta.",
-        "pl": "Naprawiono połączenie, gdy połączenie wydaje się martwe.",
-        "uk": "Виправлено відключення при з'єднанні з'являється мертвим.",
-        "zh-cn": "连接似乎已失效时固定重联 ."
       }
     },
     "titleLang": {

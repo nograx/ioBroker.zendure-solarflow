@@ -46,8 +46,7 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 1.7.2 (2024-07-29)
 
 - Fix acSwitch for ACE and Hyper
 
