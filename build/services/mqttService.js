@@ -432,6 +432,13 @@ const onMessage = async (topic, message) => {
         "inputLimit",
         obj.properties.inputLimit
       );
+      (0, import_adapterService.updateSolarFlowControlState)(
+        adapter,
+        productKey,
+        deviceKey,
+        "setInputLimit",
+        obj.properties.inputLimit
+      );
     }
     if (((_aa = obj.properties) == null ? void 0 : _aa.gridInputPower) != null && ((_ba = obj.properties) == null ? void 0 : _ba.gridInputPower) != void 0) {
       (0, import_adapterService.updateSolarFlowState)(
@@ -463,10 +470,24 @@ const onMessage = async (topic, message) => {
     if (((_ga = obj.properties) == null ? void 0 : _ga.acSwitch) != null && ((_ha = obj.properties) == null ? void 0 : _ha.acSwitch) != void 0) {
       const value = ((_ia = obj.properties) == null ? void 0 : _ia.acSwitch) == 0 ? false : true;
       (0, import_adapterService.updateSolarFlowState)(adapter, productKey, deviceKey, "acSwitch", value);
+      (0, import_adapterService.updateSolarFlowControlState)(
+        adapter,
+        productKey,
+        deviceKey,
+        "acSwitch",
+        obj.properties.acSwitch
+      );
     }
     if (((_ja = obj.properties) == null ? void 0 : _ja.dcSwitch) != null && ((_ka = obj.properties) == null ? void 0 : _ka.dcSwitch) != void 0) {
       const value = ((_la = obj.properties) == null ? void 0 : _la.dcSwitch) == 0 ? false : true;
       (0, import_adapterService.updateSolarFlowState)(adapter, productKey, deviceKey, "dcSwitch", value);
+      (0, import_adapterService.updateSolarFlowControlState)(
+        adapter,
+        productKey,
+        deviceKey,
+        "dcSwitch",
+        obj.properties.dcSwitch
+      );
     }
     if (((_ma = obj.properties) == null ? void 0 : _ma.dcOutputPower) != null && ((_na = obj.properties) == null ? void 0 : _na.dcOutputPower) != void 0) {
       (0, import_adapterService.updateSolarFlowState)(
@@ -676,17 +697,17 @@ const setDcSwitch = async (adapter2, productKey, deviceKey, dcSwitch) => {
     (_a = adapter2.mqttClient) == null ? void 0 : _a.publish(topic, JSON.stringify(setDcSwitchContent));
   }
 };
-const setAcSwitch = async (adapter2, productKey, deviceKey, dcSwitch) => {
+const setAcSwitch = async (adapter2, productKey, deviceKey, acSwitch) => {
   var _a;
   if (adapter2.mqttClient && productKey && deviceKey) {
     const topic = `iot/${productKey}/${deviceKey}/properties/write`;
-    const setDcSwitchContent = {
-      properties: { dcSwitch: dcSwitch ? 1 : 0 }
+    const setAcSwitchContent = {
+      properties: { acSwitch: acSwitch ? 1 : 0 }
     };
     adapter2.log.debug(
-      `[setPassMode] Set AC Switch for device ${deviceKey} to ${dcSwitch}!`
+      `[setPassMode] Set AC Switch for device ${deviceKey} to ${acSwitch}!`
     );
-    (_a = adapter2.mqttClient) == null ? void 0 : _a.publish(topic, JSON.stringify(setDcSwitchContent));
+    (_a = adapter2.mqttClient) == null ? void 0 : _a.publish(topic, JSON.stringify(setAcSwitchContent));
   }
 };
 const onConnected = () => {

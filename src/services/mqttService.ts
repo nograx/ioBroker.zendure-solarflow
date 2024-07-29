@@ -560,6 +560,14 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         "inputLimit",
         obj.properties.inputLimit
       );
+
+      updateSolarFlowControlState(
+        adapter,
+        productKey,
+        deviceKey,
+        "setInputLimit",
+        obj.properties.inputLimit
+      );
     }
 
     if (
@@ -608,6 +616,14 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
       const value = obj.properties?.acSwitch == 0 ? false : true;
 
       updateSolarFlowState(adapter, productKey, deviceKey, "acSwitch", value);
+
+      updateSolarFlowControlState(
+        adapter,
+        productKey,
+        deviceKey,
+        "acSwitch",
+        obj.properties.acSwitch
+      );
     }
 
     if (
@@ -617,6 +633,14 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
       const value = obj.properties?.dcSwitch == 0 ? false : true;
 
       updateSolarFlowState(adapter, productKey, deviceKey, "dcSwitch", value);
+
+      updateSolarFlowControlState(
+        adapter,
+        productKey,
+        deviceKey,
+        "dcSwitch",
+        obj.properties.dcSwitch
+      );
     }
 
     if (
@@ -949,18 +973,18 @@ export const setAcSwitch = async (
   adapter: ZendureSolarflow,
   productKey: string,
   deviceKey: string,
-  dcSwitch: boolean
+  acSwitch: boolean
 ): Promise<void> => {
   if (adapter.mqttClient && productKey && deviceKey) {
     const topic = `iot/${productKey}/${deviceKey}/properties/write`;
 
-    const setDcSwitchContent = {
-      properties: { dcSwitch: dcSwitch ? 1 : 0 },
+    const setAcSwitchContent = {
+      properties: { acSwitch: acSwitch ? 1 : 0 },
     };
     adapter.log.debug(
-      `[setPassMode] Set AC Switch for device ${deviceKey} to ${dcSwitch}!`
+      `[setPassMode] Set AC Switch for device ${deviceKey} to ${acSwitch}!`
     );
-    adapter.mqttClient?.publish(topic, JSON.stringify(setDcSwitchContent));
+    adapter.mqttClient?.publish(topic, JSON.stringify(setAcSwitchContent));
   }
 };
 

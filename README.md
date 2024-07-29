@@ -46,6 +46,11 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Fix acSwitch for ACE and Hyper
+
 ### 1.7.1 (2024-07-29)
 
 - Fix missing ACE 1500 when connected with HUB1200 / HUB2000
