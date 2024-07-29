@@ -433,6 +433,19 @@ const createSolarFlowStates = async (adapter, device, type) => {
     },
     native: {}
   }));
+  await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.gridPower`, {
+    type: "state",
+    common: {
+      name: { de: "Leistung vom Stromnetz", en: "Grid power" },
+      type: "number",
+      desc: "gridPower",
+      role: "value.power",
+      read: true,
+      write: false,
+      unit: "W"
+    },
+    native: {}
+  }));
   if (type == "solarflow") {
     await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.pass`, {
       type: "state",
@@ -518,19 +531,6 @@ const createSolarFlowStates = async (adapter, device, type) => {
     }));
   }
   if (type == "ace" || type == "hyper") {
-    await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.gridPower`, {
-      type: "state",
-      common: {
-        name: { de: "Leistung vom Stromnetz", en: "Grid power" },
-        type: "number",
-        desc: "gridPower",
-        role: "value.power",
-        read: true,
-        write: false,
-        unit: "W"
-      },
-      native: {}
-    }));
     await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.batteryElectric`, {
       type: "state",
       common: {
