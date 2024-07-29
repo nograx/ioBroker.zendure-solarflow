@@ -128,7 +128,7 @@ export class ZendureSolarflow extends utils.Adapter {
             .then(async (result: ISolarFlowDeviceDetails[]) => {
               if (result) {
                 // Device List found. Save in the adapter properties and connect to MQTT
-
+                console.log(result);
                 // Filtering to SolarFlow devices
                 this.deviceList = result.filter(
                   (device) =>

@@ -38,6 +38,8 @@ export interface ISolarFlowMqttProperties {
   acSwitch?: number;
   dcSwitch?: number;
   dcOutputPower?: number;
+  packNum?: number;
+  gridPower?: number;
   // ambientLightNess
   // ambientLightColor
   // ambientLightMode
@@ -89,4 +91,6 @@ export const knownMqttProps = [
   "acSwitch",
   "dcSwitch",
   "dcOutputPower",
+  "packNum",
+  "gridPower",
 ];

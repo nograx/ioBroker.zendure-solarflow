@@ -112,6 +112,7 @@ class ZendureSolarflow extends utils.Adapter {
         this.lastLogin = /* @__PURE__ */ new Date();
         (0, import_webService.getDeviceList)(this).then(async (result) => {
           if (result) {
+            console.log(result);
             this.deviceList = result.filter(
               (device) => device.productName.toLowerCase().includes("solarflow") || device.productName.toLocaleLowerCase() == "hyper 2000" || device.productName.toLocaleLowerCase() == "ace 1500"
             );

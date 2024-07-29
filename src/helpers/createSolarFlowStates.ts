@@ -19,6 +19,17 @@ export const createSolarFlowStates = async (
     `[createSolarFlowStates] Creating or updating SolarFlow states for productKey ${productKey} and deviceKey ${deviceKey}.`
   );
 
+  let solarflowWithAce = false;
+
+  // Check if has subdevice e.g. ACE?
+  if (device.packList && device.packList.length > 0) {
+    if (
+      device.packList.some((x) => x.productName.toLowerCase() == "ace 1500")
+    ) {
+      solarflowWithAce = true;
+    }
+  }
+
   // Create device (e.g. the product type -> SolarFlow)
   await adapter?.extendObject(productKey, {
     type: "device",
@@ -384,22 +395,49 @@ export const createSolarFlowStates = async (
     native: {},
   });
 
-  if (type == "solarflow") {
-    await adapter?.extendObject(`${productKey}.${deviceKey}.pvBrand`, {
-      type: "state",
-      common: {
-        name: { de: "Wechselrichter Hersteller", en: "brand of inverter" },
-        type: "string",
-        desc: "pvBrand",
-        role: "value",
-        read: true,
-        write: false,
+  await adapter?.extendObject(`${productKey}.${deviceKey}.packNum`, {
+    type: "state",
+    common: {
+      name: {
+        de: "Anzahl der angeschlossenen Batterien",
+        en: "Number of batteries",
       },
-      native: {},
-    });
-  }
+      type: "number",
+      desc: "packNum",
+      role: "value",
+      read: true,
+      write: false,
+    },
+    native: {},
+  });
 
-  if (type == "ace") {
+  await adapter?.extendObject(`${productKey}.${deviceKey}.solarflowWithAce`, {
+    type: "state",
+    common: {
+      name: {
+        de: "ACE 1500 erkannt",
+        en: "ACE 1500 detected",
+      },
+      type: "boolean",
+      desc: "solarflowWithAce",
+      role: "value",
+      read: true,
+      write: false,
+    },
+    native: {},
+  });
+
+  await updateSolarFlowState(
+    adapter,
+    device.productKey,
+    device.deviceKey,
+    "solarflowWithAce",
+    solarflowWithAce
+  );
+
+  /* ACE only States */
+
+  if (type == "ace" || solarflowWithAce) {
     await adapter?.extendObject(`${productKey}.${deviceKey}.dcOutputPower`, {
       type: "state",
       common: {
@@ -434,23 +472,9 @@ export const createSolarFlowStates = async (
     });
   }
 
-  if (type == "solarflow" || type == "hyper") {
-    await adapter?.extendObject(`${productKey}.${deviceKey}.passMode`, {
-      type: "state",
-      common: {
-        name: {
-          de: "Einstellung des Bypass Modus",
-          en: "Setting of bypass mode",
-        },
-        type: "string",
-        desc: "passMode",
-        role: "value",
-        read: true,
-        write: false,
-      },
-      native: {},
-    });
+  /* Solarflow only States */
 
+  if (type == "solarflow") {
     await adapter?.extendObject(`${productKey}.${deviceKey}.pass`, {
       type: "state",
       common: {
@@ -473,6 +497,39 @@ export const createSolarFlowStates = async (
         },
         type: "boolean",
         desc: "autoRecover",
+        role: "value",
+        read: true,
+        write: false,
+      },
+      native: {},
+    });
+  }
+
+  /* Solarflow and Hyper only States */
+
+  if (type == "solarflow" || type == "hyper") {
+    await adapter?.extendObject(`${productKey}.${deviceKey}.passMode`, {
+      type: "state",
+      common: {
+        name: {
+          de: "Einstellung des Bypass Modus",
+          en: "Setting of bypass mode",
+        },
+        type: "string",
+        desc: "passMode",
+        role: "value",
+        read: true,
+        write: false,
+      },
+      native: {},
+    });
+
+    await adapter?.extendObject(`${productKey}.${deviceKey}.pvBrand`, {
+      type: "state",
+      common: {
+        name: { de: "Wechselrichter Hersteller", en: "brand of inverter" },
+        type: "string",
+        desc: "pvBrand",
         role: "value",
         read: true,
         write: false,
@@ -509,7 +566,21 @@ export const createSolarFlowStates = async (
     });
   }
 
-  if (type == "ace" || type == "hyper") {
+  if (type == "ace" || type == "hyper" || solarflowWithAce) {
+    await adapter?.extendObject(`${productKey}.${deviceKey}.gridPower`, {
+      type: "state",
+      common: {
+        name: { de: "Leistung vom Stromnetz", en: "Grid power" },
+        type: "number",
+        desc: "gridPower",
+        role: "value.power",
+        read: true,
+        write: false,
+        unit: "W",
+      },
+      native: {},
+    });
+
     await adapter?.extendObject(`${productKey}.${deviceKey}.inputLimit`, {
       type: "state",
       common: {

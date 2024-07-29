@@ -9,7 +9,7 @@ import {
 } from "./adapterService";
 import { IPackData } from "../models/IPackData";
 import { setEnergyWhMax, setSocToZero } from "./calculationService";
-import { IMqttData } from "../models/ISolarFlowMqttProperties";
+import { IMqttData, knownMqttProps } from "../models/ISolarFlowMqttProperties";
 import {
   startCalculationJob,
   startCheckStatesAndConnectionJob,
@@ -576,6 +576,19 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
     }
 
     if (
+      obj.properties?.gridPower != null &&
+      obj.properties?.gridPower != undefined
+    ) {
+      updateSolarFlowState(
+        adapter,
+        productKey,
+        deviceKey,
+        "gridPower",
+        obj.properties.gridPower
+      );
+    }
+
+    if (
       obj.properties?.acSwitch != null &&
       obj.properties?.acSwitch != undefined
     ) {
@@ -656,6 +669,19 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
     }
 
     if (
+      obj.properties?.packNum != null &&
+      obj.properties?.packNum != undefined
+    ) {
+      updateSolarFlowState(
+        adapter,
+        productKey,
+        deviceKey,
+        "packNum",
+        obj.properties.packNum
+      );
+    }
+
+    if (
       obj.properties?.hubState != null &&
       obj.properties?.hubState != undefined
     ) {
@@ -674,15 +700,17 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
       addOrUpdatePackData(productKey, deviceKey, obj.packData, isSolarFlow);
     }
 
-    /* if (obj.properties) {
+    if (obj.properties) {
       Object.entries(obj.properties).forEach(([key, value]) => {
         if (knownMqttProps.includes(key)) {
           //console.log(`${key} with value ${value} is a known Mqtt Prop!`);
         } else {
-          console.log(`${key} with value ${value} is a UNKNOWN Mqtt Prop!`);
+          console.log(
+            `${productName?.val}: ${key} with value ${value} is a UNKNOWN Mqtt Prop!`
+          );
         }
       });
-    } */
+    }
   }
 };
 

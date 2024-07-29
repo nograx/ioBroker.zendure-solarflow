@@ -18,7 +18,7 @@ export interface ISolarFlowDeviceDetails {
   onlineFlag?: string;
   output?: boolean;
   outputPower?: number;
-  packList?: number[];
+  packList?: ISolarFlowDeviceDetails[];
   parallelMode?: number;
   productId?: number;
   productKey: string;
