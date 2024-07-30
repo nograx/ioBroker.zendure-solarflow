@@ -622,7 +622,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "acSwitch",
-        obj.properties.acSwitch
+        value
       );
     }
 
@@ -639,7 +639,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "dcSwitch",
-        obj.properties.dcSwitch
+        value
       );
     }
 
@@ -858,16 +858,27 @@ export const setInputLimit = async (
   limit: number
 ): Promise<void> => {
   if (adapter.mqttClient && productKey && deviceKey) {
+    let maxLimit = 900;
     const currentLimit = (
       await adapter.getStateAsync(productKey + "." + deviceKey + ".inputLimit")
     )?.val;
+
+    const productName = (
+      await adapter.getStateAsync(productKey + "." + deviceKey + ".productName")
+    )?.val
+      ?.toString()
+      .toLowerCase();
+
+    if (productName == "hyper 2000") {
+      maxLimit = 1200;
+    }
 
     // Das Limit kann nur in 100er Schritten gesetzt werden
     limit = Math.ceil(limit / 100) * 100;
     if (limit < 0) {
       limit = 0;
-    } else if (limit > 900) {
-      limit = 900;
+    } else if (limit > maxLimit) {
+      limit = maxLimit;
     }
 
     if (currentLimit != null && currentLimit != undefined) {

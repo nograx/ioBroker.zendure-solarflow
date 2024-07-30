@@ -475,7 +475,7 @@ const onMessage = async (topic, message) => {
         productKey,
         deviceKey,
         "acSwitch",
-        obj.properties.acSwitch
+        value
       );
     }
     if (((_ja = obj.properties) == null ? void 0 : _ja.dcSwitch) != null && ((_ka = obj.properties) == null ? void 0 : _ka.dcSwitch) != void 0) {
@@ -486,7 +486,7 @@ const onMessage = async (topic, message) => {
         productKey,
         deviceKey,
         "dcSwitch",
-        obj.properties.dcSwitch
+        value
       );
     }
     if (((_ma = obj.properties) == null ? void 0 : _ma.dcOutputPower) != null && ((_na = obj.properties) == null ? void 0 : _na.dcOutputPower) != void 0) {
@@ -620,20 +620,25 @@ const setOutputLimit = async (adapter2, productKey, deviceKey, limit) => {
   }
 };
 const setInputLimit = async (adapter2, productKey, deviceKey, limit) => {
-  var _a, _b;
+  var _a, _b, _c, _d;
   if (adapter2.mqttClient && productKey && deviceKey) {
+    let maxLimit = 900;
     const currentLimit = (_a = await adapter2.getStateAsync(productKey + "." + deviceKey + ".inputLimit")) == null ? void 0 : _a.val;
+    const productName = (_c = (_b = await adapter2.getStateAsync(productKey + "." + deviceKey + ".productName")) == null ? void 0 : _b.val) == null ? void 0 : _c.toString().toLowerCase();
+    if (productName == "hyper 2000") {
+      maxLimit = 1200;
+    }
     limit = Math.ceil(limit / 100) * 100;
     if (limit < 0) {
       limit = 0;
-    } else if (limit > 900) {
-      limit = 900;
+    } else if (limit > maxLimit) {
+      limit = maxLimit;
     }
     if (currentLimit != null && currentLimit != void 0) {
       if (currentLimit != limit) {
         const topic = `iot/${productKey}/${deviceKey}/properties/write`;
         const inputLimitContent = { properties: { inputLimit: limit } };
-        (_b = adapter2.mqttClient) == null ? void 0 : _b.publish(topic, JSON.stringify(inputLimitContent));
+        (_d = adapter2.mqttClient) == null ? void 0 : _d.publish(topic, JSON.stringify(inputLimitContent));
       }
     }
   }
