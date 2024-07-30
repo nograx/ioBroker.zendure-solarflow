@@ -46,8 +46,7 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 1.7.3 (2024-07-30)
 
 - Fix AC input value for Hyper to max. 1200W
 - Fix dcSwitch and acSwitch value

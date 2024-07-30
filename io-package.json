@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.7.2",
+    "version": "1.7.3",
     "news": {
+      "1.7.3": {
+        "en": "Fix AC input value for Hyper to max. 1200W\nFix dcSwitch and acSwitch value",
+        "de": "Fix AC-Eingabewert für Hyper zu max. 1\nFix dcSwitch und acSwitch Wert",
+        "ru": "Исправить значение переменного тока для Hyper to max. 1200 Вт\nFix dcSwitch и acSwitch значение",
+        "pt": "Corrigir valor de entrada AC para Hyper para max. 1200W\nFix dcSwitch e valor acSwitch",
+        "nl": "Fix AC ingang waarde voor Hyper tot max. 1200W\nDcSwitch- en acSwitch-waarde herstellen",
+        "fr": "Fixer la valeur d'entrée AC pour Hyper à max. 1200W\nCorrection de la valeur dcSwitch et acSwitch",
+        "it": "Fissare il valore di ingresso AC per Hyper a max. 1200W\nFissare il valore dcSwitch e acSwitch",
+        "es": "Fijar el valor de entrada AC para Hyper a max. 1200W\nFijar el valor dcSwitch y acSwitch",
+        "pl": "Popraw wartość wejściową AC dla Hyper do max. 1200W\nNapraw wartość dcSwitch i acSwitch",
+        "uk": "Фіксувати значення введення змінного струму для Hyper до макс. 1200В\nВиправлення dcSwitch і значення acSwitch",
+        "zh-cn": "将 Hyper 的 AC 输入值固定为最大 。 1200W (英语)\n修正 dcSwitch 和 acSwitch 值"
+      },
       "1.7.2": {
         "en": "Fix acSwitch for ACE and Hyper",
         "de": "Fix acSwitch für ACE und Hyper",
@@ -80,19 +93,6 @@
         "pl": "Napraw ponownie połączenie. Adapter ponownie uruchomi się, jeśli semms połączenia zostanie przerwany.",
         "uk": "Виправлення проблеми відключення. Перехідник тепер перезавантажить, якщо з'єднання зламається.",
         "zh-cn": "修复重联问题. 如果连接 semms 要中断, 适配器现在将重新启动 ."
-      },
-      "1.6.4": {
-        "en": "Fix services",
-        "de": "Dienstleistungen",
-        "ru": "Исправление услуг",
-        "pt": "Serviços de fixação",
-        "nl": "Reparatie",
-        "fr": "Services de réparation",
-        "it": "Servizi fissi",
-        "es": "Servicios de fijación",
-        "pl": "Usługi naprawcze",
-        "uk": "Фіксація послуг",
-        "zh-cn": "修复服务"
       }
     },
     "titleLang": {
