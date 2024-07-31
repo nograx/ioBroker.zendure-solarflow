@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.7.3",
+    "version": "1.7.4",
     "news": {
+      "1.7.4": {
+        "en": "Set max value and step for setInputLimit",
+        "de": "Maximaler Wert und Schritt für setInputLimit einstellen",
+        "ru": "Установить максимальное значение и шаг для setInputLimit",
+        "pt": "Definir valor máximo e passo para setInputLimit",
+        "nl": "Maximale waarde en stap instellen voor setInputLimit",
+        "fr": "Définir la valeur maximale et l'étape pour setInputLimit",
+        "it": "Impostare il valore massimo e il passo per setInputLimit",
+        "es": "Establecer el valor máximo y el paso para setInputLimit",
+        "pl": "Ustaw wartość maksymalną i krok dla settInputLimit",
+        "uk": "Встановити максимальне значення і крок для setInputLimit",
+        "zh-cn": "设置设置的最大值和步骤"
+      },
       "1.7.3": {
         "en": "Fix AC input value for Hyper to max. 1200W\nFix dcSwitch and acSwitch value",
         "de": "Fix AC-Eingabewert für Hyper zu max. 1\nFix dcSwitch und acSwitch Wert",
@@ -80,19 +93,6 @@
         "pl": "Podmienił powtarzające się odświeżanie tokena dostępu.",
         "uk": "Запечена рецидивна обробка токени доступу.",
         "zh-cn": "不断刷新访问标志."
-      },
-      "1.6.5": {
-        "en": "Fix reconnect issue. Adapter will now restart if connection semms to be broken.",
-        "de": "Reconnect Problem behoben. Adapter wird jetzt neu starten, wenn Verbindungssemms gebrochen werden.",
-        "ru": "Переключение. Адаптер теперь перезапустится, если соединение будет сломано.",
-        "pt": "Corrigir problema de reconectar. O adaptador reiniciará agora se os semms de conexão forem quebrados.",
-        "nl": "Maak opnieuw verbinding probleem. Adapter zal nu herstarten als verbinding sems worden verbroken.",
-        "fr": "Correction du problème de reconnect. L'adaptateur redémarre maintenant si la connexion semms doit être cassée.",
-        "it": "Risolvi il problema della riconnette. L'adattatore riavvia ora se la connessione semms per essere rotto.",
-        "es": "Arregla el problema de reconexión. El adaptador se reiniciará ahora si semms de conexión para ser roto.",
-        "pl": "Napraw ponownie połączenie. Adapter ponownie uruchomi się, jeśli semms połączenia zostanie przerwany.",
-        "uk": "Виправлення проблеми відключення. Перехідник тепер перезавантажить, якщо з'єднання зламається.",
-        "zh-cn": "修复重联问题. 如果连接 semms 要中断, 适配器现在将重新启动 ."
       }
     },
     "titleLang": {
