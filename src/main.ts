@@ -8,6 +8,7 @@
 import * as utils from "@iobroker/adapter-core";
 import {
   connectMqttClient,
+  setAcMode,
   setAcSwitch,
   setAutoRecover,
   setBuzzerSwitch,
@@ -300,6 +301,8 @@ export class ZendureSolarflow extends utils.Adapter {
                 deviceKey,
                 state.val ? true : false
               );
+            } else if (stateName2 == "acMode") {
+              setAcMode(this, productKey, deviceKey, Number(state.val));
             } else if (stateName2 == "autoRecover") {
               setAutoRecover(
                 this,

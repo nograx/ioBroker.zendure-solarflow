@@ -42,6 +42,8 @@ export interface ISolarFlowMqttProperties {
   gridPower?: number;
   energyPower?: number;
   batteryElectric?: number;
+  acMode?: number;
+  hyperTmp?: number;
   // ambientLightNess
   // ambientLightColor
   // ambientLightMode
@@ -97,4 +99,5 @@ export const knownMqttProps = [
   "gridPower",
   "energyPower",
   "batteryElectric",
+  "acMode",
 ];

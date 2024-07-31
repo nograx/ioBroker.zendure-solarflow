@@ -193,6 +193,30 @@ export const createControlStates = async (
     }
   }
 
+  if (type == "hyper") {
+    // State zum Setzen des AC Modus
+    await adapter?.extendObject(`${productKey}.${deviceKey}.control.acMode`, {
+      type: "state",
+      common: {
+        name: {
+          de: "AC Modus",
+          en: "AC mode",
+        },
+        type: "number",
+        desc: "acMode",
+        role: "value",
+        min: 0,
+        max: 2,
+        step: 1,
+        read: true,
+        write: true,
+      },
+      native: {},
+    });
+
+    adapter?.subscribeStates(`${productKey}.${deviceKey}.control.acMode`);
+  }
+
   // States for Hyper 2000 and ACE 1500
   if (type == "hyper" || type == "ace") {
     // State zum Setzen des Input Limit (AC)

@@ -9,7 +9,7 @@ import {
 } from "./adapterService";
 import { IPackData } from "../models/IPackData";
 import { setEnergyWhMax, setSocToZero } from "./calculationService";
-import { IMqttData, knownMqttProps } from "../models/ISolarFlowMqttProperties";
+import { IMqttData } from "../models/ISolarFlowMqttProperties";
 import {
   startCalculationJob,
   startCheckStatesAndConnectionJob,
@@ -38,6 +38,46 @@ export const addOrUpdatePackData = async (
           x.sn
         ).replace(adapter.FORBIDDEN_CHARS, "");
 
+        // Create channel (e.g. the device specific key)
+        // We can determine the type of the battery by the SN number.
+        let batType = "";
+        if (x.sn.startsWith("C")) {
+          // It's a AB2000
+          batType = "AB2000";
+        } else if (x.sn.startsWith("A")) {
+          // It's a AB1000
+          batType = "AB1000";
+        }
+
+        await adapter?.extendObject(key, {
+          type: "channel",
+          common: {
+            name: {
+              de: batType,
+              en: batType,
+            },
+          },
+          native: {},
+        });
+
+        await adapter?.extendObject(key + ".model", {
+          type: "state",
+          common: {
+            name: {
+              de: "Batterietyp",
+              en: "Battery type",
+            },
+            type: "string",
+            desc: "model",
+            role: "value",
+            read: true,
+            write: false,
+          },
+          native: {},
+        });
+
+        await adapter?.setState(key + ".model", batType, true);
+
         await adapter?.extendObject(key + ".sn", {
           type: "state",
           common: {
@@ -54,7 +94,7 @@ export const addOrUpdatePackData = async (
           native: {},
         });
 
-        await adapter?.setStateAsync(key + ".sn", x.sn, true);
+        await adapter?.setState(key + ".sn", x.sn, true);
 
         if (x.socLevel) {
           // State für socLevel
@@ -91,6 +131,7 @@ export const addOrUpdatePackData = async (
               role: "value",
               read: true,
               write: false,
+              unit: "°C",
             },
             native: {},
           });
@@ -588,6 +629,37 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
       );
     }
 
+    if (obj.properties?.acMode != null && obj.properties?.acMode != undefined) {
+      updateSolarFlowState(
+        adapter,
+        productKey,
+        deviceKey,
+        "acMode",
+        obj.properties.acMode
+      );
+
+      updateSolarFlowControlState(
+        adapter,
+        productKey,
+        deviceKey,
+        "acMode",
+        obj.properties.acMode
+      );
+    }
+
+    if (
+      obj.properties?.hyperTmp != null &&
+      obj.properties?.hyperTmp != undefined
+    ) {
+      updateSolarFlowState(
+        adapter,
+        productKey,
+        deviceKey,
+        "hyperTmp",
+        obj.properties.hyperTmp / 10 - 273.15
+      );
+    }
+
     if (
       obj.properties?.acOutputPower != null &&
       obj.properties?.acOutputPower != undefined
@@ -742,7 +814,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
       addOrUpdatePackData(productKey, deviceKey, obj.packData, isSolarFlow);
     }
 
-    if (obj.properties) {
+    /* if (obj.properties) {
       Object.entries(obj.properties).forEach(([key, value]) => {
         if (knownMqttProps.includes(key)) {
           //console.log(`${key} with value ${value} is a known Mqtt Prop!`);
@@ -752,6 +824,25 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
           );
         }
       });
+    } */
+  }
+};
+
+export const setAcMode = async (
+  adapter: ZendureSolarflow,
+  productKey: string,
+  deviceKey: string,
+  acMode: number
+): Promise<void> => {
+  if (adapter.mqttClient && productKey && deviceKey) {
+    if (acMode >= 0 && acMode <= 2) {
+      const topic = `iot/${productKey}/${deviceKey}/properties/write`;
+
+      const setAcMode = { properties: { acMode: acMode } };
+      adapter.log.debug(`[setAcMode] Set AC mode to ${acMode}!`);
+      adapter.mqttClient?.publish(topic, JSON.stringify(setAcMode));
+    } else {
+      adapter.log.error(`[setAcMode] AC mode must be a value between 0 and 2!`);
     }
   }
 };
@@ -822,10 +913,15 @@ export const setOutputLimit = async (
       }
     }
 
-    // Das Limit kann unter 100 nur in 30er Schritten gesetzt werden, dH. 30/60/90/100, wir rechnen das also um
     const currentLimit = (
       await adapter.getStateAsync(productKey + "." + deviceKey + ".outputLimit")
     )?.val;
+
+    const productName = (
+      await adapter.getStateAsync(productKey + "." + deviceKey + ".productName")
+    )?.val
+      ?.toString()
+      .toLowerCase();
 
     if (currentLimit != null && currentLimit != undefined) {
       if (currentLimit != limit) {
@@ -834,8 +930,10 @@ export const setOutputLimit = async (
           limit != 90 &&
           limit != 60 &&
           limit != 30 &&
-          limit != 0
+          limit != 0 &&
+          productName != "hyper 2000"
         ) {
+          // NUR Solarflow HUB: Das Limit kann unter 100 nur in 30er Schritten gesetzt werden, dH. 30/60/90/100, wir rechnen das also um
           if (limit < 100 && limit > 90) {
             limit = 90;
           } else if (limit < 90 && limit > 60) {
@@ -960,7 +1058,7 @@ export const setAutoRecover = async (
       properties: { autoRecover: autoRecover ? 1 : 0 },
     };
     adapter.log.debug(
-      `[setPassMode] Set autoRecover for device ${deviceKey} to ${autoRecover}!`
+      `[setAutoRecover] Set autoRecover for device ${deviceKey} to ${autoRecover}!`
     );
     adapter.mqttClient?.publish(topic, JSON.stringify(setAutoRecoverContent));
   }
@@ -979,7 +1077,7 @@ export const setDcSwitch = async (
       properties: { dcSwitch: dcSwitch ? 1 : 0 },
     };
     adapter.log.debug(
-      `[setPassMode] Set DC Switch for device ${deviceKey} to ${dcSwitch}!`
+      `[setDcSwitch] Set DC Switch for device ${deviceKey} to ${dcSwitch}!`
     );
     adapter.mqttClient?.publish(topic, JSON.stringify(setDcSwitchContent));
   }
@@ -998,7 +1096,7 @@ export const setAcSwitch = async (
       properties: { acSwitch: acSwitch ? 1 : 0 },
     };
     adapter.log.debug(
-      `[setPassMode] Set AC Switch for device ${deviceKey} to ${acSwitch}!`
+      `[setAcSwitch] Set AC Switch for device ${deviceKey} to ${acSwitch}!`
     );
     adapter.mqttClient?.publish(topic, JSON.stringify(setAcSwitchContent));
   }

@@ -56,7 +56,8 @@ const knownMqttProps = [
   "packNum",
   "gridPower",
   "energyPower",
-  "batteryElectric"
+  "batteryElectric",
+  "acMode"
 ];
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

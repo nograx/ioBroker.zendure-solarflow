@@ -183,6 +183,27 @@ const createControlStates = async (adapter, productKey, deviceKey, type) => {
       );
     }
   }
+  if (type == "hyper") {
+    await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.control.acMode`, {
+      type: "state",
+      common: {
+        name: {
+          de: "AC Modus",
+          en: "AC mode"
+        },
+        type: "number",
+        desc: "acMode",
+        role: "value",
+        min: 0,
+        max: 2,
+        step: 1,
+        read: true,
+        write: true
+      },
+      native: {}
+    }));
+    adapter == null ? void 0 : adapter.subscribeStates(`${productKey}.${deviceKey}.control.acMode`);
+  }
   if (type == "hyper" || type == "ace") {
     await (adapter == null ? void 0 : adapter.extendObject(
       `${productKey}.${deviceKey}.control.setInputLimit`,

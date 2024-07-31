@@ -240,6 +240,8 @@ class ZendureSolarflow extends utils.Adapter {
                 deviceKey,
                 state.val ? true : false
               );
+            } else if (stateName2 == "acMode") {
+              (0, import_mqttService.setAcMode)(this, productKey, deviceKey, Number(state.val));
             } else if (stateName2 == "autoRecover") {
               (0, import_mqttService.setAutoRecover)(
                 this,

@@ -33,7 +33,10 @@ const createSolarFlowStates = async (adapter, device, type) => {
   await (adapter == null ? void 0 : adapter.extendObject(productKey, {
     type: "device",
     common: {
-      name: { de: "Produkt " + productKey, en: "Product " + productKey }
+      name: {
+        de: `${device.productName} (${productKey})`,
+        en: `${device.productName} (${productKey})`
+      }
     },
     native: {}
   }));
@@ -475,6 +478,24 @@ const createSolarFlowStates = async (adapter, device, type) => {
       native: {}
     }));
   }
+  if (type == "hyper") {
+    await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.hyperTmp`, {
+      type: "state",
+      common: {
+        name: {
+          de: "Temperatur des Hyper 2000",
+          en: "Temperature of Hyper 2000"
+        },
+        type: "number",
+        desc: "hyperTmp",
+        role: "value",
+        read: true,
+        write: false,
+        unit: "\xB0C"
+      },
+      native: {}
+    }));
+  }
   if (type == "solarflow" || type == "hyper") {
     await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.passMode`, {
       type: "state",
@@ -531,6 +552,21 @@ const createSolarFlowStates = async (adapter, device, type) => {
     }));
   }
   if (type == "ace" || type == "hyper") {
+    await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.acMode`, {
+      type: "state",
+      common: {
+        name: {
+          de: "AC Modus",
+          en: "AC mode"
+        },
+        type: "number",
+        desc: "acMode",
+        role: "value",
+        read: true,
+        write: false
+      },
+      native: {}
+    }));
     await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.batteryElectric`, {
       type: "state",
       common: {
