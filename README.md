@@ -46,8 +46,7 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 1.7.5 (2024-07-31)
 
 - Fix controlling AC mode for Hyper 2000 (set acMode to 1: Charge by AC, 2: Output to AC)
 - Show product name in channel name
