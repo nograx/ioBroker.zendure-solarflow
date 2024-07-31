@@ -163,7 +163,7 @@ const addOrUpdatePackData = async (productKey, deviceKey, packData, isSolarFlow)
   }
 };
 const onMessage = async (topic, message) => {
-  var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D, _E, _F, _G, _H, _I, _J, _K, _L, _M, _N, _O, _P, _Q, _R, _S, _T, _U, _V, _W, _X, _Y, _Z, __, _$, _aa, _ba, _ca, _da, _ea, _fa, _ga, _ha, _ia, _ja, _ka, _la, _ma, _na, _oa, _pa, _qa, _ra, _sa, _ta, _ua, _va, _wa, _xa, _ya, _za, _Aa, _Ba, _Ca, _Da, _Ea;
+  var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D, _E, _F, _G, _H, _I, _J, _K, _L, _M, _N, _O, _P, _Q, _R, _S, _T, _U, _V, _W, _X, _Y, _Z, __, _$, _aa, _ba, _ca, _da, _ea, _fa, _ga, _ha, _ia, _ja, _ka, _la, _ma, _na, _oa, _pa, _qa, _ra, _sa, _ta, _ua, _va, _wa, _xa, _ya, _za, _Aa, _Ba, _Ca, _Da, _Ea, _Fa, _Ga;
   if (adapter) {
     const topicSplitted = topic.split("/");
     const productKey = topicSplitted[1];
@@ -432,15 +432,17 @@ const onMessage = async (topic, message) => {
         "inputLimit",
         obj.properties.inputLimit
       );
-      (0, import_adapterService.updateSolarFlowControlState)(
-        adapter,
-        productKey,
-        deviceKey,
-        "setInputLimit",
-        obj.properties.inputLimit
-      );
+      if (((_aa = productName == null ? void 0 : productName.val) == null ? void 0 : _aa.toString().toLowerCase().includes("ace")) || ((_ba = productName == null ? void 0 : productName.val) == null ? void 0 : _ba.toString().toLowerCase().includes("hyper"))) {
+        (0, import_adapterService.updateSolarFlowControlState)(
+          adapter,
+          productKey,
+          deviceKey,
+          "setInputLimit",
+          obj.properties.inputLimit
+        );
+      }
     }
-    if (((_aa = obj.properties) == null ? void 0 : _aa.gridInputPower) != null && ((_ba = obj.properties) == null ? void 0 : _ba.gridInputPower) != void 0) {
+    if (((_ca = obj.properties) == null ? void 0 : _ca.gridInputPower) != null && ((_da = obj.properties) == null ? void 0 : _da.gridInputPower) != void 0) {
       (0, import_adapterService.updateSolarFlowState)(
         adapter,
         productKey,
@@ -449,7 +451,7 @@ const onMessage = async (topic, message) => {
         obj.properties.gridInputPower
       );
     }
-    if (((_ca = obj.properties) == null ? void 0 : _ca.acOutputPower) != null && ((_da = obj.properties) == null ? void 0 : _da.acOutputPower) != void 0) {
+    if (((_ea = obj.properties) == null ? void 0 : _ea.acOutputPower) != null && ((_fa = obj.properties) == null ? void 0 : _fa.acOutputPower) != void 0) {
       (0, import_adapterService.updateSolarFlowState)(
         adapter,
         productKey,
@@ -458,7 +460,7 @@ const onMessage = async (topic, message) => {
         obj.properties.acOutputPower
       );
     }
-    if (((_ea = obj.properties) == null ? void 0 : _ea.gridPower) != null && ((_fa = obj.properties) == null ? void 0 : _fa.gridPower) != void 0) {
+    if (((_ga = obj.properties) == null ? void 0 : _ga.gridPower) != null && ((_ha = obj.properties) == null ? void 0 : _ha.gridPower) != void 0) {
       (0, import_adapterService.updateSolarFlowState)(
         adapter,
         productKey,
@@ -467,8 +469,8 @@ const onMessage = async (topic, message) => {
         obj.properties.gridPower
       );
     }
-    if (((_ga = obj.properties) == null ? void 0 : _ga.acSwitch) != null && ((_ha = obj.properties) == null ? void 0 : _ha.acSwitch) != void 0) {
-      const value = ((_ia = obj.properties) == null ? void 0 : _ia.acSwitch) == 0 ? false : true;
+    if (((_ia = obj.properties) == null ? void 0 : _ia.acSwitch) != null && ((_ja = obj.properties) == null ? void 0 : _ja.acSwitch) != void 0) {
+      const value = ((_ka = obj.properties) == null ? void 0 : _ka.acSwitch) == 0 ? false : true;
       (0, import_adapterService.updateSolarFlowState)(adapter, productKey, deviceKey, "acSwitch", value);
       (0, import_adapterService.updateSolarFlowControlState)(
         adapter,
@@ -478,8 +480,8 @@ const onMessage = async (topic, message) => {
         value
       );
     }
-    if (((_ja = obj.properties) == null ? void 0 : _ja.dcSwitch) != null && ((_ka = obj.properties) == null ? void 0 : _ka.dcSwitch) != void 0) {
-      const value = ((_la = obj.properties) == null ? void 0 : _la.dcSwitch) == 0 ? false : true;
+    if (((_la = obj.properties) == null ? void 0 : _la.dcSwitch) != null && ((_ma = obj.properties) == null ? void 0 : _ma.dcSwitch) != void 0) {
+      const value = ((_na = obj.properties) == null ? void 0 : _na.dcSwitch) == 0 ? false : true;
       (0, import_adapterService.updateSolarFlowState)(adapter, productKey, deviceKey, "dcSwitch", value);
       (0, import_adapterService.updateSolarFlowControlState)(
         adapter,
@@ -489,7 +491,7 @@ const onMessage = async (topic, message) => {
         value
       );
     }
-    if (((_ma = obj.properties) == null ? void 0 : _ma.dcOutputPower) != null && ((_na = obj.properties) == null ? void 0 : _na.dcOutputPower) != void 0) {
+    if (((_oa = obj.properties) == null ? void 0 : _oa.dcOutputPower) != null && ((_pa = obj.properties) == null ? void 0 : _pa.dcOutputPower) != void 0) {
       (0, import_adapterService.updateSolarFlowState)(
         adapter,
         productKey,
@@ -498,11 +500,11 @@ const onMessage = async (topic, message) => {
         obj.properties.dcOutputPower
       );
     }
-    if (((_oa = obj.properties) == null ? void 0 : _oa.pvBrand) != null && ((_pa = obj.properties) == null ? void 0 : _pa.pvBrand) != void 0) {
-      const value = ((_qa = obj.properties) == null ? void 0 : _qa.pvBrand) == 0 ? "Others" : ((_ra = obj.properties) == null ? void 0 : _ra.pvBrand) == 1 ? "Hoymiles" : ((_sa = obj.properties) == null ? void 0 : _sa.pvBrand) == 2 ? "Enphase" : ((_ta = obj.properties) == null ? void 0 : _ta.pvBrand) == 3 ? "APSystems" : ((_ua = obj.properties) == null ? void 0 : _ua.pvBrand) == 4 ? "Anker" : ((_va = obj.properties) == null ? void 0 : _va.pvBrand) == 5 ? "Deye" : ((_wa = obj.properties) == null ? void 0 : _wa.pvBrand) == 6 ? "Bosswerk" : "Unknown";
+    if (((_qa = obj.properties) == null ? void 0 : _qa.pvBrand) != null && ((_ra = obj.properties) == null ? void 0 : _ra.pvBrand) != void 0) {
+      const value = ((_sa = obj.properties) == null ? void 0 : _sa.pvBrand) == 0 ? "Others" : ((_ta = obj.properties) == null ? void 0 : _ta.pvBrand) == 1 ? "Hoymiles" : ((_ua = obj.properties) == null ? void 0 : _ua.pvBrand) == 2 ? "Enphase" : ((_va = obj.properties) == null ? void 0 : _va.pvBrand) == 3 ? "APSystems" : ((_wa = obj.properties) == null ? void 0 : _wa.pvBrand) == 4 ? "Anker" : ((_xa = obj.properties) == null ? void 0 : _xa.pvBrand) == 5 ? "Deye" : ((_ya = obj.properties) == null ? void 0 : _ya.pvBrand) == 6 ? "Bosswerk" : "Unknown";
       (0, import_adapterService.updateSolarFlowState)(adapter, productKey, deviceKey, "pvBrand", value);
     }
-    if (((_xa = obj.properties) == null ? void 0 : _xa.inverseMaxPower) != null && ((_ya = obj.properties) == null ? void 0 : _ya.inverseMaxPower) != void 0) {
+    if (((_za = obj.properties) == null ? void 0 : _za.inverseMaxPower) != null && ((_Aa = obj.properties) == null ? void 0 : _Aa.inverseMaxPower) != void 0) {
       (0, import_adapterService.updateSolarFlowState)(
         adapter,
         productKey,
@@ -511,7 +513,7 @@ const onMessage = async (topic, message) => {
         obj.properties.inverseMaxPower
       );
     }
-    if (((_za = obj.properties) == null ? void 0 : _za.wifiState) != null && ((_Aa = obj.properties) == null ? void 0 : _Aa.wifiState) != void 0) {
+    if (((_Ba = obj.properties) == null ? void 0 : _Ba.wifiState) != null && ((_Ca = obj.properties) == null ? void 0 : _Ca.wifiState) != void 0) {
       (0, import_adapterService.updateSolarFlowState)(
         adapter,
         productKey,
@@ -520,7 +522,7 @@ const onMessage = async (topic, message) => {
         obj.properties.wifiState == 1 ? "Connected" : "Disconnected"
       );
     }
-    if (((_Ba = obj.properties) == null ? void 0 : _Ba.packNum) != null && ((_Ca = obj.properties) == null ? void 0 : _Ca.packNum) != void 0) {
+    if (((_Da = obj.properties) == null ? void 0 : _Da.packNum) != null && ((_Ea = obj.properties) == null ? void 0 : _Ea.packNum) != void 0) {
       (0, import_adapterService.updateSolarFlowState)(
         adapter,
         productKey,
@@ -529,7 +531,7 @@ const onMessage = async (topic, message) => {
         obj.properties.packNum
       );
     }
-    if (((_Da = obj.properties) == null ? void 0 : _Da.hubState) != null && ((_Ea = obj.properties) == null ? void 0 : _Ea.hubState) != void 0) {
+    if (((_Fa = obj.properties) == null ? void 0 : _Fa.hubState) != null && ((_Ga = obj.properties) == null ? void 0 : _Ga.hubState) != void 0) {
       (0, import_adapterService.updateSolarFlowState)(
         adapter,
         productKey,

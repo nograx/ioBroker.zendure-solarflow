@@ -561,13 +561,18 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         obj.properties.inputLimit
       );
 
-      updateSolarFlowControlState(
-        adapter,
-        productKey,
-        deviceKey,
-        "setInputLimit",
-        obj.properties.inputLimit
-      );
+      if (
+        productName?.val?.toString().toLowerCase().includes("ace") ||
+        productName?.val?.toString().toLowerCase().includes("hyper")
+      ) {
+        updateSolarFlowControlState(
+          adapter,
+          productKey,
+          deviceKey,
+          "setInputLimit",
+          obj.properties.inputLimit
+        );
+      }
     }
 
     if (

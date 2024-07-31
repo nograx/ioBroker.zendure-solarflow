@@ -211,6 +211,8 @@ export const createControlStates = async (
           read: true,
           write: true,
           min: 0,
+          max: type == "ace" ? 900 : 1200,
+          step: 100,
           unit: "W",
         },
         native: {},
