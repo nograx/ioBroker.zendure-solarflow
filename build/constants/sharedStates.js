@@ -1,13 +1,33 @@
-/* eslint-disable @typescript-eslint/indent */
-import { ISolarflowState } from "../models/ISolarflowState";
-
-export const sharedStates: ISolarflowState[] = [
+"use strict";
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+var sharedStates_exports = {};
+__export(sharedStates_exports, {
+  sharedStates: () => sharedStates
+});
+module.exports = __toCommonJS(sharedStates_exports);
+const sharedStates = [
   {
     title: "lastUpdate",
     nameDe: "Letztes Update",
     nameEn: "Last Update",
     type: "number",
-    role: "value.time",
+    role: "value.time"
   },
   {
     title: "inputLimit",
@@ -15,7 +35,7 @@ export const sharedStates: ISolarflowState[] = [
     nameEn: "limit of input power",
     type: "number",
     role: "value.power",
-    unit: "W",
+    unit: "W"
   },
   {
     title: "gridPower",
@@ -23,21 +43,21 @@ export const sharedStates: ISolarflowState[] = [
     nameEn: "Grid power",
     type: "number",
     role: "value.power",
-    unit: "W",
+    unit: "W"
   },
   {
     title: "buzzerSwitch",
     nameDe: "Sounds am HUB aktivieren",
     nameEn: "Enable buzzer on HUB",
     type: "boolean",
-    role: "value",
+    role: "value"
   },
   {
     title: "packState",
     nameDe: "Systemstatus",
     nameEn: "Status of system",
     type: "string",
-    role: "value",
+    role: "value"
   },
   {
     title: "electricLevel",
@@ -45,35 +65,35 @@ export const sharedStates: ISolarflowState[] = [
     nameEn: "SOC of the system",
     type: "number",
     role: "value.battery",
-    unit: "%",
+    unit: "%"
   },
   {
     title: "name",
     nameDe: "Name",
     nameEn: "Name",
     type: "string",
-    role: "value",
+    role: "value"
   },
   {
     title: "snNumber",
     nameDe: "Seriennnummer",
     nameEn: "Serial ID",
     type: "string",
-    role: "value",
+    role: "value"
   },
   {
     title: "productName",
     nameDe: "Produkt Name",
     nameEn: "Product name",
     type: "string",
-    role: "value",
+    role: "value"
   },
   {
     title: "registeredServer",
     nameDe: "Registrierter Server",
     nameEn: "Registered Server",
     type: "string",
-    role: "value",
+    role: "value"
   },
   {
     title: "energyPower",
@@ -81,7 +101,7 @@ export const sharedStates: ISolarflowState[] = [
     nameEn: "Smartmeter energy power",
     type: "number",
     role: "value.power",
-    unit: "W",
+    unit: "W"
   },
   {
     title: "outputPackPower",
@@ -89,7 +109,7 @@ export const sharedStates: ISolarflowState[] = [
     nameEn: "charge power",
     type: "number",
     role: "value.power",
-    unit: "W",
+    unit: "W"
   },
   {
     title: "packInputPower",
@@ -97,7 +117,7 @@ export const sharedStates: ISolarflowState[] = [
     nameEn: "discharge power",
     type: "number",
     role: "value.power",
-    unit: "W",
+    unit: "W"
   },
   {
     title: "solarInputPower",
@@ -105,7 +125,7 @@ export const sharedStates: ISolarflowState[] = [
     nameEn: "solar power",
     type: "number",
     role: "value.power",
-    unit: "W",
+    unit: "W"
   },
   {
     title: "pvPower1",
@@ -113,7 +133,7 @@ export const sharedStates: ISolarflowState[] = [
     nameEn: "solar power channel 1",
     type: "number",
     role: "value.power",
-    unit: "W",
+    unit: "W"
   },
   {
     title: "pvPower2",
@@ -121,21 +141,21 @@ export const sharedStates: ISolarflowState[] = [
     nameEn: "solar power channel 2",
     type: "number",
     role: "value.power",
-    unit: "W",
+    unit: "W"
   },
   {
     title: "remainInputTime",
     nameDe: "Erwartete Ladedauer",
     nameEn: "remaining charge time",
     type: "number",
-    role: "value.interval",
+    role: "value.interval"
   },
   {
     title: "remainOutTime",
     nameDe: "Erwartete Entladedauer",
     nameEn: "remaining discharge time",
     type: "number",
-    role: "value.interval",
+    role: "value.interval"
   },
   {
     title: "socSet",
@@ -143,7 +163,7 @@ export const sharedStates: ISolarflowState[] = [
     nameEn: "max. SOC",
     type: "number",
     role: "value.battery",
-    unit: "%",
+    unit: "%"
   },
   {
     title: "minSoc",
@@ -151,27 +171,32 @@ export const sharedStates: ISolarflowState[] = [
     nameEn: "min. SOC",
     type: "number",
     role: "value.battery",
-    unit: "%",
+    unit: "%"
   },
   {
     title: "wifiState",
     nameDe: "WiFi Status",
     nameEn: "WiFi Status",
     type: "string",
-    role: "value",
+    role: "value"
   },
   {
     title: "hubState",
     nameDe: "Verhalten wenn minimale reservierte Ladung erreicht",
     nameEn: "Behavior when minimum reserved charge is reached",
     type: "string",
-    role: "value",
+    role: "value"
   },
   {
     title: "packNum",
     nameDe: "Anzahl der angeschlossenen Batterien",
     nameEn: "Number of batteries",
     type: "number",
-    role: "value",
-  },
+    role: "value"
+  }
 ];
+// Annotate the CommonJS export names for ESM import in node:
+0 && (module.exports = {
+  sharedStates
+});
+//# sourceMappingURL=sharedStates.js.map

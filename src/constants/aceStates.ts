@@ -19,22 +19,6 @@ export const aceStates: ISolarflowState[] = sharedStates.concat([
     role: "value",
   },
   {
-    title: "inputLimit",
-    nameDe: "Limit der Eingangsleistung",
-    nameEn: "limit of input power",
-    type: "number",
-    role: "value.power",
-    unit: "W",
-  },
-  {
-    title: "gridPower",
-    nameDe: "Leistung vom Stromnetz",
-    nameEn: "Grid power",
-    type: "number",
-    role: "value.power",
-    unit: "W",
-  },
-  {
     title: "acMode",
     nameDe: "AC Modus",
     nameEn: "AC mode",

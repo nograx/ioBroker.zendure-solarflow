@@ -115,7 +115,7 @@ class ZendureSolarflow extends utils.Adapter {
           if (result) {
             console.log(result);
             this.deviceList = result.filter(
-              (device) => device.productName.toLowerCase().includes("solarflow") || device.productName.toLocaleLowerCase() == "hyper 2000" || device.productName.toLocaleLowerCase() == "ace 1500"
+              (device) => device.productName.toLowerCase().includes("solarflow") || device.productName.toLocaleLowerCase().includes("hyper") || device.productName.toLocaleLowerCase() == "ace 1500"
             );
             await (0, import_adapterService.checkDevicesServer)(this);
             this.log.info(
@@ -124,10 +124,12 @@ class ZendureSolarflow extends utils.Adapter {
             await this.deviceList.forEach(
               async (device) => {
                 let type = "solarflow";
-                if (device.productName.toLocaleLowerCase() == "hyper 2000") {
+                if (device.productName.toLocaleLowerCase().includes("hyper")) {
                   type = "hyper";
-                } else if (device.productName.toLocaleLowerCase() == "ace 1500") {
+                } else if (device.productName.toLocaleLowerCase().includes("ace")) {
                   type = "ace";
+                } else if (device.productName.toLocaleLowerCase().includes("aio")) {
+                  type = "aio";
                 }
                 await (0, import_createSolarFlowStates.createSolarFlowStates)(this, device, type);
                 await (0, import_adapterService.updateSolarFlowState)(

@@ -36,7 +36,7 @@ export const createSolarFlowStates = async (
   const deviceKey = device.deviceKey.replace(adapter.FORBIDDEN_CHARS, "");
 
   adapter.log.debug(
-    `[createSolarFlowStates] Creating or updating SolarFlow states for productKey ${productKey} and deviceKey ${deviceKey}.`
+    `[createSolarFlowStates] Creating or updating SolarFlow states for ${device.productName} (${productKey}/${deviceKey}) and name '${device.name}'.`
   );
 
   // Create device (e.g. the product type -> SolarFlow)

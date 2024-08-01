@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/models/ISolarflowState.ts"],
+  "sourcesContent": ["/* eslint-disable @typescript-eslint/indent */\nexport interface ISolarflowState {\n  title: string;\n  nameDe: string;\n  nameEn: string;\n  role: string;\n  type: ioBroker.CommonType; // Datentyp\n  unit?: string;\n  states?: string | string[] | Record<string, string> | undefined;\n}\n"],
+  "mappings": ";;;;;;;;;;;;;;AAAA;AAAA;",
+  "names": []
+}

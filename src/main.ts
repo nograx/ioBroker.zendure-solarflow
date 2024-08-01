@@ -135,7 +135,7 @@ export class ZendureSolarflow extends utils.Adapter {
                 this.deviceList = result.filter(
                   (device) =>
                     device.productName.toLowerCase().includes("solarflow") ||
-                    device.productName.toLocaleLowerCase() == "hyper 2000" ||
+                    device.productName.toLocaleLowerCase().includes("hyper") ||
                     device.productName.toLocaleLowerCase() == "ace 1500"
                 );
 
@@ -145,18 +145,24 @@ export class ZendureSolarflow extends utils.Adapter {
                   `[onReady] Found ${this.deviceList.length} SolarFlow device(s).`
                 );
 
+                //console.log(this.deviceList);
+
                 await this.deviceList.forEach(
                   async (device: ISolarFlowDeviceDetails) => {
                     let type = "solarflow";
 
                     if (
-                      device.productName.toLocaleLowerCase() == "hyper 2000"
+                      device.productName.toLocaleLowerCase().includes("hyper")
                     ) {
                       type = "hyper";
                     } else if (
-                      device.productName.toLocaleLowerCase() == "ace 1500"
+                      device.productName.toLocaleLowerCase().includes("ace")
                     ) {
                       type = "ace";
+                    } else if (
+                      device.productName.toLocaleLowerCase().includes("aio")
+                    ) {
+                      type = "aio";
                     }
 
                     // States erstellen

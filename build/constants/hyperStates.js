@@ -1,15 +1,35 @@
-/* eslint-disable @typescript-eslint/indent */
-import { ISolarflowState } from "../models/ISolarflowState";
-import { sharedStates } from "./sharedStates";
-
-export const hyperStates: ISolarflowState[] = sharedStates.concat([
+"use strict";
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+var hyperStates_exports = {};
+__export(hyperStates_exports, {
+  hyperStates: () => hyperStates
+});
+module.exports = __toCommonJS(hyperStates_exports);
+var import_sharedStates = require("./sharedStates");
+const hyperStates = import_sharedStates.sharedStates.concat([
   {
     title: "hyperTmp",
     nameDe: "Temperatur des Hyper 2000",
     nameEn: "Temperature of Hyper 2000",
     type: "number",
     role: "value.temperature",
-    unit: "°C",
+    unit: "\xB0C"
   },
   // TODO: Check if passmode is a state of Hyper
   {
@@ -17,14 +37,14 @@ export const hyperStates: ISolarflowState[] = sharedStates.concat([
     nameDe: "Einstellung des Bypass Modus",
     nameEn: "Setting of bypass mode",
     type: "string",
-    role: "value",
+    role: "value"
   },
   {
     title: "pvBrand",
     nameDe: "Wechselrichter Hersteller",
     nameEn: "brand of inverter",
     type: "string",
-    role: "value",
+    role: "value"
   },
   {
     title: "outputHomePower",
@@ -32,7 +52,7 @@ export const hyperStates: ISolarflowState[] = sharedStates.concat([
     nameEn: "output power",
     type: "number",
     role: "value.power",
-    unit: "W",
+    unit: "W"
   },
   {
     title: "outputLimit",
@@ -40,7 +60,7 @@ export const hyperStates: ISolarflowState[] = sharedStates.concat([
     nameEn: "limit of output power",
     type: "number",
     role: "value.power",
-    unit: "W",
+    unit: "W"
   },
   {
     title: "acMode",
@@ -51,8 +71,8 @@ export const hyperStates: ISolarflowState[] = sharedStates.concat([
     states: {
       0: "Nothing",
       1: "AC input mode",
-      2: "AC output mode",
-    },
+      2: "AC output mode"
+    }
   },
   {
     title: "batteryElectric",
@@ -60,7 +80,7 @@ export const hyperStates: ISolarflowState[] = sharedStates.concat([
     nameEn: "Battery electric",
     type: "number",
     role: "value.power",
-    unit: "W",
+    unit: "W"
   },
   {
     title: "gridInputPower",
@@ -68,7 +88,7 @@ export const hyperStates: ISolarflowState[] = sharedStates.concat([
     nameEn: "Current AC input power",
     type: "number",
     role: "value.power",
-    unit: "W",
+    unit: "W"
   },
   {
     title: "acOutputPower",
@@ -76,7 +96,7 @@ export const hyperStates: ISolarflowState[] = sharedStates.concat([
     nameEn: "Current AC output power",
     type: "number",
     role: "value.power",
-    unit: "W",
+    unit: "W"
   },
   {
     title: "inverseMaxPower",
@@ -84,13 +104,18 @@ export const hyperStates: ISolarflowState[] = sharedStates.concat([
     nameEn: "highest acceptable input power",
     type: "number",
     role: "value.power",
-    unit: "W",
+    unit: "W"
   },
   {
     title: "pass",
     nameDe: "Bypass an/aus",
     nameEn: "Bypass on/off",
     type: "boolean",
-    role: "value",
-  },
+    role: "value"
+  }
 ]);
+// Annotate the CommonJS export names for ESM import in node:
+0 && (module.exports = {
+  hyperStates
+});
+//# sourceMappingURL=hyperStates.js.map

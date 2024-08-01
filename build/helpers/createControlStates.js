@@ -193,12 +193,17 @@ const createControlStates = async (adapter, productKey, deviceKey, type) => {
         },
         type: "number",
         desc: "acMode",
-        role: "value",
+        role: "switch",
         min: 0,
         max: 2,
         step: 1,
         read: true,
-        write: true
+        write: true,
+        states: {
+          0: "Nothing",
+          1: "AC input mode",
+          2: "AC output mode"
+        }
       },
       native: {}
     }));
