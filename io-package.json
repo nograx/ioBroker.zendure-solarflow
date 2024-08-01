@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.7.5",
+    "version": "1.7.6",
     "news": {
+      "1.7.6": {
+        "en": "Fix support for 'Hyper_Test' devices\nImproved code for state creation",
+        "de": "Unterstützung für 'Hyper_Test'-Geräte beheben\nVerbesserter Code für die staatliche Schöpfung",
+        "ru": "Поддержка 'Hyper_Test'\nУлучшенный код для создания государства",
+        "pt": "Suporte fixo para dispositivos 'Hyper_Test'\nCódigo melhorado para a criação do estado",
+        "nl": "Ondersteuning voor 'Hyper_Test'-apparaten herstellen\nVerbeterde code voor het aanmaken van staten",
+        "fr": "Correction de la prise en charge des périphériques 'Hyper_Test'\nCode amélioré pour la création d'État",
+        "it": "Supporto per dispositivi 'Hyper_Test'\nCodice migliorato per la creazione di stato",
+        "es": "Soporte fijo para dispositivos 'Hyper_Test'\nCódigo mejorado para la creación del estado",
+        "pl": "Napraw obsługę urządzeń 'Hyper _ Test'\nUlepszony kodeks tworzenia państwa",
+        "uk": "Фіксована підтримка пристроїв «Hyper_Test»\nПокращений код для державного створення",
+        "zh-cn": "修正“ Hyper_ test” 设备的支持\n改进国家创建的代码"
+      },
       "1.7.5": {
         "en": "Fix controlling AC mode for Hyper 2000 (set acMode to 1: Charge by AC, 2: Output to AC)\nShow product name in channel name\nShow battery type as state in packData\nShow Hyper Temperature in States",
         "de": "Fix Controlling AC-Modus für Hyper 2000 (Set acMode auf 1: Lade durch AC, 2: Ausgabe auf AC)\nProduktname in Kanalname anzeigen\nBatterietyp als Zustand in packData anzeigen\nHypertemperatur in den Staaten anzeigen",
@@ -80,19 +93,6 @@
         "pl": "Dodaj wsparcie dla Hyper 2000 i ACE 1500. Może nie wszystkie stany i parametry sterowania są dostępne. Nadal muszę przeprowadzić śledztwo.\nKilka drobnych poprawek.",
         "uk": "Додайте підтримку Hyper 2000 і ACE 1500. Може бути не всі стани і контрольний параметр. Наскільки потрібно робити деякі дослідження.\nДеякі незначні виправлення.",
         "zh-cn": "添加支持Hyper 2000和ACE 1500. 也许并非所有状态和控制参数都可用。 还需要调查一下.\n一些小错误修正."
-      },
-      "1.6.7": {
-        "en": "Fix reconnect again. Adapter will now restart every 3 hours to cleanup fully.",
-        "de": "Reconnect wieder reparieren. Adapter wird jetzt alle 3 Stunden neu starten, um vollständig zu reinigen.",
-        "ru": "Повторите подключение. Адаптер теперь перезапускается каждые 3 часа, чтобы полностью очиститься.",
-        "pt": "Reconectar novamente. O adaptador agora reiniciará a cada 3 horas para limpar totalmente.",
-        "nl": "Maak opnieuw verbinding. Adapter zal nu om de 3 uur opnieuw opstarten om volledig op te ruimen.",
-        "fr": "Réparer la connexion. Adaptateur va maintenant redémarrer toutes les 3 heures pour nettoyer complètement.",
-        "it": "Risolvi di nuovo la connessione. L'adattatore si riavvia ogni 3 ore per pulire completamente.",
-        "es": "Arregla la reconexión de nuevo. El adaptador se reiniciará cada 3 horas para limpiar completamente.",
-        "pl": "Napraw ponownie połączenie. Adapter będzie teraz ponownie uruchomić co 3 godziny, aby w pełni posprzątać.",
-        "uk": "Виправлення повторного підключення. Адаптер тепер перезавантажить кожні 3 години для очищення повністю.",
-        "zh-cn": "恢复连接 适配器现在将每3小时重新启动一次,以全面清理."
       }
     },
     "titleLang": {
