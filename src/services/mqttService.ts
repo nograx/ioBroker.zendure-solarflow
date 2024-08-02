@@ -114,7 +114,7 @@ export const addOrUpdatePackData = async (
             native: {},
           });
 
-          await adapter?.setStateAsync(key + ".socLevel", x.socLevel, true);
+          await adapter?.setState(key + ".socLevel", x.socLevel, true);
         }
 
         if (x.maxTemp) {
@@ -137,7 +137,7 @@ export const addOrUpdatePackData = async (
           });
 
           // Convert Kelvin to Celsius
-          await adapter?.setStateAsync(
+          await adapter?.setState(
             key + ".maxTemp",
             x.maxTemp / 10 - 273.15,
             true
@@ -158,7 +158,7 @@ export const addOrUpdatePackData = async (
             native: {},
           });
 
-          await adapter?.setStateAsync(key + ".minVol", x.minVol / 100, true);
+          await adapter?.setState(key + ".minVol", x.minVol / 100, true);
         }
 
         if (x.maxVol) {
@@ -972,14 +972,19 @@ export const setInputLimit = async (
       ?.toString()
       .toLowerCase();
 
-    if (productName == "hyper 2000") {
+    if (productName?.includes("hyper")) {
       maxLimit = 1200;
     }
 
-    // Das Limit kann nur in 100er Schritten gesetzt werden
-    limit = Math.ceil(limit / 100) * 100;
+    if (productName?.includes("ace")) {
+      // Das Limit kann nur in 100er Schritten gesetzt werden
+      limit = Math.ceil(limit / 100) * 100;
+    }
+
     if (limit < 0) {
       limit = 0;
+    } else if (limit < 30 && limit > 0) {
+      limit = 30;
     } else if (limit > maxLimit) {
       limit = maxLimit;
     }

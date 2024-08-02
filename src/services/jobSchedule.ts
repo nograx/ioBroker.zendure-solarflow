@@ -49,23 +49,23 @@ import { calculateEnergy, resetTodaysValues } from "./calculationService";
 }; */
 
 export const startRefreshAccessTokenTimerJob = async (
-  adapter: ZendureSolarflow,
+  adapter: ZendureSolarflow
 ): Promise<void> => {
   adapter.refreshAccessTokenInterval = adapter.setInterval(
     async () => {
       adapter.log.info(
-        `Refresh Access Token - Adapter will restart in 20 seconds!`,
+        `Refresh Access Token - Adapter will restart in 20 seconds!`
       );
 
       await adapter.delay(20 * 1000);
       adapter.restart();
     },
-    3 * 60 * 60 * 1000,
+    3 * 60 * 60 * 1000
   );
 };
 
 export const startResetValuesJob = async (
-  adapter: ZendureSolarflow,
+  adapter: ZendureSolarflow
 ): Promise<void> => {
   adapter.resetValuesJob = scheduleJob("5 0 0 * * *", () => {
     // Reset Values
@@ -74,7 +74,7 @@ export const startResetValuesJob = async (
 };
 
 export const startCalculationJob = async (
-  adapter: ZendureSolarflow,
+  adapter: ZendureSolarflow
 ): Promise<void> => {
   adapter.calculationJob = scheduleJob("*/30 * * * * *", () => {
     adapter.deviceList.forEach((device) => {
@@ -84,7 +84,7 @@ export const startCalculationJob = async (
 };
 
 export const startCheckStatesAndConnectionJob = async (
-  adapter: ZendureSolarflow,
+  adapter: ZendureSolarflow
 ): Promise<void> => {
   // Check for states that has no updates in the last 5 minutes and set them to 0
   const statesToReset: string[] = [
@@ -97,7 +97,7 @@ export const startCheckStatesAndConnectionJob = async (
   let refreshAccessTokenNeeded = false;
 
   adapter.log.debug(
-    `[checkStatesJob] Starting check of states and connection!`,
+    `[checkStatesJob] Starting check of states and connection!`
   );
 
   adapter.checkStatesJob = scheduleJob("*/5 * * * *", async () => {
@@ -107,11 +107,11 @@ export const startCheckStatesAndConnectionJob = async (
       }
 
       const lastUpdate = await adapter?.getStateAsync(
-        device.productKey + "." + device.deviceKey + ".lastUpdate",
+        device.productKey + "." + device.deviceKey + ".lastUpdate"
       );
 
       const wifiState = await adapter?.getStateAsync(
-        device.productKey + "." + device.deviceKey + ".wifiState",
+        device.productKey + "." + device.deviceKey + ".wifiState"
       );
 
       const fiveMinutesAgo = (Date.now() / 1000 - 5 * 60) * 1000; // Five minutes ago
@@ -127,8 +127,8 @@ export const startCheckStatesAndConnectionJob = async (
           `[checkStatesJob] Last update for deviceKey ${
             device.deviceKey
           } was at ${new Date(
-            Number(lastUpdate),
-          )}, device seems to be online - so maybe connection is broken - restart adapter in 20 seconds!`,
+            Number(lastUpdate)
+          )}, device seems to be online - so maybe connection is broken - restart adapter in 20 seconds!`
         );
 
         await adapter.delay(20 * 1000);
@@ -148,24 +148,24 @@ export const startCheckStatesAndConnectionJob = async (
           `[checkStatesJob] Last update for deviceKey ${
             device.deviceKey
           } was at ${new Date(
-            Number(lastUpdate),
-          )}, checking for pseudo power values!`,
+            Number(lastUpdate)
+          )}, checking for pseudo power values!`
         );
         // State was not updated in the last 10 minutes... set states to 0
         await statesToReset.forEach(async (stateName: string) => {
-          await adapter?.setStateAsync(
+          await adapter?.setState(
             device.productKey + "." + device.deviceKey + "." + stateName,
             0,
-            true,
+            true
           );
         });
 
         // set electricLevel from deviceList
         if (device.electricity) {
-          await adapter?.setStateAsync(
+          await adapter?.setState(
             device.productKey + "." + device.deviceKey + ".electricLevel",
             device.electricity,
-            true,
+            true
           );
         }
       }

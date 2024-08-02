@@ -16,17 +16,17 @@ const calculationStateKeys = [
 export const setEnergyWhMax = async (
   adapter: ZendureSolarflow,
   productKey: string,
-  deviceKey: string,
+  deviceKey: string
 ): Promise<void> => {
   const currentEnergyState = await adapter?.getStateAsync(
-    productKey + "." + deviceKey + ".calculations.energyWh",
+    productKey + "." + deviceKey + ".calculations.energyWh"
   );
 
   if (currentEnergyState) {
-    await adapter?.setStateAsync(
+    await adapter?.setState(
       `${productKey}.${deviceKey}.calculations.energyWhMax`,
       currentEnergyState?.val,
-      true,
+      true
     );
   }
 };
@@ -34,37 +34,37 @@ export const setEnergyWhMax = async (
 export const setSocToZero = async (
   adapter: ZendureSolarflow,
   productKey: string,
-  deviceKey: string,
+  deviceKey: string
 ): Promise<void> => {
   // Set SOC to 0
-  await adapter?.setStateAsync(
+  await adapter?.setState(
     `${productKey}.${deviceKey}.calculations.soc`,
     0,
-    true,
+    true
   );
 
   // Calculate new Wh Max Value
   const energyWhState = await adapter.getStateAsync(
-    `${productKey}.${deviceKey}.calculations.energyWh`,
+    `${productKey}.${deviceKey}.calculations.energyWh`
   );
   const energyWhMaxState = await adapter.getStateAsync(
-    `${productKey}.${deviceKey}.calculations.energyWhMax`,
+    `${productKey}.${deviceKey}.calculations.energyWhMax`
   );
 
   const newMax = Number(energyWhMaxState?.val) - Number(energyWhState?.val);
 
   // Set Max Energy to value minus current energy
-  await adapter?.setStateAsync(
+  await adapter?.setState(
     `${productKey}.${deviceKey}.calculations.energyWhMax`,
     newMax,
-    true,
+    true
   );
 
   // Set Energy in Battery to 0
-  await adapter?.setStateAsync(
+  await adapter?.setState(
     `${productKey}.${deviceKey}.calculations.energyWh`,
     0,
-    true,
+    true
   );
 };
 
@@ -73,14 +73,14 @@ export const calculateSocAndEnergy = async (
   productKey: string,
   deviceKey: string,
   stateKey: string,
-  value: number,
+  value: number
 ): Promise<void> => {
   const currentEnergyState = await adapter?.getStateAsync(
-    productKey + "." + deviceKey + ".calculations.energyWh",
+    productKey + "." + deviceKey + ".calculations.energyWh"
   );
 
   const currentEnergyMaxState = await adapter?.getStateAsync(
-    productKey + "." + deviceKey + ".calculations.energyWhMax",
+    productKey + "." + deviceKey + ".calculations.energyWhMax"
   );
 
   const currentValue = currentEnergyState?.val
@@ -94,35 +94,35 @@ export const calculateSocAndEnergy = async (
     adapter?.setState(
       `${productKey}.${deviceKey}.calculations.energyWh`,
       newValue,
-      true,
+      true
     );
 
     if (currentEnergyMaxState) {
       const soc = Number(
-        ((newValue / Number(currentEnergyMaxState.val)) * 100).toFixed(1),
+        ((newValue / Number(currentEnergyMaxState.val)) * 100).toFixed(1)
       );
 
-      await adapter?.setStateAsync(
+      await adapter?.setState(
         `${productKey}.${deviceKey}.calculations.soc`,
         soc > 100.0 ? 100 : soc,
-        true,
+        true
       );
 
       if (newValue > Number(currentEnergyMaxState.val)) {
         // Extend maxVal
-        await adapter?.setStateAsync(
+        await adapter?.setState(
           `${productKey}.${deviceKey}.calculations.energyWhMax`,
           newValue,
-          true,
+          true
         );
       }
 
       const currentOutputPackPower = await adapter?.getStateAsync(
-        `${productKey}.${deviceKey}.outputPackPower`,
+        `${productKey}.${deviceKey}.outputPackPower`
       );
 
       const currentPackInputPower = await adapter?.getStateAsync(
-        productKey + "." + deviceKey + ".packInputPower",
+        productKey + "." + deviceKey + ".packInputPower"
       );
 
       if (
@@ -138,19 +138,19 @@ export const calculateSocAndEnergy = async (
 
         if (remainHoursAsDecimal < 48.0) {
           const remainFormatted = toHoursAndMinutes(
-            Math.round(remainHoursAsDecimal * 60),
+            Math.round(remainHoursAsDecimal * 60)
           );
 
-          await adapter?.setStateAsync(
+          await adapter?.setState(
             `${productKey}.${deviceKey}.calculations.remainInputTime`,
             remainFormatted,
-            true,
+            true
           );
         } else {
-          await adapter?.setStateAsync(
+          await adapter?.setState(
             `${productKey}.${deviceKey}.calculations.remainInputTime`,
             "",
-            true,
+            true
           );
         }
       } else if (
@@ -162,41 +162,41 @@ export const calculateSocAndEnergy = async (
         const remainHoursAsDecimal =
           newValue / Number(currentPackInputPower.val);
         const remainFormatted = toHoursAndMinutes(
-          Math.round(remainHoursAsDecimal * 60),
+          Math.round(remainHoursAsDecimal * 60)
         );
 
         if (remainHoursAsDecimal < 48.0) {
-          await adapter?.setStateAsync(
+          await adapter?.setState(
             `${productKey}.${deviceKey}.calculations.remainOutTime`,
             remainFormatted,
-            true,
+            true
           );
         } else {
-          await adapter?.setStateAsync(
+          await adapter?.setState(
             `${productKey}.${deviceKey}.calculations.remainOutTime`,
             "",
-            true,
+            true
           );
         }
       }
     } else {
-      await adapter?.setStateAsync(
+      await adapter?.setState(
         `${productKey}.${deviceKey}.calculations.energyWhMax`,
         newValue,
-        true,
+        true
       );
     }
   } else if (newValue == 0 && stateKey == "outputPack") {
-    await adapter?.setStateAsync(
+    await adapter?.setState(
       `${productKey}.${deviceKey}.calculations.remainInputTime`,
       "",
-      true,
+      true
     );
   } else if (newValue == 0 && stateKey == "packInput") {
-    await adapter?.setStateAsync(
+    await adapter?.setState(
       `${productKey}.${deviceKey}.calculations.remainOutTime`,
       "",
-      true,
+      true
     );
   }
 };
@@ -204,7 +204,7 @@ export const calculateSocAndEnergy = async (
 export const calculateEnergy = async (
   adapter: ZendureSolarflow,
   productKey: string,
-  deviceKey: string,
+  deviceKey: string
 ): Promise<void> => {
   calculationStateKeys.forEach(async (stateKey) => {
     let stateNameEnergyWh = "";
@@ -230,7 +230,7 @@ export const calculateEnergy = async (
 
     if (currentEnergyState?.val == 0) {
       // Workaround, set Val to very low value to avoid Jump in data...
-      await adapter?.setStateAsync(stateNameEnergyWh, 0.000001, true);
+      await adapter?.setState(stateNameEnergyWh, 0.000001, true);
     } else if (
       currentEnergyState &&
       currentEnergyState.lc &&
@@ -266,11 +266,11 @@ export const calculateEnergy = async (
         newEnergyValue = 0;
       }
 
-      await adapter?.setStateAsync(stateNameEnergyWh, newEnergyValue, true);
-      await adapter?.setStateAsync(
+      await adapter?.setState(stateNameEnergyWh, newEnergyValue, true);
+      await adapter?.setState(
         stateNameEnergykWh,
         Number((newEnergyValue / 1000).toFixed(2)),
-        true,
+        true
       );
 
       // SOC and energy in batteries
@@ -283,32 +283,32 @@ export const calculateEnergy = async (
           productKey,
           deviceKey,
           stateKey,
-          addEnergyValue,
+          addEnergyValue
         );
       } else {
         if (stateKey == "outputPack") {
-          await adapter?.setStateAsync(
+          await adapter?.setState(
             `${productKey}.${deviceKey}.calculations.remainInputTime`,
             "",
-            true,
+            true
           );
         } else if (stateKey == "packInput") {
-          await adapter?.setStateAsync(
+          await adapter?.setState(
             `${productKey}.${deviceKey}.calculations.remainOutTime`,
             "",
-            true,
+            true
           );
         }
       }
     } else {
-      await adapter?.setStateAsync(stateNameEnergyWh, 0, true);
-      await adapter?.setStateAsync(stateNameEnergykWh, 0, true);
+      await adapter?.setState(stateNameEnergyWh, 0, true);
+      await adapter?.setState(stateNameEnergykWh, 0, true);
     }
   });
 };
 
 export const resetTodaysValues = async (
-  adapter: ZendureSolarflow,
+  adapter: ZendureSolarflow
 ): Promise<void> => {
   adapter.deviceList.forEach((device: ISolarFlowDeviceDetails) => {
     calculationStateKeys.forEach(async (stateKey: string) => {
@@ -326,8 +326,8 @@ export const resetTodaysValues = async (
         stateNameEnergykWh = `${device.productKey}.${device.deviceKey}.calculations.${stateKey}EnergyTodaykWh`;
       }
 
-      await adapter?.setStateAsync(stateNameEnergyWh, 0, true);
-      await adapter?.setStateAsync(stateNameEnergykWh, 0, true);
+      await adapter?.setState(stateNameEnergyWh, 0, true);
+      await adapter?.setState(stateNameEnergykWh, 0, true);
     });
   });
 };

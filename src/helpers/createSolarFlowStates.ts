@@ -55,7 +55,10 @@ export const createSolarFlowStates = async (
   await adapter?.extendObject(productKey + "." + deviceKey, {
     type: "channel",
     common: {
-      name: { de: "Device Key " + deviceKey, en: "Device Key " + deviceKey },
+      name: {
+        de: `${device.name} (${deviceKey})`,
+        en: `${device.name} (${deviceKey})`,
+      },
     },
     native: {},
   });
@@ -152,7 +155,7 @@ export const createSolarFlowStates = async (
 
   if (
     adapter.config.useCalculation &&
-    (type == "solarflow" || type == "hyper")
+    (type == "aio" || type == "solarflow" || type == "hyper")
   ) {
     await createCalculationStates(adapter, productKey, deviceKey);
   } else {

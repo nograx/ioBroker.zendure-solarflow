@@ -50,7 +50,7 @@ export const addOrUpdatePackData = async (
           native: {},
         });
 
-        await adapter?.setStateAsync(key + ".sn", x.sn, true);
+        await adapter?.setState(key + ".sn", x.sn, true);
 
         if (x.socLevel) {
           // State für socLevel
@@ -70,7 +70,7 @@ export const addOrUpdatePackData = async (
             native: {},
           });
 
-          await adapter?.setStateAsync(key + ".socLevel", x.socLevel, true);
+          await adapter?.setState(key + ".socLevel", x.socLevel, true);
         }
 
         if (x.maxTemp) {
@@ -92,7 +92,7 @@ export const addOrUpdatePackData = async (
           });
 
           // Convert Kelvin to Celsius
-          await adapter?.setStateAsync(
+          await adapter?.setState(
             key + ".maxTemp",
             x.maxTemp / 10 - 273.15,
             true
@@ -113,7 +113,7 @@ export const addOrUpdatePackData = async (
             native: {},
           });
 
-          await adapter?.setStateAsync(key + ".minVol", x.minVol / 100, true);
+          await adapter?.setState(key + ".minVol", x.minVol / 100, true);
         }
 
         if (x.maxVol) {
@@ -130,7 +130,7 @@ export const addOrUpdatePackData = async (
             native: {},
           });
 
-          await adapter?.setStateAsync(key + ".maxVol", x.maxVol / 100, true);
+          await adapter?.setState(key + ".maxVol", x.maxVol / 100, true);
         }
 
         if (x.totalVol) {
@@ -149,7 +149,7 @@ export const addOrUpdatePackData = async (
 
           const totalVol = x.totalVol / 100;
 
-          await adapter?.setStateAsync(key + ".totalVol", totalVol, true);
+          await adapter?.setState(key + ".totalVol", totalVol, true);
 
           // Send Voltage to checkVoltage Method - Check Voltage makes no sense, as no control is possible in fallback mode!
           //checkVoltage(adapter, productKey, deviceKey, totalVol);

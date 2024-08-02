@@ -9,13 +9,9 @@ export const updateSolarFlowState = async (
   productKey: string,
   deviceKey: string,
   state: string,
-  val: number | string | boolean,
+  val: number | string | boolean
 ): Promise<void> => {
-  await adapter?.setStateAsync(
-    `${productKey}.${deviceKey}.${state}`,
-    val,
-    true,
-  );
+  await adapter?.setState(`${productKey}.${deviceKey}.${state}`, val, true);
 };
 
 export const updateSolarFlowControlState = async (
@@ -23,12 +19,12 @@ export const updateSolarFlowControlState = async (
   productKey: string,
   deviceKey: string,
   state: string,
-  val: number | string | boolean,
+  val: number | string | boolean
 ): Promise<void> => {
-  await adapter?.setStateAsync(
+  await adapter?.setState(
     `${productKey}.${deviceKey}.control.${state}`,
     val,
-    true,
+    true
   );
 };
 
@@ -36,7 +32,7 @@ export const checkVoltage = async (
   adapter: ZendureSolarflow,
   productKey: string,
   deviceKey: string,
-  voltage: number,
+  voltage: number
 ): Promise<void> => {
   if (voltage < 46.1) {
     if (adapter.config.useCalculation) {
@@ -45,10 +41,10 @@ export const checkVoltage = async (
 
     if (adapter.config.useLowVoltageBlock) {
       // Activate Low Voltage Block
-      await adapter?.setStateAsync(
+      await adapter?.setState(
         `${productKey}.${deviceKey}.control.lowVoltageBlock`,
         true,
-        true,
+        true
       );
 
       // Low Voltage Block activated, stop power input immediately
@@ -57,17 +53,17 @@ export const checkVoltage = async (
   } else if (voltage >= 48.0) {
     if (adapter.config.useLowVoltageBlock) {
       // Deactivate Low Voltage Block
-      await adapter?.setStateAsync(
+      await adapter?.setState(
         `${productKey}.${deviceKey}.control.lowVoltageBlock`,
         false,
-        true,
+        true
       );
     }
   }
 };
 
 export const checkDevicesServer = async (
-  adapter: ZendureSolarflow,
+  adapter: ZendureSolarflow
 ): Promise<void> => {
   const channels = await adapter.getChannelsAsync();
 
@@ -79,7 +75,7 @@ export const checkDevicesServer = async (
         const deviceKey = splitted[3];
 
         const currentServerState = await adapter.getStateAsync(
-          `${productKey}.${deviceKey}.registeredServer`,
+          `${productKey}.${deviceKey}.registeredServer`
         );
 
         if (
@@ -88,7 +84,7 @@ export const checkDevicesServer = async (
           currentServerState.val != adapter.config.server
         ) {
           adapter.log.warn(
-            `Device with ProductKey '${productKey}' and DeviceKey '${deviceKey}' was configured on server '${currentServerState.val}', but adapter is configured to use server '${adapter.config.server}'! No data will be available!`,
+            `Device with ProductKey '${productKey}' and DeviceKey '${deviceKey}' was configured on server '${currentServerState.val}', but adapter is configured to use server '${adapter.config.server}'! No data will be available!`
           );
         }
       }
