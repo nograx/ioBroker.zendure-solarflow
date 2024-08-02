@@ -61,7 +61,10 @@ const createSolarFlowStates = async (adapter, device, type) => {
   await (adapter == null ? void 0 : adapter.extendObject(productKey + "." + deviceKey, {
     type: "channel",
     common: {
-      name: { de: "Device Key " + deviceKey, en: "Device Key " + deviceKey }
+      name: {
+        de: `${device.name} (${deviceKey})`,
+        en: `${device.name} (${deviceKey})`
+      }
     },
     native: {}
   }));
@@ -139,7 +142,7 @@ const createSolarFlowStates = async (adapter, device, type) => {
   if (!adapter.config.useFallbackService) {
     await (0, import_createControlStates.createControlStates)(adapter, productKey, deviceKey, type);
   }
-  if (adapter.config.useCalculation && (type == "solarflow" || type == "hyper")) {
+  if (adapter.config.useCalculation && (type == "aio" || type == "solarflow" || type == "hyper")) {
     await (0, import_createCalculationStates.createCalculationStates)(adapter, productKey, deviceKey);
   } else {
   }

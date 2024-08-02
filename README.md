@@ -46,6 +46,11 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Fix Input and Output limit for Hyper 2000
+
 ### 1.7.6 (2024-08-01)
 
 - Fix support for 'Hyper_Test' devices

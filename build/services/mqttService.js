@@ -117,7 +117,7 @@ const addOrUpdatePackData = async (productKey, deviceKey, packData, isSolarFlow)
             },
             native: {}
           }));
-          await (adapter == null ? void 0 : adapter.setStateAsync(key + ".socLevel", x.socLevel, true));
+          await (adapter == null ? void 0 : adapter.setState(key + ".socLevel", x.socLevel, true));
         }
         if (x.maxTemp) {
           await (adapter == null ? void 0 : adapter.extendObject(key + ".maxTemp", {
@@ -136,7 +136,7 @@ const addOrUpdatePackData = async (productKey, deviceKey, packData, isSolarFlow)
             },
             native: {}
           }));
-          await (adapter == null ? void 0 : adapter.setStateAsync(
+          await (adapter == null ? void 0 : adapter.setState(
             key + ".maxTemp",
             x.maxTemp / 10 - 273.15,
             true
@@ -155,7 +155,7 @@ const addOrUpdatePackData = async (productKey, deviceKey, packData, isSolarFlow)
             },
             native: {}
           }));
-          await (adapter == null ? void 0 : adapter.setStateAsync(key + ".minVol", x.minVol / 100, true));
+          await (adapter == null ? void 0 : adapter.setState(key + ".minVol", x.minVol / 100, true));
         }
         if (x.maxVol) {
           await (adapter == null ? void 0 : adapter.extendObject(key + ".maxVol", {
@@ -665,16 +665,19 @@ const setOutputLimit = async (adapter2, productKey, deviceKey, limit) => {
     const productName = (_c = (_b = await adapter2.getStateAsync(productKey + "." + deviceKey + ".productName")) == null ? void 0 : _b.val) == null ? void 0 : _c.toString().toLowerCase();
     if (currentLimit != null && currentLimit != void 0) {
       if (currentLimit != limit) {
-        if (limit < 100 && limit != 90 && limit != 60 && limit != 30 && limit != 0 && productName != "hyper 2000") {
-          if (limit < 100 && limit > 90) {
+        if (limit < 100 && limit != 90 && limit != 60 && limit != 30 && limit != 0) {
+          if (limit < 100 && limit > 90 && !(productName == null ? void 0 : productName.includes("hyper"))) {
             limit = 90;
-          } else if (limit < 90 && limit > 60) {
+          } else if (limit > 60 && limit < 90 && !(productName == null ? void 0 : productName.includes("hyper"))) {
             limit = 60;
-          } else if (limit < 60 && limit > 30) {
+          } else if (limit > 30 && limit < 60 && !(productName == null ? void 0 : productName.includes("hyper"))) {
             limit = 30;
           } else if (limit < 30) {
             limit = 30;
           }
+        }
+        if (limit > 1200) {
+          limit = 1200;
         }
         const topic = `iot/${productKey}/${deviceKey}/properties/write`;
         const outputlimit = { properties: { outputLimit: limit } };
@@ -689,12 +692,16 @@ const setInputLimit = async (adapter2, productKey, deviceKey, limit) => {
     let maxLimit = 900;
     const currentLimit = (_a = await adapter2.getStateAsync(productKey + "." + deviceKey + ".inputLimit")) == null ? void 0 : _a.val;
     const productName = (_c = (_b = await adapter2.getStateAsync(productKey + "." + deviceKey + ".productName")) == null ? void 0 : _b.val) == null ? void 0 : _c.toString().toLowerCase();
-    if (productName == "hyper 2000") {
+    if (productName == null ? void 0 : productName.includes("hyper")) {
       maxLimit = 1200;
     }
-    limit = Math.ceil(limit / 100) * 100;
+    if (productName == null ? void 0 : productName.includes("ace")) {
+      limit = Math.ceil(limit / 100) * 100;
+    }
     if (limit < 0) {
       limit = 0;
+    } else if (limit > 0 && limit <= 30) {
+      limit = 30;
     } else if (limit > maxLimit) {
       limit = maxLimit;
     }

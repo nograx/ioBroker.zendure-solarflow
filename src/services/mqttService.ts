@@ -900,6 +900,12 @@ export const setOutputLimit = async (
   limit: number
 ): Promise<void> => {
   if (adapter.mqttClient && productKey && deviceKey) {
+    if (limit) {
+      limit = Math.round(limit);
+    } else {
+      limit = 0;
+    }
+
     if (adapter.config.useLowVoltageBlock) {
       const lowVoltageBlockState = await adapter.getStateAsync(
         productKey + "." + deviceKey + ".control.lowVoltageBlock"
@@ -930,19 +936,30 @@ export const setOutputLimit = async (
           limit != 90 &&
           limit != 60 &&
           limit != 30 &&
-          limit != 0 &&
-          productName != "hyper 2000"
+          limit != 0
         ) {
           // NUR Solarflow HUB: Das Limit kann unter 100 nur in 30er Schritten gesetzt werden, dH. 30/60/90/100, wir rechnen das also um
-          if (limit < 100 && limit > 90) {
+          if (limit < 100 && limit > 90 && !productName?.includes("hyper")) {
             limit = 90;
-          } else if (limit < 90 && limit > 60) {
+          } else if (
+            limit > 60 &&
+            limit < 90 &&
+            !productName?.includes("hyper")
+          ) {
             limit = 60;
-          } else if (limit < 60 && limit > 30) {
+          } else if (
+            limit > 30 &&
+            limit < 60 &&
+            !productName?.includes("hyper")
+          ) {
             limit = 30;
           } else if (limit < 30) {
             limit = 30;
           }
+        }
+
+        if (limit > 1200) {
+          limit = 1200;
         }
 
         const topic = `iot/${productKey}/${deviceKey}/properties/write`;
@@ -961,6 +978,12 @@ export const setInputLimit = async (
   limit: number
 ): Promise<void> => {
   if (adapter.mqttClient && productKey && deviceKey) {
+    if (limit) {
+      limit = Math.round(limit);
+    } else {
+      limit = 0;
+    }
+
     let maxLimit = 900;
     const currentLimit = (
       await adapter.getStateAsync(productKey + "." + deviceKey + ".inputLimit")
@@ -983,7 +1006,7 @@ export const setInputLimit = async (
 
     if (limit < 0) {
       limit = 0;
-    } else if (limit < 30 && limit > 0) {
+    } else if (limit > 0 && limit <= 30) {
       limit = 30;
     } else if (limit > maxLimit) {
       limit = maxLimit;

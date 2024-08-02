@@ -59,7 +59,7 @@ const addOrUpdatePackData = async (productKey, deviceKey, packData) => {
           },
           native: {}
         }));
-        await (adapter == null ? void 0 : adapter.setStateAsync(key + ".sn", x.sn, true));
+        await (adapter == null ? void 0 : adapter.setState(key + ".sn", x.sn, true));
         if (x.socLevel) {
           await (adapter == null ? void 0 : adapter.extendObject(key + ".socLevel", {
             type: "state",
@@ -76,7 +76,7 @@ const addOrUpdatePackData = async (productKey, deviceKey, packData) => {
             },
             native: {}
           }));
-          await (adapter == null ? void 0 : adapter.setStateAsync(key + ".socLevel", x.socLevel, true));
+          await (adapter == null ? void 0 : adapter.setState(key + ".socLevel", x.socLevel, true));
         }
         if (x.maxTemp) {
           await (adapter == null ? void 0 : adapter.extendObject(key + ".maxTemp", {
@@ -94,7 +94,7 @@ const addOrUpdatePackData = async (productKey, deviceKey, packData) => {
             },
             native: {}
           }));
-          await (adapter == null ? void 0 : adapter.setStateAsync(
+          await (adapter == null ? void 0 : adapter.setState(
             key + ".maxTemp",
             x.maxTemp / 10 - 273.15,
             true
@@ -113,7 +113,7 @@ const addOrUpdatePackData = async (productKey, deviceKey, packData) => {
             },
             native: {}
           }));
-          await (adapter == null ? void 0 : adapter.setStateAsync(key + ".minVol", x.minVol / 100, true));
+          await (adapter == null ? void 0 : adapter.setState(key + ".minVol", x.minVol / 100, true));
         }
         if (x.maxVol) {
           await (adapter == null ? void 0 : adapter.extendObject(key + ".maxVol", {
@@ -128,7 +128,7 @@ const addOrUpdatePackData = async (productKey, deviceKey, packData) => {
             },
             native: {}
           }));
-          await (adapter == null ? void 0 : adapter.setStateAsync(key + ".maxVol", x.maxVol / 100, true));
+          await (adapter == null ? void 0 : adapter.setState(key + ".maxVol", x.maxVol / 100, true));
         }
         if (x.totalVol) {
           await (adapter == null ? void 0 : adapter.extendObject(key + ".totalVol", {
@@ -144,7 +144,7 @@ const addOrUpdatePackData = async (productKey, deviceKey, packData) => {
             native: {}
           }));
           const totalVol = x.totalVol / 100;
-          await (adapter == null ? void 0 : adapter.setStateAsync(key + ".totalVol", totalVol, true));
+          await (adapter == null ? void 0 : adapter.setState(key + ".totalVol", totalVol, true));
         }
       }
     });

@@ -91,14 +91,14 @@ const startCheckStatesAndConnectionJob = async (adapter) => {
           )}, checking for pseudo power values!`
         );
         await statesToReset.forEach(async (stateName) => {
-          await (adapter == null ? void 0 : adapter.setStateAsync(
+          await (adapter == null ? void 0 : adapter.setState(
             device.productKey + "." + device.deviceKey + "." + stateName,
             0,
             true
           ));
         });
         if (device.electricity) {
-          await (adapter == null ? void 0 : adapter.setStateAsync(
+          await (adapter == null ? void 0 : adapter.setState(
             device.productKey + "." + device.deviceKey + ".electricLevel",
             device.electricity,
             true
