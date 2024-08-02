@@ -653,6 +653,11 @@ const setDischargeLimit = async (adapter2, productKey, deviceKey, minSoc) => {
 const setOutputLimit = async (adapter2, productKey, deviceKey, limit) => {
   var _a, _b, _c, _d;
   if (adapter2.mqttClient && productKey && deviceKey) {
+    if (limit) {
+      limit = Math.round(limit);
+    } else {
+      limit = 0;
+    }
     if (adapter2.config.useLowVoltageBlock) {
       const lowVoltageBlockState = await adapter2.getStateAsync(
         productKey + "." + deviceKey + ".control.lowVoltageBlock"
@@ -689,6 +694,11 @@ const setOutputLimit = async (adapter2, productKey, deviceKey, limit) => {
 const setInputLimit = async (adapter2, productKey, deviceKey, limit) => {
   var _a, _b, _c, _d;
   if (adapter2.mqttClient && productKey && deviceKey) {
+    if (limit) {
+      limit = Math.round(limit);
+    } else {
+      limit = 0;
+    }
     let maxLimit = 900;
     const currentLimit = (_a = await adapter2.getStateAsync(productKey + "." + deviceKey + ".inputLimit")) == null ? void 0 : _a.val;
     const productName = (_c = (_b = await adapter2.getStateAsync(productKey + "." + deviceKey + ".productName")) == null ? void 0 : _b.val) == null ? void 0 : _c.toString().toLowerCase();

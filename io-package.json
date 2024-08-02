@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.7.6",
+    "version": "1.7.7",
     "news": {
+      "1.7.7": {
+        "en": "Fix Input and Output limit for Hyper 2000",
+        "de": "Fixe Eingangs- und Ausgangsgrenze für Hyper 2000",
+        "ru": "Предельный уровень ввода и вывода для Hyper 2000",
+        "pt": "Limite de entrada e saída para Hyper 2000",
+        "nl": "Fix Input and Output limit for Hyper 2000",
+        "fr": "Fixer la limite d'entrée et de sortie pour Hyper 2000",
+        "it": "Limite di ingresso e uscita per Hyper 2000",
+        "es": "Límite de entrada y salida fijo para Hyper 2000",
+        "pl": "Limit wejścia i wyjścia dla Hyper 2000",
+        "uk": "Фіксувати вхідні та вихідні обмеження для Hyper 2000",
+        "zh-cn": "Hyper 2000 输入和输出限制"
+      },
       "1.7.6": {
         "en": "Fix support for 'Hyper_Test' devices\nImproved code for state creation",
         "de": "Unterstützung für 'Hyper_Test'-Geräte beheben\nVerbesserter Code für die staatliche Schöpfung",
@@ -80,19 +93,6 @@
         "pl": "Popraw brak ACE 1500 w połączeniu z HUB1200 / HUB2000\nNapraw kilka brakujących stanów",
         "uk": "Виправлення відсутніх ACE 1500 при підключенні до HUB1200 / HUB2000\nВиправлення деяких відсутніх штатів",
         "zh-cn": "与 HUB1200 / HUB2000 连接时, 修复缺失 ACE 1500\n修复一些缺失状态"
-      },
-      "1.7.0": {
-        "en": "Add support for Hyper 2000 and ACE 1500. Maybe not all states and control parameter are available. Still need to do some investigation.\nSome minor bugfixes.",
-        "de": "Unterstützung für Hyper 2000 und ACE 1500 hinzufügen. Möglicherweise sind nicht alle Zustände und Kontrollparameter verfügbar. Ich muss noch etwas untersuchen.\nEinige kleinere Bugfixes.",
-        "ru": "Добавьте поддержку Hyper 2000 и ACE 1500. Может быть, не все состояния и контрольный параметр доступны. Все еще нужно провести расследование.\nНебольшие исправления.",
-        "pt": "Adicione suporte para Hyper 2000 e ACE 1500. Talvez nem todos os estados e o parâmetro de controle estejam disponíveis. Ainda precisa de investigar.\nAlguns pequenos bugfixes.",
-        "nl": "Voeg steun toe voor Hyper 2000 en ACE 1500. Misschien zijn niet alle staten en controle parameter beschikbaar. Ik moet nog wat onderzoek doen.\nEnkele kleine fouten.",
-        "fr": "Ajouter un support pour Hyper 2000 et ACE 1500. Peut-être que tous les états et paramètres de contrôle ne sont pas disponibles. Il faut encore enquêter.\nQuelques corrections mineures.",
-        "it": "Aggiungi supporto per Hyper 2000 e ACE 1500. Forse non tutti gli stati e il parametro di controllo sono disponibili. Devo ancora fare delle indagini.\nAlcuni bugfix minori.",
-        "es": "Añadir soporte para Hyper 2000 y ACE 1500. Tal vez no todos los estados y parámetro de control están disponibles. Todavía tiene que hacer una investigación.\nAlgunos bugfijos menores.",
-        "pl": "Dodaj wsparcie dla Hyper 2000 i ACE 1500. Może nie wszystkie stany i parametry sterowania są dostępne. Nadal muszę przeprowadzić śledztwo.\nKilka drobnych poprawek.",
-        "uk": "Додайте підтримку Hyper 2000 і ACE 1500. Може бути не всі стани і контрольний параметр. Наскільки потрібно робити деякі дослідження.\nДеякі незначні виправлення.",
-        "zh-cn": "添加支持Hyper 2000和ACE 1500. 也许并非所有状态和控制参数都可用。 还需要调查一下.\n一些小错误修正."
       }
     },
     "titleLang": {
