@@ -75,6 +75,12 @@ export const calculateSocAndEnergy = async (
   stateKey: string,
   value: number
 ): Promise<void> => {
+  let energyWhMax = 0;
+
+  const productName = (
+    await adapter.getStateAsync(`${productKey}.${deviceKey}.productName`)
+  )?.val;
+
   const currentEnergyState = await adapter?.getStateAsync(
     productKey + "." + deviceKey + ".calculations.energyWh"
   );
@@ -87,8 +93,35 @@ export const calculateSocAndEnergy = async (
     ? Number(currentEnergyState?.val)
     : 0;
 
-  const newValue =
+  const batteries = adapter.pack2Devices.filter(
+    (x) => x.deviceKey == deviceKey
+  );
+
+  let isAio = false;
+  // Check if device is an solarflow or hyper device. Don't use LowVoltageBlock on an ACE device?
+  if (productName?.toString().toLowerCase().includes("aio")) {
+    isAio = true;
+  }
+
+  if (isAio) {
+    energyWhMax = 1920;
+  } else {
+    for (let i = 0; i < batteries.length; i++) {
+      if (batteries[i].type == "AB1000") {
+        energyWhMax = energyWhMax + 960;
+      } else if (batteries[i].type == "AB2000") {
+        energyWhMax = energyWhMax + 1920;
+      }
+    }
+  }
+
+  let newValue =
     stateKey == "outputPack" ? currentValue + value : currentValue - value;
+
+  // If greater than Max of batteries, set it to this value.
+  if (stateKey == "outputPack" && newValue > energyWhMax) {
+    newValue = energyWhMax;
+  }
 
   if (newValue > 0) {
     adapter?.setState(

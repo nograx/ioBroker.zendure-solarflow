@@ -71,6 +71,9 @@ const setSocToZero = async (adapter, productKey, deviceKey) => {
   ));
 };
 const calculateSocAndEnergy = async (adapter, productKey, deviceKey, stateKey, value) => {
+  var _a;
+  let energyWhMax = 0;
+  const productName = (_a = await adapter.getStateAsync(`${productKey}.${deviceKey}.productName`)) == null ? void 0 : _a.val;
   const currentEnergyState = await (adapter == null ? void 0 : adapter.getStateAsync(
     productKey + "." + deviceKey + ".calculations.energyWh"
   ));
@@ -78,7 +81,28 @@ const calculateSocAndEnergy = async (adapter, productKey, deviceKey, stateKey, v
     productKey + "." + deviceKey + ".calculations.energyWhMax"
   ));
   const currentValue = (currentEnergyState == null ? void 0 : currentEnergyState.val) ? Number(currentEnergyState == null ? void 0 : currentEnergyState.val) : 0;
-  const newValue = stateKey == "outputPack" ? currentValue + value : currentValue - value;
+  const batteries = adapter.pack2Devices.filter(
+    (x) => x.deviceKey == deviceKey
+  );
+  let isAio = false;
+  if (productName == null ? void 0 : productName.toString().toLowerCase().includes("aio")) {
+    isAio = true;
+  }
+  if (isAio) {
+    energyWhMax = 1920;
+  } else {
+    for (let i = 0; i < batteries.length; i++) {
+      if (batteries[i].type == "AB1000") {
+        energyWhMax = energyWhMax + 960;
+      } else if (batteries[i].type == "AB2000") {
+        energyWhMax = energyWhMax + 1920;
+      }
+    }
+  }
+  let newValue = stateKey == "outputPack" ? currentValue + value : currentValue - value;
+  if (stateKey == "outputPack" && newValue > energyWhMax) {
+    newValue = energyWhMax;
+  }
   if (newValue > 0) {
     adapter == null ? void 0 : adapter.setState(
       `${productKey}.${deviceKey}.calculations.energyWh`,

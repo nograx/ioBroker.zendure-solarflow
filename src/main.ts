@@ -33,6 +33,7 @@ import { createSolarFlowStates } from "./helpers/createSolarFlowStates";
 import { createDeveloperAccount } from "./services/fallbackWebService";
 import { ISolarFlowDevRegisterData } from "./models/ISolarflowDevRegisterResponse";
 import { connectFallbackMqttClient } from "./services/fallbackMqttService";
+import { IPack2Device } from "./models/IPack2Device";
 
 export class ZendureSolarflow extends utils.Adapter {
   public constructor(options: Partial<utils.AdapterOptions> = {}) {
@@ -48,6 +49,7 @@ export class ZendureSolarflow extends utils.Adapter {
   public accessToken: string | undefined = undefined; // Access Token for Zendure Rest API
   public deviceList: ISolarFlowDeviceDetails[] = [];
   public paths: ISolarFlowPaths | undefined = undefined;
+  public pack2Devices: IPack2Device[] = [];
 
   public lastLogin: Date | undefined = undefined;
 
@@ -130,13 +132,13 @@ export class ZendureSolarflow extends utils.Adapter {
             .then(async (result: ISolarFlowDeviceDetails[]) => {
               if (result) {
                 // Device List found. Save in the adapter properties and connect to MQTT
-                console.log(result);
+                //console.log(result);
                 // Filtering to SolarFlow devices
                 this.deviceList = result.filter(
                   (device) =>
                     device.productName.toLowerCase().includes("solarflow") ||
-                    device.productName.toLocaleLowerCase().includes("hyper") ||
-                    device.productName.toLocaleLowerCase() == "ace 1500"
+                    device.productName.toLowerCase().includes("hyper") ||
+                    device.productName.toLowerCase() == "ace 1500"
                 );
 
                 await checkDevicesServer(this);

@@ -18,13 +18,15 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var createSolarFlowStates_exports = {};
 __export(createSolarFlowStates_exports, {
-  createSolarFlowStates: () => createSolarFlowStates
+  createSolarFlowStates: () => createSolarFlowStates,
+  getStateDefinition: () => getStateDefinition
 });
 module.exports = __toCommonJS(createSolarFlowStates_exports);
 var import_aceStates = require("../constants/aceStates");
 var import_aioStates = require("../constants/aioStates");
 var import_hubStates = require("../constants/hubStates");
 var import_hyperStates = require("../constants/hyperStates");
+var import_smartPlugStates = require("../constants/smartPlugStates");
 var import_adapterService = require("../services/adapterService");
 var import_createCalculationStates = require("./createCalculationStates");
 var import_createControlStates = require("./createControlStates");
@@ -38,6 +40,8 @@ const getStateDefinition = (type) => {
       return import_hubStates.hubStates;
     case "ace":
       return import_aceStates.aceStates;
+    case "smartPlug":
+      return import_smartPlugStates.smartPlugStates;
     default:
       return [];
   }
@@ -107,7 +111,7 @@ const createSolarFlowStates = async (adapter, device, type) => {
       native: {}
     }));
   });
-  if (device.electricity) {
+  if (device.electricity && type != "smartPlug") {
     await (0, import_adapterService.updateSolarFlowState)(
       adapter,
       device.productKey,
@@ -115,6 +119,15 @@ const createSolarFlowStates = async (adapter, device, type) => {
       "electricLevel",
       device.electricity
     );
+    if (adapter.config.useCalculation && type != "smartPlug") {
+      await (0, import_adapterService.updateSolarFlowControlState)(
+        adapter,
+        device.productKey,
+        device.deviceKey,
+        "soc",
+        device.electricity
+      );
+    }
   }
   if (device.snNumber) {
     await (0, import_adapterService.updateSolarFlowState)(
@@ -142,13 +155,14 @@ const createSolarFlowStates = async (adapter, device, type) => {
   if (!adapter.config.useFallbackService) {
     await (0, import_createControlStates.createControlStates)(adapter, productKey, deviceKey, type);
   }
-  if (adapter.config.useCalculation && (type == "aio" || type == "solarflow" || type == "hyper")) {
-    await (0, import_createCalculationStates.createCalculationStates)(adapter, productKey, deviceKey);
+  if (adapter.config.useCalculation) {
+    await (0, import_createCalculationStates.createCalculationStates)(adapter, productKey, deviceKey, type);
   } else {
   }
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  createSolarFlowStates
+  createSolarFlowStates,
+  getStateDefinition
 });
 //# sourceMappingURL=createSolarFlowStates.js.map

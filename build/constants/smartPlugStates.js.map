@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/constants/smartPlugStates.ts"],
+  "sourcesContent": ["/* eslint-disable @typescript-eslint/indent */\n\nimport { ISolarflowState } from \"../models/ISolarflowState\";\n\nexport const smartPlugStates: ISolarflowState[] = [\n  {\n    title: \"lastUpdate\",\n    nameDe: \"Letztes Update\",\n    nameEn: \"Last Update\",\n    type: \"number\",\n    role: \"value.time\",\n  },\n];\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAIO,MAAM,kBAAqC;AAAA,EAChD;AAAA,IACE,OAAO;AAAA,IACP,QAAQ;AAAA,IACR,QAAQ;AAAA,IACR,MAAM;AAAA,IACN,MAAM;AAAA,EACR;AACF;",
+  "names": []
+}

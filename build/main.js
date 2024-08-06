@@ -49,6 +49,7 @@ class ZendureSolarflow extends utils.Adapter {
     // Access Token for Zendure Rest API
     this.deviceList = [];
     this.paths = void 0;
+    this.pack2Devices = [];
     this.lastLogin = void 0;
     this.mqttClient = void 0;
     this.resetValuesJob = void 0;
@@ -113,9 +114,8 @@ class ZendureSolarflow extends utils.Adapter {
         this.lastLogin = /* @__PURE__ */ new Date();
         (0, import_webService.getDeviceList)(this).then(async (result) => {
           if (result) {
-            console.log(result);
             this.deviceList = result.filter(
-              (device) => device.productName.toLowerCase().includes("solarflow") || device.productName.toLocaleLowerCase().includes("hyper") || device.productName.toLocaleLowerCase() == "ace 1500"
+              (device) => device.productName.toLowerCase().includes("solarflow") || device.productName.toLowerCase().includes("hyper") || device.productName.toLowerCase() == "ace 1500"
             );
             await (0, import_adapterService.checkDevicesServer)(this);
             this.log.info(

@@ -4,15 +4,19 @@ import { aceStates } from "../constants/aceStates";
 import { aioStates } from "../constants/aioStates";
 import { hubStates } from "../constants/hubStates";
 import { hyperStates } from "../constants/hyperStates";
+import { smartPlugStates } from "../constants/smartPlugStates";
 import { ZendureSolarflow } from "../main";
 import { ISolarFlowDeviceDetails } from "../models/ISolarFlowDeviceDetails";
 import { ISolarflowState } from "../models/ISolarflowState";
-import { updateSolarFlowState } from "../services/adapterService";
+import {
+  updateSolarFlowControlState,
+  updateSolarFlowState,
+} from "../services/adapterService";
 import { createCalculationStates } from "./createCalculationStates";
 import { createControlStates } from "./createControlStates";
 //import { deleteCalculationStates } from "./deleteCalculationStates";
 
-const getStateDefinition = (type: string): ISolarflowState[] => {
+export const getStateDefinition = (type: string): ISolarflowState[] => {
   switch (type) {
     case "aio":
       return aioStates;
@@ -22,6 +26,8 @@ const getStateDefinition = (type: string): ISolarflowState[] => {
       return hubStates;
     case "ace":
       return aceStates;
+    case "smartPlug":
+      return smartPlugStates;
     default:
       return [];
   }
@@ -109,7 +115,7 @@ export const createSolarFlowStates = async (
   });
 
   // Set sn number from device
-  if (device.electricity) {
+  if (device.electricity && type != "smartPlug") {
     await updateSolarFlowState(
       adapter,
       device.productKey,
@@ -117,6 +123,16 @@ export const createSolarFlowStates = async (
       "electricLevel",
       device.electricity
     );
+
+    if (adapter.config.useCalculation && type != "smartPlug") {
+      await updateSolarFlowControlState(
+        adapter,
+        device.productKey,
+        device.deviceKey,
+        "soc",
+        device.electricity
+      );
+    }
   }
 
   // Set sn number from device
@@ -153,11 +169,8 @@ export const createSolarFlowStates = async (
     await createControlStates(adapter, productKey, deviceKey, type);
   }
 
-  if (
-    adapter.config.useCalculation &&
-    (type == "aio" || type == "solarflow" || type == "hyper")
-  ) {
-    await createCalculationStates(adapter, productKey, deviceKey);
+  if (adapter.config.useCalculation) {
+    await createCalculationStates(adapter, productKey, deviceKey, type);
   } else {
     //await deleteCalculationStates(adapter, productKey, deviceKey);
   }

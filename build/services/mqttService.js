@@ -52,13 +52,22 @@ const addOrUpdatePackData = async (productKey, deviceKey, packData, isSolarFlow)
   if (adapter && productKey && deviceKey) {
     await packData.forEach(async (x) => {
       if (x.sn && adapter) {
-        const key = (productKey + "." + deviceKey + ".packData." + x.sn).replace(adapter.FORBIDDEN_CHARS, "");
         let batType = "";
         if (x.sn.startsWith("C")) {
           batType = "AB2000";
         } else if (x.sn.startsWith("A")) {
           batType = "AB1000";
         }
+        if (!adapter.pack2Devices.some(
+          (y) => y.packSn == x.sn && y.deviceKey == deviceKey
+        )) {
+          adapter.pack2Devices.push({
+            packSn: x.sn,
+            deviceKey,
+            type: batType
+          });
+        }
+        const key = (productKey + "." + deviceKey + ".packData." + x.sn).replace(adapter.FORBIDDEN_CHARS, "");
         await (adapter == null ? void 0 : adapter.extendObject(key, {
           type: "channel",
           common: {
@@ -600,6 +609,8 @@ const onMessage = async (topic, message) => {
     }
     if (obj.packData) {
       addOrUpdatePackData(productKey, deviceKey, obj.packData, isSolarFlow);
+    }
+    if (obj.properties) {
     }
   }
 };

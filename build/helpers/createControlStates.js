@@ -32,125 +32,64 @@ const createControlStates = async (adapter, productKey, deviceKey, type) => {
     },
     native: {}
   }));
-  await (adapter == null ? void 0 : adapter.extendObject(
-    `${productKey}.${deviceKey}.control.chargeLimit`,
-    {
-      type: "state",
-      common: {
-        name: {
-          de: "Setzen des Lade-Limits",
-          en: "Control of the charge limit"
-        },
-        type: "number",
-        desc: "chargeLimit",
-        role: "value.battery",
-        read: true,
-        write: true,
-        min: 40,
-        max: 100,
-        unit: "%"
-      },
-      native: {}
-    }
-  ));
-  adapter == null ? void 0 : adapter.subscribeStates(`${productKey}.${deviceKey}.control.chargeLimit`);
-  await (adapter == null ? void 0 : adapter.extendObject(
-    `${productKey}.${deviceKey}.control.dischargeLimit`,
-    {
-      type: "state",
-      common: {
-        name: {
-          de: "Setzen des Entlade-Limits",
-          en: "Control of the discharge limit"
-        },
-        type: "number",
-        desc: "dischargeLimit",
-        role: "value.battery",
-        read: true,
-        write: true,
-        min: 0,
-        max: 90,
-        unit: "%"
-      },
-      native: {}
-    }
-  ));
-  adapter == null ? void 0 : adapter.subscribeStates(`${productKey}.${deviceKey}.control.dischargeLimit`);
-  await (adapter == null ? void 0 : adapter.extendObject(
-    `${productKey}.${deviceKey}.control.buzzerSwitch`,
-    {
-      type: "state",
-      common: {
-        name: {
-          de: "Sounds am HUB aktivieren",
-          en: "Enable buzzer on HUB"
-        },
-        type: "boolean",
-        desc: "buzzerSwitch",
-        role: "switch",
-        read: true,
-        write: true
-      },
-      native: {}
-    }
-  ));
-  if (type == "solarflow" || type == "hyper") {
+  if (type != "smartPlug") {
     await (adapter == null ? void 0 : adapter.extendObject(
-      `${productKey}.${deviceKey}.control.setOutputLimit`,
+      `${productKey}.${deviceKey}.control.chargeLimit`,
       {
         type: "state",
         common: {
           name: {
-            de: "Einzustellende Ausgangsleistung",
-            en: "Control of the output limit"
+            de: "Setzen des Lade-Limits",
+            en: "Control of the charge limit"
           },
           type: "number",
-          desc: "setOutputLimit",
-          role: "value.power",
+          desc: "chargeLimit",
+          role: "value.battery",
+          read: true,
+          write: true,
+          min: 40,
+          max: 100,
+          unit: "%"
+        },
+        native: {}
+      }
+    ));
+    adapter == null ? void 0 : adapter.subscribeStates(`${productKey}.${deviceKey}.control.chargeLimit`);
+    await (adapter == null ? void 0 : adapter.extendObject(
+      `${productKey}.${deviceKey}.control.dischargeLimit`,
+      {
+        type: "state",
+        common: {
+          name: {
+            de: "Setzen des Entlade-Limits",
+            en: "Control of the discharge limit"
+          },
+          type: "number",
+          desc: "dischargeLimit",
+          role: "value.battery",
           read: true,
           write: true,
           min: 0,
-          unit: "W"
+          max: 90,
+          unit: "%"
         },
         native: {}
       }
     ));
     adapter == null ? void 0 : adapter.subscribeStates(
-      `${productKey}.${deviceKey}.control.setOutputLimit`
+      `${productKey}.${deviceKey}.control.dischargeLimit`
     );
-    adapter == null ? void 0 : adapter.subscribeStates(`${productKey}.${deviceKey}.control.buzzerSwitch`);
-    await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.control.passMode`, {
-      type: "state",
-      common: {
-        name: {
-          de: "Einstellung des Bypass Modus",
-          en: "Setting of bypass mode"
-        },
-        type: "number",
-        desc: "passMode",
-        role: "switch",
-        read: true,
-        write: true,
-        states: {
-          0: "Automatic",
-          1: "Always off",
-          2: "Always on"
-        }
-      },
-      native: {}
-    }));
-    adapter == null ? void 0 : adapter.subscribeStates(`${productKey}.${deviceKey}.control.passMode`);
     await (adapter == null ? void 0 : adapter.extendObject(
-      `${productKey}.${deviceKey}.control.autoRecover`,
+      `${productKey}.${deviceKey}.control.buzzerSwitch`,
       {
         type: "state",
         common: {
           name: {
-            de: "Am n\xE4chsten Tag Bypass auf Automatik",
-            en: "Automatic recovery of bypass"
+            de: "Sounds am HUB aktivieren",
+            en: "Enable buzzer on HUB"
           },
           type: "boolean",
-          desc: "autoRecover",
+          desc: "buzzerSwitch",
           role: "switch",
           read: true,
           write: true
@@ -158,29 +97,101 @@ const createControlStates = async (adapter, productKey, deviceKey, type) => {
         native: {}
       }
     ));
-    adapter == null ? void 0 : adapter.subscribeStates(`${productKey}.${deviceKey}.control.autoRecover`);
-    if (adapter.config.useLowVoltageBlock) {
+    if (type == "solarflow" || type == "hyper") {
       await (adapter == null ? void 0 : adapter.extendObject(
-        `${productKey}.${deviceKey}.control.lowVoltageBlock`,
+        `${productKey}.${deviceKey}.control.setOutputLimit`,
         {
           type: "state",
           common: {
             name: {
-              de: "Niedrige Batteriespannung erkannt",
-              en: "Low Voltage on battery detected"
+              de: "Einzustellende Ausgangsleistung",
+              en: "Control of the output limit"
             },
-            type: "boolean",
-            desc: "lowVoltageBlock",
-            role: "indicator.lowbat",
+            type: "number",
+            desc: "setOutputLimit",
+            role: "value.power",
             read: true,
-            write: false
+            write: true,
+            min: 0,
+            unit: "W"
           },
           native: {}
         }
       ));
       adapter == null ? void 0 : adapter.subscribeStates(
-        `${productKey}.${deviceKey}.control.lowVoltageBlock`
+        `${productKey}.${deviceKey}.control.setOutputLimit`
       );
+      adapter == null ? void 0 : adapter.subscribeStates(
+        `${productKey}.${deviceKey}.control.buzzerSwitch`
+      );
+      await (adapter == null ? void 0 : adapter.extendObject(
+        `${productKey}.${deviceKey}.control.passMode`,
+        {
+          type: "state",
+          common: {
+            name: {
+              de: "Einstellung des Bypass Modus",
+              en: "Setting of bypass mode"
+            },
+            type: "number",
+            desc: "passMode",
+            role: "switch",
+            read: true,
+            write: true,
+            states: {
+              0: "Automatic",
+              1: "Always off",
+              2: "Always on"
+            }
+          },
+          native: {}
+        }
+      ));
+      adapter == null ? void 0 : adapter.subscribeStates(`${productKey}.${deviceKey}.control.passMode`);
+      await (adapter == null ? void 0 : adapter.extendObject(
+        `${productKey}.${deviceKey}.control.autoRecover`,
+        {
+          type: "state",
+          common: {
+            name: {
+              de: "Am n\xE4chsten Tag Bypass auf Automatik",
+              en: "Automatic recovery of bypass"
+            },
+            type: "boolean",
+            desc: "autoRecover",
+            role: "switch",
+            read: true,
+            write: true
+          },
+          native: {}
+        }
+      ));
+      adapter == null ? void 0 : adapter.subscribeStates(
+        `${productKey}.${deviceKey}.control.autoRecover`
+      );
+      if (adapter.config.useLowVoltageBlock) {
+        await (adapter == null ? void 0 : adapter.extendObject(
+          `${productKey}.${deviceKey}.control.lowVoltageBlock`,
+          {
+            type: "state",
+            common: {
+              name: {
+                de: "Niedrige Batteriespannung erkannt",
+                en: "Low Voltage on battery detected"
+              },
+              type: "boolean",
+              desc: "lowVoltageBlock",
+              role: "indicator.lowbat",
+              read: true,
+              write: false
+            },
+            native: {}
+          }
+        ));
+        adapter == null ? void 0 : adapter.subscribeStates(
+          `${productKey}.${deviceKey}.control.lowVoltageBlock`
+        );
+      }
     }
   }
   if (type == "hyper") {

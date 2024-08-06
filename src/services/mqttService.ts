@@ -29,15 +29,6 @@ export const addOrUpdatePackData = async (
     await packData.forEach(async (x) => {
       // Process data only with a serial id!
       if (x.sn && adapter) {
-        // create a state for the serial id
-        const key = (
-          productKey +
-          "." +
-          deviceKey +
-          ".packData." +
-          x.sn
-        ).replace(adapter.FORBIDDEN_CHARS, "");
-
         // Create channel (e.g. the device specific key)
         // We can determine the type of the battery by the SN number.
         let batType = "";
@@ -48,6 +39,28 @@ export const addOrUpdatePackData = async (
           // It's a AB1000
           batType = "AB1000";
         }
+
+        // Check if is in Pack2device list
+        if (
+          !adapter.pack2Devices.some(
+            (y) => y.packSn == x.sn && y.deviceKey == deviceKey
+          )
+        ) {
+          adapter.pack2Devices.push({
+            packSn: x.sn,
+            deviceKey: deviceKey,
+            type: batType,
+          });
+        }
+
+        // create a state for the serial id
+        const key = (
+          productKey +
+          "." +
+          deviceKey +
+          ".packData." +
+          x.sn
+        ).replace(adapter.FORBIDDEN_CHARS, "");
 
         await adapter?.extendObject(key, {
           type: "channel",
@@ -814,17 +827,42 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
       addOrUpdatePackData(productKey, deviceKey, obj.packData, isSolarFlow);
     }
 
-    /* if (obj.properties) {
+    if (obj.properties) {
+      /*
+      let type = "solarflow";
+      const _productName = productName?.val?.toString();
+
+      if (_productName?.toLowerCase().includes("hyper")) {
+        type = "hyper";
+      } else if (_productName?.toLowerCase().includes("ace")) {
+        type = "ace";
+      } else if (_productName?.toLowerCase().includes("aio")) {
+        type = "aio";
+      } else if (_productName?.toLowerCase().includes("smart plug")) {
+        type = "smartPlug";
+      }
+
+      const states = getStateDefinition(type);
+      let found = false;
+
       Object.entries(obj.properties).forEach(([key, value]) => {
-        if (knownMqttProps.includes(key)) {
-          //console.log(`${key} with value ${value} is a known Mqtt Prop!`);
+        states.forEach((state: ISolarflowState) => {
+          if (state.title == key) {
+            found = true;
+          }
+        });
+
+        if (found) {
+          //console.log(
+          //  `${productName?.val}: ${key} with value ${value} is a KNOWN Mqtt Prop!`
+          //);
         } else {
           console.log(
             `${productName?.val}: ${key} with value ${value} is a UNKNOWN Mqtt Prop!`
           );
         }
-      });
-    } */
+      }); */
+    }
   }
 };
 
