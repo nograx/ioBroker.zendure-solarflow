@@ -46,8 +46,7 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 1.8.2 (2024-08-06)
 
 - Fix SOC and energyWhMax Value (counted by type of attached batteries)
 - Add Calculation for Grid Input (only for Ace 1500 and Hyper 2000)
