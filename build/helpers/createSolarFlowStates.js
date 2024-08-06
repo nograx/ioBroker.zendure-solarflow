@@ -119,15 +119,6 @@ const createSolarFlowStates = async (adapter, device, type) => {
       "electricLevel",
       device.electricity
     );
-    if (adapter.config.useCalculation && type != "smartPlug") {
-      await (0, import_adapterService.updateSolarFlowControlState)(
-        adapter,
-        device.productKey,
-        device.deviceKey,
-        "soc",
-        device.electricity
-      );
-    }
   }
   if (device.snNumber) {
     await (0, import_adapterService.updateSolarFlowState)(

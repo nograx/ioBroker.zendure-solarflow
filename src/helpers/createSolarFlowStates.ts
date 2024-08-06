@@ -8,10 +8,7 @@ import { smartPlugStates } from "../constants/smartPlugStates";
 import { ZendureSolarflow } from "../main";
 import { ISolarFlowDeviceDetails } from "../models/ISolarFlowDeviceDetails";
 import { ISolarflowState } from "../models/ISolarflowState";
-import {
-  updateSolarFlowControlState,
-  updateSolarFlowState,
-} from "../services/adapterService";
+import { updateSolarFlowState } from "../services/adapterService";
 import { createCalculationStates } from "./createCalculationStates";
 import { createControlStates } from "./createControlStates";
 //import { deleteCalculationStates } from "./deleteCalculationStates";
@@ -114,7 +111,7 @@ export const createSolarFlowStates = async (
     });
   });
 
-  // Set sn number from device
+  // Set SOC from device
   if (device.electricity && type != "smartPlug") {
     await updateSolarFlowState(
       adapter,
@@ -123,16 +120,6 @@ export const createSolarFlowStates = async (
       "electricLevel",
       device.electricity
     );
-
-    if (adapter.config.useCalculation && type != "smartPlug") {
-      await updateSolarFlowControlState(
-        adapter,
-        device.productKey,
-        device.deviceKey,
-        "soc",
-        device.electricity
-      );
-    }
   }
 
   // Set sn number from device
