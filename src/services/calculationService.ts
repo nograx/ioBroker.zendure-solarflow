@@ -141,7 +141,13 @@ export const calculateSocAndEnergy = async (
         true
       );
 
-      if (newValue > Number(currentEnergyMaxState.val)) {
+      if (Number(currentEnergyMaxState.val) > energyWhMax) {
+        await adapter?.setState(
+          `${productKey}.${deviceKey}.calculations.energyWhMax`,
+          energyWhMax,
+          true
+        );
+      } else if (newValue > Number(currentEnergyMaxState.val)) {
         // Extend maxVal
         await adapter?.setState(
           `${productKey}.${deviceKey}.calculations.energyWhMax`,

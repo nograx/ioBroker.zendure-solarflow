@@ -3,32 +3,6 @@
     "name": "zendure-solarflow",
     "version": "1.8.1",
     "news": {
-      "1.8.1": {
-        "en": "Fix Control State",
-        "de": "Kontrollzustand",
-        "ru": "Fix Control State",
-        "pt": "Estado de controle fixo",
-        "nl": "Fix Control State",
-        "fr": "Fix État de contrôle",
-        "it": "Stato di controllo",
-        "es": "Estado de control fijo",
-        "pl": "Napraw stan kontroli",
-        "uk": "Контрольний стан",
-        "zh-cn": "控制状态"
-      },
-      "1.8.0": {
-        "en": "Fix SOC and energyWhMax Value (counted by type of attached batteries - seems to work better now)\nAdd Calculation for Grid Input (only for Ace 1500 and Hyper 2000)",
-        "de": "SOC und EnergyWhMax Value (gezählt nach Art der angeschlossenen Batterien - scheint jetzt besser zu arbeiten)\nBerechnung für Grid Input hinzufügen (nur für Ace 1500 und Hyper 2000)",
-        "ru": "Fix SOC и energyWhMax Value (с учетом типа прикрепленных батарей - кажется, работает лучше сейчас)\nДобавить подсчет для ввода сетки (только для Ace 1500 и Hyper 2000)",
-        "pt": "Fix SOC e EnergyWhMax Valor (contado por tipo de baterias anexadas - parece funcionar melhor agora)\nAdicionar cálculo para entrada de grade (apenas para Ace 1500 e Hyper 2000)",
-        "nl": "Fix SOC en energyWhMax Value (telt per type aangebouwde batterijen - lijkt nu beter te werken)\nBerekening toevoegen voor rasterinvoer (alleen voor Ace 1500 en Hyper 2000)",
-        "fr": "Fix SOC et énergieWhMax Valeur (comptabilisée par type de piles attachées - semble fonctionner mieux maintenant)\nAjouter le calcul pour l'entrée du réseau (uniquement pour Ace 1500 et Hyper 2000)",
-        "it": "Fissare SOC ed energiaWhMax Valore (conto per tipo di batterie allegate - sembra funzionare meglio ora)\nAggiungi Calcolo per Grid Input (solo per Ace 1500 e Hyper 2000)",
-        "es": "Fijar SOC y energíaWhMax Value (contada por tipo de baterías adjuntas - parece funcionar mejor ahora)\nAñada Cálculo para Entrada Grid (sólo para Ace 1500 e Hyper 2000)",
-        "pl": "Fix SOC i energyWhMax Value (liczony według typu dołączonych baterii - wydaje się działać lepiej teraz)\nDodaj obliczenie wejścia siatki (tylko dla Asa 1500 i Hyper 2000)",
-        "uk": "Фіксувати SOC і енергіюWhMax Значення (з урахуванням типу прикріплених батарей - здається, краще працювати зараз)\nДодати розрахунок для входу в мережу (тільки для Ace 1500 і Hyper 2000)",
-        "zh-cn": "固定 SOC 和 能量WhMax 值(按附加电池类型计算 -- -- 现在看来效果更好)\n添加网格输入计算(仅A 1500和Hyper 2000)"
-      },
       "1.7.7": {
         "en": "Fix Input and Output limit for Hyper 2000",
         "de": "Fixe Eingangs- und Ausgangsgrenze für Hyper 2000",
