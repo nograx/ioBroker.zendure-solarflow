@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.8.0",
+    "version": "1.8.1",
     "news": {
+      "1.8.1": {
+        "en": "Fix Control State",
+        "de": "Kontrollzustand",
+        "ru": "Fix Control State",
+        "pt": "Estado de controle fixo",
+        "nl": "Fix Control State",
+        "fr": "Fix État de contrôle",
+        "it": "Stato di controllo",
+        "es": "Estado de control fijo",
+        "pl": "Napraw stan kontroli",
+        "uk": "Контрольний стан",
+        "zh-cn": "控制状态"
+      },
       "1.8.0": {
         "en": "Fix SOC and energyWhMax Value (counted by type of attached batteries - seems to work better now)\nAdd Calculation for Grid Input (only for Ace 1500 and Hyper 2000)",
         "de": "SOC und EnergyWhMax Value (gezählt nach Art der angeschlossenen Batterien - scheint jetzt besser zu arbeiten)\nBerechnung für Grid Input hinzufügen (nur für Ace 1500 und Hyper 2000)",
@@ -80,19 +93,6 @@
         "pl": "Popraw wartość wejściową AC dla Hyper do max. 1200W\nNapraw wartość dcSwitch i acSwitch",
         "uk": "Фіксувати значення введення змінного струму для Hyper до макс. 1200В\nВиправлення dcSwitch і значення acSwitch",
         "zh-cn": "将 Hyper 的 AC 输入值固定为最大 。 1200W (英语)\n修正 dcSwitch 和 acSwitch 值"
-      },
-      "1.7.2": {
-        "en": "Fix acSwitch for ACE and Hyper",
-        "de": "Fix acSwitch für ACE und Hyper",
-        "ru": "Fix acSwitch для ACE и Hyper",
-        "pt": "Fix acSwitch para ACE e Hyper",
-        "nl": "Fix acSwitch voor ACE en Hyper",
-        "fr": "Correction acSwitch pour ACE et Hyper",
-        "it": "Fissare acSwitch per ACE e Hyper",
-        "es": "Fijar acSwitch para ACE e Hyper",
-        "pl": "Napraw acSwitch dla ACE i Hyper",
-        "uk": "Виправлення acSwitch для ACE і Hyper",
-        "zh-cn": "修正ACE 和 Hyper 的 ACE 开关"
       }
     },
     "titleLang": {
