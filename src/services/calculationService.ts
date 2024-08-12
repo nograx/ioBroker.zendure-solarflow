@@ -8,7 +8,9 @@ const calculationStateKeys = [
   "packInput",
   "outputHome",
   "outputPack",
+  "outputPack",
   "solarInput",
+  "gridInput",
   "pvPower1",
   "pvPower2",
 ];
@@ -89,6 +91,10 @@ export const calculateSocAndEnergy = async (
     productKey + "." + deviceKey + ".calculations.energyWhMax"
   );
 
+  const currentMaxValue = Number(
+    currentEnergyMaxState ? currentEnergyMaxState.val : 0
+  );
+
   const currentValue = currentEnergyState?.val
     ? Number(currentEnergyState?.val)
     : 0;
@@ -131,9 +137,7 @@ export const calculateSocAndEnergy = async (
     );
 
     if (currentEnergyMaxState) {
-      const soc = Number(
-        ((newValue / Number(currentEnergyMaxState.val)) * 100).toFixed(1)
-      );
+      const soc = Number(((newValue / currentMaxValue) * 100).toFixed(1));
 
       await adapter?.setState(
         `${productKey}.${deviceKey}.calculations.soc`,
@@ -141,13 +145,7 @@ export const calculateSocAndEnergy = async (
         true
       );
 
-      if (Number(currentEnergyMaxState.val) > energyWhMax) {
-        await adapter?.setState(
-          `${productKey}.${deviceKey}.calculations.energyWhMax`,
-          energyWhMax,
-          true
-        );
-      } else if (newValue > Number(currentEnergyMaxState.val)) {
+      if (newValue > currentMaxValue) {
         // Extend maxVal
         await adapter?.setState(
           `${productKey}.${deviceKey}.calculations.energyWhMax`,
@@ -170,7 +168,7 @@ export const calculateSocAndEnergy = async (
         currentOutputPackPower != undefined
       ) {
         // Charging, calculate remaining charging time
-        const toCharge = Number(currentEnergyMaxState.val) - newValue;
+        const toCharge = currentMaxValue - newValue;
 
         const remainHoursAsDecimal =
           toCharge / Number(currentOutputPackPower.val);
@@ -218,20 +216,14 @@ export const calculateSocAndEnergy = async (
           );
         }
       }
-    } else {
-      await adapter?.setState(
-        `${productKey}.${deviceKey}.calculations.energyWhMax`,
-        newValue,
-        true
-      );
     }
-  } else if (newValue == 0 && stateKey == "outputPack") {
+  } else if (newValue <= 0 && stateKey == "outputPack") {
     await adapter?.setState(
       `${productKey}.${deviceKey}.calculations.remainInputTime`,
       "",
       true
     );
-  } else if (newValue == 0 && stateKey == "packInput") {
+  } else if (newValue <= 0 && stateKey == "packInput") {
     await adapter?.setState(
       `${productKey}.${deviceKey}.calculations.remainOutTime`,
       "",
