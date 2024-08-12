@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.8.2",
+    "version": "1.8.3",
     "news": {
+      "1.8.3": {
+        "en": "Fix SOC and energyWhMax Value (counted by type of attached batteries)\nAdd Calculation for Grid Input (only for Ace 1500 and Hyper 2000)\nFix suggestions by ioBroker repository checker",
+        "de": "SOC und EnergyWhMax-Wert (gezählt nach Art der angeschlossenen Batterien)\nBerechnung für Grid Input hinzufügen (nur für Ace 1500 und Hyper 2000)\nFix Vorschläge von ioBroker Repository Checker",
+        "ru": "Fix SOC и EnergyWhMax Value (с учетом типа прикрепленных батарей)\nДобавить подсчет для ввода сетки (только для Ace 1500 и Hyper 2000)\nИсправления предложения значка хранилища ioBroker",
+        "pt": "Fix SOC e EnergyWhMax Valor (contado por tipo de baterias anexadas)\nAdicionar cálculo para entrada de grade (apenas para Ace 1500 e Hyper 2000)\nCorrigir sugestões pelo verificador de repositório ioBroker",
+        "nl": "Fix SOC en energyWhMax Value (telt per type aangesloten batterijen)\nBerekening toevoegen voor rasterinvoer (alleen voor Ace 1500 en Hyper 2000)\nRepareer suggesties door ioBroker repository checker",
+        "fr": "Fix SOC et énergieWhMax Valeur (comptabilisée par type de piles attachées)\nAjouter le calcul pour l'entrée du réseau (uniquement pour Ace 1500 et Hyper 2000)\nCorrection des suggestions par le vérificateur de dépôt ioBroker",
+        "it": "Fix SOC e EnergyWhMax Valore (conto per tipo di batterie allegate)\nAggiungi Calcolo per Grid Input (solo per Ace 1500 e Hyper 2000)\nFissare i suggerimenti di ioBroker repository checker",
+        "es": "Fijar SOC y energíaWhMax Value (contada por tipo de baterías adjuntas)\nAñada Cálculo para Entrada Grid (sólo para Ace 1500 e Hyper 2000)\nSugerencias de fijación por ioBroker repositorio checker",
+        "pl": "Fix SOC i energyWhMax Value (liczony według typu dołączonych baterii)\nDodaj obliczenie wejścia siatki (tylko dla Asa 1500 i Hyper 2000)\nPoprawianie sugestii przez sprawdzacz repozytorium jOBroker",
+        "uk": "Фіксація SOC та енергіяWhMax Значення (з урахуванням типу прикріплених батарей)\nДодати розрахунок для входу в мережу (тільки для Ace 1500 і Hyper 2000)\nВиправлення пропозицій на репозиторію ioBroker",
+        "zh-cn": "固定SOC和能量WhMax值(按附电池类型计算)\n添加网格输入计算(仅A 1500和Hyper 2000)\n由 ioBroker 仓库检查器修复建议"
+      },
       "1.7.7": {
         "en": "Fix Input and Output limit for Hyper 2000",
         "de": "Fixe Eingangs- und Ausgangsgrenze für Hyper 2000",

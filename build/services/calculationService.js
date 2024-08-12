@@ -30,7 +30,9 @@ const calculationStateKeys = [
   "packInput",
   "outputHome",
   "outputPack",
+  "outputPack",
   "solarInput",
+  "gridInput",
   "pvPower1",
   "pvPower2"
 ];
@@ -80,6 +82,9 @@ const calculateSocAndEnergy = async (adapter, productKey, deviceKey, stateKey, v
   const currentEnergyMaxState = await (adapter == null ? void 0 : adapter.getStateAsync(
     productKey + "." + deviceKey + ".calculations.energyWhMax"
   ));
+  const currentMaxValue = Number(
+    currentEnergyMaxState ? currentEnergyMaxState.val : 0
+  );
   const currentValue = (currentEnergyState == null ? void 0 : currentEnergyState.val) ? Number(currentEnergyState == null ? void 0 : currentEnergyState.val) : 0;
   const batteries = adapter.pack2Devices.filter(
     (x) => x.deviceKey == deviceKey
@@ -110,21 +115,13 @@ const calculateSocAndEnergy = async (adapter, productKey, deviceKey, stateKey, v
       true
     );
     if (currentEnergyMaxState) {
-      const soc = Number(
-        (newValue / Number(currentEnergyMaxState.val) * 100).toFixed(1)
-      );
+      const soc = Number((newValue / currentMaxValue * 100).toFixed(1));
       await (adapter == null ? void 0 : adapter.setState(
         `${productKey}.${deviceKey}.calculations.soc`,
         soc > 100 ? 100 : soc,
         true
       ));
-      if (Number(currentEnergyMaxState.val) > energyWhMax) {
-        await (adapter == null ? void 0 : adapter.setState(
-          `${productKey}.${deviceKey}.calculations.energyWhMax`,
-          energyWhMax,
-          true
-        ));
-      } else if (newValue > Number(currentEnergyMaxState.val)) {
+      if (newValue > currentMaxValue) {
         await (adapter == null ? void 0 : adapter.setState(
           `${productKey}.${deviceKey}.calculations.energyWhMax`,
           newValue,
@@ -138,7 +135,7 @@ const calculateSocAndEnergy = async (adapter, productKey, deviceKey, stateKey, v
         productKey + "." + deviceKey + ".packInputPower"
       ));
       if (stateKey == "outputPack" && (currentOutputPackPower == null ? void 0 : currentOutputPackPower.val) != null && currentOutputPackPower != void 0) {
-        const toCharge = Number(currentEnergyMaxState.val) - newValue;
+        const toCharge = currentMaxValue - newValue;
         const remainHoursAsDecimal = toCharge / Number(currentOutputPackPower.val);
         if (remainHoursAsDecimal < 48) {
           const remainFormatted = (0, import_timeHelper.toHoursAndMinutes)(
@@ -175,20 +172,14 @@ const calculateSocAndEnergy = async (adapter, productKey, deviceKey, stateKey, v
           ));
         }
       }
-    } else {
-      await (adapter == null ? void 0 : adapter.setState(
-        `${productKey}.${deviceKey}.calculations.energyWhMax`,
-        newValue,
-        true
-      ));
     }
-  } else if (newValue == 0 && stateKey == "outputPack") {
+  } else if (newValue <= 0 && stateKey == "outputPack") {
     await (adapter == null ? void 0 : adapter.setState(
       `${productKey}.${deviceKey}.calculations.remainInputTime`,
       "",
       true
     ));
-  } else if (newValue == 0 && stateKey == "packInput") {
+  } else if (newValue <= 0 && stateKey == "packInput") {
     await (adapter == null ? void 0 : adapter.setState(
       `${productKey}.${deviceKey}.calculations.remainOutTime`,
       "",
