@@ -27,7 +27,7 @@ export const login = (adapter: ZendureSolarflow): Promise<string> => {
   }
 
   const auth = Buffer.from(
-    `${adapter.config.userName}:${adapter.config.password}`,
+    `${adapter.config.userName}:${adapter.config.password}`
   ).toString("base64");
 
   if (!config || !config.headers) {
@@ -51,6 +51,9 @@ export const login = (adapter: ZendureSolarflow): Promise<string> => {
       .then(function (response) {
         if (response.data.success) {
           adapter.log.info("[login] Login to Zendure Rest API successful!");
+          if (response.data?.data?.userId) {
+            adapter.userId = response.data?.data?.userId;
+          }
 
           if (response.data?.data?.accessToken) {
             return response.data.data.accessToken;
@@ -65,10 +68,10 @@ export const login = (adapter: ZendureSolarflow): Promise<string> => {
 };
 
 export const getDeviceList = (
-  adapter: ZendureSolarflow,
+  adapter: ZendureSolarflow
 ): Promise<ISolarFlowDeviceDetails[]> => {
   adapter.log.debug(
-    "[getDeviceList] Getting device list from Zendure Rest API!",
+    "[getDeviceList] Getting device list from Zendure Rest API!"
   );
 
   if (
@@ -86,7 +89,7 @@ export const getDeviceList = (
       .post(
         adapter.paths.solarFlowQueryDeviceListUrl,
         JSON.stringify(body),
-        config,
+        config
       )
       .then(function (response) {
         if (response.data.data && response.data.data.length > 0) {

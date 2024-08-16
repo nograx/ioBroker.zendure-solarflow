@@ -35,8 +35,13 @@ export const createSolarFlowStates = async (
   device: ISolarFlowDeviceDetails,
   type: string
 ): Promise<void> => {
-  const productKey = device.productKey.replace(adapter.FORBIDDEN_CHARS, "");
-  const deviceKey = device.deviceKey.replace(adapter.FORBIDDEN_CHARS, "");
+  let productKey = device.productKey.replace(adapter.FORBIDDEN_CHARS, "");
+  let deviceKey = device.deviceKey.replace(adapter.FORBIDDEN_CHARS, "");
+
+  if (device.productKey == "s3Xk4x" && adapter && adapter.userId && device.id) {
+    productKey = adapter.userId;
+    deviceKey = device.id.toString();
+  }
 
   adapter.log.debug(
     `[createSolarFlowStates] Creating or updating SolarFlow states for ${device.productName} (${productKey}/${deviceKey}) and name '${device.name}'.`
@@ -66,29 +71,19 @@ export const createSolarFlowStates = async (
     native: {},
   });
 
-  // Create calculations folder
-  await adapter?.extendObject(`${productKey}.${deviceKey}.calculations`, {
-    type: "channel",
-    common: {
-      name: {
-        de: "Berechnungen für Gerät " + deviceKey,
-        en: "Calculations for Device " + deviceKey,
-      },
-    },
-    native: {},
-  });
-
   // Create pack data folder
-  await adapter?.extendObject(`${productKey}.${deviceKey}.packData`, {
-    type: "channel",
-    common: {
-      name: {
-        de: "Batterie Packs",
-        en: "Battery packs",
+  if (type != "smartPlug") {
+    await adapter?.extendObject(`${productKey}.${deviceKey}.packData`, {
+      type: "channel",
+      common: {
+        name: {
+          de: "Batterie Packs",
+          en: "Battery packs",
+        },
       },
-    },
-    native: {},
-  });
+      native: {},
+    });
+  }
 
   const states = getStateDefinition(type);
 
@@ -126,8 +121,8 @@ export const createSolarFlowStates = async (
   if (device.snNumber) {
     await updateSolarFlowState(
       adapter,
-      device.productKey,
-      device.deviceKey,
+      productKey,
+      deviceKey,
       "snNumber",
       device.snNumber.toString()
     );
@@ -136,8 +131,8 @@ export const createSolarFlowStates = async (
   // Set product name from device
   await updateSolarFlowState(
     adapter,
-    device.productKey,
-    device.deviceKey,
+    productKey,
+    deviceKey,
     "productName",
     device.productName
   );
@@ -145,20 +140,34 @@ export const createSolarFlowStates = async (
   // Set wifi state from device
   await updateSolarFlowState(
     adapter,
-    device.productKey,
-    device.deviceKey,
+    productKey,
+    deviceKey,
     "wifiState",
     device.wifiStatus ? "Connected" : "Disconnected"
   );
 
-  // Create control states only when using App MQTT servers - and not the fallback one!
-  if (!adapter.config.useFallbackService) {
-    await createControlStates(adapter, productKey, deviceKey, type);
-  }
+  if (type != "smartPlug") {
+    // Create control states only when using App MQTT servers - and not the fallback one!
+    if (!adapter.config.useFallbackService) {
+      await createControlStates(adapter, productKey, deviceKey, type);
+    }
 
-  if (adapter.config.useCalculation) {
-    await createCalculationStates(adapter, productKey, deviceKey, type);
-  } else {
-    //await deleteCalculationStates(adapter, productKey, deviceKey);
+    if (adapter.config.useCalculation) {
+      // Create calculations folder
+      await adapter?.extendObject(`${productKey}.${deviceKey}.calculations`, {
+        type: "channel",
+        common: {
+          name: {
+            de: "Berechnungen für Gerät " + deviceKey,
+            en: "Calculations for Device " + deviceKey,
+          },
+        },
+        native: {},
+      });
+
+      await createCalculationStates(adapter, productKey, deviceKey, type);
+    } else {
+      //await deleteCalculationStates(adapter, productKey, deviceKey);
+    }
   }
 };

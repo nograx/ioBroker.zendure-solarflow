@@ -113,15 +113,13 @@
     ],
     "keywords": [
       "Zendure",
-      "Solarflow",
-      "ioBroker"
+      "Solarflow"
     ],
     "licenseInformation": {
       "license": "GPL-3.0-only",
       "type": "free"
     },
     "platform": "Javascript/Node.js",
-    "main": "build/main.js",
     "icon": "zendure-solarflow.png",
     "enabled": true,
     "extIcon": "https://raw.githubusercontent.com/nograx/ioBroker.zendure-solarflow/main/admin/zendure-solarflow.png",

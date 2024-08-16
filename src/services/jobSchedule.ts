@@ -78,7 +78,9 @@ export const startCalculationJob = async (
 ): Promise<void> => {
   adapter.calculationJob = scheduleJob("*/30 * * * * *", () => {
     adapter.deviceList.forEach((device) => {
-      calculateEnergy(adapter, device.productKey, device.deviceKey);
+      if (device.productKey != "s3Xk4x") {
+        calculateEnergy(adapter, device.productKey, device.deviceKey);
+      }
     });
   });
 };

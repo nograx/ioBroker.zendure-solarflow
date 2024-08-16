@@ -45,6 +45,8 @@ class ZendureSolarflow extends utils.Adapter {
       ...options,
       name: "zendure-solarflow"
     });
+    this.userId = void 0;
+    // User ID, needed for connection with Smart Plug
     this.accessToken = void 0;
     // Access Token for Zendure Rest API
     this.deviceList = [];
@@ -115,7 +117,7 @@ class ZendureSolarflow extends utils.Adapter {
         (0, import_webService.getDeviceList)(this).then(async (result) => {
           if (result) {
             this.deviceList = result.filter(
-              (device) => device.productName.toLowerCase().includes("solarflow") || device.productName.toLowerCase().includes("hyper") || device.productName.toLowerCase() == "ace 1500"
+              (device) => device.productName.toLowerCase().includes("solarflow") || device.productName.toLowerCase().includes("hyper") || device.productName.toLowerCase() == "ace 1500" || device.productName.toLowerCase().includes("smart plug")
             );
             await (0, import_adapterService.checkDevicesServer)(this);
             this.log.info(
@@ -123,6 +125,7 @@ class ZendureSolarflow extends utils.Adapter {
             );
             await this.deviceList.forEach(
               async (device) => {
+                var _a2;
                 let type = "solarflow";
                 if (device.productName.toLocaleLowerCase().includes("hyper")) {
                   type = "hyper";
@@ -130,15 +133,27 @@ class ZendureSolarflow extends utils.Adapter {
                   type = "ace";
                 } else if (device.productName.toLocaleLowerCase().includes("aio")) {
                   type = "aio";
+                } else if (device.productName.toLocaleLowerCase().includes("smart plug")) {
+                  type = "smartPlug";
                 }
                 await (0, import_createSolarFlowStates.createSolarFlowStates)(this, device, type);
-                await (0, import_adapterService.updateSolarFlowState)(
-                  this,
-                  device.productKey,
-                  device.deviceKey,
-                  "registeredServer",
-                  this.config.server
-                );
+                if (!device.productName.toLowerCase().includes("smart plug")) {
+                  await (0, import_adapterService.updateSolarFlowState)(
+                    this,
+                    device.productKey,
+                    device.deviceKey,
+                    "registeredServer",
+                    this.config.server
+                  );
+                } else if ((this == null ? void 0 : this.userId) && device.id) {
+                  await (0, import_adapterService.updateSolarFlowState)(
+                    this,
+                    this.userId,
+                    (_a2 = device.id) == null ? void 0 : _a2.toString(),
+                    "registeredServer",
+                    this.config.server
+                  );
+                }
                 if (device.packList && device.packList.length > 0) {
                   device.packList.forEach(async (subDevice) => {
                     if (subDevice.productName.toLocaleLowerCase() == "ace 1500") {

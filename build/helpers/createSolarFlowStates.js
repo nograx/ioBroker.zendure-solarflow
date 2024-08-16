@@ -47,8 +47,12 @@ const getStateDefinition = (type) => {
   }
 };
 const createSolarFlowStates = async (adapter, device, type) => {
-  const productKey = device.productKey.replace(adapter.FORBIDDEN_CHARS, "");
-  const deviceKey = device.deviceKey.replace(adapter.FORBIDDEN_CHARS, "");
+  let productKey = device.productKey.replace(adapter.FORBIDDEN_CHARS, "");
+  let deviceKey = device.deviceKey.replace(adapter.FORBIDDEN_CHARS, "");
+  if (device.productKey == "s3Xk4x" && adapter && adapter.userId && device.id) {
+    productKey = adapter.userId;
+    deviceKey = device.id.toString();
+  }
   adapter.log.debug(
     `[createSolarFlowStates] Creating or updating SolarFlow states for ${device.productName} (${productKey}/${deviceKey}) and name '${device.name}'.`
   );
@@ -72,26 +76,18 @@ const createSolarFlowStates = async (adapter, device, type) => {
     },
     native: {}
   }));
-  await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.calculations`, {
-    type: "channel",
-    common: {
-      name: {
-        de: "Berechnungen f\xFCr Ger\xE4t " + deviceKey,
-        en: "Calculations for Device " + deviceKey
-      }
-    },
-    native: {}
-  }));
-  await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.packData`, {
-    type: "channel",
-    common: {
-      name: {
-        de: "Batterie Packs",
-        en: "Battery packs"
-      }
-    },
-    native: {}
-  }));
+  if (type != "smartPlug") {
+    await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.packData`, {
+      type: "channel",
+      common: {
+        name: {
+          de: "Batterie Packs",
+          en: "Battery packs"
+        }
+      },
+      native: {}
+    }));
+  }
   const states = getStateDefinition(type);
   states.forEach(async (state) => {
     await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.${state.title}`, {
@@ -123,32 +119,44 @@ const createSolarFlowStates = async (adapter, device, type) => {
   if (device.snNumber) {
     await (0, import_adapterService.updateSolarFlowState)(
       adapter,
-      device.productKey,
-      device.deviceKey,
+      productKey,
+      deviceKey,
       "snNumber",
       device.snNumber.toString()
     );
   }
   await (0, import_adapterService.updateSolarFlowState)(
     adapter,
-    device.productKey,
-    device.deviceKey,
+    productKey,
+    deviceKey,
     "productName",
     device.productName
   );
   await (0, import_adapterService.updateSolarFlowState)(
     adapter,
-    device.productKey,
-    device.deviceKey,
+    productKey,
+    deviceKey,
     "wifiState",
     device.wifiStatus ? "Connected" : "Disconnected"
   );
-  if (!adapter.config.useFallbackService) {
-    await (0, import_createControlStates.createControlStates)(adapter, productKey, deviceKey, type);
-  }
-  if (adapter.config.useCalculation) {
-    await (0, import_createCalculationStates.createCalculationStates)(adapter, productKey, deviceKey, type);
-  } else {
+  if (type != "smartPlug") {
+    if (!adapter.config.useFallbackService) {
+      await (0, import_createControlStates.createControlStates)(adapter, productKey, deviceKey, type);
+    }
+    if (adapter.config.useCalculation) {
+      await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.calculations`, {
+        type: "channel",
+        common: {
+          name: {
+            de: "Berechnungen f\xFCr Ger\xE4t " + deviceKey,
+            en: "Calculations for Device " + deviceKey
+          }
+        },
+        native: {}
+      }));
+      await (0, import_createCalculationStates.createCalculationStates)(adapter, productKey, deviceKey, type);
+    } else {
+    }
   }
 };
 // Annotate the CommonJS export names for ESM import in node:

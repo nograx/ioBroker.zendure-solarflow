@@ -221,7 +221,11 @@ export const addOrUpdatePackData = async (
 
 const onMessage = async (topic: string, message: Buffer): Promise<void> => {
   if (adapter) {
-    const topicSplitted = topic.split("/");
+    if (topic.toLowerCase().includes("loginOut/force")) {
+      // TODO: Ausloggen???
+    }
+
+    const topicSplitted = topic.replace("/server/app", "").split("/");
     const productKey = topicSplitted[1];
     const deviceKey = topicSplitted[2];
 
@@ -288,6 +292,11 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
       ) {
         setSocToZero(adapter, productKey, deviceKey);
       }
+    }
+
+    if (obj.power != null && obj.power != undefined) {
+      const value = obj.power / 10;
+      updateSolarFlowState(adapter, productKey, deviceKey, "power", value);
     }
 
     if (
@@ -827,8 +836,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
       addOrUpdatePackData(productKey, deviceKey, obj.packData, isSolarFlow);
     }
 
-    if (obj.properties) {
-      /*
+    /*  if (obj.properties) {
       let type = "solarflow";
       const _productName = productName?.val?.toString();
 
@@ -861,8 +869,8 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
             `${productName?.val}: ${key} with value ${value} is a UNKNOWN Mqtt Prop!`
           );
         }
-      }); */
-    }
+      });
+    } */
   }
 };
 
@@ -1226,33 +1234,62 @@ export const connectMqttClient = (_adapter: ZendureSolarflow): void => {
       adapter.mqttClient.on("connect", onConnected);
       adapter.mqttClient.on("error", onError);
 
+      /* const appTopic = `/server/app/${adapter.userId}/#`;
+      setTimeout(() => {
+        if (adapter) {
+          adapter.log.debug(
+            `[connectMqttClient] Subscribing to MQTT Topic: ${appTopic}`
+          );
+          adapter.mqttClient?.subscribe(appTopic, onSubscribeReportTopic);
+        }
+      }, 1000); */
+
       // Subscribe to Topic (appkey von Zendure)
       adapter.deviceList.forEach(
         (device: ISolarFlowDeviceDetails, index: number) => {
           if (adapter) {
-            const reportTopic = `/${device.productKey}/${device.deviceKey}/properties/report`;
+            let connectIot = true;
+
+            let reportTopic = `/${device.productKey}/${device.deviceKey}/#`;
             const iotTopic = `iot/${device.productKey}/${device.deviceKey}/#`;
 
-            setTimeout(() => {
-              if (adapter) {
-                adapter.log.debug(
-                  `[connectMqttClient] Subscribing to MQTT Topic: ${reportTopic}`
-                );
-                adapter.mqttClient?.subscribe(
-                  reportTopic,
-                  onSubscribeReportTopic
-                );
-              }
-            }, 1000 * index);
+            if (device.productKey == "s3Xk4x") {
+              reportTopic = `/server/app/${adapter.userId}/${device.id}/smart/power`;
+              connectIot = false;
+            }
 
-            setTimeout(() => {
-              adapter?.log.debug(
-                `[connectMqttClient] Subscribing to MQTT Topic: ${iotTopic}`
+            setTimeout(
+              () => {
+                if (adapter) {
+                  adapter.log.debug(
+                    `[connectMqttClient] Subscribing to MQTT Topic: ${reportTopic}`
+                  );
+                  adapter.mqttClient?.subscribe(
+                    reportTopic,
+                    onSubscribeReportTopic
+                  );
+                }
+              },
+              1000 * index + 1
+            );
+
+            if (connectIot) {
+              setTimeout(
+                () => {
+                  adapter?.log.debug(
+                    `[connectMqttClient] Subscribing to MQTT Topic: ${iotTopic}`
+                  );
+                  adapter?.mqttClient?.subscribe(iotTopic, (error) => {
+                    onSubscribeIotTopic(
+                      error,
+                      device.productKey,
+                      device.deviceKey
+                    );
+                  });
+                },
+                1500 * index + 1
               );
-              adapter?.mqttClient?.subscribe(iotTopic, (error) => {
-                onSubscribeIotTopic(error, device.productKey, device.deviceKey);
-              });
-            }, 1500 * index);
+            }
 
             // Check if has subdevice e.g. ACE and connect to this also?
             if (device.packList && device.packList.length > 0) {

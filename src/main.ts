@@ -46,6 +46,7 @@ export class ZendureSolarflow extends utils.Adapter {
     this.on("unload", this.onUnload.bind(this));
   }
 
+  public userId: string | undefined = undefined; // User ID, needed for connection with Smart Plug
   public accessToken: string | undefined = undefined; // Access Token for Zendure Rest API
   public deviceList: ISolarFlowDeviceDetails[] = [];
   public paths: ISolarFlowPaths | undefined = undefined;
@@ -138,7 +139,8 @@ export class ZendureSolarflow extends utils.Adapter {
                   (device) =>
                     device.productName.toLowerCase().includes("solarflow") ||
                     device.productName.toLowerCase().includes("hyper") ||
-                    device.productName.toLowerCase() == "ace 1500"
+                    device.productName.toLowerCase() == "ace 1500" ||
+                    device.productName.toLowerCase().includes("smart plug")
                 );
 
                 await checkDevicesServer(this);
@@ -165,18 +167,36 @@ export class ZendureSolarflow extends utils.Adapter {
                       device.productName.toLocaleLowerCase().includes("aio")
                     ) {
                       type = "aio";
+                    } else if (
+                      device.productName
+                        .toLocaleLowerCase()
+                        .includes("smart plug")
+                    ) {
+                      //console.log(device);
+                      type = "smartPlug";
                     }
-
                     // States erstellen
                     await createSolarFlowStates(this, device, type);
 
-                    await updateSolarFlowState(
-                      this,
-                      device.productKey,
-                      device.deviceKey,
-                      "registeredServer",
-                      this.config.server
-                    );
+                    if (
+                      !device.productName.toLowerCase().includes("smart plug")
+                    ) {
+                      await updateSolarFlowState(
+                        this,
+                        device.productKey,
+                        device.deviceKey,
+                        "registeredServer",
+                        this.config.server
+                      );
+                    } else if (this?.userId && device.id) {
+                      await updateSolarFlowState(
+                        this,
+                        this.userId,
+                        device.id?.toString(),
+                        "registeredServer",
+                        this.config.server
+                      );
+                    }
 
                     // Check if has subdevice e.g. ACE?
                     if (device.packList && device.packList.length > 0) {

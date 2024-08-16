@@ -4,6 +4,7 @@ import { IPackData } from "./IPackData";
 export interface IMqttData {
   properties?: ISolarFlowMqttProperties;
   packData?: IPackData[];
+  power?: number;
 }
 
 export interface ISolarFlowMqttProperties {

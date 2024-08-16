@@ -46,7 +46,9 @@ const startResetValuesJob = async (adapter) => {
 const startCalculationJob = async (adapter) => {
   adapter.calculationJob = (0, import_node_schedule.scheduleJob)("*/30 * * * * *", () => {
     adapter.deviceList.forEach((device) => {
-      (0, import_calculationService.calculateEnergy)(adapter, device.productKey, device.deviceKey);
+      if (device.productKey != "s3Xk4x") {
+        (0, import_calculationService.calculateEnergy)(adapter, device.productKey, device.deviceKey);
+      }
     });
   });
 };

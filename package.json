@@ -10,7 +10,8 @@
   "homepage": "https://github.com/nograx/ioBroker.zendure-solarflow",
   "keywords": [
     "Zendure",
-    "Solarflow"
+    "Solarflow",
+    "ioBroker"
   ],
   "repository": {
     "type": "git",

@@ -207,7 +207,9 @@ const addOrUpdatePackData = async (productKey, deviceKey, packData, isSolarFlow)
 const onMessage = async (topic, message) => {
   var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D, _E, _F, _G, _H, _I, _J, _K, _L, _M, _N, _O, _P, _Q, _R, _S, _T, _U, _V, _W, _X, _Y, _Z, __, _$, _aa, _ba, _ca, _da, _ea, _fa, _ga, _ha, _ia, _ja, _ka, _la, _ma, _na, _oa, _pa, _qa, _ra, _sa, _ta, _ua, _va, _wa, _xa, _ya, _za, _Aa, _Ba, _Ca, _Da, _Ea, _Fa, _Ga, _Ha, _Ia, _Ja, _Ka;
   if (adapter) {
-    const topicSplitted = topic.split("/");
+    if (topic.toLowerCase().includes("loginOut/force")) {
+    }
+    const topicSplitted = topic.replace("/server/app", "").split("/");
     const productKey = topicSplitted[1];
     const deviceKey = topicSplitted[2];
     let obj = {};
@@ -248,6 +250,10 @@ const onMessage = async (topic, message) => {
       if ((adapter == null ? void 0 : adapter.config.useCalculation) && minSoc && minSoc.val && obj.properties.electricLevel <= Number(minSoc.val) && isSolarFlow) {
         (0, import_calculationService.setSocToZero)(adapter, productKey, deviceKey);
       }
+    }
+    if (obj.power != null && obj.power != void 0) {
+      const value = obj.power / 10;
+      (0, import_adapterService.updateSolarFlowState)(adapter, productKey, deviceKey, "power", value);
     }
     if (((_e = obj.properties) == null ? void 0 : _e.packState) != null && ((_f = obj.properties) == null ? void 0 : _f.packState) != void 0) {
       const value = ((_g = obj.properties) == null ? void 0 : _g.packState) == 0 ? "Idle" : ((_h = obj.properties) == null ? void 0 : _h.packState) == 1 ? "Charging" : ((_i = obj.properties) == null ? void 0 : _i.packState) == 2 ? "Discharging" : "Unknown";
@@ -610,8 +616,6 @@ const onMessage = async (topic, message) => {
     if (obj.packData) {
       addOrUpdatePackData(productKey, deviceKey, obj.packData, isSolarFlow);
     }
-    if (obj.properties) {
-    }
   }
 };
 const setAcMode = async (adapter2, productKey, deviceKey, acMode) => {
@@ -851,29 +855,46 @@ const connectMqttClient = (_adapter) => {
       adapter.deviceList.forEach(
         (device, index) => {
           if (adapter) {
-            const reportTopic = `/${device.productKey}/${device.deviceKey}/properties/report`;
+            let connectIot = true;
+            let reportTopic = `/${device.productKey}/${device.deviceKey}/#`;
             const iotTopic = `iot/${device.productKey}/${device.deviceKey}/#`;
-            setTimeout(() => {
-              var _a;
-              if (adapter) {
-                adapter.log.debug(
-                  `[connectMqttClient] Subscribing to MQTT Topic: ${reportTopic}`
-                );
-                (_a = adapter.mqttClient) == null ? void 0 : _a.subscribe(
-                  reportTopic,
-                  onSubscribeReportTopic
-                );
-              }
-            }, 1e3 * index);
-            setTimeout(() => {
-              var _a;
-              adapter == null ? void 0 : adapter.log.debug(
-                `[connectMqttClient] Subscribing to MQTT Topic: ${iotTopic}`
+            if (device.productKey == "s3Xk4x") {
+              reportTopic = `/server/app/${adapter.userId}/${device.id}/smart/power`;
+              connectIot = false;
+            }
+            setTimeout(
+              () => {
+                var _a;
+                if (adapter) {
+                  adapter.log.debug(
+                    `[connectMqttClient] Subscribing to MQTT Topic: ${reportTopic}`
+                  );
+                  (_a = adapter.mqttClient) == null ? void 0 : _a.subscribe(
+                    reportTopic,
+                    onSubscribeReportTopic
+                  );
+                }
+              },
+              1e3 * index + 1
+            );
+            if (connectIot) {
+              setTimeout(
+                () => {
+                  var _a;
+                  adapter == null ? void 0 : adapter.log.debug(
+                    `[connectMqttClient] Subscribing to MQTT Topic: ${iotTopic}`
+                  );
+                  (_a = adapter == null ? void 0 : adapter.mqttClient) == null ? void 0 : _a.subscribe(iotTopic, (error) => {
+                    onSubscribeIotTopic(
+                      error,
+                      device.productKey,
+                      device.deviceKey
+                    );
+                  });
+                },
+                1500 * index + 1
               );
-              (_a = adapter == null ? void 0 : adapter.mqttClient) == null ? void 0 : _a.subscribe(iotTopic, (error) => {
-                onSubscribeIotTopic(error, device.productKey, device.deviceKey);
-              });
-            }, 1500 * index);
+            }
             if (device.packList && device.packList.length > 0) {
               device.packList.forEach(async (subDevice) => {
                 if (subDevice.productName.toLocaleLowerCase() == "ace 1500") {

@@ -70,10 +70,13 @@ const login = (adapter) => {
   };
   if (adapter.paths && adapter.paths.solarFlowTokenUrl) {
     return import_axios.default.post(adapter.paths.solarFlowTokenUrl, authBody, config).then(function(response) {
-      var _a, _b;
+      var _a, _b, _c, _d, _e, _f;
       if (response.data.success) {
         adapter.log.info("[login] Login to Zendure Rest API successful!");
-        if ((_b = (_a = response.data) == null ? void 0 : _a.data) == null ? void 0 : _b.accessToken) {
+        if ((_b = (_a = response.data) == null ? void 0 : _a.data) == null ? void 0 : _b.userId) {
+          adapter.userId = (_d = (_c = response.data) == null ? void 0 : _c.data) == null ? void 0 : _d.userId;
+        }
+        if ((_f = (_e = response.data) == null ? void 0 : _e.data) == null ? void 0 : _f.accessToken) {
           return response.data.data.accessToken;
         }
       }
