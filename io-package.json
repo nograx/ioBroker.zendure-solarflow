@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.8.3",
+    "version": "1.8.4",
     "news": {
+      "1.8.4": {
+        "en": "Add support for Smart Plug, but only Power is available at the moment - unstable as often data is not updated by MQTT\nSome code improvements",
+        "de": "Unterstützung für Smart Plug hinzufügen, aber nur Power ist im Moment verfügbar - instabil, da die Daten nicht von MQTT aktualisiert werden\nEinige Code-Verbesserungen",
+        "ru": "Добавить поддержку Smart Plug, но в данный момент доступна только Power - нестабильные, так как часто данные не обновляются MQTT\nНекоторые улучшения кода",
+        "pt": "Adicionar suporte para Smart Plug, mas apenas o Power está disponível no momento - instável como muitas vezes os dados não são atualizados pelo MQTT\nAlgumas melhorias de código",
+        "nl": "Ondersteuning toevoegen voor Smart Plug, maar alleen Power is beschikbaar op dit moment - onstabiel omdat vaak gegevens niet worden bijgewerkt door MQTT\nEnkele code verbeteringen",
+        "fr": "Ajoutez le support pour Smart Plug, mais seule l'alimentation est disponible en ce moment - instable comme souvent les données ne sont pas mises à jour par MQTT\nQuelques améliorations de code",
+        "it": "Aggiungi supporto per Smart Plug, ma solo Power è disponibile al momento - instabile come spesso i dati non sono aggiornati da MQTT\nAlcuni miglioramenti del codice",
+        "es": "Añadir soporte para Smart Plug, pero sólo Power está disponible en este momento - inestable ya que los datos a menudo no es actualizado por MQTT\nAlgunas mejoras de código",
+        "pl": "Dodaj wsparcie dla Smart Plug, ale tylko Moc jest dostępna w tej chwili - niestabilne jak często dane nie są aktualizowane przez MQTT\nNiektóre ulepszenia kodów",
+        "uk": "Додати підтримку для Smart Plug, але тільки Потужність доступна в даний момент - нестабільна, як часто дані не оновлюються MQTT\nДеякі покращення коду",
+        "zh-cn": "添加 Smart Plug 支持, 但目前只有 Power 可用 - 数据经常不由 MQTT 更新而不稳定\n一些代码改进"
+      },
       "1.8.3": {
         "en": "Fix SOC and energyWhMax Value (counted by type of attached batteries)\nAdd Calculation for Grid Input (only for Ace 1500 and Hyper 2000)\nFix suggestions by ioBroker repository checker",
         "de": "SOC und EnergyWhMax-Wert (gezählt nach Art der angeschlossenen Batterien)\nBerechnung für Grid Input hinzufügen (nur für Ace 1500 und Hyper 2000)\nFix Vorschläge von ioBroker Repository Checker",
