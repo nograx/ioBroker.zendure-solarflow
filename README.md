@@ -46,6 +46,12 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Add support for Smart Plug, but only Power is available at the moment - unstable as often data is not updated by MQTT
+- Some code improvements
+
 ### 1.8.3 (2024-08-12)
 
 - Fix SOC and energyWhMax Value (counted by type of attached batteries)
