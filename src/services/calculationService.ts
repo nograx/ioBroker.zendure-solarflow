@@ -110,7 +110,7 @@ export const calculateSocAndEnergy = async (
   }
 
   if (isAio) {
-    energyWhMax = 1920;
+    energyWhMax = 2400;
   } else {
     for (let i = 0; i < batteries.length; i++) {
       if (batteries[i].type == "AB1000") {
