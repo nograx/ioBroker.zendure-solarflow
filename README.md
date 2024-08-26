@@ -46,6 +46,11 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Fix missing states for new HUB Firmware when connected to ACE.
+
 ### 1.8.4 (2024-08-16)
 
 - Add support for Smart Plug, but only Power is available at the moment - unstable as often data is not updated by MQTT

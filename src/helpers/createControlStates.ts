@@ -93,7 +93,7 @@ export const createControlStates = async (
       }
     );
 
-    if (type == "solarflow" || type == "hyper") {
+    if (type == "solarflow" || type == "hyper" || type == "ace") {
       // State zum Setzen des Output Limit
       await adapter?.extendObject(
         `${productKey}.${deviceKey}.control.setOutputLimit`,
@@ -201,40 +201,35 @@ export const createControlStates = async (
           `${productKey}.${deviceKey}.control.lowVoltageBlock`
         );
       }
+
+      // State zum Setzen des AC Modus
+      await adapter?.extendObject(`${productKey}.${deviceKey}.control.acMode`, {
+        type: "state",
+        common: {
+          name: {
+            de: "AC Modus",
+            en: "AC mode",
+          },
+          type: "number",
+          desc: "acMode",
+          role: "switch",
+          min: 0,
+          max: 2,
+          step: 1,
+          read: true,
+          write: true,
+          states: {
+            0: "Nothing",
+            1: "AC input mode",
+            2: "AC output mode",
+          },
+        },
+        native: {},
+      });
+
+      adapter?.subscribeStates(`${productKey}.${deviceKey}.control.acMode`);
     }
-  }
 
-  if (type == "hyper") {
-    // State zum Setzen des AC Modus
-    await adapter?.extendObject(`${productKey}.${deviceKey}.control.acMode`, {
-      type: "state",
-      common: {
-        name: {
-          de: "AC Modus",
-          en: "AC mode",
-        },
-        type: "number",
-        desc: "acMode",
-        role: "switch",
-        min: 0,
-        max: 2,
-        step: 1,
-        read: true,
-        write: true,
-        states: {
-          0: "Nothing",
-          1: "AC input mode",
-          2: "AC output mode",
-        },
-      },
-      native: {},
-    });
-
-    adapter?.subscribeStates(`${productKey}.${deviceKey}.control.acMode`);
-  }
-
-  // States for Hyper 2000 and ACE 1500
-  if (type == "hyper" || type == "ace") {
     // State zum Setzen des Input Limit (AC)
     await adapter?.extendObject(
       `${productKey}.${deviceKey}.control.setInputLimit`,

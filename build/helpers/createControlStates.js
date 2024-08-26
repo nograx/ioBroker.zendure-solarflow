@@ -97,7 +97,7 @@ const createControlStates = async (adapter, productKey, deviceKey, type) => {
         native: {}
       }
     ));
-    if (type == "solarflow" || type == "hyper") {
+    if (type == "solarflow" || type == "hyper" || type == "ace") {
       await (adapter == null ? void 0 : adapter.extendObject(
         `${productKey}.${deviceKey}.control.setOutputLimit`,
         {
@@ -192,35 +192,31 @@ const createControlStates = async (adapter, productKey, deviceKey, type) => {
           `${productKey}.${deviceKey}.control.lowVoltageBlock`
         );
       }
-    }
-  }
-  if (type == "hyper") {
-    await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.control.acMode`, {
-      type: "state",
-      common: {
-        name: {
-          de: "AC Modus",
-          en: "AC mode"
+      await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.control.acMode`, {
+        type: "state",
+        common: {
+          name: {
+            de: "AC Modus",
+            en: "AC mode"
+          },
+          type: "number",
+          desc: "acMode",
+          role: "switch",
+          min: 0,
+          max: 2,
+          step: 1,
+          read: true,
+          write: true,
+          states: {
+            0: "Nothing",
+            1: "AC input mode",
+            2: "AC output mode"
+          }
         },
-        type: "number",
-        desc: "acMode",
-        role: "switch",
-        min: 0,
-        max: 2,
-        step: 1,
-        read: true,
-        write: true,
-        states: {
-          0: "Nothing",
-          1: "AC input mode",
-          2: "AC output mode"
-        }
-      },
-      native: {}
-    }));
-    adapter == null ? void 0 : adapter.subscribeStates(`${productKey}.${deviceKey}.control.acMode`);
-  }
-  if (type == "hyper" || type == "ace") {
+        native: {}
+      }));
+      adapter == null ? void 0 : adapter.subscribeStates(`${productKey}.${deviceKey}.control.acMode`);
+    }
     await (adapter == null ? void 0 : adapter.extendObject(
       `${productKey}.${deviceKey}.control.setInputLimit`,
       {
