@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.8.4",
+    "version": "1.8.5",
     "news": {
+      "1.8.5": {
+        "en": "Fix missing states for new HUB Firmware when connected to ACE\nFix corrent max value for AIO",
+        "de": "Fix fehlende Zustände für neue HUB Firmware, wenn mit ACE verbunden\nKorrent max Wert für AIO festsetzen",
+        "ru": "Исправление недостающих состояний для нового HUB Firmware при подключении к ACE\nМакс. значение для AIO",
+        "pt": "Corrigir estados ausentes para novo HUB Firmware quando conectado à ACE\nCorrigir o valor máximo correspondente para AIO",
+        "nl": "Fix ontbrekende toestanden voor nieuwe HUB Firmware wanneer aangesloten op ACE\nFix corresponderende maximale waarde voor AIO",
+        "fr": "Correction des états manquants pour le nouveau micrologiciel HUB lorsqu'il est connecté à ACE\nFixe la valeur maximale corrente pour AIO",
+        "it": "Fissare gli stati mancanti per il nuovo firmware HUB quando collegato ad ACE\nCorrente di fissaggio del valore massimo per AIO",
+        "es": "Fijar estados perdidos para el nuevo HUB Firmware cuando conectado a ACE\nValor máximo corregido para AIO",
+        "pl": "Naprawianie brakujących stanów dla nowego oprogramowania HUB po podłączeniu do ACE\nPopraw maksymalną wartość corrent dla AIO",
+        "uk": "Виправлення відсутніх штатів для прошивки HUB при підключенні до ACE\nФіксувати коструктивне значення для AIO",
+        "zh-cn": "连接到 ACE 时将新 HUB 固件状态修复为缺失状态\n修正 AIO 的最大同位素值"
+      },
       "1.8.4": {
         "en": "Add support for Smart Plug, but only Power is available at the moment - unstable as often data is not updated by MQTT\nSome code improvements",
         "de": "Unterstützung für Smart Plug hinzufügen, aber nur Power ist im Moment verfügbar - instabil, da die Daten nicht von MQTT aktualisiert werden\nEinige Code-Verbesserungen",
@@ -80,19 +93,6 @@
         "pl": "Ustaw wartość maksymalną i krok dla settInputLimit",
         "uk": "Встановити максимальне значення і крок для setInputLimit",
         "zh-cn": "设置设置的最大值和步骤"
-      },
-      "1.7.3": {
-        "en": "Fix AC input value for Hyper to max. 1200W\nFix dcSwitch and acSwitch value",
-        "de": "Fix AC-Eingabewert für Hyper zu max. 1\nFix dcSwitch und acSwitch Wert",
-        "ru": "Исправить значение переменного тока для Hyper to max. 1200 Вт\nFix dcSwitch и acSwitch значение",
-        "pt": "Corrigir valor de entrada AC para Hyper para max. 1200W\nFix dcSwitch e valor acSwitch",
-        "nl": "Fix AC ingang waarde voor Hyper tot max. 1200W\nDcSwitch- en acSwitch-waarde herstellen",
-        "fr": "Fixer la valeur d'entrée AC pour Hyper à max. 1200W\nCorrection de la valeur dcSwitch et acSwitch",
-        "it": "Fissare il valore di ingresso AC per Hyper a max. 1200W\nFissare il valore dcSwitch e acSwitch",
-        "es": "Fijar el valor de entrada AC para Hyper a max. 1200W\nFijar el valor dcSwitch y acSwitch",
-        "pl": "Popraw wartość wejściową AC dla Hyper do max. 1200W\nNapraw wartość dcSwitch i acSwitch",
-        "uk": "Фіксувати значення введення змінного струму для Hyper до макс. 1200В\nВиправлення dcSwitch і значення acSwitch",
-        "zh-cn": "将 Hyper 的 AC 输入值固定为最大 。 1200W (英语)\n修正 dcSwitch 和 acSwitch 值"
       }
     },
     "titleLang": {
