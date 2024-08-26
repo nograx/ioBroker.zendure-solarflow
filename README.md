@@ -49,7 +49,8 @@ If you find the adapter useful for you and want to support my work, feel free to
 
 ### **WORK IN PROGRESS**
 
-- Fix missing states for new HUB Firmware when connected to ACE.
+- Fix missing states for new HUB Firmware when connected to ACE
+- Fix corrent max value for AIO
 
 ### 1.8.4 (2024-08-16)
 
