@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/indent */
 export interface ISolarFlowDeviceDetails {
+  _connectedWithAce?: boolean;
   batteryCode?: string;
   bindId?: number;
   bindStatus?: number;

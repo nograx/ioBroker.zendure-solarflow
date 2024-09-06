@@ -125,6 +125,15 @@ const createSolarFlowStates = async (adapter, device, type) => {
       device.snNumber.toString()
     );
   }
+  if (type == "solarflow" && device._connectedWithAce != null && device._connectedWithAce != void 0) {
+    await (0, import_adapterService.updateSolarFlowState)(
+      adapter,
+      device.productKey,
+      device.deviceKey,
+      "connectedWithAce",
+      device._connectedWithAce
+    );
+  }
   await (0, import_adapterService.updateSolarFlowState)(
     adapter,
     productKey,

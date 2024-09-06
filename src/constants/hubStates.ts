@@ -55,4 +55,11 @@ export const hubStates: ISolarflowState[] = sharedStates.concat([
     role: "value.power",
     unit: "W",
   },
+  {
+    title: "connectedWithAce",
+    nameDe: "Mit ACE (1500) verbunden",
+    nameEn: "Connected with ACE (1500)",
+    type: "boolean",
+    role: "value",
+  },
 ]);

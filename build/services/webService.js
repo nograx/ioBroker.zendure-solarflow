@@ -57,7 +57,8 @@ const login = (adapter) => {
     `${adapter.config.userName}:${adapter.config.password}`
   ).toString("base64");
   if (!config || !config.headers) {
-    return Promise.reject("No axios config!");
+    adapter.log.info("[login] Axios config is invalid!");
+    return Promise.reject(void 0);
   }
   config.headers.Authorization = "Basic " + auth;
   const authBody = {
@@ -79,13 +80,13 @@ const login = (adapter) => {
         if ((_f = (_e = response.data) == null ? void 0 : _e.data) == null ? void 0 : _f.accessToken) {
           return response.data.data.accessToken;
         }
+      } else {
+        return void 0;
       }
-    }).catch(function(error) {
-      adapter.log.error(error);
-      return Promise.reject("[login] Failed to login to Zendure REST API!");
     });
-  } else
-    return Promise.reject("Path error!");
+  } else {
+    return Promise.reject(void 0);
+  }
 };
 const getDeviceList = (adapter) => {
   adapter.log.debug(

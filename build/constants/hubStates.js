@@ -74,6 +74,13 @@ const hubStates = import_sharedStates.sharedStates.concat([
     type: "number",
     role: "value.power",
     unit: "W"
+  },
+  {
+    title: "connectedWithAce",
+    nameDe: "Mit ACE (1500) verbunden",
+    nameEn: "Connected with ACE (1500)",
+    type: "boolean",
+    role: "value"
   }
 ]);
 // Annotate the CommonJS export names for ESM import in node:

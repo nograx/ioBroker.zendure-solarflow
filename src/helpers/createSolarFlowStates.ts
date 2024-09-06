@@ -128,6 +128,21 @@ export const createSolarFlowStates = async (
     );
   }
 
+  // Set the ACE connection info if is solarflow hub device
+  if (
+    type == "solarflow" &&
+    device._connectedWithAce != null &&
+    device._connectedWithAce != undefined
+  ) {
+    await updateSolarFlowState(
+      adapter,
+      device.productKey,
+      device.deviceKey,
+      "connectedWithAce",
+      device._connectedWithAce
+    );
+  }
+
   // Set product name from device
   await updateSolarFlowState(
     adapter,

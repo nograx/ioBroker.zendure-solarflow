@@ -33,14 +33,16 @@ const pathsGlobal = {
   solarFlowTokenUrl: `https://${hostname}/${versionGlobal}/${solarFlowTokenPath}`,
   solarFlowQueryDeviceListUrl: `https://${hostname}/${versionGlobal}/${solarFlowDeviceListPath}`,
   mqttUrl: "mq.zen-iot.com",
-  mqttPort: 1883
+  mqttPort: 1883,
+  mqttPassword: "b0sjUENneTZPWnhk"
 };
 const pathsEu = {
   solarFlowDevRegisterUrl: `https://${hostname}/${versionEu}/${solarFlowDevRegisterPath}`,
   solarFlowTokenUrl: `https://${hostname}/${versionEu}/${solarFlowTokenPath}`,
   solarFlowQueryDeviceListUrl: `https://${hostname}/${versionEu}/${solarFlowDeviceListPath}`,
   mqttUrl: "mqtteu.zen-iot.com",
-  mqttPort: 1883
+  mqttPort: 1883,
+  mqttPassword: "SDZzJGo5Q3ROYTBO"
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

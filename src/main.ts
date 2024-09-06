@@ -121,121 +121,146 @@ export class ZendureSolarflow extends utils.Adapter {
       this.config.password
     ) {
       // App mode: If Username and Password is provided, try to login and get the access token.
-      login(this)
-        ?.then((_accessToken: string) => {
-          this.accessToken = _accessToken;
+      let _accessToken: string | undefined = undefined;
+      let retryCounter = 0;
 
-          this.setState("info.connection", true, true);
-          this.lastLogin = new Date();
-
-          // Try to get the device list
-          getDeviceList(this)
-            .then(async (result: ISolarFlowDeviceDetails[]) => {
-              if (result) {
-                // Device List found. Save in the adapter properties and connect to MQTT
-                //console.log(result);
-                // Filtering to SolarFlow devices
-                this.deviceList = result.filter(
-                  (device) =>
-                    device.productName.toLowerCase().includes("solarflow") ||
-                    device.productName.toLowerCase().includes("hyper") ||
-                    device.productName.toLowerCase() == "ace 1500" ||
-                    device.productName.toLowerCase().includes("smart plug")
-                );
-
-                await checkDevicesServer(this);
-
-                this.log.info(
-                  `[onReady] Found ${this.deviceList.length} SolarFlow device(s).`
-                );
-
-                //console.log(this.deviceList);
-
-                await this.deviceList.forEach(
-                  async (device: ISolarFlowDeviceDetails) => {
-                    let type = "solarflow";
-
-                    if (
-                      device.productName.toLocaleLowerCase().includes("hyper")
-                    ) {
-                      type = "hyper";
-                    } else if (
-                      device.productName.toLocaleLowerCase().includes("ace")
-                    ) {
-                      type = "ace";
-                    } else if (
-                      device.productName.toLocaleLowerCase().includes("aio")
-                    ) {
-                      type = "aio";
-                    } else if (
-                      device.productName
-                        .toLocaleLowerCase()
-                        .includes("smart plug")
-                    ) {
-                      //console.log(device);
-                      type = "smartPlug";
-                    }
-                    // States erstellen
-                    await createSolarFlowStates(this, device, type);
-
-                    if (
-                      !device.productName.toLowerCase().includes("smart plug")
-                    ) {
-                      await updateSolarFlowState(
-                        this,
-                        device.productKey,
-                        device.deviceKey,
-                        "registeredServer",
-                        this.config.server
-                      );
-                    } else if (this?.userId && device.id) {
-                      await updateSolarFlowState(
-                        this,
-                        this.userId,
-                        device.id?.toString(),
-                        "registeredServer",
-                        this.config.server
-                      );
-                    }
-
-                    // Check if has subdevice e.g. ACE?
-                    if (device.packList && device.packList.length > 0) {
-                      device.packList.forEach(async (subDevice) => {
-                        if (
-                          subDevice.productName.toLocaleLowerCase() ==
-                          "ace 1500"
-                        ) {
-                          // States erstellen
-                          await createSolarFlowStates(this, subDevice, "ace");
-
-                          await updateSolarFlowState(
-                            this,
-                            subDevice.productKey,
-                            subDevice.deviceKey,
-                            "registeredServer",
-                            this.config.server
-                          );
-                        }
-                      });
-                    }
-                  }
-                );
-
-                connectMqttClient(this);
-              }
-            })
-            .catch(() => {
-              this.setState("info.connection", false, true);
-              this.log?.error("[onReady] Retrieving device failed!");
-            });
-        })
-        .catch((error) => {
-          this.setState("info.connection", false, true);
-          this.log.error(
-            "[onReady] Logon error at Zendure cloud service! Error: " +
-              error.toString()
+      while (retryCounter < 4) {
+        if (retryCounter > 0) {
+          this.log.warn(
+            `[onReady] Retrying to connect to Zendure Cloud (Retry #${retryCounter}).`
           );
-        });
+        }
+
+        try {
+          _accessToken = await login(this);
+        } catch (ex: any) {
+          if (ex.message.includes("Request failed with status code 400")) {
+            this.log.warn(
+              `[onReady] Error 400, maybe your credentials are invalid!`
+            );
+            break;
+          } else {
+            this.log.error(
+              `[onReady] Error connecting to Zendure Cloud. Error: ${ex.message}`
+            );
+          }
+        }
+
+        if (_accessToken != undefined) {
+          this.accessToken = _accessToken;
+          break;
+        }
+
+        // Add a small sleep
+        await new Promise((r) => setTimeout(r, 4000));
+
+        retryCounter++;
+      }
+
+      if (_accessToken != undefined) {
+        this.setState("info.connection", true, true);
+        this.lastLogin = new Date();
+
+        // Try to get the device list
+        getDeviceList(this)
+          .then(async (result: ISolarFlowDeviceDetails[]) => {
+            if (result) {
+              // Device List found. Save in the adapter properties and connect to MQTT
+
+              // Filtering to SolarFlow devices
+              this.deviceList = result.filter(
+                (device) =>
+                  device.productName.toLowerCase().includes("solarflow") ||
+                  device.productName.toLowerCase().includes("hyper") ||
+                  device.productName.toLowerCase() == "ace 1500" ||
+                  device.productName.toLowerCase().includes("smart plug")
+              );
+
+              await checkDevicesServer(this);
+
+              this.log.info(
+                `[onReady] Found ${this.deviceList.length} SolarFlow device(s).`
+              );
+
+              await this.deviceList.forEach(
+                async (device: ISolarFlowDeviceDetails) => {
+                  let type = "solarflow";
+
+                  if (
+                    device.productName.toLocaleLowerCase().includes("hyper")
+                  ) {
+                    type = "hyper";
+                  } else if (
+                    device.productName.toLocaleLowerCase().includes("ace")
+                  ) {
+                    type = "ace";
+                  } else if (
+                    device.productName.toLocaleLowerCase().includes("aio")
+                  ) {
+                    type = "aio";
+                  } else if (
+                    device.productName
+                      .toLocaleLowerCase()
+                      .includes("smart plug")
+                  ) {
+                    //console.log(device);
+                    type = "smartPlug";
+                  }
+
+                  // Check if has subdevice e.g. ACE?
+                  if (device.packList && device.packList.length > 0) {
+                    device.packList.forEach(async (subDevice) => {
+                      if (
+                        subDevice.productName.toLocaleLowerCase() == "ace 1500"
+                      ) {
+                        device._connectedWithAce = true;
+                        // States erstellen
+                        await createSolarFlowStates(this, subDevice, "ace");
+
+                        await updateSolarFlowState(
+                          this,
+                          subDevice.productKey,
+                          subDevice.deviceKey,
+                          "registeredServer",
+                          this.config.server
+                        );
+                      }
+                    });
+                  }
+
+                  // States erstellen
+                  await createSolarFlowStates(this, device, type);
+
+                  if (
+                    !device.productName.toLowerCase().includes("smart plug")
+                  ) {
+                    await updateSolarFlowState(
+                      this,
+                      device.productKey,
+                      device.deviceKey,
+                      "registeredServer",
+                      this.config.server
+                    );
+                  } else if (this?.userId && device.id) {
+                    await updateSolarFlowState(
+                      this,
+                      this.userId,
+                      device.id?.toString(),
+                      "registeredServer",
+                      this.config.server
+                    );
+                  }
+                }
+              );
+
+              connectMqttClient(this);
+            }
+          })
+          .catch(() => {
+            this.setState("info.connection", false, true);
+            this.log?.error("[onReady] Retrieving device failed!");
+          });
+      }
     } else {
       this.setState("info.connection", false, true);
       this.log.error("[onReady] No Login Information provided!");
@@ -246,13 +271,19 @@ export class ZendureSolarflow extends utils.Adapter {
   /**
    * Is called when adapter shuts down - callback has to be called under any circumstances!
    */
-  private onUnload(callback: () => void): void {
+  private async onUnload(callback: () => void): Promise<void> {
     try {
       if (this.refreshAccessTokenInterval) {
         this.clearInterval(this.refreshAccessTokenInterval);
       }
 
-      this.mqttClient?.end();
+      try {
+        await this.mqttClient?.endAsync();
+        this.log.info("[onUnload] MQTT client stopped!");
+        this.mqttClient = undefined;
+      } catch (ex: any) {
+        this.log.error("[onUnload] Error stopping MQTT client: !" + ex.message);
+      }
 
       this.setState("info.connection", false, true);
 

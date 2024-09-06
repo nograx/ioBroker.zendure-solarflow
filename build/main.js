@@ -67,7 +67,6 @@ class ZendureSolarflow extends utils.Adapter {
    * Is called when databases are connected and adapter received configuration.
    */
   async onReady() {
-    var _a;
     await this.extendObject("info", {
       type: "channel",
       common: {
@@ -110,8 +109,36 @@ class ZendureSolarflow extends utils.Adapter {
         }
       });
     } else if (!this.config.useFallbackService && this.config.userName && this.config.password) {
-      (_a = (0, import_webService.login)(this)) == null ? void 0 : _a.then((_accessToken) => {
-        this.accessToken = _accessToken;
+      let _accessToken = void 0;
+      let retryCounter = 0;
+      while (retryCounter < 4) {
+        if (retryCounter > 0) {
+          this.log.warn(
+            `[onReady] Retrying to connect to Zendure Cloud (Retry #${retryCounter}).`
+          );
+        }
+        try {
+          _accessToken = await (0, import_webService.login)(this);
+        } catch (ex) {
+          if (ex.message.includes("Request failed with status code 400")) {
+            this.log.warn(
+              `[onReady] Error 400, maybe your credentials are invalid!`
+            );
+            break;
+          } else {
+            this.log.error(
+              `[onReady] Error connecting to Zendure Cloud. Error: ${ex.message}`
+            );
+          }
+        }
+        if (_accessToken != void 0) {
+          this.accessToken = _accessToken;
+          break;
+        }
+        await new Promise((r) => setTimeout(r, 4e3));
+        retryCounter++;
+      }
+      if (_accessToken != void 0) {
         this.setState("info.connection", true, true);
         this.lastLogin = /* @__PURE__ */ new Date();
         (0, import_webService.getDeviceList)(this).then(async (result) => {
@@ -125,7 +152,7 @@ class ZendureSolarflow extends utils.Adapter {
             );
             await this.deviceList.forEach(
               async (device) => {
-                var _a2;
+                var _a;
                 let type = "solarflow";
                 if (device.productName.toLocaleLowerCase().includes("hyper")) {
                   type = "hyper";
@@ -135,6 +162,21 @@ class ZendureSolarflow extends utils.Adapter {
                   type = "aio";
                 } else if (device.productName.toLocaleLowerCase().includes("smart plug")) {
                   type = "smartPlug";
+                }
+                if (device.packList && device.packList.length > 0) {
+                  device.packList.forEach(async (subDevice) => {
+                    if (subDevice.productName.toLocaleLowerCase() == "ace 1500") {
+                      device._connectedWithAce = true;
+                      await (0, import_createSolarFlowStates.createSolarFlowStates)(this, subDevice, "ace");
+                      await (0, import_adapterService.updateSolarFlowState)(
+                        this,
+                        subDevice.productKey,
+                        subDevice.deviceKey,
+                        "registeredServer",
+                        this.config.server
+                      );
+                    }
+                  });
                 }
                 await (0, import_createSolarFlowStates.createSolarFlowStates)(this, device, type);
                 if (!device.productName.toLowerCase().includes("smart plug")) {
@@ -149,40 +191,21 @@ class ZendureSolarflow extends utils.Adapter {
                   await (0, import_adapterService.updateSolarFlowState)(
                     this,
                     this.userId,
-                    (_a2 = device.id) == null ? void 0 : _a2.toString(),
+                    (_a = device.id) == null ? void 0 : _a.toString(),
                     "registeredServer",
                     this.config.server
                   );
-                }
-                if (device.packList && device.packList.length > 0) {
-                  device.packList.forEach(async (subDevice) => {
-                    if (subDevice.productName.toLocaleLowerCase() == "ace 1500") {
-                      await (0, import_createSolarFlowStates.createSolarFlowStates)(this, subDevice, "ace");
-                      await (0, import_adapterService.updateSolarFlowState)(
-                        this,
-                        subDevice.productKey,
-                        subDevice.deviceKey,
-                        "registeredServer",
-                        this.config.server
-                      );
-                    }
-                  });
                 }
               }
             );
             (0, import_mqttService.connectMqttClient)(this);
           }
         }).catch(() => {
-          var _a2;
+          var _a;
           this.setState("info.connection", false, true);
-          (_a2 = this.log) == null ? void 0 : _a2.error("[onReady] Retrieving device failed!");
+          (_a = this.log) == null ? void 0 : _a.error("[onReady] Retrieving device failed!");
         });
-      }).catch((error) => {
-        this.setState("info.connection", false, true);
-        this.log.error(
-          "[onReady] Logon error at Zendure cloud service! Error: " + error.toString()
-        );
-      });
+      }
     } else {
       this.setState("info.connection", false, true);
       this.log.error("[onReady] No Login Information provided!");
@@ -191,13 +214,19 @@ class ZendureSolarflow extends utils.Adapter {
   /**
    * Is called when adapter shuts down - callback has to be called under any circumstances!
    */
-  onUnload(callback) {
+  async onUnload(callback) {
     var _a, _b;
     try {
       if (this.refreshAccessTokenInterval) {
         this.clearInterval(this.refreshAccessTokenInterval);
       }
-      (_a = this.mqttClient) == null ? void 0 : _a.end();
+      try {
+        await ((_a = this.mqttClient) == null ? void 0 : _a.endAsync());
+        this.log.info("[onUnload] MQTT client stopped!");
+        this.mqttClient = void 0;
+      } catch (ex) {
+        this.log.error("[onUnload] Error stopping MQTT client: !" + ex.message);
+      }
       this.setState("info.connection", false, true);
       if (this.resetValuesJob) {
         this.resetValuesJob.cancel();

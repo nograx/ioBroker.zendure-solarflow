@@ -15,6 +15,7 @@ export const pathsGlobal: ISolarFlowPaths = {
   solarFlowQueryDeviceListUrl: `https://${hostname}/${versionGlobal}/${solarFlowDeviceListPath}`,
   mqttUrl: "mq.zen-iot.com",
   mqttPort: 1883,
+  mqttPassword: "b0sjUENneTZPWnhk",
 };
 
 export const pathsEu: ISolarFlowPaths = {
@@ -23,4 +24,5 @@ export const pathsEu: ISolarFlowPaths = {
   solarFlowQueryDeviceListUrl: `https://${hostname}/${versionEu}/${solarFlowDeviceListPath}`,
   mqttUrl: "mqtteu.zen-iot.com",
   mqttPort: 1883,
+  mqttPassword: "SDZzJGo5Q3ROYTBO",
 };

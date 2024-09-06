@@ -5,4 +5,5 @@ export interface ISolarFlowPaths {
   solarFlowQueryDeviceListUrl: string;
   mqttUrl: string;
   mqttPort: number;
+  mqttPassword: string;
 }

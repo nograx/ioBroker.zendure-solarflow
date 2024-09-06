@@ -16,8 +16,9 @@ const config: AxiosRequestConfig = {
   timeout: 10000,
 };
 
-/* eslint-disable @typescript-eslint/indent */
-export const login = (adapter: ZendureSolarflow): Promise<string> => {
+export const login = (
+  adapter: ZendureSolarflow
+): Promise<string | undefined> => {
   if (adapter.accessToken) {
     return new Promise((resolve) => {
       if (adapter.accessToken) {
@@ -31,7 +32,8 @@ export const login = (adapter: ZendureSolarflow): Promise<string> => {
   ).toString("base64");
 
   if (!config || !config.headers) {
-    return Promise.reject("No axios config!");
+    adapter.log.info("[login] Axios config is invalid!");
+    return Promise.reject(undefined);
   }
 
   config.headers.Authorization = "Basic " + auth;
@@ -58,13 +60,13 @@ export const login = (adapter: ZendureSolarflow): Promise<string> => {
           if (response.data?.data?.accessToken) {
             return response.data.data.accessToken;
           }
+        } else {
+          return undefined;
         }
-      })
-      .catch(function (error) {
-        adapter.log.error(error);
-        return Promise.reject("[login] Failed to login to Zendure REST API!");
       });
-  } else return Promise.reject("Path error!");
+  } else {
+    return Promise.reject(undefined);
+  }
 };
 
 export const getDeviceList = (

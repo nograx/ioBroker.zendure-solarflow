@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["../../src/models/ISolarFlowPaths.ts"],
-  "sourcesContent": ["/* eslint-disable @typescript-eslint/indent */\r\nexport interface ISolarFlowPaths {\r\n  solarFlowDevRegisterUrl: string;\r\n  solarFlowTokenUrl: string;\r\n  solarFlowQueryDeviceListUrl: string;\r\n  mqttUrl: string;\r\n  mqttPort: number;\r\n}\r\n"],
+  "sourcesContent": ["/* eslint-disable @typescript-eslint/indent */\r\nexport interface ISolarFlowPaths {\r\n  solarFlowDevRegisterUrl: string;\r\n  solarFlowTokenUrl: string;\r\n  solarFlowQueryDeviceListUrl: string;\r\n  mqttUrl: string;\r\n  mqttPort: number;\r\n  mqttPassword: string;\r\n}\r\n"],
   "mappings": ";;;;;;;;;;;;;;AAAA;AAAA;",
   "names": []
 }

@@ -234,7 +234,9 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
       obj = JSON.parse(message.toString());
     } catch (e) {
       const txt = message.toString();
-      adapter.log.error(`[JSON PARSE ERROR] ${txt}`);
+      adapter.log.error(`[onMessage] JSON Parse error!`);
+
+      adapter.log.debug(`[onMessage] JSON Parse error: ${txt}!`);
     }
 
     let isSolarFlow = false;
@@ -1208,13 +1210,17 @@ const onSubscribeIotTopic: any = (
 export const connectMqttClient = (_adapter: ZendureSolarflow): void => {
   adapter = _adapter;
 
+  if (!adapter.paths?.mqttPassword) {
+    adapter.log.error(`[connectMqttClient] MQTT Password is missing!`);
+    return;
+  }
+
+  const mqttPassword = atob(adapter.paths?.mqttPassword);
+
   const options: mqtt.IClientOptions = {
     clientId: adapter.accessToken,
     username: "zenApp",
-    password:
-      adapter.config.server && adapter.config.server == "eu"
-        ? "H6s$j9CtNa0N"
-        : "oK#PCgy6OZxd",
+    password: mqttPassword,
     clean: true,
     protocolVersion: 5,
   };
@@ -1337,7 +1343,7 @@ export const connectMqttClient = (_adapter: ZendureSolarflow): void => {
       // Job starten die States zu checken
       startCheckStatesAndConnectionJob(adapter);
 
-      // Den Access Token aktualiseren
+      // Den Access Token aktualisieren
       startRefreshAccessTokenTimerJob(adapter);
 
       // Calculation Job starten sofern aktiviert

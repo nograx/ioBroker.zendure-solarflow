@@ -217,7 +217,8 @@ const onMessage = async (topic, message) => {
       obj = JSON.parse(message.toString());
     } catch (e) {
       const txt = message.toString();
-      adapter.log.error(`[JSON PARSE ERROR] ${txt}`);
+      adapter.log.error(`[onMessage] JSON Parse error!`);
+      adapter.log.debug(`[onMessage] JSON Parse error: ${txt}!`);
     }
     let isSolarFlow = false;
     const productName = await adapter.getStateAsync(
@@ -833,11 +834,17 @@ const onSubscribeIotTopic = (error, productKey, deviceKey) => {
   }
 };
 const connectMqttClient = (_adapter) => {
+  var _a, _b;
   adapter = _adapter;
+  if (!((_a = adapter.paths) == null ? void 0 : _a.mqttPassword)) {
+    adapter.log.error(`[connectMqttClient] MQTT Password is missing!`);
+    return;
+  }
+  const mqttPassword = atob((_b = adapter.paths) == null ? void 0 : _b.mqttPassword);
   const options = {
     clientId: adapter.accessToken,
     username: "zenApp",
-    password: adapter.config.server && adapter.config.server == "eu" ? "H6s$j9CtNa0N" : "oK#PCgy6OZxd",
+    password: mqttPassword,
     clean: true,
     protocolVersion: 5
   };
@@ -864,12 +871,12 @@ const connectMqttClient = (_adapter) => {
             }
             setTimeout(
               () => {
-                var _a;
+                var _a2;
                 if (adapter) {
                   adapter.log.debug(
                     `[connectMqttClient] Subscribing to MQTT Topic: ${reportTopic}`
                   );
-                  (_a = adapter.mqttClient) == null ? void 0 : _a.subscribe(
+                  (_a2 = adapter.mqttClient) == null ? void 0 : _a2.subscribe(
                     reportTopic,
                     onSubscribeReportTopic
                   );
@@ -880,11 +887,11 @@ const connectMqttClient = (_adapter) => {
             if (connectIot) {
               setTimeout(
                 () => {
-                  var _a;
+                  var _a2;
                   adapter == null ? void 0 : adapter.log.debug(
                     `[connectMqttClient] Subscribing to MQTT Topic: ${iotTopic}`
                   );
-                  (_a = adapter == null ? void 0 : adapter.mqttClient) == null ? void 0 : _a.subscribe(iotTopic, (error) => {
+                  (_a2 = adapter == null ? void 0 : adapter.mqttClient) == null ? void 0 : _a2.subscribe(iotTopic, (error) => {
                     onSubscribeIotTopic(
                       error,
                       device.productKey,
@@ -901,23 +908,23 @@ const connectMqttClient = (_adapter) => {
                   const reportTopic2 = `/${subDevice.productKey}/${subDevice.deviceKey}/properties/report`;
                   const iotTopic2 = `iot/${subDevice.productKey}/${subDevice.deviceKey}/#`;
                   setTimeout(() => {
-                    var _a;
+                    var _a2;
                     if (adapter) {
                       adapter.log.debug(
                         `[connectMqttClient] Subscribing to MQTT Topic: ${reportTopic2}`
                       );
-                      (_a = adapter.mqttClient) == null ? void 0 : _a.subscribe(
+                      (_a2 = adapter.mqttClient) == null ? void 0 : _a2.subscribe(
                         reportTopic2,
                         onSubscribeReportTopic
                       );
                     }
                   }, 1e3 * index);
                   setTimeout(() => {
-                    var _a;
+                    var _a2;
                     adapter == null ? void 0 : adapter.log.debug(
                       `[connectMqttClient] Subscribing to MQTT Topic: ${iotTopic2}`
                     );
-                    (_a = adapter == null ? void 0 : adapter.mqttClient) == null ? void 0 : _a.subscribe(iotTopic2, (error) => {
+                    (_a2 = adapter == null ? void 0 : adapter.mqttClient) == null ? void 0 : _a2.subscribe(iotTopic2, (error) => {
                       onSubscribeIotTopic(
                         error,
                         subDevice.productKey,
