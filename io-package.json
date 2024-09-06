@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.8.5",
+    "version": "1.8.6",
     "news": {
+      "1.8.6": {
+        "en": "Change login method: Added a retry loop for connecting to Zendure Cloud, if the Cloud Service \"hangs\" or is not available it will retry the connection 3 times.",
+        "de": "Login-Methode ändern: Hinzugefügt eine Retry-Loop für die Verbindung mit Zendure Cloud, wenn der Cloud Service \"Ändert\" oder nicht verfügbar ist, wird es die Verbindung 3 mal wiederherzustellen.",
+        "ru": "Изменение метода входа: Добавлена петля для подключения к Zendure Cloud, если облачная служба «висит» или недоступна, она перепробует соединение 3 раза.",
+        "pt": "Alterar método de login: Adicionado um loop de retificação para se conectar ao Zendure Cloud, se o serviço de nuvem \"hangs\" ou não está disponível ele vai retenta a conexão 3 vezes.",
+        "nl": "Aanmeldmethode wijzigen: Een retry-lus toegevoegd om verbinding te maken met Zendure Cloud, als de Cloud Service \"hangt\" of niet beschikbaar is, zal het de verbinding 3 keer opnieuw proberen.",
+        "fr": "Modifier la méthode de connexion & #160;: Ajout d'une boucle de réessayer pour se connecter à Zendure Cloud, si le service Cloud \"hangs\" ou n'est pas disponible, il réessayera la connexion 3 fois.",
+        "it": "Modifica del metodo di login: Aggiunto un loop di riprovazione per il collegamento a Zendure Cloud, se il servizio cloud \"impicca\" o non è disponibile, riproverà la connessione 3 volte.",
+        "es": "Cambiar método de inicio de sesión: Se agregó un bucle de reingreso para conectarse a Zendure Cloud, si el Servicio Cloud \"hangs\" o no está disponible, volverá a iniciar la conexión 3 veces.",
+        "pl": "Zmień metodę logowania: Dodano pętlę ponowną do podłączenia do Zharb Cloud, jeśli Cloud Service \"zawiśnie\" lub nie jest dostępna, ponownie wypróbuje połączenie 3 razy.",
+        "uk": "Спосіб зміни логіки: Додана птиця петля для підключення до Zendure Cloud, якщо Хмарна служба \"хвишки\" або не доступна вона буде переробляти з'єднання 3 рази.",
+        "zh-cn": "更改登录方法 : 添加了连接到 Zendure 云的重试循环, 如果云服务“ hangs” 或无法使用, 它将重试连接三次 ."
+      },
       "1.8.5": {
         "en": "Fix missing states for new HUB Firmware when connected to ACE\nFix corrent max value for AIO",
         "de": "Fix fehlende Zustände für neue HUB Firmware, wenn mit ACE verbunden\nKorrent max Wert für AIO festsetzen",
@@ -80,19 +93,6 @@
         "pl": "Poprawiony tryb sterowania AC dla Hyper 2000 (ustawić acMode do 1: Ładowanie przez AC, 2: Wyjście do AC)\nPokaż nazwę produktu w nazwie kanału\nPokaż typ baterii jako stan w packData\nPokaż temperaturę Hyper w Stanach",
         "uk": "Фіксований контрольний режим змінного струму для Hyper 2000 (set acMode до 1: Charge by AC, 2: Вихід до змінного струму)\nПоказати назву продукту в назві каналів\nПоказати тип акумулятора як стан у пачціData\nПоказати гіпертемпературу в США",
         "zh-cn": "用于 Hyper 2000 的控制 AC 模式( 设置 acMode 到 1: 由 AC 充电, 2: 输出到 AC)\n在频道名称中显示产品名称\n在 packData 中显示电池类型\n在州内显示超温"
-      },
-      "1.7.4": {
-        "en": "Set max value and step for setInputLimit",
-        "de": "Maximaler Wert und Schritt für setInputLimit einstellen",
-        "ru": "Установить максимальное значение и шаг для setInputLimit",
-        "pt": "Definir valor máximo e passo para setInputLimit",
-        "nl": "Maximale waarde en stap instellen voor setInputLimit",
-        "fr": "Définir la valeur maximale et l'étape pour setInputLimit",
-        "it": "Impostare il valore massimo e il passo per setInputLimit",
-        "es": "Establecer el valor máximo y el paso para setInputLimit",
-        "pl": "Ustaw wartość maksymalną i krok dla settInputLimit",
-        "uk": "Встановити максимальне значення і крок для setInputLimit",
-        "zh-cn": "设置设置的最大值和步骤"
       }
     },
     "titleLang": {
