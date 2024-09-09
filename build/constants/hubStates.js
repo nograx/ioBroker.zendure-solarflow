@@ -76,6 +76,18 @@ const hubStates = import_sharedStates.sharedStates.concat([
     unit: "W"
   },
   {
+    title: "acMode",
+    nameDe: "AC Modus",
+    nameEn: "AC mode",
+    type: "number",
+    role: "value",
+    states: {
+      0: "Nothing",
+      1: "AC input mode",
+      2: "AC output mode"
+    }
+  },
+  {
     title: "connectedWithAce",
     nameDe: "Mit ACE (1500) verbunden",
     nameEn: "Connected with ACE (1500)",

@@ -49,7 +49,7 @@ const checkVoltage = async (adapter, productKey, deviceKey, voltage) => {
       ));
       (0, import_mqttService.setOutputLimit)(adapter, productKey, deviceKey, 0);
     }
-  } else if (voltage >= 48) {
+  } else if (voltage >= 47.5) {
     if (adapter.config.useLowVoltageBlock) {
       await (adapter == null ? void 0 : adapter.setState(
         `${productKey}.${deviceKey}.control.lowVoltageBlock`,
