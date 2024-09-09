@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.8.6",
+    "version": "1.8.7",
     "news": {
+      "1.8.7": {
+        "en": "Fix missing control states for AIO",
+        "de": "Fehlende Kontrollzustände für AIO behoben",
+        "ru": "Исправление недостающих состояний управления для AIO",
+        "pt": "Corrigir estados de controle ausentes para AIO",
+        "nl": "Fix ontbrekende controlestaten voor AIO",
+        "fr": "Correction des états de contrôle manquants pour AIO",
+        "it": "Fissare gli stati di controllo mancanti per AIO",
+        "es": "Fijar estados de control perdidos para AIO",
+        "pl": "Napraw brakujące stany kontroli dla AIO",
+        "uk": "Виправлення відсутніх контрольних станів для AIO",
+        "zh-cn": "为 AIO 修复缺失的控制状态"
+      },
       "1.8.6": {
         "en": "Change login method: Added a retry loop for connecting to Zendure Cloud, if the Cloud Service \"hangs\" or is not available it will retry the connection 3 times.",
         "de": "Login-Methode ändern: Hinzugefügt eine Retry-Loop für die Verbindung mit Zendure Cloud, wenn der Cloud Service \"Ändert\" oder nicht verfügbar ist, wird es die Verbindung 3 mal wiederherzustellen.",
@@ -80,19 +93,6 @@
         "pl": "Napraw obsługę urządzeń 'Hyper _ Test'\nUlepszony kodeks tworzenia państwa",
         "uk": "Фіксована підтримка пристроїв «Hyper_Test»\nПокращений код для державного створення",
         "zh-cn": "修正“ Hyper_ test” 设备的支持\n改进国家创建的代码"
-      },
-      "1.7.5": {
-        "en": "Fix controlling AC mode for Hyper 2000 (set acMode to 1: Charge by AC, 2: Output to AC)\nShow product name in channel name\nShow battery type as state in packData\nShow Hyper Temperature in States",
-        "de": "Fix Controlling AC-Modus für Hyper 2000 (Set acMode auf 1: Lade durch AC, 2: Ausgabe auf AC)\nProduktname in Kanalname anzeigen\nBatterietyp als Zustand in packData anzeigen\nHypertemperatur in den Staaten anzeigen",
-        "ru": "Fix-управляющий режим переменного тока для Hyper 2000 (настройка acMode до 1: Зарядка AC, 2: Выход к AC)\nПоказать имя продукта в названии канала\nПоказать тип батареи как состояние в упаковкеДата\nПоказать гипертемпературу в Штатах",
-        "pt": "Fix control modo AC para Hyper 2000 (set acMode para 1: Carga por AC, 2: Saída para AC)\nMostrar nome do produto no nome do canal\nMostrar tipo de bateria como estado em packData\nMostrar temperatura de Hyper nos Estados Unidos",
-        "nl": "Fix controlling AC mode voor Hyper 2000 (set acMode to 1: Charge by AC, 2: Output to AC)\nProductnaam tonen in kanaalnaam\nAccutype tonen als status in packData\nHypertemperatuur in staten tonen",
-        "fr": "Correction de la commande du mode AC pour Hyper 2000 (réglage acMode à 1: Charge par AC, 2: Sortie vers AC)\nAfficher le nom du produit dans le nom du canal\nAfficher le type de batterie comme état dans packDonnées\nAfficher l'hypertempérature dans les états",
-        "it": "Fissare la modalità AC di controllo per Hyper 2000 (impostare acMode 1: Carica tramite AC, 2: Uscita su AC)\nMostra il nome del prodotto nel nome del canale\nMostra il tipo di batteria come stato in packData\nMostra Hyper Temperature negli Stati",
-        "es": "Fijar el modo AC controlador para Hyper 2000 (set acMode a 1: Carga por AC, 2: Salida a AC)\nMostrar nombre del producto en nombre del canal\nMostrar tipo de batería como estado en packData\nMostrar hipertemperatura en Estados Unidos",
-        "pl": "Poprawiony tryb sterowania AC dla Hyper 2000 (ustawić acMode do 1: Ładowanie przez AC, 2: Wyjście do AC)\nPokaż nazwę produktu w nazwie kanału\nPokaż typ baterii jako stan w packData\nPokaż temperaturę Hyper w Stanach",
-        "uk": "Фіксований контрольний режим змінного струму для Hyper 2000 (set acMode до 1: Charge by AC, 2: Вихід до змінного струму)\nПоказати назву продукту в назві каналів\nПоказати тип акумулятора як стан у пачціData\nПоказати гіпертемпературу в США",
-        "zh-cn": "用于 Hyper 2000 的控制 AC 模式( 设置 acMode 到 1: 由 AC 充电, 2: 输出到 AC)\n在频道名称中显示产品名称\n在 packData 中显示电池类型\n在州内显示超温"
       }
     },
     "titleLang": {
