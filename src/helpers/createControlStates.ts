@@ -93,7 +93,12 @@ export const createControlStates = async (
       }
     );
 
-    if (type == "solarflow" || type == "hyper" || type == "ace") {
+    if (
+      type == "aio" ||
+      type == "solarflow" ||
+      type == "hyper" ||
+      type == "ace"
+    ) {
       // State zum Setzen des Output Limit
       await adapter?.extendObject(
         `${productKey}.${deviceKey}.control.setOutputLimit`,
@@ -202,101 +207,112 @@ export const createControlStates = async (
         );
       }
 
-      // State zum Setzen des AC Modus
-      await adapter?.extendObject(`${productKey}.${deviceKey}.control.acMode`, {
-        type: "state",
-        common: {
-          name: {
-            de: "AC Modus",
-            en: "AC mode",
-          },
-          type: "number",
-          desc: "acMode",
-          role: "switch",
-          min: 0,
-          max: 2,
-          step: 1,
-          read: true,
-          write: true,
-          states: {
-            0: "Nothing",
-            1: "AC input mode",
-            2: "AC output mode",
-          },
-        },
-        native: {},
-      });
+      if (type == "solarflow" || type == "hyper" || type == "ace") {
+        // State zum Setzen des Input Limit (AC)
+        await adapter?.extendObject(
+          `${productKey}.${deviceKey}.control.setInputLimit`,
+          {
+            type: "state",
+            common: {
+              name: {
+                de: "Einzustellende Eingangsleistung",
+                en: "Control of the input limit",
+              },
+              type: "number",
+              desc: "setInputLimit",
+              role: "value.power",
+              read: true,
+              write: true,
+              min: 0,
+              max: type == "ace" ? 900 : 1200,
+              step: 100,
+              unit: "W",
+            },
+            native: {},
+          }
+        );
 
-      adapter?.subscribeStates(`${productKey}.${deviceKey}.control.acMode`);
+        adapter?.subscribeStates(
+          `${productKey}.${deviceKey}.control.setInputLimit`
+        );
+
+        // State zum Setzen des AC Schalters
+        await adapter?.extendObject(
+          `${productKey}.${deviceKey}.control.acSwitch`,
+          {
+            type: "state",
+            common: {
+              name: {
+                de: "AC Schalter",
+                en: "AC switch",
+              },
+              type: "boolean",
+              desc: "acSwitch",
+              role: "switch",
+              read: true,
+              write: true,
+            },
+            native: {},
+          }
+        );
+
+        adapter?.subscribeStates(`${productKey}.${deviceKey}.control.acSwitch`);
+
+        // State zum Setzen des AC Modus
+        await adapter?.extendObject(
+          `${productKey}.${deviceKey}.control.acMode`,
+          {
+            type: "state",
+            common: {
+              name: {
+                de: "AC Modus",
+                en: "AC mode",
+              },
+              type: "number",
+              desc: "acMode",
+              role: "switch",
+              min: 0,
+              max: 2,
+              step: 1,
+              read: true,
+              write: true,
+              states: {
+                0: "Nothing",
+                1: "AC input mode",
+                2: "AC output mode",
+              },
+            },
+            native: {},
+          }
+        );
+
+        adapter?.subscribeStates(`${productKey}.${deviceKey}.control.acMode`);
+      }
     }
 
-    // State zum Setzen des Input Limit (AC)
-    await adapter?.extendObject(
-      `${productKey}.${deviceKey}.control.setInputLimit`,
-      {
-        type: "state",
-        common: {
-          name: {
-            de: "Einzustellende Eingangsleistung",
-            en: "Control of the input limit",
+    // States only for ACE 1500
+    if (type == "ace") {
+      // State zum Setzen des DC Schalters
+      await adapter?.extendObject(
+        `${productKey}.${deviceKey}.control.dcSwitch`,
+        {
+          type: "state",
+          common: {
+            name: {
+              de: "DC Schalter",
+              en: "DC switch",
+            },
+            type: "boolean",
+            desc: "dcSwitch",
+            role: "switch",
+            read: true,
+            write: true,
           },
-          type: "number",
-          desc: "setInputLimit",
-          role: "value.power",
-          read: true,
-          write: true,
-          min: 0,
-          max: type == "ace" ? 900 : 1200,
-          step: 100,
-          unit: "W",
-        },
-        native: {},
-      }
-    );
+          native: {},
+        }
+      );
 
-    adapter?.subscribeStates(
-      `${productKey}.${deviceKey}.control.setInputLimit`
-    );
-
-    // State zum Setzen des AC Schalters
-    await adapter?.extendObject(`${productKey}.${deviceKey}.control.acSwitch`, {
-      type: "state",
-      common: {
-        name: {
-          de: "AC Schalter",
-          en: "AC switch",
-        },
-        type: "boolean",
-        desc: "acSwitch",
-        role: "switch",
-        read: true,
-        write: true,
-      },
-      native: {},
-    });
-
-    adapter?.subscribeStates(`${productKey}.${deviceKey}.control.acSwitch`);
-  }
-
-  // States only for ACE 1500
-  if (type == "ace") {
-    // State zum Setzen des DC Schalters
-    await adapter?.extendObject(`${productKey}.${deviceKey}.control.dcSwitch`, {
-      type: "state",
-      common: {
-        name: {
-          de: "DC Schalter",
-          en: "DC switch",
-        },
-        type: "boolean",
-        desc: "dcSwitch",
-        role: "switch",
-        read: true,
-        write: true,
-      },
-      native: {},
-    });
-
-    adapter?.subscribeStates(`${productKey}.${deviceKey}.control.dcSwitch`);
+      adapter?.subscribeStates(`${productKey}.${deviceKey}.control.dcSwitch`);
+    }
   }
 };

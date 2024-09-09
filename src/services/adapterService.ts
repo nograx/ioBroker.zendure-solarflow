@@ -50,7 +50,7 @@ export const checkVoltage = async (
       // Low Voltage Block activated, stop power input immediately
       setOutputLimit(adapter, productKey, deviceKey, 0);
     }
-  } else if (voltage >= 48.0) {
+  } else if (voltage >= 47.5) {
     if (adapter.config.useLowVoltageBlock) {
       // Deactivate Low Voltage Block
       await adapter?.setState(
