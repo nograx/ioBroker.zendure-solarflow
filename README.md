@@ -46,6 +46,13 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Improve connection retry, expand the time with every retry attempt.
+- Start "restart adapter job" regardless of connection.
+- Fix Hyper setInputLimit with step
+
 ### 1.8.7 (2024-09-09)
 
 - Fix missing control states for AIO

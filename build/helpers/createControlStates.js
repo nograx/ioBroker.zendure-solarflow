@@ -209,7 +209,7 @@ const createControlStates = async (adapter, productKey, deviceKey, type) => {
               write: true,
               min: 0,
               max: type == "ace" ? 900 : 1200,
-              step: 100,
+              step: type == "ace" ? 100 : 1,
               unit: "W"
             },
             native: {}

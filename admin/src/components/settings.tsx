@@ -88,7 +88,7 @@ function Settings(props: SettingsProps) {
   function renderSelect(
     attr: string,
     options: { value: string; title: AdminWord }[],
-    style?: React.CSSProperties,
+    style?: React.CSSProperties
   ) {
     return (
       <FormControl
@@ -118,7 +118,7 @@ function Settings(props: SettingsProps) {
   function renderCheckbox(
     title: AdminWord,
     attr: string,
-    style?: React.CSSProperties,
+    style?: React.CSSProperties
   ) {
     return (
       <FormControlLabel
@@ -213,9 +213,10 @@ function Settings(props: SettingsProps) {
           <a
             href="https://www.paypal.com/paypalme/PeterFrommert"
             target="_blank"
-            rel="noreferrer"
+            rel="noreferrer noopener"
           >
             <img
+              alt="Paypal Badge"
               height={30}
               src={
                 "https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white"

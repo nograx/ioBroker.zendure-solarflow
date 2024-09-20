@@ -13,7 +13,6 @@ import { IMqttData } from "../models/ISolarFlowMqttProperties";
 import {
   startCalculationJob,
   startCheckStatesAndConnectionJob,
-  startRefreshAccessTokenTimerJob,
   startResetValuesJob,
 } from "./jobSchedule";
 
@@ -1342,9 +1341,6 @@ export const connectMqttClient = (_adapter: ZendureSolarflow): void => {
 
       // Job starten die States zu checken
       startCheckStatesAndConnectionJob(adapter);
-
-      // Den Access Token aktualisieren
-      startRefreshAccessTokenTimerJob(adapter);
 
       // Calculation Job starten sofern aktiviert
       if (adapter.config.useCalculation) {

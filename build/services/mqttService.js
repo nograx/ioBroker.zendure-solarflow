@@ -941,7 +941,6 @@ const connectMqttClient = (_adapter) => {
       adapter.mqttClient.on("message", onMessage);
       (0, import_jobSchedule.startResetValuesJob)(adapter);
       (0, import_jobSchedule.startCheckStatesAndConnectionJob)(adapter);
-      (0, import_jobSchedule.startRefreshAccessTokenTimerJob)(adapter);
       if (adapter.config.useCalculation) {
         (0, import_jobSchedule.startCalculationJob)(adapter);
       }

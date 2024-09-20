@@ -34,6 +34,7 @@ import { createDeveloperAccount } from "./services/fallbackWebService";
 import { ISolarFlowDevRegisterData } from "./models/ISolarflowDevRegisterResponse";
 import { connectFallbackMqttClient } from "./services/fallbackMqttService";
 import { IPack2Device } from "./models/IPack2Device";
+import { startRefreshAccessTokenTimerJob } from "./services/jobSchedule";
 
 export class ZendureSolarflow extends utils.Adapter {
   public constructor(options: Partial<utils.AdapterOptions> = {}) {
@@ -60,6 +61,7 @@ export class ZendureSolarflow extends utils.Adapter {
   public checkStatesJob: Job | undefined = undefined;
   public calculationJob: Job | undefined = undefined;
   public refreshAccessTokenInterval: ioBroker.Interval | undefined = undefined;
+  public retryTimeout: ioBroker.Timeout | undefined = undefined;
 
   public createdSnNumberSolarflowStates: string[] = [];
 
@@ -91,6 +93,22 @@ export class ZendureSolarflow extends utils.Adapter {
       native: {},
     });
 
+    await this.extendObject(`info.errorMessage`, {
+      type: "state",
+      common: {
+        name: {
+          de: "Fehlermeldung der Verbindung zur Zendure Cloud",
+          en: "Error message from Zendure Cloud",
+        },
+        type: "string",
+        desc: "errorMessage",
+        role: "value",
+        read: true,
+        write: false,
+      },
+      native: {},
+    });
+
     // Select paths by config value
     if (this.config.server && this.config.server == "eu") {
       this.paths = pathsEu;
@@ -99,6 +117,8 @@ export class ZendureSolarflow extends utils.Adapter {
     }
 
     this.log.debug("[onReady] Using server " + this.config.server);
+
+    this.setState("info.errorMessage", "", true);
 
     if (this.config.useFallbackService && this.config.snNumber) {
       this.log.debug("[onReady] Using Fallback Mode (Dev-Server)");
@@ -124,16 +144,14 @@ export class ZendureSolarflow extends utils.Adapter {
       let _accessToken: string | undefined = undefined;
       let retryCounter = 0;
 
-      while (retryCounter < 4) {
-        if (retryCounter > 0) {
-          this.log.warn(
-            `[onReady] Retrying to connect to Zendure Cloud (Retry #${retryCounter}).`
-          );
-        }
+      // Start Job to restart adapter after a given time to refresh access token und connection.
+      startRefreshAccessTokenTimerJob(this);
 
+      while (retryCounter <= 10) {
         try {
           _accessToken = await login(this);
         } catch (ex: any) {
+          this.setState("info.message", ex.message, true);
           if (ex.message.includes("Request failed with status code 400")) {
             this.log.warn(
               `[onReady] Error 400, maybe your credentials are invalid!`
@@ -151,10 +169,19 @@ export class ZendureSolarflow extends utils.Adapter {
           break;
         }
 
-        // Add a small sleep
-        await new Promise((r) => setTimeout(r, 4000));
-
         retryCounter++;
+
+        const milliseconds = 4000 * retryCounter;
+
+        this.log.warn(
+          `[onReady] Retrying to connect to Zendure Cloud in ${milliseconds / 1000} seconds (Retry #${retryCounter} of 10).`
+        );
+
+        // Add a small sleep
+        await new Promise(
+          (r) =>
+            (this.retryTimeout = this.setTimeout(r, milliseconds, undefined))
+        );
       }
 
       if (_accessToken != undefined) {
@@ -301,6 +328,10 @@ export class ZendureSolarflow extends utils.Adapter {
       if (this.calculationJob) {
         this.calculationJob.cancel();
         this.calculationJob = undefined;
+      }
+
+      if (this.retryTimeout) {
+        this.clearTimeout(this.retryTimeout);
       }
 
       callback();
