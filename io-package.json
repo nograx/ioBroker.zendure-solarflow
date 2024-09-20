@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.8.7",
+    "version": "1.8.8",
     "news": {
+      "1.8.8": {
+        "en": "Improve connection retry, expand the time with every retry attempt.\nStart \"restart adapter job\" regardless of connection.\nFix Hyper setInputLimit with step",
+        "de": "Verbessern Sie die Retry-Verbindung, erweitern Sie die Zeit mit jedem Retry-Test.\nStarten Sie \"Adapter Job starten\" unabhängig von der Verbindung.\nFix Hyper setInputLimit mit Schritt",
+        "ru": "Улучшите восстановление связи, расширяйте время с каждой попыткой возврата.\nНачните работу «перезапуска адаптера» независимо от подключения.\nFix Hyper setInputLimit с шагом",
+        "pt": "Melhore a retificação da conexão, expanda o tempo com cada tentativa de retificação.\nComece \"reiniciar o trabalho do adaptador\" independentemente da conexão.\nFix Hyper setInputLimit com passo",
+        "nl": "Verbeter de verbinding opnieuw proberen, breidt de tijd met elke retry poging.\nStart \"herstart adaptertaak\" ongeacht de verbinding.\nRepareren Hyper setInputLimit met stap",
+        "fr": "Améliorer la connexion réessayer, étendre le temps avec chaque tentative de réessayer.\nCommencez \"redémarrer le travail d'adaptateur\" indépendamment de la connexion.\nCorrection Hyper setInputLimit avec étape",
+        "it": "Migliorare la retry di connessione, espandere il tempo con ogni tentativo di riprovazione.\nAvviare \"riavviare il lavoro adattatore\" indipendentemente dalla connessione.\nFissare Hyper setInputLimit con passo",
+        "es": "Mejorar la reingresación de conexión, ampliar el tiempo con cada intento de reingreso.\nComience \"trabajo adaptador de reinicio\" independientemente de la conexión.\nFijar Hyper setInputLimit con paso",
+        "pl": "Ulepszenie retry połączenia, rozszerzenie czasu z każdej próby retry.\nUruchom \"ponowne uruchomienie pracy adaptera\" niezależnie od połączenia.\nFix Hyper settInputLimit z krokiem",
+        "uk": "Покращити з'єднання птиця, розширити час при кожній спробі птиця.\nПочати роботу адаптера, незалежно від підключення.\nФіксація Hyper setInputLimit з кроком",
+        "zh-cn": "改进连接重试, 每次重试都会延长时间 .\n开始\"重新启动适配器任务\",无论连接与否.\n以步骤修正超程序设置"
+      },
       "1.8.7": {
         "en": "Fix missing control states for AIO",
         "de": "Fehlende Kontrollzustände für AIO behoben",
@@ -80,19 +93,6 @@
         "pl": "Limit wejścia i wyjścia dla Hyper 2000",
         "uk": "Фіксувати вхідні та вихідні обмеження для Hyper 2000",
         "zh-cn": "Hyper 2000 输入和输出限制"
-      },
-      "1.7.6": {
-        "en": "Fix support for 'Hyper_Test' devices\nImproved code for state creation",
-        "de": "Unterstützung für 'Hyper_Test'-Geräte beheben\nVerbesserter Code für die staatliche Schöpfung",
-        "ru": "Поддержка 'Hyper_Test'\nУлучшенный код для создания государства",
-        "pt": "Suporte fixo para dispositivos 'Hyper_Test'\nCódigo melhorado para a criação do estado",
-        "nl": "Ondersteuning voor 'Hyper_Test'-apparaten herstellen\nVerbeterde code voor het aanmaken van staten",
-        "fr": "Correction de la prise en charge des périphériques 'Hyper_Test'\nCode amélioré pour la création d'État",
-        "it": "Supporto per dispositivi 'Hyper_Test'\nCodice migliorato per la creazione di stato",
-        "es": "Soporte fijo para dispositivos 'Hyper_Test'\nCódigo mejorado para la creación del estado",
-        "pl": "Napraw obsługę urządzeń 'Hyper _ Test'\nUlepszony kodeks tworzenia państwa",
-        "uk": "Фіксована підтримка пристроїв «Hyper_Test»\nПокращений код для державного створення",
-        "zh-cn": "修正“ Hyper_ test” 设备的支持\n改进国家创建的代码"
       }
     },
     "titleLang": {
