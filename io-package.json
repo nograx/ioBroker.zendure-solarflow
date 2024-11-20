@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.8.8",
+    "version": "1.9.0",
     "news": {
+      "1.9.0": {
+        "en": "New option to force Solarflow device to go offline when \"Low Voltage Block\"-option is used.",
+        "de": "Neue Option, Solarflow-Gerät zu zwingen, offline zu gehen, wenn \"Low Voltage Block\"-Option verwendet wird.",
+        "ru": "Новая опция заставить устройство Solarflow выйти в автономном режиме, когда используется опция «Low Voltage Block».",
+        "pt": "Nova opção para forçar o dispositivo Solarflow a ficar offline quando a opção \"Low Voltage Block\" é usada.",
+        "nl": "Nieuwe optie om Solarflow apparaat te dwingen offline te gaan wanneer \"Low Voltage Blok\"-optie wordt gebruikt.",
+        "fr": "Nouvelle option pour forcer le périphérique Solarflow à déconnecter lorsque l'option \"Block basse tension\" est utilisée.",
+        "it": "Nuova opzione per forza dispositivo Solarflow per andare offline quando \"Low Tensione Block\"-opzione è utilizzato.",
+        "es": "Nueva opción para forzar el dispositivo Solarflow a salir fuera de línea cuando se utiliza la opción \"Low Voltage Block\".",
+        "pl": "Nowa opcja zmuszenia urządzenia Solarflow do offline przy użyciu opcji \"Block niskiego napięcia\".",
+        "uk": "Використовується новий варіант для відключення пристроїв Solarflow при \"Low Блок напруги\"-опція.",
+        "zh-cn": "使用“ Low Voltage Block”- 选项时, 强制 Solarflow 设备下线的新选项 ."
+      },
       "1.8.8": {
         "en": "Improve connection retry, expand the time with every retry attempt.\nStart \"restart adapter job\" regardless of connection.\nFix Hyper setInputLimit with step",
         "de": "Verbessern Sie die Retry-Verbindung, erweitern Sie die Zeit mit jedem Retry-Test.\nStarten Sie \"Adapter Job starten\" unabhängig von der Verbindung.\nFix Hyper setInputLimit mit Schritt",
@@ -80,19 +93,6 @@
         "pl": "Fix SOC i energyWhMax Value (liczony według typu dołączonych baterii)\nDodaj obliczenie wejścia siatki (tylko dla Asa 1500 i Hyper 2000)\nPoprawianie sugestii przez sprawdzacz repozytorium jOBroker",
         "uk": "Фіксація SOC та енергіяWhMax Значення (з урахуванням типу прикріплених батарей)\nДодати розрахунок для входу в мережу (тільки для Ace 1500 і Hyper 2000)\nВиправлення пропозицій на репозиторію ioBroker",
         "zh-cn": "固定SOC和能量WhMax值(按附电池类型计算)\n添加网格输入计算(仅A 1500和Hyper 2000)\n由 ioBroker 仓库检查器修复建议"
-      },
-      "1.7.7": {
-        "en": "Fix Input and Output limit for Hyper 2000",
-        "de": "Fixe Eingangs- und Ausgangsgrenze für Hyper 2000",
-        "ru": "Предельный уровень ввода и вывода для Hyper 2000",
-        "pt": "Limite de entrada e saída para Hyper 2000",
-        "nl": "Fix Input and Output limit for Hyper 2000",
-        "fr": "Fixer la limite d'entrée et de sortie pour Hyper 2000",
-        "it": "Limite di ingresso e uscita per Hyper 2000",
-        "es": "Límite de entrada y salida fijo para Hyper 2000",
-        "pl": "Limit wejścia i wyjścia dla Hyper 2000",
-        "uk": "Фіксувати вхідні та вихідні обмеження для Hyper 2000",
-        "zh-cn": "Hyper 2000 输入和输出限制"
       }
     },
     "titleLang": {
