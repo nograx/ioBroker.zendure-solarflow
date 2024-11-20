@@ -37,6 +37,7 @@ const updateSolarFlowControlState = async (adapter, productKey, deviceKey, state
   ));
 };
 const checkVoltage = async (adapter, productKey, deviceKey, voltage) => {
+  var _a;
   if (voltage < 46.1) {
     if (adapter.config.useCalculation) {
       (0, import_calculationService.setSocToZero)(adapter, productKey, deviceKey);
@@ -48,6 +49,27 @@ const checkVoltage = async (adapter, productKey, deviceKey, voltage) => {
         true
       ));
       (0, import_mqttService.setOutputLimit)(adapter, productKey, deviceKey, 0);
+      if (adapter.config.forceShutdownOnLowVoltage) {
+        const currentSoc = await adapter.getStateAsync(
+          `${productKey}.${deviceKey}.electricLevel`
+        );
+        if (currentSoc && currentSoc.val) {
+          (0, import_mqttService.setDischargeLimit)(
+            adapter,
+            productKey,
+            deviceKey,
+            Number(currentSoc.val)
+          );
+        }
+        const hubState = await adapter.getStateAsync(
+          `${productKey}.${deviceKey}.hubState`
+        );
+        if (!hubState || ((_a = hubState.val) == null ? void 0 : _a.toString()) != "Stop output and shut down") {
+          adapter.log.warn(
+            `[checkVoltage] hubState is not set to 'Stop output and shut down', device will NOT go offline!`
+          );
+        }
+      }
     }
   } else if (voltage >= 47.5) {
     if (adapter.config.useLowVoltageBlock) {
@@ -56,6 +78,12 @@ const checkVoltage = async (adapter, productKey, deviceKey, voltage) => {
         false,
         true
       ));
+      (0, import_mqttService.setDischargeLimit)(
+        adapter,
+        productKey,
+        deviceKey,
+        adapter.config.dischargeLimit ? adapter.config.dischargeLimit : 10
+      );
     }
   }
 };

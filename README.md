@@ -46,6 +46,11 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- New option to force Solarflow device to go offline when "Low Voltage Block"-option is used.
+
 ### 1.8.8 (2024-09-20)
 
 - Improve connection retry, expand the time with every retry attempt.

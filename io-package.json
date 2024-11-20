@@ -163,7 +163,8 @@
     "userName": "",
     "server": "global",
     "useCalculation": false,
-    "useLowVoltageBlock": false
+    "useLowVoltageBlock": false,
+    "dischargeLimit": 10
   },
   "encryptedNative": [
     "password"

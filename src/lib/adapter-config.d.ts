@@ -10,6 +10,8 @@ declare global {
       password: string;
       useCalculation: boolean;
       useLowVoltageBlock: boolean;
+      forceShutdownOnLowVoltage: boolean;
+      dischargeLimit: number;
       useFallbackService: boolean;
       snNumber: string;
     }

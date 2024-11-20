@@ -5,6 +5,8 @@
   "password": "Passwort",
   "useCalculation": "Berechnungen vom Adapter nutzen (Tageswerte, SOC)",
   "useLowVoltageBlock": "Spannungs-Überwachung nutzen (deaktiviert die Einspeisung wenn die Spannung einer Batterie in kritischen Bereich fällt)",
+  "forceShutdownOnLowVoltage": "Solarflow Gerät durch setzen des min. SOC zum Herunterfahren zwingen sobald die Spannung unter Limit fällt.",
+  "dischargeLimit": "Entladungsgrenze",
   "sn": "Seriennummer",
   "eu": "EU",
   "global": "Global",

@@ -1,6 +1,6 @@
 import { ZendureSolarflow } from "../main";
 import { setSocToZero } from "./calculationService";
-import { setOutputLimit } from "./mqttService";
+import { setDischargeLimit, setOutputLimit } from "./mqttService";
 
 /* eslint-disable @typescript-eslint/indent */
 
@@ -49,6 +49,35 @@ export const checkVoltage = async (
 
       // Low Voltage Block activated, stop power input immediately
       setOutputLimit(adapter, productKey, deviceKey, 0);
+
+      if (adapter.config.forceShutdownOnLowVoltage) {
+        const currentSoc = await adapter.getStateAsync(
+          `${productKey}.${deviceKey}.electricLevel`
+        );
+
+        if (currentSoc && currentSoc.val) {
+          setDischargeLimit(
+            adapter,
+            productKey,
+            deviceKey,
+            Number(currentSoc.val)
+          );
+        }
+
+        // Check if device setting is correct
+        const hubState = await adapter.getStateAsync(
+          `${productKey}.${deviceKey}.hubState`
+        );
+
+        if (
+          !hubState ||
+          hubState.val?.toString() != "Stop output and shut down"
+        ) {
+          adapter.log.warn(
+            `[checkVoltage] hubState is not set to 'Stop output and shut down', device will NOT go offline!`
+          );
+        }
+      }
     }
   } else if (voltage >= 47.5) {
     if (adapter.config.useLowVoltageBlock) {
@@ -57,6 +86,13 @@ export const checkVoltage = async (
         `${productKey}.${deviceKey}.control.lowVoltageBlock`,
         false,
         true
+      );
+
+      setDischargeLimit(
+        adapter,
+        productKey,
+        deviceKey,
+        adapter.config.dischargeLimit ? adapter.config.dischargeLimit : 10
       );
     }
   }

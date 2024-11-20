@@ -202,6 +202,21 @@ function Settings(props: SettingsProps) {
         <div>{renderCheckbox("useCalculation", "useCalculation")}</div>
         <div>{renderCheckbox("useLowVoltageBlock", "useLowVoltageBlock")}</div>
 
+        {props.native["useLowVoltageBlock"] != undefined &&
+          props.native["useLowVoltageBlock"] == true &&
+          renderCheckbox(
+            "forceShutdownOnLowVoltage",
+            "forceShutdownOnLowVoltage"
+          )}
+
+        {props.native["useLowVoltageBlock"] != undefined &&
+          props.native["useLowVoltageBlock"] == true && (
+            <div style={{ marginTop: 10 }}>
+              <FormLabel>{I18n.t("dischargeLimit")}:</FormLabel>
+              <div>{renderInput("dischargeLimit", "number")}</div>
+            </div>
+          )}
+
         <h3>{I18n.t("donateHeader")}</h3>
         <div style={{ marginTop: 20 }}>
           {I18n.t("donate1")}
