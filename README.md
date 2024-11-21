@@ -49,9 +49,9 @@ If you find the adapter useful for you and want to support my work, feel free to
 
 ## Changelog
 
-### **WORK IN PROGRESS**
+### 1.9.2 (2024-11-21)
 
-- Fix state some definitions
+- Fix some state definitions
 
 ### 1.9.1 (2024-11-21)
 
