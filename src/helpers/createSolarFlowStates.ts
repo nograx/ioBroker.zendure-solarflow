@@ -101,6 +101,7 @@ export const createSolarFlowStates = async (
         read: true,
         write: false,
         unit: state.unit,
+        states: state.states,
       },
       native: {},
     });

@@ -102,7 +102,8 @@ const createSolarFlowStates = async (adapter, device, type) => {
         role: state.role,
         read: true,
         write: false,
-        unit: state.unit
+        unit: state.unit,
+        states: state.states
       },
       native: {}
     }));

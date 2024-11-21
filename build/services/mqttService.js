@@ -614,6 +614,13 @@ const onMessage = async (topic, message) => {
         "hubState",
         obj.properties.hubState
       );
+      (0, import_adapterService.updateSolarFlowControlState)(
+        adapter,
+        productKey,
+        deviceKey,
+        "hubState",
+        obj.properties.hubState
+      );
     }
     if (obj.packData) {
       addOrUpdatePackData(productKey, deviceKey, obj.packData, isSolarFlow);

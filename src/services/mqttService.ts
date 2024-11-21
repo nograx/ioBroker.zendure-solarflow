@@ -829,6 +829,14 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         "hubState",
         obj.properties.hubState
       );
+
+      updateSolarFlowControlState(
+        adapter,
+        productKey,
+        deviceKey,
+        "hubState",
+        obj.properties.hubState
+      );
     }
 
     if (obj.packData) {
