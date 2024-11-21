@@ -69,10 +69,7 @@ export const checkVoltage = async (
           `${productKey}.${deviceKey}.hubState`
         );
 
-        if (
-          !hubState ||
-          hubState.val?.toString() != "Stop output and shut down"
-        ) {
+        if (!hubState || Number(hubState.val) != 1) {
           adapter.log.warn(
             `[checkVoltage] hubState is not set to 'Stop output and shut down', device will NOT go offline!`
           );
@@ -82,18 +79,24 @@ export const checkVoltage = async (
   } else if (voltage >= 47.5) {
     if (adapter.config.useLowVoltageBlock) {
       // Deactivate Low Voltage Block
-      await adapter?.setState(
-        `${productKey}.${deviceKey}.control.lowVoltageBlock`,
-        false,
-        true
+      const lowVoltageBlock = await adapter.getStateAsync(
+        `${productKey}.${deviceKey}.lowVoltageBlock`
       );
 
-      setDischargeLimit(
-        adapter,
-        productKey,
-        deviceKey,
-        adapter.config.dischargeLimit ? adapter.config.dischargeLimit : 10
-      );
+      if (lowVoltageBlock && lowVoltageBlock.val == true) {
+        await adapter?.setState(
+          `${productKey}.${deviceKey}.control.lowVoltageBlock`,
+          false,
+          true
+        );
+
+        setDischargeLimit(
+          adapter,
+          productKey,
+          deviceKey,
+          adapter.config.dischargeLimit ? adapter.config.dischargeLimit : 10
+        );
+      }
     }
   }
 };

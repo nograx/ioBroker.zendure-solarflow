@@ -827,9 +827,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         productKey,
         deviceKey,
         "hubState",
-        obj.properties.hubState == 0
-          ? "Stop output and standby"
-          : "Stop output and shut down"
+        obj.properties.hubState
       );
     }
 
@@ -924,7 +922,7 @@ export const setDischargeLimit = async (
   minSoc: number
 ): Promise<void> => {
   if (adapter.mqttClient && productKey && deviceKey) {
-    if (minSoc > 0 && minSoc < 90) {
+    if (minSoc > 0 && minSoc < 50) {
       const topic = `iot/${productKey}/${deviceKey}/properties/write`;
 
       const socSetLimit = { properties: { minSoc: minSoc * 10 } };
@@ -934,8 +932,29 @@ export const setDischargeLimit = async (
       adapter.mqttClient?.publish(topic, JSON.stringify(socSetLimit));
     } else {
       adapter.log.debug(
-        `[setDischargeLimit] Discharge limit is not in range 0<>90!`
+        `[setDischargeLimit] Discharge limit is not in range 0<>50!`
       );
+    }
+  }
+};
+
+export const setHubState = async (
+  adapter: ZendureSolarflow,
+  productKey: string,
+  deviceKey: string,
+  hubState: number
+): Promise<void> => {
+  if (adapter.mqttClient && productKey && deviceKey) {
+    if (hubState == 0 || hubState == 1) {
+      const topic = `iot/${productKey}/${deviceKey}/properties/write`;
+
+      const socSetLimit = { properties: { hubState: hubState } };
+      adapter.log.debug(
+        `[setHubState] Setting Hub State for device key ${deviceKey} to ${hubState}!`
+      );
+      adapter.mqttClient?.publish(topic, JSON.stringify(socSetLimit));
+    } else {
+      adapter.log.debug(`[setHubState] Hub state is not 0 or 1!`);
     }
   }
 };

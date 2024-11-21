@@ -37,6 +37,7 @@ __export(mqttService_exports, {
   setChargeLimit: () => setChargeLimit,
   setDcSwitch: () => setDcSwitch,
   setDischargeLimit: () => setDischargeLimit,
+  setHubState: () => setHubState,
   setInputLimit: () => setInputLimit,
   setOutputLimit: () => setOutputLimit,
   setPassMode: () => setPassMode,
@@ -611,7 +612,7 @@ const onMessage = async (topic, message) => {
         productKey,
         deviceKey,
         "hubState",
-        obj.properties.hubState == 0 ? "Stop output and standby" : "Stop output and shut down"
+        obj.properties.hubState
       );
     }
     if (obj.packData) {
@@ -652,7 +653,7 @@ const setChargeLimit = async (adapter2, productKey, deviceKey, socSet) => {
 const setDischargeLimit = async (adapter2, productKey, deviceKey, minSoc) => {
   var _a;
   if (adapter2.mqttClient && productKey && deviceKey) {
-    if (minSoc > 0 && minSoc < 90) {
+    if (minSoc > 0 && minSoc < 50) {
       const topic = `iot/${productKey}/${deviceKey}/properties/write`;
       const socSetLimit = { properties: { minSoc: minSoc * 10 } };
       adapter2.log.debug(
@@ -661,8 +662,23 @@ const setDischargeLimit = async (adapter2, productKey, deviceKey, minSoc) => {
       (_a = adapter2.mqttClient) == null ? void 0 : _a.publish(topic, JSON.stringify(socSetLimit));
     } else {
       adapter2.log.debug(
-        `[setDischargeLimit] Discharge limit is not in range 0<>90!`
+        `[setDischargeLimit] Discharge limit is not in range 0<>50!`
       );
+    }
+  }
+};
+const setHubState = async (adapter2, productKey, deviceKey, hubState) => {
+  var _a;
+  if (adapter2.mqttClient && productKey && deviceKey) {
+    if (hubState == 0 || hubState == 1) {
+      const topic = `iot/${productKey}/${deviceKey}/properties/write`;
+      const socSetLimit = { properties: { hubState } };
+      adapter2.log.debug(
+        `[setHubState] Setting Hub State for device key ${deviceKey} to ${hubState}!`
+      );
+      (_a = adapter2.mqttClient) == null ? void 0 : _a.publish(topic, JSON.stringify(socSetLimit));
+    } else {
+      adapter2.log.debug(`[setHubState] Hub state is not 0 or 1!`);
     }
   }
 };
@@ -958,6 +974,7 @@ const connectMqttClient = (_adapter) => {
   setChargeLimit,
   setDcSwitch,
   setDischargeLimit,
+  setHubState,
   setInputLimit,
   setOutputLimit,
   setPassMode,

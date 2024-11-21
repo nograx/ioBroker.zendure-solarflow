@@ -209,8 +209,8 @@ function Settings(props: SettingsProps) {
             "forceShutdownOnLowVoltage"
           )}
 
-        {props.native["useLowVoltageBlock"] != undefined &&
-          props.native["useLowVoltageBlock"] == true && (
+        {props.native["forceShutdownOnLowVoltage"] != undefined &&
+          props.native["forceShutdownOnLowVoltage"] == true && (
             <div style={{ marginTop: 10 }}>
               <FormLabel>{I18n.t("dischargeLimit")}:</FormLabel>
               <div>{renderInput("dischargeLimit", "number")}</div>

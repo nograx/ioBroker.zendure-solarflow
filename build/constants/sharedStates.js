@@ -184,8 +184,12 @@ const sharedStates = [
     title: "hubState",
     nameDe: "Verhalten wenn minimale reservierte Ladung erreicht",
     nameEn: "Behavior when minimum reserved charge is reached",
-    type: "string",
-    role: "value"
+    type: "number",
+    role: "value",
+    states: {
+      0: "Stop output and standby",
+      1: "Stop output and shut down"
+    }
   },
   {
     title: "packNum",

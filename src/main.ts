@@ -15,6 +15,7 @@ import {
   setChargeLimit,
   setDcSwitch,
   setDischargeLimit,
+  setHubState,
   setInputLimit,
   setOutputLimit,
   setPassMode,
@@ -393,6 +394,8 @@ export class ZendureSolarflow extends utils.Adapter {
               );
             } else if (stateName2 == "acMode") {
               setAcMode(this, productKey, deviceKey, Number(state.val));
+            } else if (stateName2 == "hubState") {
+              setHubState(this, productKey, deviceKey, Number(state.val));
             } else if (stateName2 == "autoRecover") {
               setAutoRecover(
                 this,

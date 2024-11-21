@@ -30,3 +30,27 @@ label > i[title] {
 }
 
 /* Add your styles here */
+@media (prefers-color-scheme: dark) {
+	:root {
+	  --background-color: #323232;
+	  --text-color: #ddd;
+	  --shadow-color: #111;
+	  --highlight: #666;
+	  --primary: hsl(12, 90%, 60%);
+	}
+}
+
+@media (prefers-color-scheme: light) {
+	:root {
+	  --background-color: #fefefe;
+	  --text-color: #222;
+	  --shadow-color: #999;
+	  --highlight: #cdcdcd;
+	  --primary: hsl(12, 70%, 40%);
+	}
+}
+
+body {
+	background-color: var(--background-color);
+	color: var (--text-color);
+}

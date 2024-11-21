@@ -205,6 +205,33 @@ export const createControlStates = async (
         adapter?.subscribeStates(
           `${productKey}.${deviceKey}.control.lowVoltageBlock`
         );
+
+        // State zum Setzen des Input Limit (AC)
+        await adapter?.extendObject(
+          `${productKey}.${deviceKey}.control.hubState`,
+          {
+            type: "state",
+            common: {
+              name: {
+                de: "Verhalten wenn minimale reservierte Ladung erreicht",
+                en: "Behavior when minimum reserved charge is reached",
+              },
+              type: "number",
+              desc: "hubState",
+              read: true,
+              write: true,
+              min: 0,
+              max: 1,
+              states: {
+                0: "Stop output and standby",
+                1: "Stop output and shut down",
+              },
+            },
+            native: {},
+          }
+        );
+
+        adapter?.subscribeStates(`${productKey}.${deviceKey}.control.hubState`);
       }
 
       if (type == "solarflow" || type == "hyper" || type == "ace") {
