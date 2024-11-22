@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.9.2",
+    "version": "1.9.3",
     "news": {
+      "1.9.3": {
+        "en": "Fix for Low Voltage Block not deactivated.",
+        "de": "Fix für Niederspannung Block nicht deaktiviert.",
+        "ru": "Fix для низкого напряжения Блок не отключен.",
+        "pt": "Fix para baixa tensão Bloquear não desativado.",
+        "nl": "Fix voor lage spanning Blok niet gedeactiveerd.",
+        "fr": "Correction pour basse tension Bloc non désactivé.",
+        "it": "Fissaggio per bassa tensione Blocco non disattivato.",
+        "es": "Fijación para baja tensión Bloque no desactivado.",
+        "pl": "Napraw dla niskiego napięcia Blok nie wyłączony.",
+        "uk": "Фіксація для низького напруги Блок не деактивований.",
+        "zh-cn": "低电压修复 屏蔽未关闭 ."
+      },
       "1.9.2": {
         "en": "Fix state some definitions",
         "de": "Einige Definitionen festlegen",
@@ -80,19 +93,6 @@
         "pl": "Zmień metodę logowania: Dodano pętlę ponowną do podłączenia do Zharb Cloud, jeśli Cloud Service \"zawiśnie\" lub nie jest dostępna, ponownie wypróbuje połączenie 3 razy.",
         "uk": "Спосіб зміни логіки: Додана птиця петля для підключення до Zendure Cloud, якщо Хмарна служба \"хвишки\" або не доступна вона буде переробляти з'єднання 3 рази.",
         "zh-cn": "更改登录方法 : 添加了连接到 Zendure 云的重试循环, 如果云服务“ hangs” 或无法使用, 它将重试连接三次 ."
-      },
-      "1.8.5": {
-        "en": "Fix missing states for new HUB Firmware when connected to ACE\nFix corrent max value for AIO",
-        "de": "Fix fehlende Zustände für neue HUB Firmware, wenn mit ACE verbunden\nKorrent max Wert für AIO festsetzen",
-        "ru": "Исправление недостающих состояний для нового HUB Firmware при подключении к ACE\nМакс. значение для AIO",
-        "pt": "Corrigir estados ausentes para novo HUB Firmware quando conectado à ACE\nCorrigir o valor máximo correspondente para AIO",
-        "nl": "Fix ontbrekende toestanden voor nieuwe HUB Firmware wanneer aangesloten op ACE\nFix corresponderende maximale waarde voor AIO",
-        "fr": "Correction des états manquants pour le nouveau micrologiciel HUB lorsqu'il est connecté à ACE\nFixe la valeur maximale corrente pour AIO",
-        "it": "Fissare gli stati mancanti per il nuovo firmware HUB quando collegato ad ACE\nCorrente di fissaggio del valore massimo per AIO",
-        "es": "Fijar estados perdidos para el nuevo HUB Firmware cuando conectado a ACE\nValor máximo corregido para AIO",
-        "pl": "Naprawianie brakujących stanów dla nowego oprogramowania HUB po podłączeniu do ACE\nPopraw maksymalną wartość corrent dla AIO",
-        "uk": "Виправлення відсутніх штатів для прошивки HUB при підключенні до ACE\nФіксувати коструктивне значення для AIO",
-        "zh-cn": "连接到 ACE 时将新 HUB 固件状态修复为缺失状态\n修正 AIO 的最大同位素值"
       }
     },
     "titleLang": {
