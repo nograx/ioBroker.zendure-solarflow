@@ -49,6 +49,10 @@ If you find the adapter useful for you and want to support my work, feel free to
 
 ## Changelog
 
+### **WORK IN PROGRESS**
+
+- Fix for Low Voltage Block not deactivated.
+
 ### 1.9.2 (2024-11-21)
 
 - Fix some state definitions

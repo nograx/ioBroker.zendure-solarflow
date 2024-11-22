@@ -80,7 +80,7 @@ export const checkVoltage = async (
     if (adapter.config.useLowVoltageBlock) {
       // Deactivate Low Voltage Block
       const lowVoltageBlock = await adapter.getStateAsync(
-        `${productKey}.${deviceKey}.lowVoltageBlock`
+        `${productKey}.${deviceKey}.control.lowVoltageBlock`
       );
 
       if (lowVoltageBlock && lowVoltageBlock.val == true) {

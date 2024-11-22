@@ -73,7 +73,7 @@ const checkVoltage = async (adapter, productKey, deviceKey, voltage) => {
   } else if (voltage >= 47.5) {
     if (adapter.config.useLowVoltageBlock) {
       const lowVoltageBlock = await adapter.getStateAsync(
-        `${productKey}.${deviceKey}.lowVoltageBlock`
+        `${productKey}.${deviceKey}.control.lowVoltageBlock`
       );
       if (lowVoltageBlock && lowVoltageBlock.val == true) {
         await (adapter == null ? void 0 : adapter.setState(
