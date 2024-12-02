@@ -142,6 +142,29 @@ function Settings(props: SettingsProps) {
 
   return (
     <div style={{ margin: 20 }}>
+      <h3>{I18n.t("donateHeader")}</h3>
+      <div style={{ marginTop: 20 }}>
+        {I18n.t("donate1")}
+
+        <br />
+        {I18n.t("donate2")}
+      </div>
+      <div style={{ marginTop: 20 }}>
+        <a
+          href="https://www.paypal.com/paypalme/PeterFrommert"
+          target="_blank"
+          rel="noreferrer noopener"
+        >
+          <img
+            alt="Paypal Badge"
+            height={30}
+            src={
+              "https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white"
+            }
+          ></img>
+        </a>
+      </div>
+
       <form autoComplete="off" className={props.classes.tab}>
         <div style={{ marginBottom: 20 }}>
           <h3>{I18n.t("settings")}</h3>
@@ -203,42 +226,26 @@ function Settings(props: SettingsProps) {
         <div>{renderCheckbox("useLowVoltageBlock", "useLowVoltageBlock")}</div>
 
         {props.native["useLowVoltageBlock"] != undefined &&
-          props.native["useLowVoltageBlock"] == true &&
-          renderCheckbox(
-            "forceShutdownOnLowVoltage",
-            "forceShutdownOnLowVoltage"
-          )}
+          props.native["useLowVoltageBlock"] == true && (
+            <div>
+              {renderCheckbox(
+                "forceShutdownOnLowVoltage",
+                "forceShutdownOnLowVoltage"
+              )}
 
-        {props.native["forceShutdownOnLowVoltage"] != undefined &&
-          props.native["forceShutdownOnLowVoltage"] == true && (
-            <div style={{ marginTop: 10 }}>
-              <FormLabel>{I18n.t("dischargeLimit")}:</FormLabel>
-              <div>{renderInput("dischargeLimit", "number")}</div>
+              {props.native["forceShutdownOnLowVoltage"] != undefined &&
+                props.native["forceShutdownOnLowVoltage"] == true && (
+                  <div style={{ marginTop: 10 }}>
+                    <FormLabel>{I18n.t("dischargeLimit")}:</FormLabel>
+                    <div>{renderInput("dischargeLimit", "number")}</div>
+                  </div>
+                )}
+
+              {props.native["forceShutdownOnLowVoltage"] != undefined &&
+                props.native["forceShutdownOnLowVoltage"] == true &&
+                renderCheckbox("fullChargeIfNeeded", "fullChargeIfNeeded")}
             </div>
           )}
-
-        <h3>{I18n.t("donateHeader")}</h3>
-        <div style={{ marginTop: 20 }}>
-          {I18n.t("donate1")}
-
-          <br />
-          {I18n.t("donate2")}
-        </div>
-        <div style={{ marginTop: 20 }}>
-          <a
-            href="https://www.paypal.com/paypalme/PeterFrommert"
-            target="_blank"
-            rel="noreferrer noopener"
-          >
-            <img
-              alt="Paypal Badge"
-              height={30}
-              src={
-                "https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white"
-              }
-            ></img>
-          </a>
-        </div>
       </form>
     </div>
   );

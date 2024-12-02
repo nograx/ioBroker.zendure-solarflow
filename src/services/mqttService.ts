@@ -280,6 +280,24 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         setEnergyWhMax(adapter, productKey, deviceKey);
       }
 
+      if (obj.properties.electricLevel == 100) {
+        const fullChargeNeeded = await adapter.getStateAsync(
+          productKey + "." + deviceKey + ".control.fullChargeNeeded"
+        );
+
+        if (
+          fullChargeNeeded &&
+          fullChargeNeeded.val &&
+          fullChargeNeeded.val == true
+        ) {
+          await adapter?.setState(
+            `${productKey}.${deviceKey}.control.fullChargeNeeded`,
+            false,
+            true
+          );
+        }
+      }
+
       // if minSoc is reached, set the calculated soc to 0
       const minSoc = await adapter?.getStateAsync(
         `${productKey}.${deviceKey}.minSoc`
@@ -288,7 +306,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         adapter?.config.useCalculation &&
         minSoc &&
         minSoc.val &&
-        obj.properties.electricLevel <= Number(minSoc.val) &&
+        obj.properties.electricLevel == Number(minSoc.val) &&
         isSolarFlow
       ) {
         setSocToZero(adapter, productKey, deviceKey);
@@ -988,6 +1006,18 @@ export const setOutputLimit = async (
         lowVoltageBlockState &&
         lowVoltageBlockState.val &&
         lowVoltageBlockState.val == true
+      ) {
+        limit = 0;
+      }
+
+      const fullChargeNeeded = await adapter.getStateAsync(
+        productKey + "." + deviceKey + ".control.fullChargeNeeded"
+      );
+
+      if (
+        fullChargeNeeded &&
+        fullChargeNeeded.val &&
+        fullChargeNeeded.val == true
       ) {
         limit = 0;
       }

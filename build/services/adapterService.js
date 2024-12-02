@@ -52,42 +52,50 @@ const checkVoltage = async (adapter, productKey, deviceKey, voltage) => {
         const currentSoc = await adapter.getStateAsync(
           `${productKey}.${deviceKey}.electricLevel`
         );
-        if (currentSoc && currentSoc.val) {
-          (0, import_mqttService.setDischargeLimit)(
-            adapter,
-            productKey,
-            deviceKey,
-            Number(currentSoc.val)
+        if (currentSoc && Number(currentSoc.val) > 50) {
+          if (adapter.config.fullChargeIfNeeded) {
+            await (adapter == null ? void 0 : adapter.setState(
+              `${productKey}.${deviceKey}.control.fullChargeNeeded`,
+              true,
+              true
+            ));
+          }
+        } else {
+          if (currentSoc && currentSoc.val) {
+            (0, import_mqttService.setDischargeLimit)(
+              adapter,
+              productKey,
+              deviceKey,
+              Number(currentSoc.val)
+            );
+          }
+          const hubState = await adapter.getStateAsync(
+            `${productKey}.${deviceKey}.hubState`
           );
-        }
-        const hubState = await adapter.getStateAsync(
-          `${productKey}.${deviceKey}.hubState`
-        );
-        if (!hubState || Number(hubState.val) != 1) {
-          adapter.log.warn(
-            `[checkVoltage] hubState is not set to 'Stop output and shut down', device will NOT go offline!`
-          );
+          if (!hubState || Number(hubState.val) != 1) {
+            adapter.log.warn(
+              `[checkVoltage] hubState is not set to 'Stop output and shut down', device will NOT go offline!`
+            );
+          }
         }
       }
     }
   } else if (voltage >= 47.5) {
-    if (adapter.config.useLowVoltageBlock) {
-      const lowVoltageBlock = await adapter.getStateAsync(
-        `${productKey}.${deviceKey}.control.lowVoltageBlock`
+    const lowVoltageBlock = await adapter.getStateAsync(
+      `${productKey}.${deviceKey}.control.lowVoltageBlock`
+    );
+    if (lowVoltageBlock && lowVoltageBlock.val == true) {
+      await (adapter == null ? void 0 : adapter.setState(
+        `${productKey}.${deviceKey}.control.lowVoltageBlock`,
+        false,
+        true
+      ));
+      (0, import_mqttService.setDischargeLimit)(
+        adapter,
+        productKey,
+        deviceKey,
+        adapter.config.dischargeLimit ? adapter.config.dischargeLimit : 10
       );
-      if (lowVoltageBlock && lowVoltageBlock.val == true) {
-        await (adapter == null ? void 0 : adapter.setState(
-          `${productKey}.${deviceKey}.control.lowVoltageBlock`,
-          false,
-          true
-        ));
-        (0, import_mqttService.setDischargeLimit)(
-          adapter,
-          productKey,
-          deviceKey,
-          adapter.config.dischargeLimit ? adapter.config.dischargeLimit : 10
-        );
-      }
     }
   }
 };

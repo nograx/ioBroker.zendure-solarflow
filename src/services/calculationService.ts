@@ -79,6 +79,18 @@ export const calculateSocAndEnergy = async (
 ): Promise<void> => {
   let energyWhMax = 0;
 
+  const minSoc = (
+    await adapter.getStateAsync(`${productKey}.${deviceKey}.minSoc`)
+  )?.val;
+  const currentSoc = (
+    await adapter.getStateAsync(`${productKey}.${deviceKey}.electricLevel`)
+  )?.val;
+
+  if (currentSoc && minSoc && Number(currentSoc) < Number(minSoc)) {
+    // Don't calculate if current SOC is lower then minimum
+    return;
+  }
+
   const productName = (
     await adapter.getStateAsync(`${productKey}.${deviceKey}.productName`)
   )?.val;

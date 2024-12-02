@@ -11,6 +11,7 @@ declare global {
       useCalculation: boolean;
       useLowVoltageBlock: boolean;
       forceShutdownOnLowVoltage: boolean;
+      fullChargeIfNeeded: boolean;
       dischargeLimit: number;
       useFallbackService: boolean;
       snNumber: string;

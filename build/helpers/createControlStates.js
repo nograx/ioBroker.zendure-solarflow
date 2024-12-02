@@ -192,6 +192,27 @@ const createControlStates = async (adapter, productKey, deviceKey, type) => {
           `${productKey}.${deviceKey}.control.lowVoltageBlock`
         );
         await (adapter == null ? void 0 : adapter.extendObject(
+          `${productKey}.${deviceKey}.control.fullChargeNeeded`,
+          {
+            type: "state",
+            common: {
+              name: {
+                de: "Auf 100% laden, Akku muss kalibriert werden!",
+                en: "Charge to 100%, battery needs to be calibrated"
+              },
+              type: "boolean",
+              desc: "fullChargeNeeded",
+              role: "indicator.lowbat",
+              read: true,
+              write: false
+            },
+            native: {}
+          }
+        ));
+        adapter == null ? void 0 : adapter.subscribeStates(
+          `${productKey}.${deviceKey}.control.fullChargeNeeded`
+        );
+        await (adapter == null ? void 0 : adapter.extendObject(
           `${productKey}.${deviceKey}.control.hubState`,
           {
             type: "state",

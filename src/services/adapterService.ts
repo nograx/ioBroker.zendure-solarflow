@@ -55,48 +55,57 @@ export const checkVoltage = async (
           `${productKey}.${deviceKey}.electricLevel`
         );
 
-        if (currentSoc && currentSoc.val) {
-          setDischargeLimit(
-            adapter,
-            productKey,
-            deviceKey,
-            Number(currentSoc.val)
-          );
-        }
+        if (currentSoc && Number(currentSoc.val) > 50) {
+          // We can't shut down the device. Full charge needed!
+          if (adapter.config.fullChargeIfNeeded) {
+            await adapter?.setState(
+              `${productKey}.${deviceKey}.control.fullChargeNeeded`,
+              true,
+              true
+            );
+          }
+        } else {
+          if (currentSoc && currentSoc.val) {
+            setDischargeLimit(
+              adapter,
+              productKey,
+              deviceKey,
+              Number(currentSoc.val)
+            );
+          }
 
-        // Check if device setting is correct
-        const hubState = await adapter.getStateAsync(
-          `${productKey}.${deviceKey}.hubState`
-        );
-
-        if (!hubState || Number(hubState.val) != 1) {
-          adapter.log.warn(
-            `[checkVoltage] hubState is not set to 'Stop output and shut down', device will NOT go offline!`
+          // Check if device setting is correct
+          const hubState = await adapter.getStateAsync(
+            `${productKey}.${deviceKey}.hubState`
           );
+
+          if (!hubState || Number(hubState.val) != 1) {
+            adapter.log.warn(
+              `[checkVoltage] hubState is not set to 'Stop output and shut down', device will NOT go offline!`
+            );
+          }
         }
       }
     }
   } else if (voltage >= 47.5) {
-    if (adapter.config.useLowVoltageBlock) {
-      // Deactivate Low Voltage Block
-      const lowVoltageBlock = await adapter.getStateAsync(
-        `${productKey}.${deviceKey}.control.lowVoltageBlock`
+    // Deactivate Low Voltage Block
+    const lowVoltageBlock = await adapter.getStateAsync(
+      `${productKey}.${deviceKey}.control.lowVoltageBlock`
+    );
+
+    if (lowVoltageBlock && lowVoltageBlock.val == true) {
+      await adapter?.setState(
+        `${productKey}.${deviceKey}.control.lowVoltageBlock`,
+        false,
+        true
       );
 
-      if (lowVoltageBlock && lowVoltageBlock.val == true) {
-        await adapter?.setState(
-          `${productKey}.${deviceKey}.control.lowVoltageBlock`,
-          false,
-          true
-        );
-
-        setDischargeLimit(
-          adapter,
-          productKey,
-          deviceKey,
-          adapter.config.dischargeLimit ? adapter.config.dischargeLimit : 10
-        );
-      }
+      setDischargeLimit(
+        adapter,
+        productKey,
+        deviceKey,
+        adapter.config.dischargeLimit ? adapter.config.dischargeLimit : 10
+      );
     }
   }
 };

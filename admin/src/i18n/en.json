@@ -7,6 +7,7 @@
   "useCalculation": "Use calculations (daily values, soc)",
   "useLowVoltageBlock": "Use low voltage block (deactivates power output when voltage of one battery drops below critical voltage)",
   "forceShutdownOnLowVoltage": "Force Solarflow device to shut down by setting the min. SOC as soon as the voltage falls below the limit",
+  "fullChargeIfNeeded": "Charge to 100% if Zendure SOC is greater than 50% when critical voltage is reached.",
   "dischargeLimit": "Discharge Limit",
   "sn": "Serial number",
   "eu": "EU",

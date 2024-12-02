@@ -206,6 +206,30 @@ export const createControlStates = async (
           `${productKey}.${deviceKey}.control.lowVoltageBlock`
         );
 
+        // State zum Setzen des Output Limit
+        await adapter?.extendObject(
+          `${productKey}.${deviceKey}.control.fullChargeNeeded`,
+          {
+            type: "state",
+            common: {
+              name: {
+                de: "Auf 100% laden, Akku muss kalibriert werden!",
+                en: "Charge to 100%, battery needs to be calibrated",
+              },
+              type: "boolean",
+              desc: "fullChargeNeeded",
+              role: "indicator.lowbat",
+              read: true,
+              write: false,
+            },
+            native: {},
+          }
+        );
+
+        adapter?.subscribeStates(
+          `${productKey}.${deviceKey}.control.fullChargeNeeded`
+        );
+
         // State zum Setzen des Input Limit (AC)
         await adapter?.extendObject(
           `${productKey}.${deviceKey}.control.hubState`,

@@ -246,10 +246,22 @@ const onMessage = async (topic, message) => {
       if ((adapter == null ? void 0 : adapter.config.useCalculation) && obj.properties.electricLevel == 100 && isSolarFlow) {
         (0, import_calculationService.setEnergyWhMax)(adapter, productKey, deviceKey);
       }
+      if (obj.properties.electricLevel == 100) {
+        const fullChargeNeeded = await adapter.getStateAsync(
+          productKey + "." + deviceKey + ".control.fullChargeNeeded"
+        );
+        if (fullChargeNeeded && fullChargeNeeded.val && fullChargeNeeded.val == true) {
+          await (adapter == null ? void 0 : adapter.setState(
+            `${productKey}.${deviceKey}.control.fullChargeNeeded`,
+            false,
+            true
+          ));
+        }
+      }
       const minSoc = await (adapter == null ? void 0 : adapter.getStateAsync(
         `${productKey}.${deviceKey}.minSoc`
       ));
-      if ((adapter == null ? void 0 : adapter.config.useCalculation) && minSoc && minSoc.val && obj.properties.electricLevel <= Number(minSoc.val) && isSolarFlow) {
+      if ((adapter == null ? void 0 : adapter.config.useCalculation) && minSoc && minSoc.val && obj.properties.electricLevel == Number(minSoc.val) && isSolarFlow) {
         (0, import_calculationService.setSocToZero)(adapter, productKey, deviceKey);
       }
     }
@@ -702,6 +714,12 @@ const setOutputLimit = async (adapter2, productKey, deviceKey, limit) => {
         productKey + "." + deviceKey + ".control.lowVoltageBlock"
       );
       if (lowVoltageBlockState && lowVoltageBlockState.val && lowVoltageBlockState.val == true) {
+        limit = 0;
+      }
+      const fullChargeNeeded = await adapter2.getStateAsync(
+        productKey + "." + deviceKey + ".control.fullChargeNeeded"
+      );
+      if (fullChargeNeeded && fullChargeNeeded.val && fullChargeNeeded.val == true) {
         limit = 0;
       }
     }

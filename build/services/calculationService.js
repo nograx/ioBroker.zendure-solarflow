@@ -73,9 +73,14 @@ const setSocToZero = async (adapter, productKey, deviceKey) => {
   ));
 };
 const calculateSocAndEnergy = async (adapter, productKey, deviceKey, stateKey, value) => {
-  var _a;
+  var _a, _b, _c;
   let energyWhMax = 0;
-  const productName = (_a = await adapter.getStateAsync(`${productKey}.${deviceKey}.productName`)) == null ? void 0 : _a.val;
+  const minSoc = (_a = await adapter.getStateAsync(`${productKey}.${deviceKey}.minSoc`)) == null ? void 0 : _a.val;
+  const currentSoc = (_b = await adapter.getStateAsync(`${productKey}.${deviceKey}.electricLevel`)) == null ? void 0 : _b.val;
+  if (currentSoc && minSoc && Number(currentSoc) < Number(minSoc)) {
+    return;
+  }
+  const productName = (_c = await adapter.getStateAsync(`${productKey}.${deviceKey}.productName`)) == null ? void 0 : _c.val;
   const currentEnergyState = await (adapter == null ? void 0 : adapter.getStateAsync(
     productKey + "." + deviceKey + ".calculations.energyWh"
   ));
