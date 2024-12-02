@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.9.3",
+    "version": "1.10.0",
     "news": {
+      "1.10.0": {
+        "en": "Add setting to perform a full charge if SOC from Zendure is greater than 50% when on low voltage\nBugfixes",
+        "de": "Hinzufügen der Einstellung, um eine volle Ladung, wenn SOC aus Zendure ist größer als 50% bei niedriger Spannung\nBugfixes",
+        "ru": "Добавление настройки для выполнения полного заряда, если SOC от Zendure больше 50% при низком напряжении\nBugfixs",
+        "pt": "Adicionar configuração para executar uma carga completa se SOC de Zendure é maior que 50% quando em baixa tensão\nBugfixs",
+        "nl": "Voeg instellingen toe om een volledige lading uit te voeren als SOC van Zendure groter is dan 50% bij lage spanning\nBugfixes",
+        "fr": "Ajouter le réglage pour effectuer une charge complète si le SOC de Zendure est supérieur à 50 %s ur basse tension\nFixes de bogue",
+        "it": "Aggiungere l'impostazione per eseguire una carica completa se SOC da Zendure è maggiore del 50% quando su bassa tensione\nBugfix",
+        "es": "Agregar ajuste para realizar una carga completa si SOC de Zendure es mayor que 50% cuando en baja tensión\nBugfixes",
+        "pl": "Dodaj ustawienie do wykonania pełnego ładowania, jeśli SOC z Zharb jest większa niż 50% przy niskim napięciu\nKorekty błędów",
+        "uk": "Додати налаштування для виконання повного заряду, якщо SOC від Zendure перевищує 50% при низькій напрузі\nПомилки",
+        "zh-cn": "如果来自Zendure的SOC在低电压时大于50%,则添加设置以完成全电荷\n错误修正"
+      },
       "1.9.3": {
         "en": "Fix for Low Voltage Block not deactivated.",
         "de": "Fix für Niederspannung Block nicht deaktiviert.",
@@ -80,19 +93,6 @@
         "pl": "Napraw brakujące stany kontroli dla AIO",
         "uk": "Виправлення відсутніх контрольних станів для AIO",
         "zh-cn": "为 AIO 修复缺失的控制状态"
-      },
-      "1.8.6": {
-        "en": "Change login method: Added a retry loop for connecting to Zendure Cloud, if the Cloud Service \"hangs\" or is not available it will retry the connection 3 times.",
-        "de": "Login-Methode ändern: Hinzugefügt eine Retry-Loop für die Verbindung mit Zendure Cloud, wenn der Cloud Service \"Ändert\" oder nicht verfügbar ist, wird es die Verbindung 3 mal wiederherzustellen.",
-        "ru": "Изменение метода входа: Добавлена петля для подключения к Zendure Cloud, если облачная служба «висит» или недоступна, она перепробует соединение 3 раза.",
-        "pt": "Alterar método de login: Adicionado um loop de retificação para se conectar ao Zendure Cloud, se o serviço de nuvem \"hangs\" ou não está disponível ele vai retenta a conexão 3 vezes.",
-        "nl": "Aanmeldmethode wijzigen: Een retry-lus toegevoegd om verbinding te maken met Zendure Cloud, als de Cloud Service \"hangt\" of niet beschikbaar is, zal het de verbinding 3 keer opnieuw proberen.",
-        "fr": "Modifier la méthode de connexion & #160;: Ajout d'une boucle de réessayer pour se connecter à Zendure Cloud, si le service Cloud \"hangs\" ou n'est pas disponible, il réessayera la connexion 3 fois.",
-        "it": "Modifica del metodo di login: Aggiunto un loop di riprovazione per il collegamento a Zendure Cloud, se il servizio cloud \"impicca\" o non è disponibile, riproverà la connessione 3 volte.",
-        "es": "Cambiar método de inicio de sesión: Se agregó un bucle de reingreso para conectarse a Zendure Cloud, si el Servicio Cloud \"hangs\" o no está disponible, volverá a iniciar la conexión 3 veces.",
-        "pl": "Zmień metodę logowania: Dodano pętlę ponowną do podłączenia do Zharb Cloud, jeśli Cloud Service \"zawiśnie\" lub nie jest dostępna, ponownie wypróbuje połączenie 3 razy.",
-        "uk": "Спосіб зміни логіки: Додана птиця петля для підключення до Zendure Cloud, якщо Хмарна служба \"хвишки\" або не доступна вона буде переробляти з'єднання 3 рази.",
-        "zh-cn": "更改登录方法 : 添加了连接到 Zendure 云的重试循环, 如果云服务“ hangs” 或无法使用, 它将重试连接三次 ."
       }
     },
     "titleLang": {
