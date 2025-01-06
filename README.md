@@ -48,6 +48,12 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Fix input limit when hub is bundled with ace
+- Fix calculation when low voltage block is activated
+
 ### 1.10.0 (2024-12-02)
 
 - Add setting to perform a full charge if SOC from Zendure is greater than 50% when on low voltage

@@ -21,11 +21,19 @@ export const updateSolarFlowControlState = async (
   state: string,
   val: number | string | boolean
 ): Promise<void> => {
-  await adapter?.setState(
-    `${productKey}.${deviceKey}.control.${state}`,
-    val,
-    true
+  // First check if state exist
+  const stateExist = await adapter?.objectExists(
+    `${productKey}.${deviceKey}.control.${state}`
   );
+
+  // Update the control state
+  if (stateExist) {
+    await adapter?.setState(
+      `${productKey}.${deviceKey}.control.${state}`,
+      val,
+      true
+    );
+  }
 };
 
 export const checkVoltage = async (

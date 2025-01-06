@@ -30,11 +30,16 @@ const updateSolarFlowState = async (adapter, productKey, deviceKey, state, val) 
   await (adapter == null ? void 0 : adapter.setState(`${productKey}.${deviceKey}.${state}`, val, true));
 };
 const updateSolarFlowControlState = async (adapter, productKey, deviceKey, state, val) => {
-  await (adapter == null ? void 0 : adapter.setState(
-    `${productKey}.${deviceKey}.control.${state}`,
-    val,
-    true
+  const stateExist = await (adapter == null ? void 0 : adapter.objectExists(
+    `${productKey}.${deviceKey}.control.${state}`
   ));
+  if (stateExist) {
+    await (adapter == null ? void 0 : adapter.setState(
+      `${productKey}.${deviceKey}.control.${state}`,
+      val,
+      true
+    ));
+  }
 };
 const checkVoltage = async (adapter, productKey, deviceKey, voltage) => {
   if (voltage < 46.1) {

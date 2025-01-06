@@ -103,6 +103,10 @@ export const calculateSocAndEnergy = async (
     productKey + "." + deviceKey + ".calculations.energyWhMax"
   );
 
+  const lowVoltageBlock = await adapter?.getStateAsync(
+    productKey + "." + deviceKey + ".control.lowVoltageBlock"
+  );
+
   const currentMaxValue = Number(
     currentEnergyMaxState ? currentEnergyMaxState.val : 0
   );
@@ -157,7 +161,7 @@ export const calculateSocAndEnergy = async (
         true
       );
 
-      if (newValue > currentMaxValue) {
+      if (newValue > currentMaxValue && !lowVoltageBlock?.val) {
         // Extend maxVal
         await adapter?.setState(
           `${productKey}.${deviceKey}.calculations.energyWhMax`,

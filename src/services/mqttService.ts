@@ -644,6 +644,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
       );
 
       if (
+        productName?.val?.toString().toLowerCase().includes("solarflow") ||
         productName?.val?.toString().toLowerCase().includes("ace") ||
         productName?.val?.toString().toLowerCase().includes("hyper")
       ) {
