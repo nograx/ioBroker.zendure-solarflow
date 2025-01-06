@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.10.0",
+    "version": "1.10.1",
     "news": {
+      "1.10.1": {
+        "en": "Fix input limit when hub is bundled with ace\nFix calculation when low voltage block is activated",
+        "de": "Fix Eingabegrenze, wenn Nabe mit Spitze gebündelt wird\nFixberechnung bei aktiviertem Niederspannungsblock",
+        "ru": "Исправление лимита ввода, когда хаб соединен с тузом\nИсчисление ix при активации блока низкого напряжения",
+        "pt": "Corrigir limite de entrada quando o hub é empacotado com ace\nCorrigir cálculo quando o bloco de baixa tensão é ativado",
+        "nl": "Fix ingang limiet wanneer hub is gebundeld met aas\nFix berekening wanneer laagspanningsblok wordt geactiveerd",
+        "fr": "Fixer la limite d'entrée lorsque le hub est livré avec as\nCorrection du calcul lorsque le bloc basse tension est activé",
+        "it": "Fissare il limite di ingresso quando il mozzo è in bundle con ace\nFissare il calcolo quando si attiva il blocco a bassa tensione",
+        "es": "Fijar el límite de entrada cuando el hub está empaquetado con as\nCálculo de fijación cuando se activa el bloque de baja tensión",
+        "pl": "Popraw limit wejścia, gdy piasta jest połączona z asem\nObliczenie fix po uruchomieniu bloku niskiego napięcia",
+        "uk": "Фіксований ліміт вводу при введенні хаба\nФіксований розрахунок при активації блоку низької напруги",
+        "zh-cn": "与 A 捆绑时固定输入限制\n启动低压块时固定计算"
+      },
       "1.10.0": {
         "en": "Add setting to perform a full charge if SOC from Zendure is greater than 50% when on low voltage\nBugfixes",
         "de": "Hinzufügen der Einstellung, um eine volle Ladung, wenn SOC aus Zendure ist größer als 50% bei niedriger Spannung\nBugfixes",
@@ -80,19 +93,6 @@
         "pl": "Ulepszenie retry połączenia, rozszerzenie czasu z każdej próby retry.\nUruchom \"ponowne uruchomienie pracy adaptera\" niezależnie od połączenia.\nFix Hyper settInputLimit z krokiem",
         "uk": "Покращити з'єднання птиця, розширити час при кожній спробі птиця.\nПочати роботу адаптера, незалежно від підключення.\nФіксація Hyper setInputLimit з кроком",
         "zh-cn": "改进连接重试, 每次重试都会延长时间 .\n开始\"重新启动适配器任务\",无论连接与否.\n以步骤修正超程序设置"
-      },
-      "1.8.7": {
-        "en": "Fix missing control states for AIO",
-        "de": "Fehlende Kontrollzustände für AIO behoben",
-        "ru": "Исправление недостающих состояний управления для AIO",
-        "pt": "Corrigir estados de controle ausentes para AIO",
-        "nl": "Fix ontbrekende controlestaten voor AIO",
-        "fr": "Correction des états de contrôle manquants pour AIO",
-        "it": "Fissare gli stati di controllo mancanti per AIO",
-        "es": "Fijar estados de control perdidos para AIO",
-        "pl": "Napraw brakujące stany kontroli dla AIO",
-        "uk": "Виправлення відсутніх контрольних станів для AIO",
-        "zh-cn": "为 AIO 修复缺失的控制状态"
       }
     },
     "titleLang": {

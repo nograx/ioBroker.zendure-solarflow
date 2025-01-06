@@ -48,8 +48,7 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 1.10.1 (2025-01-06)
 
 - Fix input limit when hub is bundled with ace
 - Fix calculation when low voltage block is activated

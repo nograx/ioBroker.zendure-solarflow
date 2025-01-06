@@ -221,9 +221,6 @@ const onMessage = async (topic, message) => {
       adapter.log.error(`[onMessage] JSON Parse error!`);
       adapter.log.debug(`[onMessage] JSON Parse error: ${txt}!`);
     }
-    if (deviceKey == "Np6E071g") {
-      console.log(obj.properties);
-    }
     let isSolarFlow = false;
     const productName = await adapter.getStateAsync(
       `${productKey}.${deviceKey}.productName`
