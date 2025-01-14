@@ -10,7 +10,7 @@ const calculationStateKeys = [
   "outputPack",
   "outputPack",
   "solarInput",
-  "gridInputPower",
+  "gridInput",
   "pvPower1",
   "pvPower2",
 ];
