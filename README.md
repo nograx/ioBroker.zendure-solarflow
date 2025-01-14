@@ -48,6 +48,11 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Fix "Grid Input Power" state if connected with Ace
+
 ### 1.10.2 (2025-01-14)
 
 - Fix calculation of grid input power on ace

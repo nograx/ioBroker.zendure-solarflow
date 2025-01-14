@@ -38,9 +38,9 @@ const sharedStates = [
     unit: "W"
   },
   {
-    title: "gridPower",
+    title: "gridInputPower",
     nameDe: "Leistung vom Stromnetz",
-    nameEn: "Grid power",
+    nameEn: "Grid Input power",
     type: "number",
     role: "value.power",
     unit: "W"
