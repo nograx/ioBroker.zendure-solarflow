@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.10.1",
+    "version": "1.10.2",
     "news": {
+      "1.10.2": {
+        "en": "Fix calculation of grid input power on ace\nCorrect standby usage of battery if conncted with ace (add additional 10W)",
+        "de": "Fixe Berechnung der Netzeingangsleistung auf Ace\nRichtige Standby-Nutzung der Batterie, wenn mit ace konncted (add zusätzliche 10W)",
+        "ru": "Исчисление сетки входной мощности на туз\nПравильное резервное использование аккумулятора, если он сложен с тузом (добавьте дополнительно 10W)",
+        "pt": "Corrigir o cálculo do poder de entrada da grade em ás\nUso correto de espera da bateria se conncted com ace (add adicional 10W)",
+        "nl": "Fix berekening van het ingangsvermogen van het net op aas\nCorrect stand-by-gebruik van de batterij indien verbonden met een aas (voeg nog 10W toe)",
+        "fr": "Calcul de la puissance d'entrée du réseau sur as\nUtilisation correcte en veille de la batterie si elle est connectée à un as (ajouter 10W supplémentaires)",
+        "it": "Fissare il calcolo della potenza di ingresso della griglia su ace\nCorretto uso standby della batteria se connessa con asso (add aggiuntivo 10W)",
+        "es": "Fijar el cálculo de la energía de entrada de la red en el as\nUso correcto de la reserva de la batería si se conncted con as (add adicional 10W)",
+        "pl": "Napraw obliczanie mocy wejściowej sieci na asie\nPrawidłowe korzystanie z akumulatora w trybie czuwania po połączeniu z asem (dodać dodatkowe 10W)",
+        "uk": "Фіксований розрахунок потужності вводу сітки на аце\nПравильне використання акумулятора в режимі очікування (додатково 10 Вт)",
+        "zh-cn": "固定 A 上的网格输入功率计算\n正确的备用电池使用,如果与 A 相连接(增加 10 W)"
+      },
       "1.10.1": {
         "en": "Fix input limit when hub is bundled with ace\nFix calculation when low voltage block is activated",
         "de": "Fix Eingabegrenze, wenn Nabe mit Spitze gebündelt wird\nFixberechnung bei aktiviertem Niederspannungsblock",
@@ -80,19 +93,6 @@
         "pl": "Nowa opcja zmuszenia urządzenia Solarflow do offline przy użyciu opcji \"Block niskiego napięcia\".",
         "uk": "Використовується новий варіант для відключення пристроїв Solarflow при \"Low Блок напруги\"-опція.",
         "zh-cn": "使用“ Low Voltage Block”- 选项时, 强制 Solarflow 设备下线的新选项 ."
-      },
-      "1.8.8": {
-        "en": "Improve connection retry, expand the time with every retry attempt.\nStart \"restart adapter job\" regardless of connection.\nFix Hyper setInputLimit with step",
-        "de": "Verbessern Sie die Retry-Verbindung, erweitern Sie die Zeit mit jedem Retry-Test.\nStarten Sie \"Adapter Job starten\" unabhängig von der Verbindung.\nFix Hyper setInputLimit mit Schritt",
-        "ru": "Улучшите восстановление связи, расширяйте время с каждой попыткой возврата.\nНачните работу «перезапуска адаптера» независимо от подключения.\nFix Hyper setInputLimit с шагом",
-        "pt": "Melhore a retificação da conexão, expanda o tempo com cada tentativa de retificação.\nComece \"reiniciar o trabalho do adaptador\" independentemente da conexão.\nFix Hyper setInputLimit com passo",
-        "nl": "Verbeter de verbinding opnieuw proberen, breidt de tijd met elke retry poging.\nStart \"herstart adaptertaak\" ongeacht de verbinding.\nRepareren Hyper setInputLimit met stap",
-        "fr": "Améliorer la connexion réessayer, étendre le temps avec chaque tentative de réessayer.\nCommencez \"redémarrer le travail d'adaptateur\" indépendamment de la connexion.\nCorrection Hyper setInputLimit avec étape",
-        "it": "Migliorare la retry di connessione, espandere il tempo con ogni tentativo di riprovazione.\nAvviare \"riavviare il lavoro adattatore\" indipendentemente dalla connessione.\nFissare Hyper setInputLimit con passo",
-        "es": "Mejorar la reingresación de conexión, ampliar el tiempo con cada intento de reingreso.\nComience \"trabajo adaptador de reinicio\" independientemente de la conexión.\nFijar Hyper setInputLimit con paso",
-        "pl": "Ulepszenie retry połączenia, rozszerzenie czasu z każdej próby retry.\nUruchom \"ponowne uruchomienie pracy adaptera\" niezależnie od połączenia.\nFix Hyper settInputLimit z krokiem",
-        "uk": "Покращити з'єднання птиця, розширити час при кожній спробі птиця.\nПочати роботу адаптера, незалежно від підключення.\nФіксація Hyper setInputLimit з кроком",
-        "zh-cn": "改进连接重试, 每次重试都会延长时间 .\n开始\"重新启动适配器任务\",无论连接与否.\n以步骤修正超程序设置"
       }
     },
     "titleLang": {
