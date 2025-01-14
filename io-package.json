@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.10.3",
+    "version": "1.10.4",
     "news": {
+      "1.10.4": {
+        "en": "Fix \"Grid Input Power\" state if connected with Ace",
+        "de": "Fix \"Grid Input Power\" Zustand, wenn mit Ace verbunden",
+        "ru": "Fix \"Grid Input Power\" в случае подключения к Ace",
+        "pt": "Fix \"Grid Input Power\" estado se conectado com Ace",
+        "nl": "Fix \"Grid Input Power\" status indien verbonden met Ace",
+        "fr": "Correction de l'état \"Grid Input Power\" si connecté avec Ace",
+        "it": "Fissare lo stato \"Grid Input Power\" se collegato con Ace",
+        "es": "Fijar el estado de \"Grid Input Power\" si está conectado con Ace",
+        "pl": "Napraw stan \"Grid Input Power\" w przypadku połączenia z Asem",
+        "uk": "Фіксація \"Грідка вхідна потужність\" при підключенні з Ace",
+        "zh-cn": "如果与 Ace 连接, 则修正“ Grid 输入功率” 状态"
+      },
       "1.10.3": {
         "en": "Fix \"Grid Input Power\" state if connected with Ace",
         "de": "Fix \"Grid Input Power\" Zustand, wenn mit Ace verbunden",
@@ -80,19 +93,6 @@
         "pl": "Popraw niektóre definicje",
         "uk": "Виправлення стану деяких визначення",
         "zh-cn": "修正一些定义"
-      },
-      "1.9.1": {
-        "en": "Improvement for 'Low Voltage Block'.\nChanged the state \"hubState\" a an option value.",
-        "de": "Verbesserung für 'Low Voltage Block'.\nÄnderte den Zustand \"hubState\" einen Optionswert.",
-        "ru": "Улучшение «Low Voltage Block».\nИзменил государственную «hubState» как альтернативную стоимость.",
-        "pt": "Melhoria para \"Low Voltage Block\".\nAlterou o estado \"hubState\" um valor de opção.",
-        "nl": "Verbetering voor 'Low Voltage Block'.\nVeranderde de status \"hubState\" een optiewaarde.",
-        "fr": "Amélioration pour 'Block basse tension'.\nChangement de l'état \"hubState\" une valeur d'option.",
-        "it": "Miglioramento per 'Low Tension Block'.\nCambiato lo stato \"hubState\" un valore di opzione.",
-        "es": "Mejora para 'Low Voltage Block'.\nCambió el estado \"hubState\" un valor de opción.",
-        "pl": "Poprawa dla \"bloku niskiego napięcia\".\nZmieniła wartość opcji państwa \"hubState\".",
-        "uk": "Удосконалення для блоку напруги \"Low\".\nЗмінено стан \"hubState\" варіант значення.",
-        "zh-cn": "改进\"低伏特格\".\n更改州\"hubstate\"为选项值."
       }
     },
     "titleLang": {
