@@ -56,6 +56,7 @@ const startCheckStatesAndConnectionJob = async (adapter) => {
   const statesToReset = [
     "outputHomePower",
     "outputPackPower",
+    "gridInputPower",
     "packInputPower",
     "solarInputPower"
   ];

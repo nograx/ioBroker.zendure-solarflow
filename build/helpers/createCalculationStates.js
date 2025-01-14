@@ -24,7 +24,7 @@ module.exports = __toCommonJS(createCalculationStates_exports);
 const createCalculationStates = async (adapter, productKey, deviceKey, type) => {
   if (type == "hyper" || type == "ace" || type == "solarflow") {
     await (adapter == null ? void 0 : adapter.extendObject(
-      `${productKey}.${deviceKey}.calculations.gridInputEnergyTodayWh`,
+      `${productKey}.${deviceKey}.calculations.gridInputPowerEnergyTodayWh`,
       {
         type: "state",
         common: {
@@ -43,7 +43,7 @@ const createCalculationStates = async (adapter, productKey, deviceKey, type) => 
       }
     ));
     await (adapter == null ? void 0 : adapter.extendObject(
-      `${productKey}.${deviceKey}.calculations.gridInputEnergyTodaykWh`,
+      `${productKey}.${deviceKey}.calculations.gridInputPowerEnergyTodaykWh`,
       {
         type: "state",
         common: {

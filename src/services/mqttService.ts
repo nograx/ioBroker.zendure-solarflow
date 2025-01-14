@@ -486,6 +486,15 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         standbyUsage = 10 - Number(solarInputPower.val);
       }
 
+      // Check if connected with Ace, if so add 10 Watt to standby usage!
+      const device = adapter?.deviceList?.find(
+        (x) => x.deviceKey == deviceKey && x.productKey == productKey
+      );
+
+      if (device && device._connectedWithAce) {
+        standbyUsage += 10;
+      }
+
       updateSolarFlowState(
         adapter,
         productKey,

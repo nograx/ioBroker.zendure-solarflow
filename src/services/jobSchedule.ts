@@ -92,6 +92,7 @@ export const startCheckStatesAndConnectionJob = async (
   const statesToReset: string[] = [
     "outputHomePower",
     "outputPackPower",
+    "gridInputPower",
     "packInputPower",
     "solarInputPower",
   ];
