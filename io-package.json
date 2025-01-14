@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.10.2",
+    "version": "1.10.3",
     "news": {
+      "1.10.3": {
+        "en": "Fix \"Grid Input Power\" state if connected with Ace",
+        "de": "Fix \"Grid Input Power\" Zustand, wenn mit Ace verbunden",
+        "ru": "Fix \"Grid Input Power\" в случае подключения к Ace",
+        "pt": "Fix \"Grid Input Power\" estado se conectado com Ace",
+        "nl": "Fix \"Grid Input Power\" status indien verbonden met Ace",
+        "fr": "Correction de l'état \"Grid Input Power\" si connecté avec Ace",
+        "it": "Fissare lo stato \"Grid Input Power\" se collegato con Ace",
+        "es": "Fijar el estado de \"Grid Input Power\" si está conectado con Ace",
+        "pl": "Napraw stan \"Grid Input Power\" w przypadku połączenia z Asem",
+        "uk": "Фіксація \"Грідка вхідна потужність\" при підключенні з Ace",
+        "zh-cn": "如果与 Ace 连接, 则修正“ Grid 输入功率” 状态"
+      },
       "1.10.2": {
         "en": "Fix calculation of grid input power on ace\nCorrect standby usage of battery if conncted with ace (add additional 10W)",
         "de": "Fixe Berechnung der Netzeingangsleistung auf Ace\nRichtige Standby-Nutzung der Batterie, wenn mit ace konncted (add zusätzliche 10W)",
@@ -80,19 +93,6 @@
         "pl": "Poprawa dla \"bloku niskiego napięcia\".\nZmieniła wartość opcji państwa \"hubState\".",
         "uk": "Удосконалення для блоку напруги \"Low\".\nЗмінено стан \"hubState\" варіант значення.",
         "zh-cn": "改进\"低伏特格\".\n更改州\"hubstate\"为选项值."
-      },
-      "1.9.0": {
-        "en": "New option to force Solarflow device to go offline when \"Low Voltage Block\"-option is used.",
-        "de": "Neue Option, Solarflow-Gerät zu zwingen, offline zu gehen, wenn \"Low Voltage Block\"-Option verwendet wird.",
-        "ru": "Новая опция заставить устройство Solarflow выйти в автономном режиме, когда используется опция «Low Voltage Block».",
-        "pt": "Nova opção para forçar o dispositivo Solarflow a ficar offline quando a opção \"Low Voltage Block\" é usada.",
-        "nl": "Nieuwe optie om Solarflow apparaat te dwingen offline te gaan wanneer \"Low Voltage Blok\"-optie wordt gebruikt.",
-        "fr": "Nouvelle option pour forcer le périphérique Solarflow à déconnecter lorsque l'option \"Block basse tension\" est utilisée.",
-        "it": "Nuova opzione per forza dispositivo Solarflow per andare offline quando \"Low Tensione Block\"-opzione è utilizzato.",
-        "es": "Nueva opción para forzar el dispositivo Solarflow a salir fuera de línea cuando se utiliza la opción \"Low Voltage Block\".",
-        "pl": "Nowa opcja zmuszenia urządzenia Solarflow do offline przy użyciu opcji \"Block niskiego napięcia\".",
-        "uk": "Використовується новий варіант для відключення пристроїв Solarflow при \"Low Блок напруги\"-опція.",
-        "zh-cn": "使用“ Low Voltage Block”- 选项时, 强制 Solarflow 设备下线的新选项 ."
       }
     },
     "titleLang": {
