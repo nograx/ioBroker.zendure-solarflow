@@ -80,6 +80,19 @@ export const startCalculationJob = async (
     adapter.deviceList.forEach((device) => {
       if (device.productKey != "s3Xk4x") {
         calculateEnergy(adapter, device.productKey, device.deviceKey);
+
+        // Check if connected with ACE, then calculate also for ACE device
+        if (device.packList && device.packList.length > 0) {
+          device.packList.forEach(async (subDevice) => {
+            if (subDevice.productName.toLocaleLowerCase() == "ace 1500") {
+              calculateEnergy(
+                adapter,
+                subDevice.productKey,
+                subDevice.deviceKey
+              );
+            }
+          });
+        }
       }
     });
   });

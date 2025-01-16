@@ -48,6 +48,17 @@ const startCalculationJob = async (adapter) => {
     adapter.deviceList.forEach((device) => {
       if (device.productKey != "s3Xk4x") {
         (0, import_calculationService.calculateEnergy)(adapter, device.productKey, device.deviceKey);
+        if (device.packList && device.packList.length > 0) {
+          device.packList.forEach(async (subDevice) => {
+            if (subDevice.productName.toLocaleLowerCase() == "ace 1500") {
+              (0, import_calculationService.calculateEnergy)(
+                adapter,
+                subDevice.productKey,
+                subDevice.deviceKey
+              );
+            }
+          });
+        }
       }
     });
   });
