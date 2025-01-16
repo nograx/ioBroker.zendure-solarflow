@@ -9,7 +9,7 @@ export const createCalculationStates = async (
 ): Promise<void> => {
   if (type == "hyper" || type == "ace" || type == "solarflow") {
     await adapter?.extendObject(
-      `${productKey}.${deviceKey}.calculations.gridInputPowerEnergyTodayWh`,
+      `${productKey}.${deviceKey}.calculations.gridInputEnergyTodayWh`,
       {
         type: "state",
         common: {
@@ -29,7 +29,7 @@ export const createCalculationStates = async (
     );
 
     await adapter?.extendObject(
-      `${productKey}.${deviceKey}.calculations.gridInputPowerEnergyTodaykWh`,
+      `${productKey}.${deviceKey}.calculations.gridInputEnergyTodaykWh`,
       {
         type: "state",
         common: {
