@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.10.4",
+    "version": "1.10.5",
     "news": {
+      "1.10.5": {
+        "en": "Fix start of calculation if HUB is connected with Ace",
+        "de": "Fix Beginn der Berechnung, wenn HUB mit Ace verbunden ist",
+        "ru": "Исправить начало расчета, если HUB подключен к Ace",
+        "pt": "Corrigir o início do cálculo se HUB estiver conectado com Ace",
+        "nl": "Fix begin van berekening als HUB is verbonden met Ace",
+        "fr": "Correction du début du calcul si HUB est connecté à Ace",
+        "it": "Fissare l'inizio del calcolo se HUB è collegato con Ace",
+        "es": "Arranque el inicio del cálculo si HUB está conectado con Ace",
+        "pl": "Popraw początek obliczeń, jeśli HUB jest połączony z Asem",
+        "uk": "Виправлення запуску розрахунку, якщо HUB підключено до Ace",
+        "zh-cn": "如果 HUB 与 Ace 连接, 则固定开始计算"
+      },
       "1.10.4": {
         "en": "Fix \"Grid Input Power\" state if connected with Ace",
         "de": "Fix \"Grid Input Power\" Zustand, wenn mit Ace verbunden",
@@ -80,19 +93,6 @@
         "pl": "Napraw dla niskiego napięcia Blok nie wyłączony.",
         "uk": "Фіксація для низького напруги Блок не деактивований.",
         "zh-cn": "低电压修复 屏蔽未关闭 ."
-      },
-      "1.9.2": {
-        "en": "Fix state some definitions",
-        "de": "Einige Definitionen festlegen",
-        "ru": "Установить некоторые определения",
-        "pt": "Corrigir estado algumas definições",
-        "nl": "Fix geeft enkele definities",
-        "fr": "Fixer les définitions",
-        "it": "Fissare lo stato alcune definizioni",
-        "es": "Determinar el estado algunas definiciones",
-        "pl": "Popraw niektóre definicje",
-        "uk": "Виправлення стану деяких визначення",
-        "zh-cn": "修正一些定义"
       }
     },
     "titleLang": {
