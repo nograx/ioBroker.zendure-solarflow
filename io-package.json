@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.10.5",
+    "version": "1.10.6",
     "news": {
+      "1.10.6": {
+        "en": "Fix start of calculation if HUB is connected with Ace",
+        "de": "Fix Beginn der Berechnung, wenn HUB mit Ace verbunden ist",
+        "ru": "Исправить начало расчета, если HUB подключен к Ace",
+        "pt": "Corrigir o início do cálculo se HUB estiver conectado com Ace",
+        "nl": "Fix begin van berekening als HUB is verbonden met Ace",
+        "fr": "Correction du début du calcul si HUB est connecté à Ace",
+        "it": "Fissare l'inizio del calcolo se HUB è collegato con Ace",
+        "es": "Arranque el inicio del cálculo si HUB está conectado con Ace",
+        "pl": "Popraw początek obliczeń, jeśli HUB jest połączony z Asem",
+        "uk": "Виправлення запуску розрахунку, якщо HUB підключено до Ace",
+        "zh-cn": "如果 HUB 与 Ace 连接, 则固定开始计算"
+      },
       "1.10.5": {
         "en": "Fix start of calculation if HUB is connected with Ace",
         "de": "Fix Beginn der Berechnung, wenn HUB mit Ace verbunden ist",
@@ -80,19 +93,6 @@
         "pl": "Dodaj ustawienie do wykonania pełnego ładowania, jeśli SOC z Zharb jest większa niż 50% przy niskim napięciu\nKorekty błędów",
         "uk": "Додати налаштування для виконання повного заряду, якщо SOC від Zendure перевищує 50% при низькій напрузі\nПомилки",
         "zh-cn": "如果来自Zendure的SOC在低电压时大于50%,则添加设置以完成全电荷\n错误修正"
-      },
-      "1.9.3": {
-        "en": "Fix for Low Voltage Block not deactivated.",
-        "de": "Fix für Niederspannung Block nicht deaktiviert.",
-        "ru": "Fix для низкого напряжения Блок не отключен.",
-        "pt": "Fix para baixa tensão Bloquear não desativado.",
-        "nl": "Fix voor lage spanning Blok niet gedeactiveerd.",
-        "fr": "Correction pour basse tension Bloc non désactivé.",
-        "it": "Fissaggio per bassa tensione Blocco non disattivato.",
-        "es": "Fijación para baja tensión Bloque no desactivado.",
-        "pl": "Napraw dla niskiego napięcia Blok nie wyłączony.",
-        "uk": "Фіксація для низького напруги Блок не деактивований.",
-        "zh-cn": "低电压修复 屏蔽未关闭 ."
       }
     },
     "titleLang": {
