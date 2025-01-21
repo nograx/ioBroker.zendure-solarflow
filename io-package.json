@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.10.6",
+    "version": "1.10.7",
     "news": {
+      "1.10.7": {
+        "en": "Fix reset calculation values of ACE if connected to HUB",
+        "de": "Reset-Berechnungswerte von ACE, wenn mit HUB verbunden",
+        "ru": "Fix расчетные значения сброса ACE при подключении к HUB",
+        "pt": "Corrigir valores de cálculo de reset do ACE se conectado ao HUB",
+        "nl": "Fix reset berekeningswaarden van ACE indien aangesloten op HUB",
+        "fr": "Réinitialiser les valeurs de calcul d'ACE si connecté à HUB",
+        "it": "Fissare i valori di calcolo di reset di ACE se collegati a HUB",
+        "es": "Fijar los valores de cálculo del reajuste de ACE si está conectado a HUB",
+        "pl": "Popraw wartości obliczeniowe resetu ACE, jeśli podłączone do HUB",
+        "uk": "Виправлення значень розрахунку скидання ACE при підключенні до HUB",
+        "zh-cn": "修复连接到 HUB 的 ACE 计算值"
+      },
       "1.10.6": {
         "en": "Fix start of calculation if HUB is connected with Ace",
         "de": "Fix Beginn der Berechnung, wenn HUB mit Ace verbunden ist",
@@ -80,19 +93,6 @@
         "pl": "Popraw limit wejścia, gdy piasta jest połączona z asem\nObliczenie fix po uruchomieniu bloku niskiego napięcia",
         "uk": "Фіксований ліміт вводу при введенні хаба\nФіксований розрахунок при активації блоку низької напруги",
         "zh-cn": "与 A 捆绑时固定输入限制\n启动低压块时固定计算"
-      },
-      "1.10.0": {
-        "en": "Add setting to perform a full charge if SOC from Zendure is greater than 50% when on low voltage\nBugfixes",
-        "de": "Hinzufügen der Einstellung, um eine volle Ladung, wenn SOC aus Zendure ist größer als 50% bei niedriger Spannung\nBugfixes",
-        "ru": "Добавление настройки для выполнения полного заряда, если SOC от Zendure больше 50% при низком напряжении\nBugfixs",
-        "pt": "Adicionar configuração para executar uma carga completa se SOC de Zendure é maior que 50% quando em baixa tensão\nBugfixs",
-        "nl": "Voeg instellingen toe om een volledige lading uit te voeren als SOC van Zendure groter is dan 50% bij lage spanning\nBugfixes",
-        "fr": "Ajouter le réglage pour effectuer une charge complète si le SOC de Zendure est supérieur à 50 %s ur basse tension\nFixes de bogue",
-        "it": "Aggiungere l'impostazione per eseguire una carica completa se SOC da Zendure è maggiore del 50% quando su bassa tensione\nBugfix",
-        "es": "Agregar ajuste para realizar una carga completa si SOC de Zendure es mayor que 50% cuando en baja tensión\nBugfixes",
-        "pl": "Dodaj ustawienie do wykonania pełnego ładowania, jeśli SOC z Zharb jest większa niż 50% przy niskim napięciu\nKorekty błędów",
-        "uk": "Додати налаштування для виконання повного заряду, якщо SOC від Zendure перевищує 50% при низькій напрузі\nПомилки",
-        "zh-cn": "如果来自Zendure的SOC在低电压时大于50%,则添加设置以完成全电荷\n错误修正"
       }
     },
     "titleLang": {
