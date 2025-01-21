@@ -48,6 +48,11 @@ If you find the adapter useful for you and want to support my work, feel free to
 [![Donate](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/PeterFrommert)
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Fix reset calculation values of ACE if connected to HUB
+
 ### 1.10.6 (2025-01-16)
 
 - Fix start of calculation if HUB is connected with Ace
