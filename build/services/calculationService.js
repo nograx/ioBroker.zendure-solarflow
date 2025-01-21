@@ -263,24 +263,34 @@ const calculateEnergy = async (adapter, productKey, deviceKey) => {
     }
   });
 };
+const resetValuesForDevice = (adapter, device) => {
+  calculationStateKeys.forEach(async (stateKey) => {
+    let stateNameEnergyWh = "";
+    let stateNameEnergykWh = "";
+    if (stateKey == "pvPower1") {
+      stateNameEnergyWh = `${device.productKey}.${device.deviceKey}.calculations.solarInputPv1EnergyTodayWh`;
+      stateNameEnergykWh = `${device.productKey}.${device.deviceKey}.calculations.solarInputPv1EnergyTodaykWh`;
+    } else if (stateKey == "pvPower2") {
+      stateNameEnergyWh = `${device.productKey}.${device.deviceKey}.calculations.solarInputPv2EnergyTodayWh`;
+      stateNameEnergykWh = `${device.productKey}.${device.deviceKey}.calculations.solarInputPv2EnergyTodaykWh`;
+    } else {
+      stateNameEnergyWh = `${device.productKey}.${device.deviceKey}.calculations.${stateKey}EnergyTodayWh`;
+      stateNameEnergykWh = `${device.productKey}.${device.deviceKey}.calculations.${stateKey}EnergyTodaykWh`;
+    }
+    await (adapter == null ? void 0 : adapter.setState(stateNameEnergyWh, 0, true));
+    await (adapter == null ? void 0 : adapter.setState(stateNameEnergykWh, 0, true));
+  });
+};
 const resetTodaysValues = async (adapter) => {
   adapter.deviceList.forEach((device) => {
-    calculationStateKeys.forEach(async (stateKey) => {
-      let stateNameEnergyWh = "";
-      let stateNameEnergykWh = "";
-      if (stateKey == "pvPower1") {
-        stateNameEnergyWh = `${device.productKey}.${device.deviceKey}.calculations.solarInputPv1EnergyTodayWh`;
-        stateNameEnergykWh = `${device.productKey}.${device.deviceKey}.calculations.solarInputPv1EnergyTodaykWh`;
-      } else if (stateKey == "pvPower2") {
-        stateNameEnergyWh = `${device.productKey}.${device.deviceKey}.calculations.solarInputPv2EnergyTodayWh`;
-        stateNameEnergykWh = `${device.productKey}.${device.deviceKey}.calculations.solarInputPv2EnergyTodaykWh`;
-      } else {
-        stateNameEnergyWh = `${device.productKey}.${device.deviceKey}.calculations.${stateKey}EnergyTodayWh`;
-        stateNameEnergykWh = `${device.productKey}.${device.deviceKey}.calculations.${stateKey}EnergyTodaykWh`;
-      }
-      await (adapter == null ? void 0 : adapter.setState(stateNameEnergyWh, 0, true));
-      await (adapter == null ? void 0 : adapter.setState(stateNameEnergykWh, 0, true));
-    });
+    resetValuesForDevice(adapter, device);
+    if (device.packList && device.packList.length > 0) {
+      device.packList.forEach(async (subDevice) => {
+        if (subDevice.productName.toLocaleLowerCase() == "ace 1500") {
+          resetValuesForDevice(adapter, subDevice);
+        }
+      });
+    }
   });
 };
 // Annotate the CommonJS export names for ESM import in node:

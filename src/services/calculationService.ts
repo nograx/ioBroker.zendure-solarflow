@@ -354,27 +354,42 @@ export const calculateEnergy = async (
   });
 };
 
+const resetValuesForDevice = (
+  adapter: ZendureSolarflow,
+  device: ISolarFlowDeviceDetails
+) => {
+  calculationStateKeys.forEach(async (stateKey: string) => {
+    let stateNameEnergyWh = "";
+    let stateNameEnergykWh = "";
+
+    if (stateKey == "pvPower1") {
+      stateNameEnergyWh = `${device.productKey}.${device.deviceKey}.calculations.solarInputPv1EnergyTodayWh`;
+      stateNameEnergykWh = `${device.productKey}.${device.deviceKey}.calculations.solarInputPv1EnergyTodaykWh`;
+    } else if (stateKey == "pvPower2") {
+      stateNameEnergyWh = `${device.productKey}.${device.deviceKey}.calculations.solarInputPv2EnergyTodayWh`;
+      stateNameEnergykWh = `${device.productKey}.${device.deviceKey}.calculations.solarInputPv2EnergyTodaykWh`;
+    } else {
+      stateNameEnergyWh = `${device.productKey}.${device.deviceKey}.calculations.${stateKey}EnergyTodayWh`;
+      stateNameEnergykWh = `${device.productKey}.${device.deviceKey}.calculations.${stateKey}EnergyTodaykWh`;
+    }
+
+    await adapter?.setState(stateNameEnergyWh, 0, true);
+    await adapter?.setState(stateNameEnergykWh, 0, true);
+  });
+};
+
 export const resetTodaysValues = async (
   adapter: ZendureSolarflow
 ): Promise<void> => {
   adapter.deviceList.forEach((device: ISolarFlowDeviceDetails) => {
-    calculationStateKeys.forEach(async (stateKey: string) => {
-      let stateNameEnergyWh = "";
-      let stateNameEnergykWh = "";
+    resetValuesForDevice(adapter, device);
 
-      if (stateKey == "pvPower1") {
-        stateNameEnergyWh = `${device.productKey}.${device.deviceKey}.calculations.solarInputPv1EnergyTodayWh`;
-        stateNameEnergykWh = `${device.productKey}.${device.deviceKey}.calculations.solarInputPv1EnergyTodaykWh`;
-      } else if (stateKey == "pvPower2") {
-        stateNameEnergyWh = `${device.productKey}.${device.deviceKey}.calculations.solarInputPv2EnergyTodayWh`;
-        stateNameEnergykWh = `${device.productKey}.${device.deviceKey}.calculations.solarInputPv2EnergyTodaykWh`;
-      } else {
-        stateNameEnergyWh = `${device.productKey}.${device.deviceKey}.calculations.${stateKey}EnergyTodayWh`;
-        stateNameEnergykWh = `${device.productKey}.${device.deviceKey}.calculations.${stateKey}EnergyTodaykWh`;
-      }
-
-      await adapter?.setState(stateNameEnergyWh, 0, true);
-      await adapter?.setState(stateNameEnergykWh, 0, true);
-    });
+    if (device.packList && device.packList.length > 0) {
+      device.packList.forEach(async (subDevice) => {
+        if (subDevice.productName.toLocaleLowerCase() == "ace 1500") {
+          resetValuesForDevice(adapter, subDevice);
+        }
+      });
+    }
   });
 };
