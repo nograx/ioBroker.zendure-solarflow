@@ -48,8 +48,7 @@ If you find the adapter useful for you and want to support my work, feel free to
 Credits goes to https://github.com/reinhard-brandstaedter/solarflow which helped a lot with the knowledge about the MQTT server from Zendure! Thanks!
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 1.11.0 (2025-02-11)
 
 - Drop Standby usage to 7W and 14W if HUB connected with ACE as it is more accurate
 - Added heatState and autoModel (system operation mode) state

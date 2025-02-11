@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.10.7",
+    "version": "1.11.0",
     "news": {
+      "1.11.0": {
+        "en": "Drop Standby usage to 7W and 14W if HUB connected with ACE as it is more accurate\nAdded heatState and autoModel (system operation mode) state\nAdded possibility to set the operation mode (autoModel)\nFix gridPower state",
+        "de": "Drop Standby-Nutzung auf 7W und 14W, wenn HUB mit ACE verbunden, da es genauer ist\nHinzugefügt HeatState und AutoModel (Systembetriebsmodus) Zustand\nMöglichkeit zur Einstellung des Betriebsmodus (autoModel)\nNetzPower Zustand",
+        "ru": "Бросьте резервное использование до 7W и 14W, если HUB подключен к ACE, так как он более точен\nДобавлено состояние тепла и автомодели (режим работы системы)\nДобавлена возможность установки режима работы (autoModel)\nСостояние сетки",
+        "pt": "Drop Standby uso para 7W e 14W se HUB conectado com ACE como é mais preciso\nEstado de calor adicionado e autoModel (modo de operação do sistema) estado\nAdicionado possibilidade para definir o modo de operação (autoModel)\nFix grid estado do poder",
+        "nl": "Plaats standby gebruik naar 7W en 14W als HUB verbonden met ACE als het nauwkeuriger is\nToegevoegde warmtetoestand en autoModel (systeemmodus)\nToegevoegde mogelijkheid om de werkmodus in te stellen (autoModel)\nFix gridPower status",
+        "fr": "Déposer l'utilisation de standby à 7W et 14W si HUB connecté avec ACE car il est plus précis\nAjout de l'état de chaleur et du modèle automatique (mode de fonctionnement du système)\nAjout de la possibilité de définir le mode de fonctionnement (autoModèle)\nCorrection de l'état gridPower",
+        "it": "Drop Standby utilizzo a 7W e 14W se HUB collegato con ACE in quanto è più accurato\nAggiunta termostato e autoModel (modalità di funzionamento del sistema) stato\nAggiunta possibilità di impostare la modalità di funzionamento (autoModel)\nFissare la griglia",
+        "es": "Suelte el uso de Standby a 7W y 14W si HUB conectado con ACE ya que es más preciso\nEstado de calor añadido y autoModelo (modo de operación del sistema)\nMayor posibilidad de establecer el modo de operación (autoModel)\nEstado de la red fija",
+        "pl": "Drop Standby użycie 7W i 14W jeśli HUB podłączony z ACE, jak jest bardziej dokładne\nDodano stan heatState i autoModel (tryb pracy systemu)\nDodano możliwość ustawienia trybu pracy (autoModel)\nFix gridPower state",
+        "uk": "При підключенні HUB з ACE до 7W і 14W, якщо HUB з'єднаний з ACE, як це більш точний\nДодано режим роботи системи HeatState та AutoModel (режим роботи системи)\nДодано можливість встановити режим роботи (autoModel)\nФіксований стан живлення",
+        "zh-cn": "如果HUB与ACE连接, 则将备用使用降至7W和14W, 因为它更准确\n添加热态和自动模式(系统操作模式)状态\n添加设置操作模式的可能性( 自动模式)\n固定网格电源状态"
+      },
       "1.10.7": {
         "en": "Fix reset calculation values of ACE if connected to HUB",
         "de": "Reset-Berechnungswerte von ACE, wenn mit HUB verbunden",
