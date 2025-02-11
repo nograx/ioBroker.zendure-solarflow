@@ -21,6 +21,36 @@ export const createControlStates = async (
   });
 
   if (type != "smartPlug") {
+    // State zum Setzen des Betriebsmodus
+    await adapter?.extendObject(
+      `${productKey}.${deviceKey}.control.autoModel`,
+      {
+        type: "state",
+        common: {
+          name: {
+            de: "Energieplan-Einstellung",
+            en: "Energyplan",
+          },
+          type: "number",
+          desc: "autoModel",
+          role: "value",
+          read: true,
+          write: true,
+          states: {
+            0: "Nothing",
+            6: "Battery priority mode",
+            7: "Appointment mode",
+            8: "Smart Matching Mode",
+            9: "Smart CT Mode",
+            10: "Electricity Price",
+          },
+        },
+        native: {},
+      }
+    );
+
+    adapter?.subscribeStates(`${productKey}.${deviceKey}.control.autoModel`);
+
     // State zum Setzen des Charge Limit
     await adapter?.extendObject(
       `${productKey}.${deviceKey}.control.chargeLimit`,
@@ -93,6 +123,8 @@ export const createControlStates = async (
       }
     );
 
+    adapter?.subscribeStates(`${productKey}.${deviceKey}.control.buzzerSwitch`);
+
     if (
       type == "aio" ||
       type == "solarflow" ||
@@ -124,10 +156,6 @@ export const createControlStates = async (
       // Subcribe to control states
       adapter?.subscribeStates(
         `${productKey}.${deviceKey}.control.setOutputLimit`
-      );
-
-      adapter?.subscribeStates(
-        `${productKey}.${deviceKey}.control.buzzerSwitch`
       );
 
       // State zum Setzen des Bypass Modus

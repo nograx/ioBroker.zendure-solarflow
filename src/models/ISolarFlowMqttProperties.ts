@@ -45,6 +45,8 @@ export interface ISolarFlowMqttProperties {
   batteryElectric?: number;
   acMode?: number;
   hyperTmp?: number;
+  autoModel?: number;
+  heatState?: number;
   // ambientLightNess
   // ambientLightColor
   // ambientLightMode
@@ -53,9 +55,9 @@ export interface ISolarFlowMqttProperties {
   // solarInputPowerCycle
   // solarInputPowerCycle2
   // electricLevelCycle
-  // autoModel
+
   // autoHeat
-  // heatState
+  //
   // loraInvState
   // loraModuleState
   // invOutputPower
@@ -95,6 +97,7 @@ export const knownMqttProps = [
   "acOutputPower",
   "acSwitch",
   "dcSwitch",
+  "autoModel",
   "dcOutputPower",
   "packNum",
   "gridPower",

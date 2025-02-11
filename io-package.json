@@ -68,19 +68,6 @@
         "uk": "Фіксація \"Грідка вхідна потужність\" при підключенні з Ace",
         "zh-cn": "如果与 Ace 连接, 则修正“ Grid 输入功率” 状态"
       },
-      "1.10.2": {
-        "en": "Fix calculation of grid input power on ace\nCorrect standby usage of battery if conncted with ace (add additional 10W)",
-        "de": "Fixe Berechnung der Netzeingangsleistung auf Ace\nRichtige Standby-Nutzung der Batterie, wenn mit ace konncted (add zusätzliche 10W)",
-        "ru": "Исчисление сетки входной мощности на туз\nПравильное резервное использование аккумулятора, если он сложен с тузом (добавьте дополнительно 10W)",
-        "pt": "Corrigir o cálculo do poder de entrada da grade em ás\nUso correto de espera da bateria se conncted com ace (add adicional 10W)",
-        "nl": "Fix berekening van het ingangsvermogen van het net op aas\nCorrect stand-by-gebruik van de batterij indien verbonden met een aas (voeg nog 10W toe)",
-        "fr": "Calcul de la puissance d'entrée du réseau sur as\nUtilisation correcte en veille de la batterie si elle est connectée à un as (ajouter 10W supplémentaires)",
-        "it": "Fissare il calcolo della potenza di ingresso della griglia su ace\nCorretto uso standby della batteria se connessa con asso (add aggiuntivo 10W)",
-        "es": "Fijar el cálculo de la energía de entrada de la red en el as\nUso correcto de la reserva de la batería si se conncted con as (add adicional 10W)",
-        "pl": "Napraw obliczanie mocy wejściowej sieci na asie\nPrawidłowe korzystanie z akumulatora w trybie czuwania po połączeniu z asem (dodać dodatkowe 10W)",
-        "uk": "Фіксований розрахунок потужності вводу сітки на аце\nПравильне використання акумулятора в режимі очікування (додатково 10 Вт)",
-        "zh-cn": "固定 A 上的网格输入功率计算\n正确的备用电池使用,如果与 A 相连接(增加 10 W)"
-      },
       "1.10.1": {
         "en": "Fix input limit when hub is bundled with ace\nFix calculation when low voltage block is activated",
         "de": "Fix Eingabegrenze, wenn Nabe mit Spitze gebündelt wird\nFixberechnung bei aktiviertem Niederspannungsblock",

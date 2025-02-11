@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["../../src/models/ISolarflowState.ts"],
-  "sourcesContent": ["/* eslint-disable @typescript-eslint/indent */\nexport interface ISolarflowState {\n  title: string;\n  nameDe: string;\n  nameEn: string;\n  role: string;\n  type: ioBroker.CommonType; // Datentyp\n  unit?: string;\n  states?: string | string[] | Record<string, string> | undefined;\n}\n"],
+  "sourcesContent": ["/* eslint-disable @typescript-eslint/indent */\r\nexport interface ISolarflowState {\r\n  title: string;\r\n  nameDe: string;\r\n  nameEn: string;\r\n  role: string;\r\n  type: ioBroker.CommonType; // Datentyp\r\n  unit?: string;\r\n  states?: string | string[] | Record<string, string> | undefined;\r\n}\r\n"],
   "mappings": ";;;;;;;;;;;;;;AAAA;AAAA;",
   "names": []
 }

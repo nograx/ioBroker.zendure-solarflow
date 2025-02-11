@@ -261,6 +261,36 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
     );
 
     if (
+      obj.properties?.autoModel != null &&
+      obj.properties?.autoModel != undefined
+    ) {
+      updateSolarFlowState(
+        adapter,
+        productKey,
+        deviceKey,
+        "autoModel",
+        obj.properties.autoModel
+      );
+
+      updateSolarFlowControlState(
+        adapter,
+        productKey,
+        deviceKey,
+        "autoModel",
+        obj.properties.autoModel
+      );
+    }
+
+    if (
+      obj.properties?.heatState != null &&
+      obj.properties?.heatState != undefined
+    ) {
+      const value = obj.properties?.heatState == 0 ? false : true;
+
+      updateSolarFlowState(adapter, productKey, deviceKey, "heatState", value);
+    }
+
+    if (
       obj.properties?.electricLevel != null &&
       obj.properties?.electricLevel != undefined
     ) {
@@ -483,7 +513,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
       );
 
       if (solarInputPower && Number(solarInputPower.val) < 10) {
-        standbyUsage = 10 - Number(solarInputPower.val);
+        standbyUsage = 7 - Number(solarInputPower.val);
       }
 
       // Check if connected with Ace, if so add 10 Watt to standby usage!
@@ -492,7 +522,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
       );
 
       if (device && device._connectedWithAce) {
-        standbyUsage += 10;
+        standbyUsage += 7;
       }
 
       updateSolarFlowState(
@@ -732,7 +762,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         adapter,
         productKey,
         deviceKey,
-        "gridPower",
+        "gridInputPower",
         obj.properties.gridPower
       );
     }
@@ -1002,6 +1032,18 @@ export const setOutputLimit = async (
   limit: number
 ): Promise<void> => {
   if (adapter.mqttClient && productKey && deviceKey) {
+    // Check if autoModel is set to 0
+    const autoModel = (
+      await adapter.getStateAsync(productKey + "." + deviceKey + ".autoModel")
+    )?.val;
+
+    if (autoModel != 0) {
+      adapter.log.warn(
+        "Operation mode (autoModel) is not set to '0', we can't set the output limit!"
+      );
+      return;
+    }
+
     if (limit) {
       limit = Math.round(limit);
     } else {
@@ -1146,11 +1188,30 @@ export const setBuzzerSwitch = async (
   if (adapter.mqttClient && productKey && deviceKey) {
     const topic = `iot/${productKey}/${deviceKey}/properties/write`;
 
-    const socSetLimit = { properties: { buzzerSwitch: buzzerOn ? 1 : 0 } };
+    const setBuzzerSwitchContent = {
+      properties: { buzzerSwitch: buzzerOn ? 1 : 0 },
+    };
     adapter.log.debug(
       `[setBuzzer] Setting Buzzer for device key ${deviceKey} to ${buzzerOn}!`
     );
-    adapter.mqttClient?.publish(topic, JSON.stringify(socSetLimit));
+    adapter.mqttClient?.publish(topic, JSON.stringify(setBuzzerSwitchContent));
+  }
+};
+
+export const setAutoModel = async (
+  adapter: ZendureSolarflow,
+  productKey: string,
+  deviceKey: string,
+  autoModel: number
+): Promise<void> => {
+  if (adapter.mqttClient && productKey && deviceKey) {
+    const topic = `iot/${productKey}/${deviceKey}/properties/write`;
+
+    const setAutoModelContent = { properties: { autoModel: autoModel } };
+    adapter.log.debug(
+      `[setBuzzer] Setting autoModel for device key ${deviceKey} to ${autoModel}!`
+    );
+    adapter.mqttClient?.publish(topic, JSON.stringify(setAutoModelContent));
   }
 };
 

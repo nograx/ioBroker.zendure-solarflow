@@ -10,6 +10,7 @@ import {
   connectMqttClient,
   setAcMode,
   setAcSwitch,
+  setAutoModel,
   setAutoRecover,
   setBuzzerSwitch,
   setChargeLimit,
@@ -396,6 +397,8 @@ export class ZendureSolarflow extends utils.Adapter {
               setAcMode(this, productKey, deviceKey, Number(state.val));
             } else if (stateName2 == "hubState") {
               setHubState(this, productKey, deviceKey, Number(state.val));
+            } else if (stateName2 == "autoModel") {
+              setAutoModel(this, productKey, deviceKey, Number(state.val));
             } else if (stateName2 == "autoRecover") {
               setAutoRecover(
                 this,

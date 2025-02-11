@@ -197,6 +197,28 @@ const sharedStates = [
     nameEn: "Number of batteries",
     type: "number",
     role: "value"
+  },
+  {
+    title: "autoModel",
+    nameDe: "Energieplan-Einstellungen",
+    nameEn: "Energyplan settings",
+    type: "number",
+    role: "value",
+    states: {
+      0: "Nothing",
+      6: "Battery priority mode",
+      7: "Appointment mode",
+      8: "Smart Matching Mode",
+      9: "Smart CT Mode",
+      10: "Electricity Price"
+    }
+  },
+  {
+    title: "heatState",
+    nameDe: "W\xE4rmezustand",
+    nameEn: "Heat state",
+    type: "boolean",
+    role: "value"
   }
 ];
 // Annotate the CommonJS export names for ESM import in node:

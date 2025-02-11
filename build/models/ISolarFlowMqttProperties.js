@@ -52,6 +52,7 @@ const knownMqttProps = [
   "acOutputPower",
   "acSwitch",
   "dcSwitch",
+  "autoModel",
   "dcOutputPower",
   "packNum",
   "gridPower",

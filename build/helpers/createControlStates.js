@@ -34,6 +34,33 @@ const createControlStates = async (adapter, productKey, deviceKey, type) => {
   }));
   if (type != "smartPlug") {
     await (adapter == null ? void 0 : adapter.extendObject(
+      `${productKey}.${deviceKey}.control.autoModel`,
+      {
+        type: "state",
+        common: {
+          name: {
+            de: "Energieplan-Einstellung",
+            en: "Energyplan"
+          },
+          type: "number",
+          desc: "autoModel",
+          role: "value",
+          read: true,
+          write: true,
+          states: {
+            0: "Nothing",
+            6: "Battery priority mode",
+            7: "Appointment mode",
+            8: "Smart Matching Mode",
+            9: "Smart CT Mode",
+            10: "Electricity Price"
+          }
+        },
+        native: {}
+      }
+    ));
+    adapter == null ? void 0 : adapter.subscribeStates(`${productKey}.${deviceKey}.control.autoModel`);
+    await (adapter == null ? void 0 : adapter.extendObject(
       `${productKey}.${deviceKey}.control.chargeLimit`,
       {
         type: "state",
@@ -97,6 +124,7 @@ const createControlStates = async (adapter, productKey, deviceKey, type) => {
         native: {}
       }
     ));
+    adapter == null ? void 0 : adapter.subscribeStates(`${productKey}.${deviceKey}.control.buzzerSwitch`);
     if (type == "aio" || type == "solarflow" || type == "hyper" || type == "ace") {
       await (adapter == null ? void 0 : adapter.extendObject(
         `${productKey}.${deviceKey}.control.setOutputLimit`,
@@ -120,9 +148,6 @@ const createControlStates = async (adapter, productKey, deviceKey, type) => {
       ));
       adapter == null ? void 0 : adapter.subscribeStates(
         `${productKey}.${deviceKey}.control.setOutputLimit`
-      );
-      adapter == null ? void 0 : adapter.subscribeStates(
-        `${productKey}.${deviceKey}.control.buzzerSwitch`
       );
       await (adapter == null ? void 0 : adapter.extendObject(
         `${productKey}.${deviceKey}.control.passMode`,
