@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.11.0",
+    "version": "1.12.0-alpha.0",
     "news": {
+      "1.12.0-alpha.0": {
+        "en": "Added possibility to use \"local\" mode. You have to either route dns request to your own MQTT server or use a tool to modify the Zendure device",
+        "de": "Zusätzliche Möglichkeit, \"lokal\" Modus zu verwenden. Sie müssen entweder Route dns Anfrage an Ihren eigenen MQTT-Server oder verwenden Sie ein Tool, um das Zendure-Gerät zu ändern",
+        "ru": "Добавлена возможность использования «местного» режима. Вы должны либо направить запрос DNS на свой собственный сервер MQTT, либо использовать инструмент для изменения устройства Zendure",
+        "pt": "Adicionado possibilidade de usar o modo \"local\". Você tem que direcionar dns solicitar ao seu próprio servidor MQTT ou usar uma ferramenta para modificar o dispositivo Zendure",
+        "nl": "Toegevoegde mogelijkheid om \"lokale\" modus te gebruiken. U moet een dns-verzoek naar uw eigen MQTT-server routeren of een hulpmiddel gebruiken om het Zendure-apparaat te wijzigen",
+        "fr": "Possibilité d'utiliser le mode \"local\". Vous devez soit router dns demander à votre propre serveur MQTT ou utiliser un outil pour modifier le périphérique Zendure",
+        "it": "Aggiunta possibilità di usare la modalità \"locale\". È necessario che il dns di route richieda al proprio server MQTT o utilizzi uno strumento per modificare il dispositivo Zendure",
+        "es": "Se agregó la posibilidad de usar el modo \"local\". Usted tiene que solicitar a su propio servidor MQTT o utilizar una herramienta para modificar el dispositivo Zendure",
+        "pl": "Dodano możliwość użycia trybu \"lokalnego\". Musisz albo zwrócić się z prośbą do własnego serwera MQTT, albo użyć narzędzia do modyfikacji urządzenia Zhamb",
+        "uk": "Додана можливість використання \"локального\" режиму. Щоб змінити пристрій Zendure",
+        "zh-cn": "添加了使用\"本地\"模式的可能性. 您需要向自己的 MQTT 服务器请求路由 dns 或使用工具修改 Zendure 设备"
+      },
       "1.11.0": {
         "en": "Drop Standby usage to 7W and 14W if HUB connected with ACE as it is more accurate\nAdded heatState and autoModel (system operation mode) state\nAdded possibility to set the operation mode (autoModel)\nFix gridPower state",
         "de": "Drop Standby-Nutzung auf 7W und 14W, wenn HUB mit ACE verbunden, da es genauer ist\nHinzugefügt HeatState und AutoModel (Systembetriebsmodus) Zustand\nMöglichkeit zur Einstellung des Betriebsmodus (autoModel)\nNetzPower Zustand",
@@ -80,19 +93,6 @@
         "pl": "Napraw stan \"Grid Input Power\" w przypadku połączenia z Asem",
         "uk": "Фіксація \"Грідка вхідна потужність\" при підключенні з Ace",
         "zh-cn": "如果与 Ace 连接, 则修正“ Grid 输入功率” 状态"
-      },
-      "1.10.1": {
-        "en": "Fix input limit when hub is bundled with ace\nFix calculation when low voltage block is activated",
-        "de": "Fix Eingabegrenze, wenn Nabe mit Spitze gebündelt wird\nFixberechnung bei aktiviertem Niederspannungsblock",
-        "ru": "Исправление лимита ввода, когда хаб соединен с тузом\nИсчисление ix при активации блока низкого напряжения",
-        "pt": "Corrigir limite de entrada quando o hub é empacotado com ace\nCorrigir cálculo quando o bloco de baixa tensão é ativado",
-        "nl": "Fix ingang limiet wanneer hub is gebundeld met aas\nFix berekening wanneer laagspanningsblok wordt geactiveerd",
-        "fr": "Fixer la limite d'entrée lorsque le hub est livré avec as\nCorrection du calcul lorsque le bloc basse tension est activé",
-        "it": "Fissare il limite di ingresso quando il mozzo è in bundle con ace\nFissare il calcolo quando si attiva il blocco a bassa tensione",
-        "es": "Fijar el límite de entrada cuando el hub está empaquetado con as\nCálculo de fijación cuando se activa el bloque de baja tensión",
-        "pl": "Popraw limit wejścia, gdy piasta jest połączona z asem\nObliczenie fix po uruchomieniu bloku niskiego napięcia",
-        "uk": "Фіксований ліміт вводу при введенні хаба\nФіксований розрахунок при активації блоку низької напруги",
-        "zh-cn": "与 A 捆绑时固定输入限制\n启动低压块时固定计算"
       }
     },
     "titleLang": {

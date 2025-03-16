@@ -48,8 +48,7 @@ If you find the adapter useful for you and want to support my work, feel free to
 Credits goes to https://github.com/reinhard-brandstaedter/solarflow which helped a lot with the knowledge about the MQTT server from Zendure! Thanks!
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 1.12.0-alpha.0 (2025-03-16)
 
 - Added possibility to use "local" mode. You have to either route dns request to your own MQTT server or use a tool to modify the Zendure device
 
