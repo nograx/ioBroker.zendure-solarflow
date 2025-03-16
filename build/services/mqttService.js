@@ -29,7 +29,8 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 var mqttService_exports = {};
 __export(mqttService_exports, {
   addOrUpdatePackData: () => addOrUpdatePackData,
-  connectMqttClient: () => connectMqttClient,
+  connectCloudMqttClient: () => connectCloudMqttClient,
+  connectLocalMqttClient: () => connectLocalMqttClient,
   setAcMode: () => setAcMode,
   setAcSwitch: () => setAcSwitch,
   setAutoModel: () => setAutoModel,
@@ -49,6 +50,7 @@ var mqtt = __toESM(require("mqtt"));
 var import_adapterService = require("./adapterService");
 var import_calculationService = require("./calculationService");
 var import_jobSchedule = require("./jobSchedule");
+var import_createSolarFlowLocalStates = require("../helpers/createSolarFlowLocalStates");
 let adapter = void 0;
 const addOrUpdatePackData = async (productKey, deviceKey, packData, isSolarFlow) => {
   if (adapter && productKey && deviceKey) {
@@ -921,11 +923,11 @@ const onSubscribeIotTopic = (error, productKey, deviceKey) => {
     triggerFullTelemetryUpdate(adapter, productKey, deviceKey);
   }
 };
-const connectMqttClient = (_adapter) => {
+const connectCloudMqttClient = (_adapter) => {
   var _a, _b;
   adapter = _adapter;
   if (!((_a = adapter.paths) == null ? void 0 : _a.mqttPassword)) {
-    adapter.log.error(`[connectMqttClient] MQTT Password is missing!`);
+    adapter.log.error(`[connectCloudMqttClient] MQTT Password is missing!`);
     return;
   }
   const mqttPassword = atob((_b = adapter.paths) == null ? void 0 : _b.mqttPassword);
@@ -938,7 +940,7 @@ const connectMqttClient = (_adapter) => {
   };
   if (mqtt && adapter && adapter.paths && adapter.deviceList) {
     adapter.log.debug(
-      `[connectMqttClient] Connecting to MQTT broker ${adapter.paths.mqttUrl + ":" + adapter.paths.mqttPort}...`
+      `[connectCloudMqttClient] Connecting to MQTT broker ${adapter.paths.mqttUrl + ":" + adapter.paths.mqttPort}...`
     );
     adapter.mqttClient = mqtt.connect(
       "mqtt://" + adapter.paths.mqttUrl + ":" + adapter.paths.mqttPort,
@@ -962,7 +964,7 @@ const connectMqttClient = (_adapter) => {
                 var _a2;
                 if (adapter) {
                   adapter.log.debug(
-                    `[connectMqttClient] Subscribing to MQTT Topic: ${reportTopic}`
+                    `[connectCloudMqttClient] Subscribing to MQTT Topic: ${reportTopic}`
                   );
                   (_a2 = adapter.mqttClient) == null ? void 0 : _a2.subscribe(
                     reportTopic,
@@ -977,7 +979,7 @@ const connectMqttClient = (_adapter) => {
                 () => {
                   var _a2;
                   adapter == null ? void 0 : adapter.log.debug(
-                    `[connectMqttClient] Subscribing to MQTT Topic: ${iotTopic}`
+                    `[connectCloudMqttClient] Subscribing to MQTT Topic: ${iotTopic}`
                   );
                   (_a2 = adapter == null ? void 0 : adapter.mqttClient) == null ? void 0 : _a2.subscribe(iotTopic, (error) => {
                     onSubscribeIotTopic(
@@ -999,7 +1001,7 @@ const connectMqttClient = (_adapter) => {
                     var _a2;
                     if (adapter) {
                       adapter.log.debug(
-                        `[connectMqttClient] Subscribing to MQTT Topic: ${reportTopic2}`
+                        `[connectCloudMqttClient] Subscribing to MQTT Topic: ${reportTopic2}`
                       );
                       (_a2 = adapter.mqttClient) == null ? void 0 : _a2.subscribe(
                         reportTopic2,
@@ -1010,7 +1012,7 @@ const connectMqttClient = (_adapter) => {
                   setTimeout(() => {
                     var _a2;
                     adapter == null ? void 0 : adapter.log.debug(
-                      `[connectMqttClient] Subscribing to MQTT Topic: ${iotTopic2}`
+                      `[connectCloudMqttClient] Subscribing to MQTT Topic: ${iotTopic2}`
                     );
                     (_a2 = adapter == null ? void 0 : adapter.mqttClient) == null ? void 0 : _a2.subscribe(iotTopic2, (error) => {
                       onSubscribeIotTopic(
@@ -1035,10 +1037,68 @@ const connectMqttClient = (_adapter) => {
     }
   }
 };
+const connectLocalMqttClient = (_adapter) => {
+  adapter = _adapter;
+  const options = {
+    clientId: "bla"
+  };
+  if (mqtt && adapter && adapter.config && adapter.config.localMqttUrl) {
+    adapter.log.debug(
+      `[connectLocalMqttClient] Connecting to MQTT broker ${adapter.config.localMqttUrl + ":1883"}...`
+    );
+    adapter.mqttClient = mqtt.connect(
+      "mqtt://" + adapter.config.localMqttUrl + ":1883",
+      options
+    );
+    if (adapter && adapter.mqttClient) {
+      adapter.mqttClient.on("connect", onConnected);
+      adapter.mqttClient.on("error", onError);
+      adapter.setState("info.connection", true, true);
+      if (adapter.config.localDevice1ProductKey && adapter.config.localDevice1DeviceKey) {
+        (0, import_createSolarFlowLocalStates.createSolarFlowLocalStates)(
+          adapter,
+          adapter.config.localDevice1ProductKey,
+          adapter.config.localDevice1DeviceKey
+        );
+        const reportTopic = `/${adapter.config.localDevice1ProductKey}/${adapter.config.localDevice1DeviceKey}/#`;
+        const iotTopic = `iot/${adapter.config.localDevice1ProductKey}/${adapter.config.localDevice1DeviceKey}/`;
+        setTimeout(() => {
+          var _a;
+          if (adapter) {
+            adapter.log.debug(
+              `[connectLocalMqttClient] Subscribing to MQTT Topic: ${reportTopic}`
+            );
+            (_a = adapter.mqttClient) == null ? void 0 : _a.subscribe(reportTopic, onSubscribeReportTopic);
+          }
+        }, 1e3);
+        setTimeout(() => {
+          var _a;
+          adapter == null ? void 0 : adapter.log.debug(
+            `[connectLocalMqttClient] Subscribing to MQTT Topic: ${iotTopic}`
+          );
+          (_a = adapter == null ? void 0 : adapter.mqttClient) == null ? void 0 : _a.subscribe(iotTopic, (error) => {
+            onSubscribeIotTopic(
+              error,
+              adapter == null ? void 0 : adapter.config.localDevice1ProductKey,
+              adapter == null ? void 0 : adapter.config.localDevice1DeviceKey
+            );
+          });
+        }, 2e3);
+      }
+      adapter.mqttClient.on("message", onMessage);
+      (0, import_jobSchedule.startResetValuesJob)(adapter);
+      (0, import_jobSchedule.startCheckStatesAndConnectionJob)(adapter);
+      if (adapter.config.useCalculation) {
+        (0, import_jobSchedule.startCalculationJob)(adapter);
+      }
+    }
+  }
+};
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   addOrUpdatePackData,
-  connectMqttClient,
+  connectCloudMqttClient,
+  connectLocalMqttClient,
   setAcMode,
   setAcSwitch,
   setAutoModel,

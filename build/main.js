@@ -113,7 +113,10 @@ class ZendureSolarflow extends utils.Adapter {
     }
     this.log.debug("[onReady] Using server " + this.config.server);
     this.setState("info.errorMessage", "", true);
-    if (this.config.useFallbackService && this.config.snNumber) {
+    if (this.config.server == "local") {
+      this.log.debug("[onReady] Using local MQTT server");
+      (0, import_mqttService.connectLocalMqttClient)(this);
+    } else if (this.config.useFallbackService && this.config.snNumber) {
       this.log.debug("[onReady] Using Fallback Mode (Dev-Server)");
       (0, import_fallbackWebService.createDeveloperAccount)(this).then((data) => {
         if (data.appKey && data.mqttUrl && data.port && data.secret) {
@@ -219,7 +222,7 @@ class ZendureSolarflow extends utils.Adapter {
                 }
               }
             );
-            (0, import_mqttService.connectMqttClient)(this);
+            (0, import_mqttService.connectCloudMqttClient)(this);
           }
         }).catch(() => {
           var _a;

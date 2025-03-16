@@ -45,22 +45,32 @@ const startResetValuesJob = async (adapter) => {
 };
 const startCalculationJob = async (adapter) => {
   adapter.calculationJob = (0, import_node_schedule.scheduleJob)("*/30 * * * * *", () => {
-    adapter.deviceList.forEach((device) => {
-      if (device.productKey != "s3Xk4x") {
-        (0, import_calculationService.calculateEnergy)(adapter, device.productKey, device.deviceKey);
-        if (device.packList && device.packList.length > 0) {
-          device.packList.forEach(async (subDevice) => {
-            if (subDevice.productName.toLocaleLowerCase() == "ace 1500") {
-              (0, import_calculationService.calculateEnergy)(
-                adapter,
-                subDevice.productKey,
-                subDevice.deviceKey
-              );
-            }
-          });
-        }
+    if (adapter.config.server == "local") {
+      if (adapter.config.localDevice1ProductKey && adapter.config.localDevice1DeviceKey) {
+        (0, import_calculationService.calculateEnergy)(
+          adapter,
+          adapter.config.localDevice1ProductKey,
+          adapter.config.localDevice1DeviceKey
+        );
       }
-    });
+    } else {
+      adapter.deviceList.forEach((device) => {
+        if (device.productKey != "s3Xk4x") {
+          (0, import_calculationService.calculateEnergy)(adapter, device.productKey, device.deviceKey);
+          if (device.packList && device.packList.length > 0) {
+            device.packList.forEach(async (subDevice) => {
+              if (subDevice.productName.toLocaleLowerCase() == "ace 1500") {
+                (0, import_calculationService.calculateEnergy)(
+                  adapter,
+                  subDevice.productKey,
+                  subDevice.deviceKey
+                );
+              }
+            });
+          }
+        }
+      });
+    }
   });
 };
 const startCheckStatesAndConnectionJob = async (adapter) => {

@@ -22,7 +22,7 @@ __export(createCalculationStates_exports, {
 });
 module.exports = __toCommonJS(createCalculationStates_exports);
 const createCalculationStates = async (adapter, productKey, deviceKey, type) => {
-  if (type == "hyper" || type == "ace" || type == "solarflow") {
+  if (type == "aio" || type == "hyper" || type == "ace" || type == "solarflow") {
     await (adapter == null ? void 0 : adapter.extendObject(
       `${productKey}.${deviceKey}.calculations.gridInputEnergyTodayWh`,
       {

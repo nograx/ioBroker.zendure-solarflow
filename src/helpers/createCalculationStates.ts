@@ -7,7 +7,12 @@ export const createCalculationStates = async (
   deviceKey: string,
   type: string
 ): Promise<void> => {
-  if (type == "hyper" || type == "ace" || type == "solarflow") {
+  if (
+    type == "aio" ||
+    type == "hyper" ||
+    type == "ace" ||
+    type == "solarflow"
+  ) {
     await adapter?.extendObject(
       `${productKey}.${deviceKey}.calculations.gridInputEnergyTodayWh`,
       {

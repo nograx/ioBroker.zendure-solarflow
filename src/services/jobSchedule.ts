@@ -1,52 +1,8 @@
 /* eslint-disable @typescript-eslint/indent */
 import { scheduleJob } from "node-schedule";
 import { ZendureSolarflow } from "../main";
-/* import { connectMqttClient } from "./mqttService";
-import { login } from "./webService"; */
 import { ISolarFlowDeviceDetails } from "../models/ISolarFlowDeviceDetails";
 import { calculateEnergy, resetTodaysValues } from "./calculationService";
-
-/* const refreshAccessToken = async (adapter: ZendureSolarflow): Promise<void> => {
-  // Relogin every 3 hours to get a fresh accessToken!
-  adapter.log.info(`[startRefreshAccessTokenTimerJob] Stop connections!`);
-
-  // Scheduler beenden
-  if (adapter.resetValuesJob) {
-    adapter.resetValuesJob.cancel();
-  }
-
-  if (adapter.checkStatesJob) {
-    adapter.checkStatesJob?.cancel();
-  }
-
-  if (adapter.calculationJob) {
-    adapter.calculationJob.cancel();
-  }
-
-  if (adapter.mqttClient) {
-    adapter.mqttClient.end();
-  }
-
-  adapter.log.info(
-    `[startRefreshAccessTokenTimerJob] Refreshing accessToken in 10 seconds!`,
-  );
-  await adapter.delay(10 * 1000);
-
-  adapter.resetValuesJob = undefined;
-  adapter.checkStatesJob = undefined;
-  adapter.calculationJob = undefined;
-  adapter.mqttClient = undefined;
-
-  if (adapter.config.userName && adapter.config.password) {
-    login(adapter)?.then((_accessToken: string) => {
-      adapter.accessToken = _accessToken;
-      adapter.lastLogin = new Date();
-      adapter.setState("info.connection", true, true);
-
-      connectMqttClient(adapter);
-    });
-  }
-}; */
 
 export const startRefreshAccessTokenTimerJob = async (
   adapter: ZendureSolarflow
@@ -77,24 +33,37 @@ export const startCalculationJob = async (
   adapter: ZendureSolarflow
 ): Promise<void> => {
   adapter.calculationJob = scheduleJob("*/30 * * * * *", () => {
-    adapter.deviceList.forEach((device) => {
-      if (device.productKey != "s3Xk4x") {
-        calculateEnergy(adapter, device.productKey, device.deviceKey);
-
-        // Check if connected with ACE, then calculate also for ACE device
-        if (device.packList && device.packList.length > 0) {
-          device.packList.forEach(async (subDevice) => {
-            if (subDevice.productName.toLocaleLowerCase() == "ace 1500") {
-              calculateEnergy(
-                adapter,
-                subDevice.productKey,
-                subDevice.deviceKey
-              );
-            }
-          });
-        }
+    if (adapter.config.server == "local") {
+      if (
+        adapter.config.localDevice1ProductKey &&
+        adapter.config.localDevice1DeviceKey
+      ) {
+        calculateEnergy(
+          adapter,
+          adapter.config.localDevice1ProductKey,
+          adapter.config.localDevice1DeviceKey
+        );
       }
-    });
+    } else {
+      adapter.deviceList.forEach((device) => {
+        if (device.productKey != "s3Xk4x") {
+          calculateEnergy(adapter, device.productKey, device.deviceKey);
+
+          // Check if connected with ACE, then calculate also for ACE device
+          if (device.packList && device.packList.length > 0) {
+            device.packList.forEach(async (subDevice) => {
+              if (subDevice.productName.toLocaleLowerCase() == "ace 1500") {
+                calculateEnergy(
+                  adapter,
+                  subDevice.productKey,
+                  subDevice.deviceKey
+                );
+              }
+            });
+          }
+        }
+      });
+    }
   });
 };
 

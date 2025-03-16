@@ -9,8 +9,9 @@
   "fullChargeIfNeeded": "Auf 100% laden wenn Zendure SOC bei Erreichen der kritischen Spannung größer 50%.",
   "dischargeLimit": "Entladungsgrenze",
   "sn": "Seriennummer",
-  "eu": "EU",
-  "global": "Global",
+  "eu": "EU (Zendure App Cloud)",
+  "global": "Global (Zendure App Cloud)",
+  "local": "Lokaler Mqtt Server",
   "setOutputLimit": "Setzen des Output Limit",
   "socSet": "Definierte SOC Obergrenze",
   "remainOutTime": "Verbleibende Entladezeit in Sekunden",
@@ -31,5 +32,11 @@
   "enterPassword": "Bitte ein Passwort eingeben!",
   "useFallbackService": "Fallback benutzen (Zum Developer MQTT Server verbinden - Read Only!)",
   "snNumber": "Seriennummer eines Solarflow Gerätes",
-  "enterSnNumber": "Bitte eine Seriennummer angeben!"
+  "enterSnNumber": "Bitte eine Seriennummer angeben!",
+  "HUB 1200": "HUB 1200",
+  "HUB 2000": "HUB 2000",
+  "Hyper 2000": "Hyper 2000",
+  "Ace 1500": "Ace 1500",
+  "AIO 2400": "AIO 2400",
+  "localMqttUrl": "Lokale MQTT Server URL/IP"
 }

@@ -15,6 +15,7 @@ import {
   startCheckStatesAndConnectionJob,
   startResetValuesJob,
 } from "./jobSchedule";
+import { createSolarFlowLocalStates } from "../helpers/createSolarFlowLocalStates";
 
 let adapter: ZendureSolarflow | undefined = undefined;
 
@@ -1334,11 +1335,11 @@ const onSubscribeIotTopic: any = (
   }
 };
 
-export const connectMqttClient = (_adapter: ZendureSolarflow): void => {
+export const connectCloudMqttClient = (_adapter: ZendureSolarflow): void => {
   adapter = _adapter;
 
   if (!adapter.paths?.mqttPassword) {
-    adapter.log.error(`[connectMqttClient] MQTT Password is missing!`);
+    adapter.log.error(`[connectCloudMqttClient] MQTT Password is missing!`);
     return;
   }
 
@@ -1354,7 +1355,7 @@ export const connectMqttClient = (_adapter: ZendureSolarflow): void => {
 
   if (mqtt && adapter && adapter.paths && adapter.deviceList) {
     adapter.log.debug(
-      `[connectMqttClient] Connecting to MQTT broker ${
+      `[connectCloudMqttClient] Connecting to MQTT broker ${
         adapter.paths.mqttUrl + ":" + adapter.paths.mqttPort
       }...`
     );
@@ -1366,16 +1367,6 @@ export const connectMqttClient = (_adapter: ZendureSolarflow): void => {
     if (adapter && adapter.mqttClient) {
       adapter.mqttClient.on("connect", onConnected);
       adapter.mqttClient.on("error", onError);
-
-      /* const appTopic = `/server/app/${adapter.userId}/#`;
-      setTimeout(() => {
-        if (adapter) {
-          adapter.log.debug(
-            `[connectMqttClient] Subscribing to MQTT Topic: ${appTopic}`
-          );
-          adapter.mqttClient?.subscribe(appTopic, onSubscribeReportTopic);
-        }
-      }, 1000); */
 
       // Subscribe to Topic (appkey von Zendure)
       adapter.deviceList.forEach(
@@ -1395,7 +1386,7 @@ export const connectMqttClient = (_adapter: ZendureSolarflow): void => {
               () => {
                 if (adapter) {
                   adapter.log.debug(
-                    `[connectMqttClient] Subscribing to MQTT Topic: ${reportTopic}`
+                    `[connectCloudMqttClient] Subscribing to MQTT Topic: ${reportTopic}`
                   );
                   adapter.mqttClient?.subscribe(
                     reportTopic,
@@ -1410,7 +1401,7 @@ export const connectMqttClient = (_adapter: ZendureSolarflow): void => {
               setTimeout(
                 () => {
                   adapter?.log.debug(
-                    `[connectMqttClient] Subscribing to MQTT Topic: ${iotTopic}`
+                    `[connectCloudMqttClient] Subscribing to MQTT Topic: ${iotTopic}`
                   );
                   adapter?.mqttClient?.subscribe(iotTopic, (error) => {
                     onSubscribeIotTopic(
@@ -1434,7 +1425,7 @@ export const connectMqttClient = (_adapter: ZendureSolarflow): void => {
                   setTimeout(() => {
                     if (adapter) {
                       adapter.log.debug(
-                        `[connectMqttClient] Subscribing to MQTT Topic: ${reportTopic}`
+                        `[connectCloudMqttClient] Subscribing to MQTT Topic: ${reportTopic}`
                       );
                       adapter.mqttClient?.subscribe(
                         reportTopic,
@@ -1445,7 +1436,7 @@ export const connectMqttClient = (_adapter: ZendureSolarflow): void => {
 
                   setTimeout(() => {
                     adapter?.log.debug(
-                      `[connectMqttClient] Subscribing to MQTT Topic: ${iotTopic}`
+                      `[connectCloudMqttClient] Subscribing to MQTT Topic: ${iotTopic}`
                     );
                     adapter?.mqttClient?.subscribe(iotTopic, (error) => {
                       onSubscribeIotTopic(
@@ -1461,6 +1452,85 @@ export const connectMqttClient = (_adapter: ZendureSolarflow): void => {
           }
         }
       );
+
+      adapter.mqttClient.on("message", onMessage);
+
+      // Job starten die states in der Nacht zu resetten
+      startResetValuesJob(adapter);
+
+      // Job starten die States zu checken
+      startCheckStatesAndConnectionJob(adapter);
+
+      // Calculation Job starten sofern aktiviert
+      if (adapter.config.useCalculation) {
+        startCalculationJob(adapter);
+      }
+    }
+  }
+};
+
+export const connectLocalMqttClient = (_adapter: ZendureSolarflow): void => {
+  adapter = _adapter;
+
+  const options: mqtt.IClientOptions = {
+    clientId: "bla",
+  };
+
+  if (mqtt && adapter && adapter.config && adapter.config.localMqttUrl) {
+    adapter.log.debug(
+      `[connectLocalMqttClient] Connecting to MQTT broker ${
+        adapter.config.localMqttUrl + ":" + 1883
+      }...`
+    );
+    adapter.mqttClient = mqtt.connect(
+      "mqtt://" + adapter.config.localMqttUrl + ":" + 1883,
+      options
+    ); // create a client
+
+    if (adapter && adapter.mqttClient) {
+      adapter.mqttClient.on("connect", onConnected);
+      adapter.mqttClient.on("error", onError);
+
+      adapter.setState("info.connection", true, true);
+
+      // Subscribe to all devices in local settings
+      if (
+        adapter.config.localDevice1ProductKey &&
+        adapter.config.localDevice1DeviceKey
+      ) {
+        // Create states and subscribe device 1
+        createSolarFlowLocalStates(
+          adapter,
+          adapter.config.localDevice1ProductKey,
+          adapter.config.localDevice1DeviceKey
+        );
+
+        // Subscribe device 1 // /yWF7hV/JaqhMbJ2/properties/report
+        const reportTopic = `/${adapter.config.localDevice1ProductKey}/${adapter.config.localDevice1DeviceKey}/#`;
+        const iotTopic = `iot/${adapter.config.localDevice1ProductKey}/${adapter.config.localDevice1DeviceKey}/`;
+
+        setTimeout(() => {
+          if (adapter) {
+            adapter.log.debug(
+              `[connectLocalMqttClient] Subscribing to MQTT Topic: ${reportTopic}`
+            );
+            adapter.mqttClient?.subscribe(reportTopic, onSubscribeReportTopic);
+          }
+        }, 1000);
+
+        setTimeout(() => {
+          adapter?.log.debug(
+            `[connectLocalMqttClient] Subscribing to MQTT Topic: ${iotTopic}`
+          );
+          adapter?.mqttClient?.subscribe(iotTopic, (error) => {
+            onSubscribeIotTopic(
+              error,
+              adapter?.config.localDevice1ProductKey,
+              adapter?.config.localDevice1DeviceKey
+            );
+          });
+        }, 2000);
+      }
 
       adapter.mqttClient.on("message", onMessage);
 

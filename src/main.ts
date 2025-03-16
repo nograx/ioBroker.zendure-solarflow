@@ -7,7 +7,8 @@
 // you need to create an adapter
 import * as utils from "@iobroker/adapter-core";
 import {
-  connectMqttClient,
+  connectCloudMqttClient,
+  connectLocalMqttClient,
   setAcMode,
   setAcSwitch,
   setAutoModel,
@@ -122,7 +123,11 @@ export class ZendureSolarflow extends utils.Adapter {
 
     this.setState("info.errorMessage", "", true);
 
-    if (this.config.useFallbackService && this.config.snNumber) {
+    if (this.config.server == "local") {
+      this.log.debug("[onReady] Using local MQTT server");
+
+      connectLocalMqttClient(this);
+    } else if (this.config.useFallbackService && this.config.snNumber) {
       this.log.debug("[onReady] Using Fallback Mode (Dev-Server)");
       // Use Fallback service. Using the developer version of the MQTT and Webservice from zendure
       createDeveloperAccount(this).then((data: ISolarFlowDevRegisterData) => {
@@ -282,7 +287,7 @@ export class ZendureSolarflow extends utils.Adapter {
                 }
               );
 
-              connectMqttClient(this);
+              connectCloudMqttClient(this);
             }
           })
           .catch(() => {

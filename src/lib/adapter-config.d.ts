@@ -5,9 +5,13 @@
 declare global {
   namespace ioBroker {
     interface AdapterConfig {
-      server: string; // EU or global
+      server: string; // EU, global or local mqtt
       userName: string;
       password: string;
+      localMqttUrl: string;
+      localMqttPort: number;
+      localDevice1ProductKey: string;
+      localDevice1DeviceKey: string;
       useCalculation: boolean;
       useLowVoltageBlock: boolean;
       forceShutdownOnLowVoltage: boolean;

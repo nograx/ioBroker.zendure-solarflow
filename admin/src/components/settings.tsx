@@ -72,7 +72,7 @@ function Settings(props: SettingsProps) {
     props.onChange("password", password);
   }, [password]);
 
-  function renderInput(attr: string, type: string) {
+  function renderInput(attr: string, type: string, placeholder?: string) {
     return (
       <TextField
         autoComplete="off"
@@ -81,6 +81,7 @@ function Settings(props: SettingsProps) {
         type={type || "text"}
         onChange={(e) => props.onChange(attr, e.target.value)}
         margin="normal"
+        placeholder={placeholder}
       />
     );
   }
@@ -176,36 +177,81 @@ function Settings(props: SettingsProps) {
             {renderSelect("server", [
               { value: "global", title: "global" },
               { value: "eu", title: "eu" },
+              { value: "local", title: "local" },
             ])}
           </div>
         </div>
 
-        <div>{renderCheckbox("useFallbackService", "useFallbackService")}</div>
+        {props.native["server"] != "local" && (
+          <div>
+            {renderCheckbox("useFallbackService", "useFallbackService")}
+          </div>
+        )}
 
-        <div style={{ marginTop: 10 }}>
-          <FormLabel>{I18n.t("userName")}:</FormLabel>
-          <div>{renderInput("userName", "text")}</div>
-        </div>
-
-        {(props.native["useFallbackService"] == undefined ||
-          props.native["useFallbackService"] == null ||
-          props.native["useFallbackService"] == false) && (
+        {props.native["server"] != "local" && (
           <div style={{ marginTop: 10 }}>
-            <FormLabel>{I18n.t("password")}:</FormLabel>
             <div>
-              <TextField
-                autoComplete="off"
-                className={`${props.classes.input} ${props.classes.controlElement}`}
-                value={password}
-                type={"password"}
-                onChange={(e) => setPassword(e.target.value)}
-                margin="normal"
-              />
+              <FormLabel>{I18n.t("userName")}:</FormLabel>
             </div>
+            <div>{renderInput("userName", "text")}</div>
+          </div>
+        )}
 
-            {password == "" && (
-              <div style={{ color: "red" }}>{I18n.t("enterPassword")}</div>
-            )}
+        {props.native["server"] == "local" && (
+          <div style={{ marginTop: 10 }}>
+            <div>
+              <FormLabel>{I18n.t("localMqttUrl")}:</FormLabel>
+            </div>
+            <div>{renderInput("localMqttUrl", "text")}</div>
+          </div>
+        )}
+
+        {props.native["server"] != "local" &&
+          (props.native["useFallbackService"] == undefined ||
+            props.native["useFallbackService"] == null ||
+            props.native["useFallbackService"] == false) && (
+            <div style={{ marginTop: 10 }}>
+              <FormLabel>{I18n.t("password")}:</FormLabel>
+              <div>
+                <TextField
+                  autoComplete="off"
+                  className={`${props.classes.input} ${props.classes.controlElement}`}
+                  value={password}
+                  type={"password"}
+                  onChange={(e) => setPassword(e.target.value)}
+                  margin="normal"
+                />
+              </div>
+
+              {password == "" && props.native["server"] != "local" && (
+                <div style={{ color: "red" }}>{I18n.t("enterPassword")}</div>
+              )}
+            </div>
+          )}
+
+        {props.native["server"] == "local" && (
+          <div style={{ marginTop: 10 }}>
+            {/* Device 1 Settings  */}
+            <FormLabel>Device 1:</FormLabel>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                verticalAlign: "middle",
+              }}
+            >
+              {renderSelect("localDevice1ProductKey", [
+                { value: "73bkTV", title: "HUB 1200" },
+                { value: "A8yh63", title: "HUB 2000" },
+                { value: "yWF7hV", title: "AIO 2400" },
+                { value: "ja72U0ha", title: "Hyper 2000" },
+                { value: "8bM93H", title: "Ace 1500" },
+              ])}
+
+              <div style={{ marginLeft: 10 }}>
+                {renderInput("localDevice1DeviceKey", "text", "Device Key")}
+              </div>
+            </div>
           </div>
         )}
 
