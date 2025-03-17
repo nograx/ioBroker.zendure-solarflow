@@ -953,7 +953,7 @@ const subscribeReportTopic = (productKey, deviceKey, timeout) => {
   }, timeout);
 };
 const subscribeIotTopic = (productKey, deviceKey, timeout) => {
-  const iotTopic = `iot/${productKey}/${deviceKey}/`;
+  const iotTopic = `iot/${productKey}/${deviceKey}/#`;
   setTimeout(() => {
     var _a;
     adapter == null ? void 0 : adapter.log.debug(

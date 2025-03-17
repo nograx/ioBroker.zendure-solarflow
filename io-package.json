@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.12.0",
+    "version": "1.12.1",
     "news": {
+      "1.12.1": {
+        "en": "Fix IOT subscription",
+        "de": "IOT-Abonnement festsetzen",
+        "ru": "Исправить подписку IOT",
+        "pt": "Corrigir assinatura IOT",
+        "nl": "IOT-abonnement repareren",
+        "fr": "Correction de l'abonnement IOT",
+        "it": "Fissa l'abbonamento IOT",
+        "es": "Suscripción fija IOT",
+        "pl": "Napraw subskrypcję IOT",
+        "uk": "Виправлення підписки IOT",
+        "zh-cn": "修复IOT订阅"
+      },
       "1.12.0": {
         "en": "Added possibility to use \"local\" mode. You have to either route dns request to your own MQTT server or use a tool to modify the Zendure device\nSome improvements on value calculation\nSome improvements on AIO 2400 device",
         "de": "Zusätzliche Möglichkeit, \"lokal\" Modus zu verwenden. Sie müssen entweder Route dns Anfrage an Ihren eigenen MQTT-Server oder verwenden Sie ein Tool, um das Zendure-Gerät zu ändern\nEinige Verbesserungen bei der Wertberechnung\nEinige Verbesserungen am AIO 2400 Gerät",
@@ -69,19 +82,6 @@
         "zh-cn": "如果 HUB 与 Ace 连接, 则固定开始计算"
       },
       "1.10.4": {
-        "en": "Fix \"Grid Input Power\" state if connected with Ace",
-        "de": "Fix \"Grid Input Power\" Zustand, wenn mit Ace verbunden",
-        "ru": "Fix \"Grid Input Power\" в случае подключения к Ace",
-        "pt": "Fix \"Grid Input Power\" estado se conectado com Ace",
-        "nl": "Fix \"Grid Input Power\" status indien verbonden met Ace",
-        "fr": "Correction de l'état \"Grid Input Power\" si connecté avec Ace",
-        "it": "Fissare lo stato \"Grid Input Power\" se collegato con Ace",
-        "es": "Fijar el estado de \"Grid Input Power\" si está conectado con Ace",
-        "pl": "Napraw stan \"Grid Input Power\" w przypadku połączenia z Asem",
-        "uk": "Фіксація \"Грідка вхідна потужність\" при підключенні з Ace",
-        "zh-cn": "如果与 Ace 连接, 则修正“ Grid 输入功率” 状态"
-      },
-      "1.10.3": {
         "en": "Fix \"Grid Input Power\" state if connected with Ace",
         "de": "Fix \"Grid Input Power\" Zustand, wenn mit Ace verbunden",
         "ru": "Fix \"Grid Input Power\" в случае подключения к Ace",
