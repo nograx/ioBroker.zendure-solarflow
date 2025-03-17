@@ -57,6 +57,11 @@ You can still do firmware updates with the official Zendure app via bluetooth an
 Credits goes to https://github.com/reinhard-brandstaedter/solarflow which helped a lot with the knowledge about the MQTT server from Zendure! Thanks!
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Fix IOT subscription
+
 ### 1.12.0 (2025-03-17)
 
 - Added possibility to use "local" mode. You have to either route dns request to your own MQTT server or use a tool to modify the Zendure device

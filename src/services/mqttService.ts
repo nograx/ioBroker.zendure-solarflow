@@ -1375,7 +1375,7 @@ export const subscribeIotTopic = (
   deviceKey: string,
   timeout: number
 ): void => {
-  const iotTopic = `iot/${productKey}/${deviceKey}/`;
+  const iotTopic = `iot/${productKey}/${deviceKey}/#`;
 
   setTimeout(() => {
     adapter?.log.debug(
