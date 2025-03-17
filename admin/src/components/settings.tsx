@@ -255,6 +255,33 @@ function Settings(props: SettingsProps) {
           </div>
         )}
 
+        {props.native["server"] == "local" &&
+          props.native["localDevice1DeviceKey"] && (
+            <div style={{ marginTop: 10 }}>
+              {/* Device 1 Settings  */}
+              <FormLabel>Device 2:</FormLabel>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  verticalAlign: "middle",
+                }}
+              >
+                {renderSelect("localDevice2ProductKey", [
+                  { value: "73bkTV", title: "HUB 1200" },
+                  { value: "A8yh63", title: "HUB 2000" },
+                  { value: "yWF7hV", title: "AIO 2400" },
+                  { value: "ja72U0ha", title: "Hyper 2000" },
+                  { value: "8bM93H", title: "Ace 1500" },
+                ])}
+
+                <div style={{ marginLeft: 10 }}>
+                  {renderInput("localDevice2DeviceKey", "text", "Device Key")}
+                </div>
+              </div>
+            </div>
+          )}
+
         {props.native["useFallbackService"] == true && (
           <div style={{ marginTop: 10 }}>
             <FormLabel>{I18n.t("snNumber")}:</FormLabel>

@@ -2,6 +2,7 @@
 import { IPackData } from "./IPackData";
 
 export interface IMqttData {
+  timestamp?: number;
   properties?: ISolarFlowMqttProperties;
   packData?: IPackData[];
   power?: number;

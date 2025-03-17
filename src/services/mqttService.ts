@@ -32,7 +32,9 @@ export const addOrUpdatePackData = async (
         // Create channel (e.g. the device specific key)
         // We can determine the type of the battery by the SN number.
         let batType = "";
-        if (x.sn.startsWith("C")) {
+        if (productKey == "yWF7hV") {
+          batType = "AIO2400";
+        } else if (x.sn.startsWith("C")) {
           // It's a AB2000
           batType = "AB2000";
         } else if (x.sn.startsWith("A")) {
@@ -243,6 +245,22 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
     const productName = await adapter.getStateAsync(
       `${productKey}.${deviceKey}.productName`
     );
+
+    if (obj.timestamp) {
+      const currentTimeStamp = new Date().getTime() / 1000;
+      const diff = currentTimeStamp - obj.timestamp;
+
+      if (diff > 600) {
+        // Timestamp older than 5 Minutens, device is offline!
+        updateSolarFlowState(
+          adapter,
+          productKey,
+          deviceKey,
+          "wifiState",
+          "Disconnected"
+        );
+      }
+    }
 
     // Check if device is an solarflow or hyper device. Don't use LowVoltageBlock on an ACE device?
     if (
@@ -1335,6 +1353,40 @@ const onSubscribeIotTopic: any = (
   }
 };
 
+export const subscribeReportTopic = (
+  productKey: string,
+  deviceKey: string,
+  timeout: number
+): void => {
+  const reportTopic = `/${productKey}/${deviceKey}/#`;
+
+  setTimeout(() => {
+    if (adapter) {
+      adapter.log.debug(
+        `[subscribeReportTopic] Subscribing to MQTT Topic: ${reportTopic}`
+      );
+      adapter.mqttClient?.subscribe(reportTopic, onSubscribeReportTopic);
+    }
+  }, timeout);
+};
+
+export const subscribeIotTopic = (
+  productKey: string,
+  deviceKey: string,
+  timeout: number
+): void => {
+  const iotTopic = `iot/${productKey}/${deviceKey}/`;
+
+  setTimeout(() => {
+    adapter?.log.debug(
+      `[subscribeIotTopic] Subscribing to MQTT Topic: ${iotTopic}`
+    );
+    adapter?.mqttClient?.subscribe(iotTopic, (error) => {
+      onSubscribeIotTopic(error, productKey, deviceKey);
+    });
+  }, timeout);
+};
+
 export const connectCloudMqttClient = (_adapter: ZendureSolarflow): void => {
   adapter = _adapter;
 
@@ -1374,44 +1426,28 @@ export const connectCloudMqttClient = (_adapter: ZendureSolarflow): void => {
           if (adapter) {
             let connectIot = true;
 
-            let reportTopic = `/${device.productKey}/${device.deviceKey}/#`;
-            const iotTopic = `iot/${device.productKey}/${device.deviceKey}/#`;
-
             if (device.productKey == "s3Xk4x") {
-              reportTopic = `/server/app/${adapter.userId}/${device.id}/smart/power`;
+              const smartPlugReportTopic = `/server/app/${adapter.userId}/${device.id}/smart/power`;
+
+              adapter.mqttClient?.subscribe(
+                smartPlugReportTopic,
+                onSubscribeReportTopic
+              );
+
               connectIot = false;
             }
 
-            setTimeout(
-              () => {
-                if (adapter) {
-                  adapter.log.debug(
-                    `[connectCloudMqttClient] Subscribing to MQTT Topic: ${reportTopic}`
-                  );
-                  adapter.mqttClient?.subscribe(
-                    reportTopic,
-                    onSubscribeReportTopic
-                  );
-                }
-              },
-              1000 * index + 1
+            subscribeReportTopic(
+              device.productKey,
+              device.deviceKey,
+              1000 * index
             );
 
             if (connectIot) {
-              setTimeout(
-                () => {
-                  adapter?.log.debug(
-                    `[connectCloudMqttClient] Subscribing to MQTT Topic: ${iotTopic}`
-                  );
-                  adapter?.mqttClient?.subscribe(iotTopic, (error) => {
-                    onSubscribeIotTopic(
-                      error,
-                      device.productKey,
-                      device.deviceKey
-                    );
-                  });
-                },
-                1500 * index + 1
+              subscribeIotTopic(
+                device.productKey,
+                device.deviceKey,
+                1000 * index
               );
             }
 
@@ -1419,33 +1455,17 @@ export const connectCloudMqttClient = (_adapter: ZendureSolarflow): void => {
             if (device.packList && device.packList.length > 0) {
               device.packList.forEach(async (subDevice) => {
                 if (subDevice.productName.toLocaleLowerCase() == "ace 1500") {
-                  const reportTopic = `/${subDevice.productKey}/${subDevice.deviceKey}/properties/report`;
-                  const iotTopic = `iot/${subDevice.productKey}/${subDevice.deviceKey}/#`;
+                  subscribeReportTopic(
+                    subDevice.productKey,
+                    subDevice.deviceKey,
+                    1000 * index
+                  );
 
-                  setTimeout(() => {
-                    if (adapter) {
-                      adapter.log.debug(
-                        `[connectCloudMqttClient] Subscribing to MQTT Topic: ${reportTopic}`
-                      );
-                      adapter.mqttClient?.subscribe(
-                        reportTopic,
-                        onSubscribeReportTopic
-                      );
-                    }
-                  }, 1000 * index);
-
-                  setTimeout(() => {
-                    adapter?.log.debug(
-                      `[connectCloudMqttClient] Subscribing to MQTT Topic: ${iotTopic}`
-                    );
-                    adapter?.mqttClient?.subscribe(iotTopic, (error) => {
-                      onSubscribeIotTopic(
-                        error,
-                        subDevice.productKey,
-                        subDevice.deviceKey
-                      );
-                    });
-                  }, 1500 * index);
+                  subscribeIotTopic(
+                    subDevice.productKey,
+                    subDevice.deviceKey,
+                    2000 * index
+                  );
                 }
               });
             }
@@ -1473,7 +1493,7 @@ export const connectLocalMqttClient = (_adapter: ZendureSolarflow): void => {
   adapter = _adapter;
 
   const options: mqtt.IClientOptions = {
-    clientId: "bla",
+    clientId: "ioBroker.zendure-solarflow." + adapter.instance,
   };
 
   if (mqtt && adapter && adapter.config && adapter.config.localMqttUrl) {
@@ -1493,7 +1513,7 @@ export const connectLocalMqttClient = (_adapter: ZendureSolarflow): void => {
 
       adapter.setState("info.connection", true, true);
 
-      // Subscribe to all devices in local settings
+      // Subscribe to 1. device from local settings
       if (
         adapter.config.localDevice1ProductKey &&
         adapter.config.localDevice1DeviceKey
@@ -1505,31 +1525,42 @@ export const connectLocalMqttClient = (_adapter: ZendureSolarflow): void => {
           adapter.config.localDevice1DeviceKey
         );
 
-        // Subscribe device 1 // /yWF7hV/JaqhMbJ2/properties/report
-        const reportTopic = `/${adapter.config.localDevice1ProductKey}/${adapter.config.localDevice1DeviceKey}/#`;
-        const iotTopic = `iot/${adapter.config.localDevice1ProductKey}/${adapter.config.localDevice1DeviceKey}/`;
+        subscribeReportTopic(
+          adapter.config.localDevice1ProductKey,
+          adapter.config.localDevice1DeviceKey,
+          1000
+        );
 
-        setTimeout(() => {
-          if (adapter) {
-            adapter.log.debug(
-              `[connectLocalMqttClient] Subscribing to MQTT Topic: ${reportTopic}`
-            );
-            adapter.mqttClient?.subscribe(reportTopic, onSubscribeReportTopic);
-          }
-        }, 1000);
+        subscribeIotTopic(
+          adapter.config.localDevice1ProductKey,
+          adapter.config.localDevice1DeviceKey,
+          1000
+        );
+      }
 
-        setTimeout(() => {
-          adapter?.log.debug(
-            `[connectLocalMqttClient] Subscribing to MQTT Topic: ${iotTopic}`
-          );
-          adapter?.mqttClient?.subscribe(iotTopic, (error) => {
-            onSubscribeIotTopic(
-              error,
-              adapter?.config.localDevice1ProductKey,
-              adapter?.config.localDevice1DeviceKey
-            );
-          });
-        }, 2000);
+      // Subscribe to 2. device from local settings
+      if (
+        adapter.config.localDevice2ProductKey &&
+        adapter.config.localDevice2DeviceKey
+      ) {
+        // Create states and subscribe device 2
+        createSolarFlowLocalStates(
+          adapter,
+          adapter.config.localDevice2ProductKey,
+          adapter.config.localDevice2DeviceKey
+        );
+
+        subscribeReportTopic(
+          adapter.config.localDevice1ProductKey,
+          adapter.config.localDevice1DeviceKey,
+          2000
+        );
+
+        subscribeIotTopic(
+          adapter.config.localDevice1ProductKey,
+          adapter.config.localDevice1DeviceKey,
+          2000
+        );
       }
 
       adapter.mqttClient.on("message", onMessage);

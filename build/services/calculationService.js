@@ -93,7 +93,7 @@ const calculateSocAndEnergy = async (adapter, productKey, deviceKey, stateKey, v
   const currentMaxValue = Number(
     currentEnergyMaxState ? currentEnergyMaxState.val : 0
   );
-  const currentValue = (currentEnergyState == null ? void 0 : currentEnergyState.val) ? Number(currentEnergyState == null ? void 0 : currentEnergyState.val) : 0;
+  const currentEnergyWh = (currentEnergyState == null ? void 0 : currentEnergyState.val) ? Number(currentEnergyState == null ? void 0 : currentEnergyState.val) : 0;
   const batteries = adapter.pack2Devices.filter(
     (x) => x.deviceKey == deviceKey
   );
@@ -112,27 +112,27 @@ const calculateSocAndEnergy = async (adapter, productKey, deviceKey, stateKey, v
       }
     }
   }
-  let newValue = stateKey == "outputPack" ? currentValue + value : currentValue - value;
-  if (stateKey == "outputPack" && newValue > energyWhMax) {
-    newValue = energyWhMax;
+  let newEnergyWh = stateKey == "outputPack" ? currentEnergyWh + value : currentEnergyWh - value;
+  if (stateKey == "outputPack" && newEnergyWh > energyWhMax) {
+    newEnergyWh = energyWhMax;
   }
-  if (newValue > 0) {
+  if (newEnergyWh > 0) {
     adapter == null ? void 0 : adapter.setState(
       `${productKey}.${deviceKey}.calculations.energyWh`,
-      newValue,
+      newEnergyWh,
       true
     );
     if (currentEnergyMaxState) {
-      const soc = Number((newValue / currentMaxValue * 100).toFixed(1));
+      const soc = Number((newEnergyWh / currentMaxValue * 100).toFixed(1));
       await (adapter == null ? void 0 : adapter.setState(
         `${productKey}.${deviceKey}.calculations.soc`,
         soc > 100 ? 100 : soc,
         true
       ));
-      if (newValue > currentMaxValue && !(lowVoltageBlock == null ? void 0 : lowVoltageBlock.val)) {
+      if (newEnergyWh > currentMaxValue && !(lowVoltageBlock == null ? void 0 : lowVoltageBlock.val)) {
         await (adapter == null ? void 0 : adapter.setState(
           `${productKey}.${deviceKey}.calculations.energyWhMax`,
-          newValue,
+          newEnergyWh,
           true
         ));
       }
@@ -143,7 +143,7 @@ const calculateSocAndEnergy = async (adapter, productKey, deviceKey, stateKey, v
         productKey + "." + deviceKey + ".packInputPower"
       ));
       if (stateKey == "outputPack" && (currentOutputPackPower == null ? void 0 : currentOutputPackPower.val) != null && currentOutputPackPower != void 0) {
-        const toCharge = currentMaxValue - newValue;
+        const toCharge = currentMaxValue - newEnergyWh;
         const remainHoursAsDecimal = toCharge / Number(currentOutputPackPower.val);
         if (remainHoursAsDecimal < 48) {
           const remainFormatted = (0, import_timeHelper.toHoursAndMinutes)(
@@ -162,7 +162,7 @@ const calculateSocAndEnergy = async (adapter, productKey, deviceKey, stateKey, v
           ));
         }
       } else if (stateKey == "packInput" && currentPackInputPower != null && currentPackInputPower != void 0) {
-        const remainHoursAsDecimal = newValue / Number(currentPackInputPower.val);
+        const remainHoursAsDecimal = newEnergyWh / Number(currentPackInputPower.val);
         const remainFormatted = (0, import_timeHelper.toHoursAndMinutes)(
           Math.round(remainHoursAsDecimal * 60)
         );
@@ -181,18 +181,26 @@ const calculateSocAndEnergy = async (adapter, productKey, deviceKey, stateKey, v
         }
       }
     }
-  } else if (newValue <= 0 && stateKey == "outputPack") {
+  } else if (newEnergyWh <= 0 && stateKey == "outputPack") {
     await (adapter == null ? void 0 : adapter.setState(
       `${productKey}.${deviceKey}.calculations.remainInputTime`,
       "",
       true
     ));
-  } else if (newValue <= 0 && stateKey == "packInput") {
+  } else if (newEnergyWh <= 0 && stateKey == "packInput") {
     await (adapter == null ? void 0 : adapter.setState(
       `${productKey}.${deviceKey}.calculations.remainOutTime`,
       "",
       true
     ));
+    const newEnergyWhPositive = Math.abs(newEnergyWh);
+    if (currentMaxValue + newEnergyWhPositive <= energyWhMax) {
+      await (adapter == null ? void 0 : adapter.setState(
+        `${productKey}.${deviceKey}.calculations.energyWhMax`,
+        currentMaxValue + newEnergyWhPositive,
+        true
+      ));
+    }
   }
 };
 const calculateEnergy = async (adapter, productKey, deviceKey) => {

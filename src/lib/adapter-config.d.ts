@@ -12,6 +12,8 @@ declare global {
       localMqttPort: number;
       localDevice1ProductKey: string;
       localDevice1DeviceKey: string;
+      localDevice2ProductKey: string;
+      localDevice2DeviceKey: string;
       useCalculation: boolean;
       useLowVoltageBlock: boolean;
       forceShutdownOnLowVoltage: boolean;

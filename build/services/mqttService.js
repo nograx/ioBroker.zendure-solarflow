@@ -43,6 +43,8 @@ __export(mqttService_exports, {
   setInputLimit: () => setInputLimit,
   setOutputLimit: () => setOutputLimit,
   setPassMode: () => setPassMode,
+  subscribeIotTopic: () => subscribeIotTopic,
+  subscribeReportTopic: () => subscribeReportTopic,
   triggerFullTelemetryUpdate: () => triggerFullTelemetryUpdate
 });
 module.exports = __toCommonJS(mqttService_exports);
@@ -57,7 +59,9 @@ const addOrUpdatePackData = async (productKey, deviceKey, packData, isSolarFlow)
     await packData.forEach(async (x) => {
       if (x.sn && adapter) {
         let batType = "";
-        if (x.sn.startsWith("C")) {
+        if (productKey == "yWF7hV") {
+          batType = "AIO2400";
+        } else if (x.sn.startsWith("C")) {
           batType = "AB2000";
         } else if (x.sn.startsWith("A")) {
           batType = "AB1000";
@@ -228,6 +232,19 @@ const onMessage = async (topic, message) => {
     const productName = await adapter.getStateAsync(
       `${productKey}.${deviceKey}.productName`
     );
+    if (obj.timestamp) {
+      const currentTimeStamp = (/* @__PURE__ */ new Date()).getTime() / 1e3;
+      const diff = currentTimeStamp - obj.timestamp;
+      if (diff > 600) {
+        (0, import_adapterService.updateSolarFlowState)(
+          adapter,
+          productKey,
+          deviceKey,
+          "wifiState",
+          "Disconnected"
+        );
+      }
+    }
     if (((_a = productName == null ? void 0 : productName.val) == null ? void 0 : _a.toString().toLowerCase().includes("solarflow")) || ((_b = productName == null ? void 0 : productName.val) == null ? void 0 : _b.toString().toLowerCase().includes("hyper"))) {
       isSolarFlow = true;
     }
@@ -923,6 +940,30 @@ const onSubscribeIotTopic = (error, productKey, deviceKey) => {
     triggerFullTelemetryUpdate(adapter, productKey, deviceKey);
   }
 };
+const subscribeReportTopic = (productKey, deviceKey, timeout) => {
+  const reportTopic = `/${productKey}/${deviceKey}/#`;
+  setTimeout(() => {
+    var _a;
+    if (adapter) {
+      adapter.log.debug(
+        `[subscribeReportTopic] Subscribing to MQTT Topic: ${reportTopic}`
+      );
+      (_a = adapter.mqttClient) == null ? void 0 : _a.subscribe(reportTopic, onSubscribeReportTopic);
+    }
+  }, timeout);
+};
+const subscribeIotTopic = (productKey, deviceKey, timeout) => {
+  const iotTopic = `iot/${productKey}/${deviceKey}/`;
+  setTimeout(() => {
+    var _a;
+    adapter == null ? void 0 : adapter.log.debug(
+      `[subscribeIotTopic] Subscribing to MQTT Topic: ${iotTopic}`
+    );
+    (_a = adapter == null ? void 0 : adapter.mqttClient) == null ? void 0 : _a.subscribe(iotTopic, (error) => {
+      onSubscribeIotTopic(error, productKey, deviceKey);
+    });
+  }, timeout);
+};
 const connectCloudMqttClient = (_adapter) => {
   var _a, _b;
   adapter = _adapter;
@@ -951,77 +992,42 @@ const connectCloudMqttClient = (_adapter) => {
       adapter.mqttClient.on("error", onError);
       adapter.deviceList.forEach(
         (device, index) => {
+          var _a2;
           if (adapter) {
             let connectIot = true;
-            let reportTopic = `/${device.productKey}/${device.deviceKey}/#`;
-            const iotTopic = `iot/${device.productKey}/${device.deviceKey}/#`;
             if (device.productKey == "s3Xk4x") {
-              reportTopic = `/server/app/${adapter.userId}/${device.id}/smart/power`;
+              const smartPlugReportTopic = `/server/app/${adapter.userId}/${device.id}/smart/power`;
+              (_a2 = adapter.mqttClient) == null ? void 0 : _a2.subscribe(
+                smartPlugReportTopic,
+                onSubscribeReportTopic
+              );
               connectIot = false;
             }
-            setTimeout(
-              () => {
-                var _a2;
-                if (adapter) {
-                  adapter.log.debug(
-                    `[connectCloudMqttClient] Subscribing to MQTT Topic: ${reportTopic}`
-                  );
-                  (_a2 = adapter.mqttClient) == null ? void 0 : _a2.subscribe(
-                    reportTopic,
-                    onSubscribeReportTopic
-                  );
-                }
-              },
-              1e3 * index + 1
+            subscribeReportTopic(
+              device.productKey,
+              device.deviceKey,
+              1e3 * index
             );
             if (connectIot) {
-              setTimeout(
-                () => {
-                  var _a2;
-                  adapter == null ? void 0 : adapter.log.debug(
-                    `[connectCloudMqttClient] Subscribing to MQTT Topic: ${iotTopic}`
-                  );
-                  (_a2 = adapter == null ? void 0 : adapter.mqttClient) == null ? void 0 : _a2.subscribe(iotTopic, (error) => {
-                    onSubscribeIotTopic(
-                      error,
-                      device.productKey,
-                      device.deviceKey
-                    );
-                  });
-                },
-                1500 * index + 1
+              subscribeIotTopic(
+                device.productKey,
+                device.deviceKey,
+                1e3 * index
               );
             }
             if (device.packList && device.packList.length > 0) {
               device.packList.forEach(async (subDevice) => {
                 if (subDevice.productName.toLocaleLowerCase() == "ace 1500") {
-                  const reportTopic2 = `/${subDevice.productKey}/${subDevice.deviceKey}/properties/report`;
-                  const iotTopic2 = `iot/${subDevice.productKey}/${subDevice.deviceKey}/#`;
-                  setTimeout(() => {
-                    var _a2;
-                    if (adapter) {
-                      adapter.log.debug(
-                        `[connectCloudMqttClient] Subscribing to MQTT Topic: ${reportTopic2}`
-                      );
-                      (_a2 = adapter.mqttClient) == null ? void 0 : _a2.subscribe(
-                        reportTopic2,
-                        onSubscribeReportTopic
-                      );
-                    }
-                  }, 1e3 * index);
-                  setTimeout(() => {
-                    var _a2;
-                    adapter == null ? void 0 : adapter.log.debug(
-                      `[connectCloudMqttClient] Subscribing to MQTT Topic: ${iotTopic2}`
-                    );
-                    (_a2 = adapter == null ? void 0 : adapter.mqttClient) == null ? void 0 : _a2.subscribe(iotTopic2, (error) => {
-                      onSubscribeIotTopic(
-                        error,
-                        subDevice.productKey,
-                        subDevice.deviceKey
-                      );
-                    });
-                  }, 1500 * index);
+                  subscribeReportTopic(
+                    subDevice.productKey,
+                    subDevice.deviceKey,
+                    1e3 * index
+                  );
+                  subscribeIotTopic(
+                    subDevice.productKey,
+                    subDevice.deviceKey,
+                    2e3 * index
+                  );
                 }
               });
             }
@@ -1040,7 +1046,7 @@ const connectCloudMqttClient = (_adapter) => {
 const connectLocalMqttClient = (_adapter) => {
   adapter = _adapter;
   const options = {
-    clientId: "bla"
+    clientId: "ioBroker.zendure-solarflow." + adapter.instance
   };
   if (mqtt && adapter && adapter.config && adapter.config.localMqttUrl) {
     adapter.log.debug(
@@ -1060,30 +1066,33 @@ const connectLocalMqttClient = (_adapter) => {
           adapter.config.localDevice1ProductKey,
           adapter.config.localDevice1DeviceKey
         );
-        const reportTopic = `/${adapter.config.localDevice1ProductKey}/${adapter.config.localDevice1DeviceKey}/#`;
-        const iotTopic = `iot/${adapter.config.localDevice1ProductKey}/${adapter.config.localDevice1DeviceKey}/`;
-        setTimeout(() => {
-          var _a;
-          if (adapter) {
-            adapter.log.debug(
-              `[connectLocalMqttClient] Subscribing to MQTT Topic: ${reportTopic}`
-            );
-            (_a = adapter.mqttClient) == null ? void 0 : _a.subscribe(reportTopic, onSubscribeReportTopic);
-          }
-        }, 1e3);
-        setTimeout(() => {
-          var _a;
-          adapter == null ? void 0 : adapter.log.debug(
-            `[connectLocalMqttClient] Subscribing to MQTT Topic: ${iotTopic}`
-          );
-          (_a = adapter == null ? void 0 : adapter.mqttClient) == null ? void 0 : _a.subscribe(iotTopic, (error) => {
-            onSubscribeIotTopic(
-              error,
-              adapter == null ? void 0 : adapter.config.localDevice1ProductKey,
-              adapter == null ? void 0 : adapter.config.localDevice1DeviceKey
-            );
-          });
-        }, 2e3);
+        subscribeReportTopic(
+          adapter.config.localDevice1ProductKey,
+          adapter.config.localDevice1DeviceKey,
+          1e3
+        );
+        subscribeIotTopic(
+          adapter.config.localDevice1ProductKey,
+          adapter.config.localDevice1DeviceKey,
+          1e3
+        );
+      }
+      if (adapter.config.localDevice2ProductKey && adapter.config.localDevice2DeviceKey) {
+        (0, import_createSolarFlowLocalStates.createSolarFlowLocalStates)(
+          adapter,
+          adapter.config.localDevice2ProductKey,
+          adapter.config.localDevice2DeviceKey
+        );
+        subscribeReportTopic(
+          adapter.config.localDevice1ProductKey,
+          adapter.config.localDevice1DeviceKey,
+          2e3
+        );
+        subscribeIotTopic(
+          adapter.config.localDevice1ProductKey,
+          adapter.config.localDevice1DeviceKey,
+          2e3
+        );
       }
       adapter.mqttClient.on("message", onMessage);
       (0, import_jobSchedule.startResetValuesJob)(adapter);
@@ -1111,6 +1120,8 @@ const connectLocalMqttClient = (_adapter) => {
   setInputLimit,
   setOutputLimit,
   setPassMode,
+  subscribeIotTopic,
+  subscribeReportTopic,
   triggerFullTelemetryUpdate
 });
 //# sourceMappingURL=mqttService.js.map

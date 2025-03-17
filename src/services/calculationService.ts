@@ -111,7 +111,7 @@ export const calculateSocAndEnergy = async (
     currentEnergyMaxState ? currentEnergyMaxState.val : 0
   );
 
-  const currentValue = currentEnergyState?.val
+  const currentEnergyWh = currentEnergyState?.val
     ? Number(currentEnergyState?.val)
     : 0;
 
@@ -137,23 +137,26 @@ export const calculateSocAndEnergy = async (
     }
   }
 
-  let newValue =
-    stateKey == "outputPack" ? currentValue + value : currentValue - value;
+  // newValue is the current available energy in the batteries. If outputPack (charging) add value, if packInput (discharging) subtract value.
+  let newEnergyWh =
+    stateKey == "outputPack"
+      ? currentEnergyWh + value
+      : currentEnergyWh - value;
 
   // If greater than Max of batteries, set it to this value.
-  if (stateKey == "outputPack" && newValue > energyWhMax) {
-    newValue = energyWhMax;
+  if (stateKey == "outputPack" && newEnergyWh > energyWhMax) {
+    newEnergyWh = energyWhMax;
   }
 
-  if (newValue > 0) {
+  if (newEnergyWh > 0) {
     adapter?.setState(
       `${productKey}.${deviceKey}.calculations.energyWh`,
-      newValue,
+      newEnergyWh,
       true
     );
 
     if (currentEnergyMaxState) {
-      const soc = Number(((newValue / currentMaxValue) * 100).toFixed(1));
+      const soc = Number(((newEnergyWh / currentMaxValue) * 100).toFixed(1));
 
       await adapter?.setState(
         `${productKey}.${deviceKey}.calculations.soc`,
@@ -161,11 +164,11 @@ export const calculateSocAndEnergy = async (
         true
       );
 
-      if (newValue > currentMaxValue && !lowVoltageBlock?.val) {
+      if (newEnergyWh > currentMaxValue && !lowVoltageBlock?.val) {
         // Extend maxVal
         await adapter?.setState(
           `${productKey}.${deviceKey}.calculations.energyWhMax`,
-          newValue,
+          newEnergyWh,
           true
         );
       }
@@ -184,7 +187,7 @@ export const calculateSocAndEnergy = async (
         currentOutputPackPower != undefined
       ) {
         // Charging, calculate remaining charging time
-        const toCharge = currentMaxValue - newValue;
+        const toCharge = currentMaxValue - newEnergyWh;
 
         const remainHoursAsDecimal =
           toCharge / Number(currentOutputPackPower.val);
@@ -213,7 +216,7 @@ export const calculateSocAndEnergy = async (
       ) {
         // Discharging, calculate remaining discharge time
         const remainHoursAsDecimal =
-          newValue / Number(currentPackInputPower.val);
+          newEnergyWh / Number(currentPackInputPower.val);
         const remainFormatted = toHoursAndMinutes(
           Math.round(remainHoursAsDecimal * 60)
         );
@@ -233,21 +236,42 @@ export const calculateSocAndEnergy = async (
         }
       }
     }
-  } else if (newValue <= 0 && stateKey == "outputPack") {
+  } else if (newEnergyWh <= 0 && stateKey == "outputPack") {
     await adapter?.setState(
       `${productKey}.${deviceKey}.calculations.remainInputTime`,
       "",
       true
     );
-  } else if (newValue <= 0 && stateKey == "packInput") {
+  } else if (newEnergyWh <= 0 && stateKey == "packInput") {
     await adapter?.setState(
       `${productKey}.${deviceKey}.calculations.remainOutTime`,
       "",
       true
     );
+
+    // TEST: if SOC == 0, add newValue as positive to energyWhMax
+    const newEnergyWhPositive = Math.abs(newEnergyWh);
+
+    if (currentMaxValue + newEnergyWhPositive <= energyWhMax) {
+      await adapter?.setState(
+        `${productKey}.${deviceKey}.calculations.energyWhMax`,
+        currentMaxValue + newEnergyWhPositive,
+        true
+      );
+    }
   }
 };
 
+/**
+ * Calculates the energy for all items in 'calculationStateKeys'.
+ *
+ * @param adapter - The core adapter object
+ * @param productKey - The productKey of the device
+ * @param deviceKey - The device individual key
+ * @returns Promise<void>
+ *
+ * @beta
+ */
 export const calculateEnergy = async (
   adapter: ZendureSolarflow,
   productKey: string,
