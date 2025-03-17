@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.11.0",
+    "version": "1.12.0",
     "news": {
+      "1.12.0": {
+        "en": "Added possibility to use \"local\" mode. You have to either route dns request to your own MQTT server or use a tool to modify the Zendure device\nSome improvements on value calculation\nSome improvements on AIO 2400 device",
+        "de": "Zusätzliche Möglichkeit, \"lokal\" Modus zu verwenden. Sie müssen entweder Route dns Anfrage an Ihren eigenen MQTT-Server oder verwenden Sie ein Tool, um das Zendure-Gerät zu ändern\nEinige Verbesserungen bei der Wertberechnung\nEinige Verbesserungen am AIO 2400 Gerät",
+        "ru": "Добавлена возможность использования «местного» режима. Вы должны либо направить запрос DNS на свой собственный сервер MQTT, либо использовать инструмент для изменения устройства Zendure\nНекоторые улучшения в расчете стоимости\nНекоторые улучшения в устройстве AIO 2400",
+        "pt": "Adicionado possibilidade de usar o modo \"local\". Você tem que direcionar dns solicitar ao seu próprio servidor MQTT ou usar uma ferramenta para modificar o dispositivo Zendure\nAlgumas melhorias no cálculo do valor\nAlgumas melhorias no dispositivo AIO 2400",
+        "nl": "Toegevoegde mogelijkheid om \"lokale\" modus te gebruiken. U moet een dns-verzoek naar uw eigen MQTT-server routeren of een hulpmiddel gebruiken om het Zendure-apparaat te wijzigen\nEnkele verbeteringen in waardeberekening\nEnkele verbeteringen op AIO 2400 apparaat",
+        "fr": "Possibilité d'utiliser le mode \"local\". Vous devez soit router dns demander à votre propre serveur MQTT ou utiliser un outil pour modifier le périphérique Zendure\nQuelques améliorations dans le calcul de la valeur\nQuelques améliorations sur le périphérique AIO 2400",
+        "it": "Aggiunta possibilità di usare la modalità \"locale\". È necessario che il dns di route richieda al proprio server MQTT o utilizzi uno strumento per modificare il dispositivo Zendure\nAlcuni miglioramenti sul calcolo del valore\nAlcuni miglioramenti sul dispositivo AIO 2400",
+        "es": "Se agregó la posibilidad de usar el modo \"local\". Usted tiene que solicitar a su propio servidor MQTT o utilizar una herramienta para modificar el dispositivo Zendure\nAlgunas mejoras en el cálculo del valor\nAlgunas mejoras en el dispositivo AIO 2400",
+        "pl": "Dodano możliwość użycia trybu \"lokalnego\". Musisz albo zwrócić się z prośbą do własnego serwera MQTT, albo użyć narzędzia do modyfikacji urządzenia Zhamb\nPewne ulepszenia w zakresie obliczania wartości\nNiektóre ulepszenia na urządzeniu AIO 2400",
+        "uk": "Додана можливість використання \"локального\" режиму. Щоб змінити пристрій Zendure\nДеякі поліпшення розрахунку вартості\nДеякі удосконалення на пристрої AIO 2400",
+        "zh-cn": "添加了使用\"本地\"模式的可能性. 您需要向自己的 MQTT 服务器请求路由 dns 或使用工具修改 Zendure 设备\n价值计算方面的一些改进\nAIO 2400设备的一些改进"
+      },
       "1.11.0": {
         "en": "Drop Standby usage to 7W and 14W if HUB connected with ACE as it is more accurate\nAdded heatState and autoModel (system operation mode) state\nAdded possibility to set the operation mode (autoModel)\nFix gridPower state",
         "de": "Drop Standby-Nutzung auf 7W und 14W, wenn HUB mit ACE verbunden, da es genauer ist\nHinzugefügt HeatState und AutoModel (Systembetriebsmodus) Zustand\nMöglichkeit zur Einstellung des Betriebsmodus (autoModel)\nNetzPower Zustand",
