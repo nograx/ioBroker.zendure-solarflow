@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.12.1",
+    "version": "1.12.2",
     "news": {
+      "1.12.2": {
+        "en": "Fix reset of calculation values on \"local\" mode",
+        "de": "Reset von Berechnungswerten im \"lokalen\" Modus",
+        "ru": "Исправление сброса расчетных значений в «локальном» режиме",
+        "pt": "Corrigir redefinição de valores de cálculo no modo \"local\"",
+        "nl": "Reset van berekeningswaarden op \"lokale\" modus repareren",
+        "fr": "Correction de la remise des valeurs de calcul en mode \"local\"",
+        "it": "Ripristino dei valori di calcolo sulla modalità \"locale\"",
+        "es": "Fijar el reajuste de los valores de cálculo en modo \"local\"",
+        "pl": "Napraw resetowanie wartości obliczeniowych w trybie \"lokalnym\"",
+        "uk": "Виправлення значень розрахунку на режим «локального»",
+        "zh-cn": "修复“ 本地” 模式上的计算值"
+      },
       "1.12.1": {
         "en": "Fix IOT subscription",
         "de": "IOT-Abonnement festsetzen",
@@ -80,19 +93,6 @@
         "pl": "Popraw początek obliczeń, jeśli HUB jest połączony z Asem",
         "uk": "Виправлення запуску розрахунку, якщо HUB підключено до Ace",
         "zh-cn": "如果 HUB 与 Ace 连接, 则固定开始计算"
-      },
-      "1.10.4": {
-        "en": "Fix \"Grid Input Power\" state if connected with Ace",
-        "de": "Fix \"Grid Input Power\" Zustand, wenn mit Ace verbunden",
-        "ru": "Fix \"Grid Input Power\" в случае подключения к Ace",
-        "pt": "Fix \"Grid Input Power\" estado se conectado com Ace",
-        "nl": "Fix \"Grid Input Power\" status indien verbonden met Ace",
-        "fr": "Correction de l'état \"Grid Input Power\" si connecté avec Ace",
-        "it": "Fissare lo stato \"Grid Input Power\" se collegato con Ace",
-        "es": "Fijar el estado de \"Grid Input Power\" si está conectado con Ace",
-        "pl": "Napraw stan \"Grid Input Power\" w przypadku połączenia z Asem",
-        "uk": "Фіксація \"Грідка вхідна потужність\" при підключенні з Ace",
-        "zh-cn": "如果与 Ace 连接, 则修正“ Grid 输入功率” 状态"
       }
     },
     "titleLang": {

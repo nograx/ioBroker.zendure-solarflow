@@ -57,8 +57,7 @@ You can still do firmware updates with the official Zendure app via bluetooth an
 Credits goes to https://github.com/reinhard-brandstaedter/solarflow which helped a lot with the knowledge about the MQTT server from Zendure! Thanks!
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 1.12.2 (2025-03-18)
 
 - Fix reset of calculation values on "local" mode
 
