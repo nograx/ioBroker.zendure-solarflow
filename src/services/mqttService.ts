@@ -1551,14 +1551,64 @@ export const connectLocalMqttClient = (_adapter: ZendureSolarflow): void => {
         );
 
         subscribeReportTopic(
-          adapter.config.localDevice1ProductKey,
-          adapter.config.localDevice1DeviceKey,
+          adapter.config.localDevice2ProductKey,
+          adapter.config.localDevice2DeviceKey,
           2000
         );
 
         subscribeIotTopic(
-          adapter.config.localDevice1ProductKey,
-          adapter.config.localDevice1DeviceKey,
+          adapter.config.localDevice2ProductKey,
+          adapter.config.localDevice2DeviceKey,
+          2000
+        );
+      }
+
+      // Subscribe to 3. device from local settings
+      if (
+        adapter.config.localDevice3ProductKey &&
+        adapter.config.localDevice3DeviceKey
+      ) {
+        // Create states and subscribe device 2
+        createSolarFlowLocalStates(
+          adapter,
+          adapter.config.localDevice3ProductKey,
+          adapter.config.localDevice3DeviceKey
+        );
+
+        subscribeReportTopic(
+          adapter.config.localDevice3ProductKey,
+          adapter.config.localDevice3DeviceKey,
+          2000
+        );
+
+        subscribeIotTopic(
+          adapter.config.localDevice3ProductKey,
+          adapter.config.localDevice3DeviceKey,
+          2000
+        );
+      }
+
+      // Subscribe to 3. device from local settings
+      if (
+        adapter.config.localDevice4ProductKey &&
+        adapter.config.localDevice4DeviceKey
+      ) {
+        // Create states and subscribe device 2
+        createSolarFlowLocalStates(
+          adapter,
+          adapter.config.localDevice4ProductKey,
+          adapter.config.localDevice4DeviceKey
+        );
+
+        subscribeReportTopic(
+          adapter.config.localDevice4ProductKey,
+          adapter.config.localDevice4DeviceKey,
+          2000
+        );
+
+        subscribeIotTopic(
+          adapter.config.localDevice4ProductKey,
+          adapter.config.localDevice4DeviceKey,
           2000
         );
       }

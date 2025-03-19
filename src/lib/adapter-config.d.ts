@@ -14,6 +14,10 @@ declare global {
       localDevice1DeviceKey: string;
       localDevice2ProductKey: string;
       localDevice2DeviceKey: string;
+      localDevice3ProductKey: string;
+      localDevice3DeviceKey: string;
+      localDevice4ProductKey: string;
+      localDevice4DeviceKey: string;
       useCalculation: boolean;
       useLowVoltageBlock: boolean;
       forceShutdownOnLowVoltage: boolean;

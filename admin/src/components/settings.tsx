@@ -50,6 +50,14 @@ const styles = (): Record<string, CreateCSSProperties> => ({
   },
 });
 
+const productKeys: { value; title }[] = [
+  { value: "73bkTV", title: "HUB 1200" },
+  { value: "A8yh63", title: "HUB 2000" },
+  { value: "yWF7hV", title: "AIO 2400" },
+  { value: "ja72U0ha", title: "Hyper 2000" },
+  { value: "8bM93H", title: "Ace 1500" },
+];
+
 interface SettingsProps {
   app: GenericApp;
   classes: Record<string, string>;
@@ -240,13 +248,7 @@ function Settings(props: SettingsProps) {
                 verticalAlign: "middle",
               }}
             >
-              {renderSelect("localDevice1ProductKey", [
-                { value: "73bkTV", title: "HUB 1200" },
-                { value: "A8yh63", title: "HUB 2000" },
-                { value: "yWF7hV", title: "AIO 2400" },
-                { value: "ja72U0ha", title: "Hyper 2000" },
-                { value: "8bM93H", title: "Ace 1500" },
-              ])}
+              {renderSelect("localDevice1ProductKey", productKeys)}
 
               <div style={{ marginLeft: 10 }}>
                 {renderInput("localDevice1DeviceKey", "text", "Device Key")}
@@ -267,16 +269,52 @@ function Settings(props: SettingsProps) {
                   verticalAlign: "middle",
                 }}
               >
-                {renderSelect("localDevice2ProductKey", [
-                  { value: "73bkTV", title: "HUB 1200" },
-                  { value: "A8yh63", title: "HUB 2000" },
-                  { value: "yWF7hV", title: "AIO 2400" },
-                  { value: "ja72U0ha", title: "Hyper 2000" },
-                  { value: "8bM93H", title: "Ace 1500" },
-                ])}
+                {renderSelect("localDevice2ProductKey", productKeys)}
 
                 <div style={{ marginLeft: 10 }}>
                   {renderInput("localDevice2DeviceKey", "text", "Device Key")}
+                </div>
+              </div>
+            </div>
+          )}
+
+        {props.native["server"] == "local" &&
+          props.native["localDevice2DeviceKey"] && (
+            <div style={{ marginTop: 10 }}>
+              {/* Device 1 Settings  */}
+              <FormLabel>Device 3:</FormLabel>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  verticalAlign: "middle",
+                }}
+              >
+                {renderSelect("localDevice3ProductKey", productKeys)}
+
+                <div style={{ marginLeft: 10 }}>
+                  {renderInput("localDevice3DeviceKey", "text", "Device Key")}
+                </div>
+              </div>
+            </div>
+          )}
+
+        {props.native["server"] == "local" &&
+          props.native["localDevice3DeviceKey"] && (
+            <div style={{ marginTop: 10 }}>
+              {/* Device 1 Settings  */}
+              <FormLabel>Device 4:</FormLabel>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  verticalAlign: "middle",
+                }}
+              >
+                {renderSelect("localDevice4ProductKey", productKeys)}
+
+                <div style={{ marginLeft: 10 }}>
+                  {renderInput("localDevice4DeviceKey", "text", "Device Key")}
                 </div>
               </div>
             </div>

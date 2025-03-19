@@ -74,6 +74,9 @@ const setSocToZero = async (adapter, productKey, deviceKey) => {
 };
 const calculateSocAndEnergy = async (adapter, productKey, deviceKey, stateKey, value) => {
   var _a, _b, _c;
+  adapter.log.debug(
+    `[calculateSocAndEnergy] Calculating for: ${productKey}.${deviceKey} and stateKey ${stateKey}!`
+  );
   let energyWhMax = 0;
   const minSoc = (_a = await adapter.getStateAsync(`${productKey}.${deviceKey}.minSoc`)) == null ? void 0 : _a.val;
   const currentSoc = (_b = await adapter.getStateAsync(`${productKey}.${deviceKey}.electricLevel`)) == null ? void 0 : _b.val;
@@ -115,12 +118,18 @@ const calculateSocAndEnergy = async (adapter, productKey, deviceKey, stateKey, v
   let newEnergyWh = stateKey == "outputPack" ? currentEnergyWh + value : currentEnergyWh - value;
   if (stateKey == "outputPack" && newEnergyWh > energyWhMax) {
     newEnergyWh = energyWhMax;
+    adapter.log.debug(
+      `[calculateSocAndEnergy] newEnergyWh (${newEnergyWh}) is greater than energyWhMax (${energyWhMax}), don't extend value!`
+    );
   }
   if (newEnergyWh > 0) {
     adapter == null ? void 0 : adapter.setState(
       `${productKey}.${deviceKey}.calculations.energyWh`,
       newEnergyWh,
       true
+    );
+    adapter.log.debug(
+      `[calculateSocAndEnergy] set '${productKey}.${deviceKey}.calculations.energyWh' to ${newEnergyWh}!`
     );
     if (currentEnergyMaxState) {
       const soc = Number((newEnergyWh / currentMaxValue * 100).toFixed(1));
@@ -303,6 +312,20 @@ const resetTodaysValues = async (adapter) => {
         adapter,
         adapter.config.localDevice2ProductKey,
         adapter.config.localDevice2DeviceKey
+      );
+    }
+    if (adapter.config.localDevice3ProductKey && adapter.config.localDevice3DeviceKey) {
+      resetValuesForDevice(
+        adapter,
+        adapter.config.localDevice3ProductKey,
+        adapter.config.localDevice3DeviceKey
+      );
+    }
+    if (adapter.config.localDevice4ProductKey && adapter.config.localDevice4DeviceKey) {
+      resetValuesForDevice(
+        adapter,
+        adapter.config.localDevice4ProductKey,
+        adapter.config.localDevice4DeviceKey
       );
     }
   } else {

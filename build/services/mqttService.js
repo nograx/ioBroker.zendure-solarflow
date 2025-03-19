@@ -1084,13 +1084,47 @@ const connectLocalMqttClient = (_adapter) => {
           adapter.config.localDevice2DeviceKey
         );
         subscribeReportTopic(
-          adapter.config.localDevice1ProductKey,
-          adapter.config.localDevice1DeviceKey,
+          adapter.config.localDevice2ProductKey,
+          adapter.config.localDevice2DeviceKey,
           2e3
         );
         subscribeIotTopic(
-          adapter.config.localDevice1ProductKey,
-          adapter.config.localDevice1DeviceKey,
+          adapter.config.localDevice2ProductKey,
+          adapter.config.localDevice2DeviceKey,
+          2e3
+        );
+      }
+      if (adapter.config.localDevice3ProductKey && adapter.config.localDevice3DeviceKey) {
+        (0, import_createSolarFlowLocalStates.createSolarFlowLocalStates)(
+          adapter,
+          adapter.config.localDevice3ProductKey,
+          adapter.config.localDevice3DeviceKey
+        );
+        subscribeReportTopic(
+          adapter.config.localDevice3ProductKey,
+          adapter.config.localDevice3DeviceKey,
+          2e3
+        );
+        subscribeIotTopic(
+          adapter.config.localDevice3ProductKey,
+          adapter.config.localDevice3DeviceKey,
+          2e3
+        );
+      }
+      if (adapter.config.localDevice4ProductKey && adapter.config.localDevice4DeviceKey) {
+        (0, import_createSolarFlowLocalStates.createSolarFlowLocalStates)(
+          adapter,
+          adapter.config.localDevice4ProductKey,
+          adapter.config.localDevice4DeviceKey
+        );
+        subscribeReportTopic(
+          adapter.config.localDevice4ProductKey,
+          adapter.config.localDevice4DeviceKey,
+          2e3
+        );
+        subscribeIotTopic(
+          adapter.config.localDevice4ProductKey,
+          adapter.config.localDevice4DeviceKey,
           2e3
         );
       }

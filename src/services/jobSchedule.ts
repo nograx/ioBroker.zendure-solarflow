@@ -55,6 +55,28 @@ export const startCalculationJob = async (
           adapter.config.localDevice2DeviceKey
         );
       }
+
+      if (
+        adapter.config.localDevice3ProductKey &&
+        adapter.config.localDevice3DeviceKey
+      ) {
+        calculateEnergy(
+          adapter,
+          adapter.config.localDevice3ProductKey,
+          adapter.config.localDevice3DeviceKey
+        );
+      }
+
+      if (
+        adapter.config.localDevice4ProductKey &&
+        adapter.config.localDevice4DeviceKey
+      ) {
+        calculateEnergy(
+          adapter,
+          adapter.config.localDevice4ProductKey,
+          adapter.config.localDevice4DeviceKey
+        );
+      }
     } else {
       adapter.deviceList.forEach((device) => {
         if (device.productKey != "s3Xk4x") {
