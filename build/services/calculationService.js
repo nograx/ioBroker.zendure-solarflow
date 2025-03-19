@@ -81,6 +81,9 @@ const calculateSocAndEnergy = async (adapter, productKey, deviceKey, stateKey, v
   const minSoc = (_a = await adapter.getStateAsync(`${productKey}.${deviceKey}.minSoc`)) == null ? void 0 : _a.val;
   const currentSoc = (_b = await adapter.getStateAsync(`${productKey}.${deviceKey}.electricLevel`)) == null ? void 0 : _b.val;
   if (currentSoc && minSoc && Number(currentSoc) < Number(minSoc)) {
+    adapter.log.debug(
+      `[calculateSocAndEnergy] Don't calculate, currentSoc (${Number(currentSoc)}) is lower than minSoc (${Number(minSoc)})!`
+    );
     return;
   }
   const productName = (_c = await adapter.getStateAsync(`${productKey}.${deviceKey}.productName`)) == null ? void 0 : _c.val;

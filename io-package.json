@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.12.2",
+    "version": "1.12.3",
     "news": {
+      "1.12.3": {
+        "en": "Add 2 more devices if \"local\" mode is used\nFix mqtt subscription of 2. device in \"local\" mode",
+        "de": "Fügen Sie 2 weitere Geräte hinzu, wenn \"lokal\" Modus verwendet wird\nFix mqt Abonnement von 2. Gerät im \"lokalen\" Modus",
+        "ru": "Добавьте еще 2 устройства, если используется «местный» режим\nИсправьте mqtt подписку на 2. устройство в «местном» режиме",
+        "pt": "Adicione mais 2 dispositivos se o modo \"local\" for usado\nCorrigir assinatura mqtt de 2. dispositivo no modo \"local\"",
+        "nl": "Voeg nog 2 apparaten toe als de \"lokale\" modus wordt gebruikt\nFix mqtt abonnement van 2. apparaat in \"lokale\" modus",
+        "fr": "Ajouter 2 autres appareils si le mode \"local\" est utilisé\nCorrection de l'abonnement mqtt de 2. appareil en mode \"local\"",
+        "it": "Aggiungere altri 2 dispositivi se viene utilizzata la modalità \"locale\"\nAbbonamento fisso di mqtt 2. dispositivo in modalità \"locale\"",
+        "es": "Añadir 2 dispositivos más si se utiliza el modo \"local\"\nFijar la suscripción de mqtt de 2. dispositivo en modo \"local\"",
+        "pl": "Dodaj 2 więcej urządzeń w trybie \"lokalnym\"\nNapraw subskrypcję mqtt 2. urządzenia w trybie \"lokalnym\"",
+        "uk": "Додайте ще 2 пристрої, якщо використовується режим \"локального\"\nВиправлення mqtt підписки 2. пристрій в режимі \"локальний\"",
+        "zh-cn": "如果使用“ 本地” 模式, 将增加两个设备\n在“ 本地” 模式下修复 mqtt 订阅 2 设备"
+      },
       "1.12.2": {
         "en": "Fix reset of calculation values on \"local\" mode",
         "de": "Reset von Berechnungswerten im \"lokalen\" Modus",
@@ -69,19 +82,6 @@
         "zh-cn": "修复连接到 HUB 的 ACE 计算值"
       },
       "1.10.6": {
-        "en": "Fix start of calculation if HUB is connected with Ace",
-        "de": "Fix Beginn der Berechnung, wenn HUB mit Ace verbunden ist",
-        "ru": "Исправить начало расчета, если HUB подключен к Ace",
-        "pt": "Corrigir o início do cálculo se HUB estiver conectado com Ace",
-        "nl": "Fix begin van berekening als HUB is verbonden met Ace",
-        "fr": "Correction du début du calcul si HUB est connecté à Ace",
-        "it": "Fissare l'inizio del calcolo se HUB è collegato con Ace",
-        "es": "Arranque el inicio del cálculo si HUB está conectado con Ace",
-        "pl": "Popraw początek obliczeń, jeśli HUB jest połączony z Asem",
-        "uk": "Виправлення запуску розрахунку, якщо HUB підключено до Ace",
-        "zh-cn": "如果 HUB 与 Ace 连接, 则固定开始计算"
-      },
-      "1.10.5": {
         "en": "Fix start of calculation if HUB is connected with Ace",
         "de": "Fix Beginn der Berechnung, wenn HUB mit Ace verbunden ist",
         "ru": "Исправить начало расчета, если HUB подключен к Ace",
