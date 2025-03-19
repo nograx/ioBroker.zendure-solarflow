@@ -81,7 +81,7 @@ export const calculateSocAndEnergy = async (
     `[calculateSocAndEnergy] Calculating for: ${productKey}.${deviceKey} and stateKey ${stateKey}!`
   );
 
-  let energyWhMax = 0;
+  let energyWhMax: number | undefined = undefined;
 
   const minSoc = (
     await adapter.getStateAsync(`${productKey}.${deviceKey}.minSoc`)
@@ -98,10 +98,6 @@ export const calculateSocAndEnergy = async (
 
     return;
   }
-
-  const productName = (
-    await adapter.getStateAsync(`${productKey}.${deviceKey}.productName`)
-  )?.val;
 
   const currentEnergyState = await adapter?.getStateAsync(
     productKey + "." + deviceKey + ".calculations.energyWh"
@@ -127,20 +123,16 @@ export const calculateSocAndEnergy = async (
     (x) => x.deviceKey == deviceKey
   );
 
-  let isAio = false;
-  // Check if device is an solarflow or hyper device. Don't use LowVoltageBlock on an ACE device?
-  if (productName?.toString().toLowerCase().includes("aio")) {
-    isAio = true;
-  }
-
-  if (isAio) {
+  if (productKey == "yWF7hV") {
+    // The device is an AIO 2400, so set maximum Wh to 2400!
     energyWhMax = 2400;
   } else {
+    // Iterate over all batteries!
     for (let i = 0; i < batteries.length; i++) {
       if (batteries[i].type == "AB1000") {
-        energyWhMax = energyWhMax + 960;
+        energyWhMax = (energyWhMax ? energyWhMax : 0) + 960;
       } else if (batteries[i].type == "AB2000") {
-        energyWhMax = energyWhMax + 1920;
+        energyWhMax = (energyWhMax ? energyWhMax : 0) + 1920;
       }
     }
   }
@@ -152,7 +144,11 @@ export const calculateSocAndEnergy = async (
       : currentEnergyWh - value;
 
   // If greater than Max of batteries, set it to this value.
-  if (stateKey == "outputPack" && newEnergyWh > energyWhMax) {
+  if (
+    stateKey == "outputPack" &&
+    energyWhMax != undefined &&
+    newEnergyWh > energyWhMax
+  ) {
     newEnergyWh = energyWhMax;
 
     adapter.log.debug(
@@ -268,7 +264,7 @@ export const calculateSocAndEnergy = async (
     // TEST: if SOC == 0, add newValue as positive to energyWhMax
     const newEnergyWhPositive = Math.abs(newEnergyWh);
 
-    if (currentMaxValue + newEnergyWhPositive <= energyWhMax) {
+    if (energyWhMax && currentMaxValue + newEnergyWhPositive <= energyWhMax) {
       await adapter?.setState(
         `${productKey}.${deviceKey}.calculations.energyWhMax`,
         currentMaxValue + newEnergyWhPositive,
