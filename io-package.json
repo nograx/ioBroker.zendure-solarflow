@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.12.3",
+    "version": "1.12.4",
     "news": {
+      "1.12.4": {
+        "en": "Fix calculation of SOC if \"local\" mode is used",
+        "de": "Fixe Berechnung von SOC, wenn \"lokal\" Modus verwendet wird",
+        "ru": "Исправьте расчет SOC, если используется «местный» режим",
+        "pt": "Corrigir o cálculo do SOC se o modo \"local\" for usado",
+        "nl": "Berekening van SOC repareren als de \"lokale\" modus wordt gebruikt",
+        "fr": "Correction du calcul de SOC si le mode \"local\" est utilisé",
+        "it": "Fissare il calcolo di SOC se viene utilizzata la modalità \"locale\"",
+        "es": "Cálculo fijo de SOC si se utiliza el modo \"local\"",
+        "pl": "Popraw obliczanie SOC, jeśli używany jest tryb \"lokalny\"",
+        "uk": "Фіксований розрахунок СОУ, якщо використовується режим «локального»",
+        "zh-cn": "如果使用“ 本地” 模式, 固定 SOC 的计算"
+      },
       "1.12.3": {
         "en": "Add 2 more devices if \"local\" mode is used\nFix mqtt subscription of 2. device in \"local\" mode",
         "de": "Fügen Sie 2 weitere Geräte hinzu, wenn \"lokal\" Modus verwendet wird\nFix mqt Abonnement von 2. Gerät im \"lokalen\" Modus",
@@ -80,19 +93,6 @@
         "pl": "Popraw wartości obliczeniowe resetu ACE, jeśli podłączone do HUB",
         "uk": "Виправлення значень розрахунку скидання ACE при підключенні до HUB",
         "zh-cn": "修复连接到 HUB 的 ACE 计算值"
-      },
-      "1.10.6": {
-        "en": "Fix start of calculation if HUB is connected with Ace",
-        "de": "Fix Beginn der Berechnung, wenn HUB mit Ace verbunden ist",
-        "ru": "Исправить начало расчета, если HUB подключен к Ace",
-        "pt": "Corrigir o início do cálculo se HUB estiver conectado com Ace",
-        "nl": "Fix begin van berekening als HUB is verbonden met Ace",
-        "fr": "Correction du début du calcul si HUB est connecté à Ace",
-        "it": "Fissare l'inizio del calcolo se HUB è collegato con Ace",
-        "es": "Arranque el inicio del cálculo si HUB está conectado con Ace",
-        "pl": "Popraw początek obliczeń, jeśli HUB jest połączony z Asem",
-        "uk": "Виправлення запуску розрахунку, якщо HUB підключено до Ace",
-        "zh-cn": "如果 HUB 与 Ace 连接, 则固定开始计算"
       }
     },
     "titleLang": {

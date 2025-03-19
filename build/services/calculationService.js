@@ -73,11 +73,11 @@ const setSocToZero = async (adapter, productKey, deviceKey) => {
   ));
 };
 const calculateSocAndEnergy = async (adapter, productKey, deviceKey, stateKey, value) => {
-  var _a, _b, _c;
+  var _a, _b;
   adapter.log.debug(
     `[calculateSocAndEnergy] Calculating for: ${productKey}.${deviceKey} and stateKey ${stateKey}!`
   );
-  let energyWhMax = 0;
+  let energyWhMax = void 0;
   const minSoc = (_a = await adapter.getStateAsync(`${productKey}.${deviceKey}.minSoc`)) == null ? void 0 : _a.val;
   const currentSoc = (_b = await adapter.getStateAsync(`${productKey}.${deviceKey}.electricLevel`)) == null ? void 0 : _b.val;
   if (currentSoc && minSoc && Number(currentSoc) < Number(minSoc)) {
@@ -86,7 +86,6 @@ const calculateSocAndEnergy = async (adapter, productKey, deviceKey, stateKey, v
     );
     return;
   }
-  const productName = (_c = await adapter.getStateAsync(`${productKey}.${deviceKey}.productName`)) == null ? void 0 : _c.val;
   const currentEnergyState = await (adapter == null ? void 0 : adapter.getStateAsync(
     productKey + "." + deviceKey + ".calculations.energyWh"
   ));
@@ -103,23 +102,19 @@ const calculateSocAndEnergy = async (adapter, productKey, deviceKey, stateKey, v
   const batteries = adapter.pack2Devices.filter(
     (x) => x.deviceKey == deviceKey
   );
-  let isAio = false;
-  if (productName == null ? void 0 : productName.toString().toLowerCase().includes("aio")) {
-    isAio = true;
-  }
-  if (isAio) {
+  if (productKey == "yWF7hV") {
     energyWhMax = 2400;
   } else {
     for (let i = 0; i < batteries.length; i++) {
       if (batteries[i].type == "AB1000") {
-        energyWhMax = energyWhMax + 960;
+        energyWhMax = (energyWhMax ? energyWhMax : 0) + 960;
       } else if (batteries[i].type == "AB2000") {
-        energyWhMax = energyWhMax + 1920;
+        energyWhMax = (energyWhMax ? energyWhMax : 0) + 1920;
       }
     }
   }
   let newEnergyWh = stateKey == "outputPack" ? currentEnergyWh + value : currentEnergyWh - value;
-  if (stateKey == "outputPack" && newEnergyWh > energyWhMax) {
+  if (stateKey == "outputPack" && energyWhMax != void 0 && newEnergyWh > energyWhMax) {
     newEnergyWh = energyWhMax;
     adapter.log.debug(
       `[calculateSocAndEnergy] newEnergyWh (${newEnergyWh}) is greater than energyWhMax (${energyWhMax}), don't extend value!`
@@ -206,7 +201,7 @@ const calculateSocAndEnergy = async (adapter, productKey, deviceKey, stateKey, v
       true
     ));
     const newEnergyWhPositive = Math.abs(newEnergyWh);
-    if (currentMaxValue + newEnergyWhPositive <= energyWhMax) {
+    if (energyWhMax && currentMaxValue + newEnergyWhPositive <= energyWhMax) {
       await (adapter == null ? void 0 : adapter.setState(
         `${productKey}.${deviceKey}.calculations.energyWhMax`,
         currentMaxValue + newEnergyWhPositive,
