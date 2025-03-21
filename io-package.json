@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.12.4",
+    "version": "1.12.5",
     "news": {
+      "1.12.5": {
+        "en": "Add Debug messages on log level debug\nAdd schedule for adapter refresh on local mode\nFix Change of Discharge limit to 0",
+        "de": "Debug-Nachrichten auf Log-Level-Debug hinzufügen\nZeitplan für Adapter-Erfrischung im lokalen Modus hinzufügen\nFix Änderung der Entladungsgrenze auf 0",
+        "ru": "Добавление сообщений Debug на уровне журнала\nДобавить расписание обновления адаптера в локальном режиме\nИзменение предела разряда до 0",
+        "pt": "Adicionar mensagens de depuração no nível de log debug\nAdicionar programação para atualização do adaptador no modo local\nCorrigir a mudança do limite de descarga para 0",
+        "nl": "Debug-berichten toevoegen op logniveau debug\nSchema voor adapterverversen toevoegen in lokale modus\nFix Wijziging van de ontladingslimiet naar 0",
+        "fr": "Ajouter des messages de débogage au niveau de log debug\nAjouter l'horaire pour le rafraîchissement de l'adaptateur en mode local\nCorrection du changement de la limite de décharge à 0",
+        "it": "Aggiungi messaggi Debug sul debug del livello di log\nAggiungi il programma di aggiornamento adattatore in modalità locale\nCambiamento di limite di scarico a 0",
+        "es": "Agregar mensajes de Debug en el nivel de registro\nAñada el horario de actualización del adaptador en modo local\nCambio fijo de límite de descarga a 0",
+        "pl": "Dodaj komunikaty o debugowaniu na poziomie dziennika\nDodaj harmonogram odświeżania adaptera w trybie lokalnym\nNapraw limit zrzutu do 0",
+        "uk": "Додавання повідомлень Debug на рівні входу\nДодавання графіка оновлення адаптера в локальному режимі\nЗміна ліміту розряду до 0",
+        "zh-cn": "在日志级别调试时添加调试消息\n在本地模式下添加适配器刷新时间表\n将排放限制改为 0"
+      },
       "1.12.4": {
         "en": "Fix calculation of SOC if \"local\" mode is used",
         "de": "Fixe Berechnung von SOC, wenn \"lokal\" Modus verwendet wird",
@@ -80,19 +93,6 @@
         "pl": "Drop Standby użycie 7W i 14W jeśli HUB podłączony z ACE, jak jest bardziej dokładne\nDodano stan heatState i autoModel (tryb pracy systemu)\nDodano możliwość ustawienia trybu pracy (autoModel)\nFix gridPower state",
         "uk": "При підключенні HUB з ACE до 7W і 14W, якщо HUB з'єднаний з ACE, як це більш точний\nДодано режим роботи системи HeatState та AutoModel (режим роботи системи)\nДодано можливість встановити режим роботи (autoModel)\nФіксований стан живлення",
         "zh-cn": "如果HUB与ACE连接, 则将备用使用降至7W和14W, 因为它更准确\n添加热态和自动模式(系统操作模式)状态\n添加设置操作模式的可能性( 自动模式)\n固定网格电源状态"
-      },
-      "1.10.7": {
-        "en": "Fix reset calculation values of ACE if connected to HUB",
-        "de": "Reset-Berechnungswerte von ACE, wenn mit HUB verbunden",
-        "ru": "Fix расчетные значения сброса ACE при подключении к HUB",
-        "pt": "Corrigir valores de cálculo de reset do ACE se conectado ao HUB",
-        "nl": "Fix reset berekeningswaarden van ACE indien aangesloten op HUB",
-        "fr": "Réinitialiser les valeurs de calcul d'ACE si connecté à HUB",
-        "it": "Fissare i valori di calcolo di reset di ACE se collegati a HUB",
-        "es": "Fijar los valores de cálculo del reajuste de ACE si está conectado a HUB",
-        "pl": "Popraw wartości obliczeniowe resetu ACE, jeśli podłączone do HUB",
-        "uk": "Виправлення значень розрахунку скидання ACE при підключенні до HUB",
-        "zh-cn": "修复连接到 HUB 的 ACE 计算值"
       }
     },
     "titleLang": {
