@@ -236,7 +236,9 @@ const onMessage = async (topic, message) => {
     const productName = await adapter.getStateAsync(
       `${productKey}.${deviceKey}.productName`
     );
-    adapter.log.debug(`[onMessage] MQTT message: ${obj}`);
+    if (adapter.log.level == "debug") {
+      adapter.log.debug(`[onMessage] MQTT message: ${message.toString()}`);
+    }
     if (obj.timestamp) {
       const currentTimeStamp = (/* @__PURE__ */ new Date()).getTime() / 1e3;
       const diff = currentTimeStamp - obj.timestamp;
