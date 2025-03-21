@@ -7,6 +7,7 @@ import { calculateEnergy, resetTodaysValues } from "./calculationService";
 export const startRefreshAccessTokenTimerJob = async (
   adapter: ZendureSolarflow
 ): Promise<void> => {
+  // Restart adapter every 3 hours
   adapter.refreshAccessTokenInterval = adapter.setInterval(
     async () => {
       adapter.log.info(

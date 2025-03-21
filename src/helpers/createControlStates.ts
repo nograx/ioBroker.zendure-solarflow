@@ -92,7 +92,7 @@ export const createControlStates = async (
           read: true,
           write: true,
           min: 0,
-          max: 90,
+          max: 50,
           unit: "%",
         },
         native: {},

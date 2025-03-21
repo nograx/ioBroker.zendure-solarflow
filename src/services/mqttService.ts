@@ -16,6 +16,8 @@ import {
   startResetValuesJob,
 } from "./jobSchedule";
 import { createSolarFlowLocalStates } from "../helpers/createSolarFlowLocalStates";
+import { ISolarflowState } from "../models/ISolarflowState";
+import { getStateDefinition } from "../helpers/createSolarFlowStates";
 
 let adapter: ZendureSolarflow | undefined = undefined;
 
@@ -53,6 +55,10 @@ export const addOrUpdatePackData = async (
             deviceKey: deviceKey,
             type: batType,
           });
+
+          adapter.log.debug(
+            `[addOrUpdatePackData] Added battery ${batType} with SN ${x.sn} on deviceKey ${deviceKey} to pack2Devices!`
+          );
         }
 
         // create a state for the serial id
@@ -246,6 +252,8 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
       `${productKey}.${deviceKey}.productName`
     );
 
+    adapter.log.debug(`[onMessage] MQTT message: ${obj}`);
+
     if (obj.timestamp) {
       const currentTimeStamp = new Date().getTime() / 1000;
       const diff = currentTimeStamp - obj.timestamp;
@@ -259,14 +267,20 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
           "wifiState",
           "Disconnected"
         );
+      } else {
+        // Timestamp older than 5 Minutens, device is offline!
+        updateSolarFlowState(
+          adapter,
+          productKey,
+          deviceKey,
+          "wifiState",
+          "Connected"
+        );
       }
     }
 
     // Check if device is an solarflow or hyper device. Don't use LowVoltageBlock on an ACE device?
-    if (
-      productName?.val?.toString().toLowerCase().includes("solarflow") ||
-      productName?.val?.toString().toLowerCase().includes("hyper")
-    ) {
+    if (productKey != "8bM93H") {
       isSolarFlow = true;
     }
 
@@ -920,7 +934,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
       addOrUpdatePackData(productKey, deviceKey, obj.packData, isSolarFlow);
     }
 
-    /*  if (obj.properties) {
+    if (obj.properties && adapter.log.level == "debug") {
       let type = "solarflow";
       const _productName = productName?.val?.toString();
 
@@ -949,12 +963,12 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
           //  `${productName?.val}: ${key} with value ${value} is a KNOWN Mqtt Prop!`
           //);
         } else {
-          console.log(
-            `${productName?.val}: ${key} with value ${value} is a UNKNOWN Mqtt Prop!`
+          adapter?.log.debug(
+            `[onMessage] ${productName?.val}: ${key} with value ${value} is a UNKNOWN Mqtt Property!`
           );
         }
       });
-    } */
+    }
   }
 };
 
@@ -984,7 +998,7 @@ export const setChargeLimit = async (
   socSet: number
 ): Promise<void> => {
   if (adapter.mqttClient && productKey && deviceKey) {
-    if (socSet > 40 && socSet <= 100) {
+    if (socSet >= 40 && socSet <= 100) {
       const topic = `iot/${productKey}/${deviceKey}/properties/write`;
 
       const socSetLimit = { properties: { socSet: socSet * 10 } };
@@ -1007,7 +1021,7 @@ export const setDischargeLimit = async (
   minSoc: number
 ): Promise<void> => {
   if (adapter.mqttClient && productKey && deviceKey) {
-    if (minSoc > 0 && minSoc < 50) {
+    if (minSoc >= 0 && minSoc <= 50) {
       const topic = `iot/${productKey}/${deviceKey}/properties/write`;
 
       const socSetLimit = { properties: { minSoc: minSoc * 10 } };

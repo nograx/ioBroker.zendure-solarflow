@@ -97,7 +97,7 @@ const createControlStates = async (adapter, productKey, deviceKey, type) => {
           read: true,
           write: true,
           min: 0,
-          max: 90,
+          max: 50,
           unit: "%"
         },
         native: {}

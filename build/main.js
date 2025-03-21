@@ -116,6 +116,7 @@ class ZendureSolarflow extends utils.Adapter {
     if (this.config.server == "local") {
       this.log.debug("[onReady] Using local MQTT server");
       (0, import_mqttService.connectLocalMqttClient)(this);
+      (0, import_jobSchedule.startRefreshAccessTokenTimerJob)(this);
     } else if (this.config.useFallbackService && this.config.snNumber) {
       this.log.debug("[onReady] Using Fallback Mode (Dev-Server)");
       (0, import_fallbackWebService.createDeveloperAccount)(this).then((data) => {

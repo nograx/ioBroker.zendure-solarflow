@@ -105,4 +105,7 @@ export const knownMqttProps = [
   "energyPower",
   "batteryElectric",
   "acMode",
+  "hyperTmp",
+  "autoModel",
+  "heatState",
 ];
