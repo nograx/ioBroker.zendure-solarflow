@@ -51,11 +51,12 @@ const styles = (): Record<string, CreateCSSProperties> => ({
 });
 
 const productKeys: { value; title }[] = [
-  { value: "73bkTV", title: "HUB 1200" },
-  { value: "A8yh63", title: "HUB 2000" },
-  { value: "yWF7hV", title: "AIO 2400" },
-  { value: "ja72U0ha", title: "Hyper 2000" },
-  { value: "8bM93H", title: "Ace 1500" },
+  { value: "73bkTV", title: "HUB 1200 (73bkTV)" },
+  { value: "A8yh63", title: "HUB 2000 (A8yh63)" },
+  { value: "yWF7hV", title: "AIO 2400 (yWF7hV)" },
+  { value: "ja72U0ha", title: "Hyper 2000 (ja72U0ha)" },
+  { value: "gDa3tb", title: "Hyper 2000 (gDa3tb)" },
+  { value: "8bM93H", title: "Ace 1500 (8bM93H)" },
 ];
 
 interface SettingsProps {
