@@ -57,8 +57,7 @@ You can still do firmware updates with the official Zendure app via bluetooth an
 Credits goes to https://github.com/reinhard-brandstaedter/solarflow which helped a lot with the knowledge about the MQTT server from Zendure! Thanks!
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 1.12.7 (2025-03-24)
 
 - Add productKey "gDa3tb" for Hyper 2000
 

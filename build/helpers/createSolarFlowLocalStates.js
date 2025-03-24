@@ -46,6 +46,10 @@ const createSolarFlowLocalStates = async (adapter, productKey, deviceKey) => {
       productName = "Hyper 2000";
       type = "hyper";
       break;
+    case "gDa3tb":
+      productName = "Hyper 2000";
+      type = "hyper";
+      break;
     case "8bM93H":
       productName = "ACE 1500";
       type = "ace";
