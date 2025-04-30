@@ -194,74 +194,30 @@ const createControlStates = async (adapter, productKey, deviceKey, type) => {
       adapter == null ? void 0 : adapter.subscribeStates(
         `${productKey}.${deviceKey}.control.autoRecover`
       );
-      if (adapter.config.useLowVoltageBlock) {
-        await (adapter == null ? void 0 : adapter.extendObject(
-          `${productKey}.${deviceKey}.control.lowVoltageBlock`,
-          {
-            type: "state",
-            common: {
-              name: {
-                de: "Niedrige Batteriespannung erkannt",
-                en: "Low Voltage on battery detected"
-              },
-              type: "boolean",
-              desc: "lowVoltageBlock",
-              role: "indicator.lowbat",
-              read: true,
-              write: false
+      await (adapter == null ? void 0 : adapter.extendObject(
+        `${productKey}.${deviceKey}.control.hubState`,
+        {
+          type: "state",
+          common: {
+            name: {
+              de: "Verhalten wenn minimale reservierte Ladung erreicht",
+              en: "Behavior when minimum reserved charge is reached"
             },
-            native: {}
-          }
-        ));
-        adapter == null ? void 0 : adapter.subscribeStates(
-          `${productKey}.${deviceKey}.control.lowVoltageBlock`
-        );
-        await (adapter == null ? void 0 : adapter.extendObject(
-          `${productKey}.${deviceKey}.control.fullChargeNeeded`,
-          {
-            type: "state",
-            common: {
-              name: {
-                de: "Auf 100% laden, Akku muss kalibriert werden!",
-                en: "Charge to 100%, battery needs to be calibrated"
-              },
-              type: "boolean",
-              desc: "fullChargeNeeded",
-              role: "indicator.lowbat",
-              read: true,
-              write: false
-            },
-            native: {}
-          }
-        ));
-        adapter == null ? void 0 : adapter.subscribeStates(
-          `${productKey}.${deviceKey}.control.fullChargeNeeded`
-        );
-        await (adapter == null ? void 0 : adapter.extendObject(
-          `${productKey}.${deviceKey}.control.hubState`,
-          {
-            type: "state",
-            common: {
-              name: {
-                de: "Verhalten wenn minimale reservierte Ladung erreicht",
-                en: "Behavior when minimum reserved charge is reached"
-              },
-              type: "number",
-              desc: "hubState",
-              read: true,
-              write: true,
-              min: 0,
-              max: 1,
-              states: {
-                0: "Stop output and standby",
-                1: "Stop output and shut down"
-              }
-            },
-            native: {}
-          }
-        ));
-        adapter == null ? void 0 : adapter.subscribeStates(`${productKey}.${deviceKey}.control.hubState`);
-      }
+            type: "number",
+            desc: "hubState",
+            read: true,
+            write: true,
+            min: 0,
+            max: 1,
+            states: {
+              0: "Stop output and standby",
+              1: "Stop output and shut down"
+            }
+          },
+          native: {}
+        }
+      ));
+      adapter == null ? void 0 : adapter.subscribeStates(`${productKey}.${deviceKey}.control.hubState`);
       if (type == "solarflow" || type == "hyper" || type == "ace") {
         await (adapter == null ? void 0 : adapter.extendObject(
           `${productKey}.${deviceKey}.control.setInputLimit`,
@@ -334,6 +290,50 @@ const createControlStates = async (adapter, productKey, deviceKey, type) => {
           }
         ));
         adapter == null ? void 0 : adapter.subscribeStates(`${productKey}.${deviceKey}.control.acMode`);
+      }
+      if (adapter.config.useLowVoltageBlock) {
+        await (adapter == null ? void 0 : adapter.extendObject(
+          `${productKey}.${deviceKey}.control.lowVoltageBlock`,
+          {
+            type: "state",
+            common: {
+              name: {
+                de: "Niedrige Batteriespannung erkannt",
+                en: "Low Voltage on battery detected"
+              },
+              type: "boolean",
+              desc: "lowVoltageBlock",
+              role: "indicator.lowbat",
+              read: true,
+              write: false
+            },
+            native: {}
+          }
+        ));
+        adapter == null ? void 0 : adapter.subscribeStates(
+          `${productKey}.${deviceKey}.control.lowVoltageBlock`
+        );
+        await (adapter == null ? void 0 : adapter.extendObject(
+          `${productKey}.${deviceKey}.control.fullChargeNeeded`,
+          {
+            type: "state",
+            common: {
+              name: {
+                de: "Auf 100% laden, Akku muss kalibriert werden!",
+                en: "Charge to 100%, battery needs to be calibrated"
+              },
+              type: "boolean",
+              desc: "fullChargeNeeded",
+              role: "indicator.lowbat",
+              read: true,
+              write: false
+            },
+            native: {}
+          }
+        ));
+        adapter == null ? void 0 : adapter.subscribeStates(
+          `${productKey}.${deviceKey}.control.fullChargeNeeded`
+        );
       }
     }
     if (type == "ace") {

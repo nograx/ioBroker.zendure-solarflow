@@ -116,7 +116,9 @@ class ZendureSolarflow extends utils.Adapter {
     if (this.config.server == "local") {
       this.log.debug("[onReady] Using local MQTT server");
       (0, import_mqttService.connectLocalMqttClient)(this);
-      (0, import_jobSchedule.startRefreshAccessTokenTimerJob)(this);
+      if (this.config.useRestart) {
+        (0, import_jobSchedule.startRefreshAccessTokenTimerJob)(this);
+      }
     } else if (this.config.useFallbackService && this.config.snNumber) {
       this.log.debug("[onReady] Using Fallback Mode (Dev-Server)");
       (0, import_fallbackWebService.createDeveloperAccount)(this).then((data) => {
@@ -133,7 +135,9 @@ class ZendureSolarflow extends utils.Adapter {
     } else if (!this.config.useFallbackService && this.config.userName && this.config.password) {
       let _accessToken = void 0;
       let retryCounter = 0;
-      (0, import_jobSchedule.startRefreshAccessTokenTimerJob)(this);
+      if (this.config.useRestart) {
+        (0, import_jobSchedule.startRefreshAccessTokenTimerJob)(this);
+      }
       while (retryCounter <= 10) {
         try {
           _accessToken = await (0, import_webService.login)(this);

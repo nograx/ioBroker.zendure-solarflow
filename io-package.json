@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.12.7",
+    "version": "1.13.0",
     "news": {
+      "1.13.0": {
+        "en": "Add possibility to deactivate automatic restart of adapter in adapter settings (recommended only on local mode!)\nFixed missing control state \"hubState\"",
+        "de": "Möglichkeit hinzufügen, den automatischen Neustart des Adapters in Adaptereinstellungen zu deaktivieren (nur im lokalen Modus eingeschaltet!)\nFester fehlender Kontrollzustand \"hubState\"",
+        "ru": "Добавить возможность отключения автоматического перезапуска адаптера в настройках адаптера (рекомендуется только в локальном режиме!)\nИсправлено отсутствующее государство контроля «HubState»",
+        "pt": "Adicione a possibilidade de desativar o reinício automático do adaptador nas configurações do adaptador (recomendado apenas no modo local!)\nEstado de controle ausente fixo \"hubState\"",
+        "nl": "Voeg mogelijkheid toe om de automatische herstart van de adapter in adapterinstellingen te deactiveren (alleen aanbevolen op lokale modus!)\nVaste ontbrekende controlestatus \"hubState\"",
+        "fr": "Ajouter la possibilité de désactiver le redémarrage automatique de l'adaptateur dans les paramètres de l'adaptateur (recommandé uniquement en mode local!)\nÉtat de contrôle manquant fixe \"hubState\"",
+        "it": "Aggiungi la possibilità di disattivare il riavvio automatico dell'adattatore nelle impostazioni dell'adattatore (consigliato solo in modalità locale!)\nStato di controllo mancante fisso \"hubState\"",
+        "es": "Añadir posibilidad de desactivar el reinicio automático del adaptador en la configuración del adaptador (recomendado sólo en el modo local!)\nEstado de control perdido fijo \"hubState\"",
+        "pl": "Dodaj możliwość wyłączenia automatycznego restartu adaptera w ustawieniach adaptera (zalecane tylko w trybie lokalnym!)\nNaprawiono brakujący stan kontroli \"hubState\"",
+        "uk": "Додайте можливість деактивувати автоматичний перезапуск адаптера в налаштуваннях адаптера (відповіли тільки на локальному режимі!)\nВиправлено відсутній контрольний стан \"hubState\"",
+        "zh-cn": "添加在适配器设置中解除适配器自动重新启动的可能性( 仅在本地模式上推荐 !)\n固定缺失控制状态“ hubstate”"
+      },
       "1.12.7": {
         "en": "Add productKey \"gDa3tb\" for Hyper 2000",
         "de": "Produkt hinzufügen Schlüssel \"gDa3tb\" für Hyper 2000",
@@ -80,19 +93,6 @@
         "pl": "Napraw resetowanie wartości obliczeniowych w trybie \"lokalnym\"",
         "uk": "Виправлення значень розрахунку на режим «локального»",
         "zh-cn": "修复“ 本地” 模式上的计算值"
-      },
-      "1.12.1": {
-        "en": "Fix IOT subscription",
-        "de": "IOT-Abonnement festsetzen",
-        "ru": "Исправить подписку IOT",
-        "pt": "Corrigir assinatura IOT",
-        "nl": "IOT-abonnement repareren",
-        "fr": "Correction de l'abonnement IOT",
-        "it": "Fissa l'abbonamento IOT",
-        "es": "Suscripción fija IOT",
-        "pl": "Napraw subskrypcję IOT",
-        "uk": "Виправлення підписки IOT",
-        "zh-cn": "修复IOT订阅"
       }
     },
     "titleLang": {

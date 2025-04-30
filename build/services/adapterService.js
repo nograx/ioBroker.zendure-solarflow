@@ -95,12 +95,14 @@ const checkVoltage = async (adapter, productKey, deviceKey, voltage) => {
         false,
         true
       ));
-      (0, import_mqttService.setDischargeLimit)(
-        adapter,
-        productKey,
-        deviceKey,
-        adapter.config.dischargeLimit ? adapter.config.dischargeLimit : 10
-      );
+      if (adapter.config.forceShutdownOnLowVoltage) {
+        (0, import_mqttService.setDischargeLimit)(
+          adapter,
+          productKey,
+          deviceKey,
+          adapter.config.dischargeLimit ? adapter.config.dischargeLimit : 5
+        );
+      }
     }
   }
 };
