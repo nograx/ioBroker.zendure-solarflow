@@ -128,8 +128,10 @@ export class ZendureSolarflow extends utils.Adapter {
 
       connectLocalMqttClient(this);
 
-      // Add interval to restart adapter every 3 hours
-      startRefreshAccessTokenTimerJob(this);
+      if (this.config.useRestart) {
+        // Add interval to restart adapter every 3 hours
+        startRefreshAccessTokenTimerJob(this);
+      }
     } else if (this.config.useFallbackService && this.config.snNumber) {
       this.log.debug("[onReady] Using Fallback Mode (Dev-Server)");
       // Use Fallback service. Using the developer version of the MQTT and Webservice from zendure
@@ -154,8 +156,10 @@ export class ZendureSolarflow extends utils.Adapter {
       let _accessToken: string | undefined = undefined;
       let retryCounter = 0;
 
-      // Add interval to restart adapter every 3 hours
-      startRefreshAccessTokenTimerJob(this);
+      if (this.config.useRestart) {
+        // Add interval to restart adapter every 3 hours
+        startRefreshAccessTokenTimerJob(this);
+      }
 
       while (retryCounter <= 10) {
         try {

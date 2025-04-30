@@ -209,82 +209,32 @@ export const createControlStates = async (
         `${productKey}.${deviceKey}.control.autoRecover`
       );
 
-      if (adapter.config.useLowVoltageBlock) {
-        // State zum Setzen des Output Limit
-        await adapter?.extendObject(
-          `${productKey}.${deviceKey}.control.lowVoltageBlock`,
-          {
-            type: "state",
-            common: {
-              name: {
-                de: "Niedrige Batteriespannung erkannt",
-                en: "Low Voltage on battery detected",
-              },
-              type: "boolean",
-              desc: "lowVoltageBlock",
-              role: "indicator.lowbat",
-              read: true,
-              write: false,
+      // State zum Setzen des Input Limit (AC)
+      await adapter?.extendObject(
+        `${productKey}.${deviceKey}.control.hubState`,
+        {
+          type: "state",
+          common: {
+            name: {
+              de: "Verhalten wenn minimale reservierte Ladung erreicht",
+              en: "Behavior when minimum reserved charge is reached",
             },
-            native: {},
-          }
-        );
-
-        adapter?.subscribeStates(
-          `${productKey}.${deviceKey}.control.lowVoltageBlock`
-        );
-
-        // State zum Setzen des Output Limit
-        await adapter?.extendObject(
-          `${productKey}.${deviceKey}.control.fullChargeNeeded`,
-          {
-            type: "state",
-            common: {
-              name: {
-                de: "Auf 100% laden, Akku muss kalibriert werden!",
-                en: "Charge to 100%, battery needs to be calibrated",
-              },
-              type: "boolean",
-              desc: "fullChargeNeeded",
-              role: "indicator.lowbat",
-              read: true,
-              write: false,
+            type: "number",
+            desc: "hubState",
+            read: true,
+            write: true,
+            min: 0,
+            max: 1,
+            states: {
+              0: "Stop output and standby",
+              1: "Stop output and shut down",
             },
-            native: {},
-          }
-        );
+          },
+          native: {},
+        }
+      );
 
-        adapter?.subscribeStates(
-          `${productKey}.${deviceKey}.control.fullChargeNeeded`
-        );
-
-        // State zum Setzen des Input Limit (AC)
-        await adapter?.extendObject(
-          `${productKey}.${deviceKey}.control.hubState`,
-          {
-            type: "state",
-            common: {
-              name: {
-                de: "Verhalten wenn minimale reservierte Ladung erreicht",
-                en: "Behavior when minimum reserved charge is reached",
-              },
-              type: "number",
-              desc: "hubState",
-              read: true,
-              write: true,
-              min: 0,
-              max: 1,
-              states: {
-                0: "Stop output and standby",
-                1: "Stop output and shut down",
-              },
-            },
-            native: {},
-          }
-        );
-
-        adapter?.subscribeStates(`${productKey}.${deviceKey}.control.hubState`);
-      }
+      adapter?.subscribeStates(`${productKey}.${deviceKey}.control.hubState`);
 
       if (type == "solarflow" || type == "hyper" || type == "ace") {
         // State zum Setzen des Input Limit (AC)
@@ -366,6 +316,57 @@ export const createControlStates = async (
         );
 
         adapter?.subscribeStates(`${productKey}.${deviceKey}.control.acMode`);
+      }
+
+      // States for controlling the low voltage block
+      if (adapter.config.useLowVoltageBlock) {
+        // State zum Setzen des Output Limit
+        await adapter?.extendObject(
+          `${productKey}.${deviceKey}.control.lowVoltageBlock`,
+          {
+            type: "state",
+            common: {
+              name: {
+                de: "Niedrige Batteriespannung erkannt",
+                en: "Low Voltage on battery detected",
+              },
+              type: "boolean",
+              desc: "lowVoltageBlock",
+              role: "indicator.lowbat",
+              read: true,
+              write: false,
+            },
+            native: {},
+          }
+        );
+
+        adapter?.subscribeStates(
+          `${productKey}.${deviceKey}.control.lowVoltageBlock`
+        );
+
+        // State zum Setzen des Output Limit
+        await adapter?.extendObject(
+          `${productKey}.${deviceKey}.control.fullChargeNeeded`,
+          {
+            type: "state",
+            common: {
+              name: {
+                de: "Auf 100% laden, Akku muss kalibriert werden!",
+                en: "Charge to 100%, battery needs to be calibrated",
+              },
+              type: "boolean",
+              desc: "fullChargeNeeded",
+              role: "indicator.lowbat",
+              read: true,
+              write: false,
+            },
+            native: {},
+          }
+        );
+
+        adapter?.subscribeStates(
+          `${productKey}.${deviceKey}.control.fullChargeNeeded`
+        );
       }
     }
 

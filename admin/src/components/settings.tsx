@@ -191,6 +191,8 @@ function Settings(props: SettingsProps) {
           </div>
         </div>
 
+        <div>{renderCheckbox("useRestart", "useRestart")}</div>
+
         {props.native["server"] != "local" && (
           <div>
             {renderCheckbox("useFallbackService", "useFallbackService")}

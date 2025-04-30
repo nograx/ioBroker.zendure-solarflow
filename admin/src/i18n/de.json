@@ -38,5 +38,6 @@
   "Hyper 2000": "Hyper 2000",
   "Ace 1500": "Ace 1500",
   "AIO 2400": "AIO 2400",
-  "localMqttUrl": "Lokale MQTT Server URL/IP"
+  "localMqttUrl": "Lokale MQTT Server URL/IP",
+  "useRestart": "Neustart des Adapters alle 3 Stunden verwenden um die Verbindung zu erneuern"
 }

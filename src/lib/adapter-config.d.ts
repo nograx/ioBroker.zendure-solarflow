@@ -23,6 +23,7 @@ declare global {
       forceShutdownOnLowVoltage: boolean;
       fullChargeIfNeeded: boolean;
       dischargeLimit: number;
+      useRestart: boolean;
       useFallbackService: boolean;
       snNumber: string;
     }
