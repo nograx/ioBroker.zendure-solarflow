@@ -21,6 +21,16 @@ import { getStateDefinition } from "../helpers/createSolarFlowStates";
 
 let adapter: ZendureSolarflow | undefined = undefined;
 
+const knownPackDataProperties = [
+  "sn",
+  "totalVol",
+  "maxVol",
+  "minVol",
+  "socLevel",
+  "maxTemp",
+  "soh",
+];
+
 export const addOrUpdatePackData = async (
   productKey: string,
   deviceKey: string,
@@ -37,8 +47,13 @@ export const addOrUpdatePackData = async (
         if (productKey == "yWF7hV") {
           batType = "AIO2400";
         } else if (x.sn.startsWith("C")) {
-          // It's a AB2000
-          batType = "AB2000";
+          if (x.sn[3] == "F") {
+            // It's a AB2000S
+            batType = "AB2000S";
+          } else {
+            // It's a AB2000
+            batType = "AB2000";
+          }
         } else if (x.sn.startsWith("A")) {
           // It's a AB1000
           batType = "AB1000";
@@ -131,6 +146,7 @@ export const addOrUpdatePackData = async (
               role: "value",
               read: true,
               write: false,
+              unit: "%",
             },
             native: {},
           });
@@ -175,11 +191,30 @@ export const addOrUpdatePackData = async (
               role: "value",
               read: true,
               write: false,
+              unit: "V",
             },
             native: {},
           });
 
           await adapter?.setState(key + ".minVol", x.minVol / 100, true);
+        }
+
+        if (x.batcur) {
+          await adapter?.extendObject(key + ".batcur", {
+            type: "state",
+            common: {
+              name: "batcur",
+              type: "number",
+              desc: "batcur",
+              role: "value",
+              read: true,
+              write: false,
+              unit: "A",
+            },
+            native: {},
+          });
+
+          await adapter?.setState(key + ".batcur", x.batcur / 10, true);
         }
 
         if (x.maxVol) {
@@ -192,6 +227,7 @@ export const addOrUpdatePackData = async (
               role: "value",
               read: true,
               write: false,
+              unit: "V",
             },
             native: {},
           });
@@ -209,6 +245,7 @@ export const addOrUpdatePackData = async (
               role: "value",
               read: true,
               write: false,
+              unit: "V",
             },
             native: {},
           });
@@ -222,6 +259,48 @@ export const addOrUpdatePackData = async (
             checkVoltage(adapter, productKey, deviceKey, totalVol);
           }
         }
+
+        if (x.soh) {
+          await adapter?.extendObject(key + ".soh", {
+            type: "state",
+            common: {
+              name: {
+                de: "Gesundheitszustand",
+                en: "State of Health",
+              },
+              type: "number",
+              desc: "State of Health",
+              role: "value",
+              read: true,
+              write: false,
+              unit: "%",
+            },
+            native: {},
+          });
+
+          await adapter?.setState(key + ".soh", x.soh / 10, true);
+        }
+
+        // Debug, send message if property is unknown!
+        let found = false;
+
+        Object.entries(x).forEach(([key, value]) => {
+          knownPackDataProperties.forEach((property: string) => {
+            if (property == key) {
+              found = true;
+            }
+          });
+
+          if (found) {
+            //console.log(
+            //  `${productName?.val}: ${key} with value ${value} is a KNOWN Mqtt Prop!`
+            //);
+          } else {
+            adapter?.log.debug(
+              `[addOrUpdatePackData] ${key} with value ${value} is a UNKNOWN PackData Mqtt Property!`
+            );
+          }
+        });
       }
     });
   }
@@ -1242,9 +1321,33 @@ export const setAutoModel = async (
   if (adapter.mqttClient && productKey && deviceKey) {
     const topic = `iot/${productKey}/${deviceKey}/properties/write`;
 
-    const setAutoModelContent = { properties: { autoModel: autoModel } };
+    let setAutoModelContent: any = { properties: { autoModel: autoModel } };
+
+    switch (autoModel) {
+      case 8: // Smart Matching Modus
+        setAutoModelContent = {
+          properties: {
+            autoModelProgram: 1,
+            autoModelValue: { chargingType: 0, chargingPower: 0, outPower: 0 },
+            msgType: 1,
+            autoModel: 8,
+          },
+        };
+        break;
+      case 9: // Smart CT Modus
+        setAutoModelContent = {
+          properties: {
+            autoModelProgram: 2,
+            autoModelValue: { chargingType: 3, chargingPower: 0, outPower: 0 },
+            msgType: 1,
+            autoModel: 9,
+          },
+        };
+        break;
+    }
+
     adapter.log.debug(
-      `[setBuzzer] Setting autoModel for device key ${deviceKey} to ${autoModel}!`
+      `[setAutoModel] Setting autoModel for device key ${deviceKey} to ${autoModel}!`
     );
     adapter.mqttClient?.publish(topic, JSON.stringify(setAutoModelContent));
   }

@@ -57,6 +57,12 @@ You can still do firmware updates with the official Zendure app via bluetooth an
 Credits goes to https://github.com/reinhard-brandstaedter/solarflow which helped a lot with the knowledge about the MQTT server from Zendure! Thanks!
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- TEST: Set Smart CT Mode and Smart Matching Mode correctly - Feedback needed!
+- Removed efficiency from calculation, as it seems Zendure already included it in charge and discharge values
+
 ### 1.13.0 (2025-04-30)
 
 - Add possibility to deactivate automatic restart of adapter in adapter settings (recommended only on local mode!)

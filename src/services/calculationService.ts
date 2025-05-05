@@ -325,10 +325,10 @@ export const calculateEnergy = async (
       const timeFrame = 30000;
 
       // Calculate Energy value (Wh) from current power in the timeframe from last run...
-      let addEnergyValue =
+      const addEnergyValue =
         (Number(currentPowerState.val) * timeFrame) / 3600000; // Wh
 
-      // Use efficiency factor (used the one from Youtube Channel VoltAmpereLux - thanks!)
+      /*       // Use efficiency factor (used the one from Youtube Channel VoltAmpereLux - thanks!)
       const chargingFactor = 0.96; // Efficiency 96%
       const dischargingFactor = 1.08 - addEnergyValue / 10000; // Efficiency 92% - 98% (92% + Energy / 10000 = 600W -> +6%)
 
@@ -340,7 +340,7 @@ export const calculateEnergy = async (
       addEnergyValue =
         stateKey == "packInput" && addEnergyValue > 0
           ? addEnergyValue * dischargingFactor
-          : addEnergyValue;
+          : addEnergyValue; */
 
       let newEnergyValue = Number(currentEnergyState.val) + addEnergyValue;
 
