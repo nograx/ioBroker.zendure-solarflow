@@ -55,6 +55,15 @@ var import_jobSchedule = require("./jobSchedule");
 var import_createSolarFlowLocalStates = require("../helpers/createSolarFlowLocalStates");
 var import_createSolarFlowStates = require("../helpers/createSolarFlowStates");
 let adapter = void 0;
+const knownPackDataProperties = [
+  "sn",
+  "totalVol",
+  "maxVol",
+  "minVol",
+  "socLevel",
+  "maxTemp",
+  "soh"
+];
 const addOrUpdatePackData = async (productKey, deviceKey, packData, isSolarFlow) => {
   if (adapter && productKey && deviceKey) {
     await packData.forEach(async (x) => {
@@ -63,7 +72,11 @@ const addOrUpdatePackData = async (productKey, deviceKey, packData, isSolarFlow)
         if (productKey == "yWF7hV") {
           batType = "AIO2400";
         } else if (x.sn.startsWith("C")) {
-          batType = "AB2000";
+          if (x.sn[3] == "F") {
+            batType = "AB2000S";
+          } else {
+            batType = "AB2000";
+          }
         } else if (x.sn.startsWith("A")) {
           batType = "AB1000";
         }
@@ -134,7 +147,8 @@ const addOrUpdatePackData = async (productKey, deviceKey, packData, isSolarFlow)
               desc: "SOC Level",
               role: "value",
               read: true,
-              write: false
+              write: false,
+              unit: "%"
             },
             native: {}
           }));
@@ -172,11 +186,28 @@ const addOrUpdatePackData = async (productKey, deviceKey, packData, isSolarFlow)
               desc: "minVol",
               role: "value",
               read: true,
-              write: false
+              write: false,
+              unit: "V"
             },
             native: {}
           }));
           await (adapter == null ? void 0 : adapter.setState(key + ".minVol", x.minVol / 100, true));
+        }
+        if (x.batcur) {
+          await (adapter == null ? void 0 : adapter.extendObject(key + ".batcur", {
+            type: "state",
+            common: {
+              name: "batcur",
+              type: "number",
+              desc: "batcur",
+              role: "value",
+              read: true,
+              write: false,
+              unit: "A"
+            },
+            native: {}
+          }));
+          await (adapter == null ? void 0 : adapter.setState(key + ".batcur", x.batcur / 10, true));
         }
         if (x.maxVol) {
           await (adapter == null ? void 0 : adapter.extendObject(key + ".maxVol", {
@@ -187,7 +218,8 @@ const addOrUpdatePackData = async (productKey, deviceKey, packData, isSolarFlow)
               desc: "maxVol",
               role: "value",
               read: true,
-              write: false
+              write: false,
+              unit: "V"
             },
             native: {}
           }));
@@ -202,7 +234,8 @@ const addOrUpdatePackData = async (productKey, deviceKey, packData, isSolarFlow)
               desc: "totalVol",
               role: "value",
               read: true,
-              write: false
+              write: false,
+              unit: "V"
             },
             native: {}
           }));
@@ -212,6 +245,39 @@ const addOrUpdatePackData = async (productKey, deviceKey, packData, isSolarFlow)
             (0, import_adapterService.checkVoltage)(adapter, productKey, deviceKey, totalVol);
           }
         }
+        if (x.soh) {
+          await (adapter == null ? void 0 : adapter.extendObject(key + ".soh", {
+            type: "state",
+            common: {
+              name: {
+                de: "Gesundheitszustand",
+                en: "State of Health"
+              },
+              type: "number",
+              desc: "State of Health",
+              role: "value",
+              read: true,
+              write: false,
+              unit: "%"
+            },
+            native: {}
+          }));
+          await (adapter == null ? void 0 : adapter.setState(key + ".soh", x.soh / 10, true));
+        }
+        let found = false;
+        Object.entries(x).forEach(([key2, value]) => {
+          knownPackDataProperties.forEach((property) => {
+            if (property == key2) {
+              found = true;
+            }
+          });
+          if (found) {
+          } else {
+            adapter == null ? void 0 : adapter.log.debug(
+              `[addOrUpdatePackData] ${key2} with value ${value} is a UNKNOWN PackData Mqtt Property!`
+            );
+          }
+        });
       }
     });
   }
@@ -894,9 +960,31 @@ const setAutoModel = async (adapter2, productKey, deviceKey, autoModel) => {
   var _a;
   if (adapter2.mqttClient && productKey && deviceKey) {
     const topic = `iot/${productKey}/${deviceKey}/properties/write`;
-    const setAutoModelContent = { properties: { autoModel } };
+    let setAutoModelContent = { properties: { autoModel } };
+    switch (autoModel) {
+      case 8:
+        setAutoModelContent = {
+          properties: {
+            autoModelProgram: 1,
+            autoModelValue: { chargingType: 0, chargingPower: 0, outPower: 0 },
+            msgType: 1,
+            autoModel: 8
+          }
+        };
+        break;
+      case 9:
+        setAutoModelContent = {
+          properties: {
+            autoModelProgram: 2,
+            autoModelValue: { chargingType: 3, chargingPower: 0, outPower: 0 },
+            msgType: 1,
+            autoModel: 9
+          }
+        };
+        break;
+    }
     adapter2.log.debug(
-      `[setBuzzer] Setting autoModel for device key ${deviceKey} to ${autoModel}!`
+      `[setAutoModel] Setting autoModel for device key ${deviceKey} to ${autoModel}!`
     );
     (_a = adapter2.mqttClient) == null ? void 0 : _a.publish(topic, JSON.stringify(setAutoModelContent));
   }

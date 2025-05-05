@@ -234,11 +234,7 @@ const calculateEnergy = async (adapter, productKey, deviceKey) => {
       await (adapter == null ? void 0 : adapter.setState(stateNameEnergyWh, 1e-6, true));
     } else if (currentEnergyState && currentEnergyState.lc && currentPowerState && currentPowerState.val != void 0 && currentPowerState.val != null) {
       const timeFrame = 3e4;
-      let addEnergyValue = Number(currentPowerState.val) * timeFrame / 36e5;
-      const chargingFactor = 0.96;
-      const dischargingFactor = 1.08 - addEnergyValue / 1e4;
-      addEnergyValue = stateKey == "outputPack" && addEnergyValue > 0 ? addEnergyValue * chargingFactor : addEnergyValue;
-      addEnergyValue = stateKey == "packInput" && addEnergyValue > 0 ? addEnergyValue * dischargingFactor : addEnergyValue;
+      const addEnergyValue = Number(currentPowerState.val) * timeFrame / 36e5;
       let newEnergyValue = Number(currentEnergyState.val) + addEnergyValue;
       if (newEnergyValue < 0) {
         newEnergyValue = 0;

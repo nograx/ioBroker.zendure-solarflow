@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.13.0",
+    "version": "1.13.1",
     "news": {
+      "1.13.1": {
+        "en": "TEST: Set Smart CT Mode and Smart Matching Mode correctly - Feedback needed!\nRemoved efficiency from calculation, as it seems Zendure already included it in charge and discharge values",
+        "de": "TEST: Setzen Sie Smart CT Modus und Smart Matching Modus richtig - Feedback erforderlich!\nEntzogene Effizienz von der Berechnung, wie es scheint, Zendure bereits in die Gebühren- und Entladewerte enthalten",
+        "ru": "TEST: Установите режим Smart CT и режим Smart Matching правильно - обратная связь необходима!\nСнята эффективность с расчетов, так как, похоже, Zendure уже включила в него значения заряда и разряда",
+        "pt": "TEST: Defina o modo Smart CT e o modo Smart Matching corretamente - Feedback necessário!\nEficiência removida do cálculo, pois parece que Zendure já o incluiu nos valores de carga e descarga",
+        "nl": "TEST: Smart CT-modus en Smart Matching-modus correct instellen - feedback nodig!\nVerwijderde efficiëntie van de berekening, zoals het lijkt Zendure al opgenomen in de leiding en kwijting waarden",
+        "fr": "ESSAI: Réglez le mode CT intelligent et le mode de correspondance intelligent correctement - Feedback nécessaire!\nEfficience supprimée du calcul, comme il semble que Zendure l'ait déjà inclus en charge et valeurs de décharge",
+        "it": "TEST: Impostare la modalità Smart CT e la modalità Smart Matching correttamente - Feedback necessario!\nEfficienza eliminata dal calcolo, come sembra Zendure già incluso in carica e valori di scarico",
+        "es": "TEST: Set Smart CT Mode y Smart Matching Mode correctamente - ¡Retroalimentación necesaria!\nEficiencia eliminada del cálculo, ya que parece que Zendure ya lo incluyó a cargo y valores de descarga",
+        "pl": "TEST: Ustaw tryb inteligentnego CT i tryb inteligentnego dopasowywania poprawnie - wymagane informacje zwrotne!\nUsunięto wydajność z obliczeń, jak wydaje się, że Zabb już włączył go do opłat i wartości zrzutu",
+        "uk": "TEST: Встановити розумний режим КТ і розумний режим матчу - Зворотній зв'язок потрібно!\nВилучена ефективність з розрахунку, так як вона здається Zendure вже включена до його заряду та значень розряду",
+        "zh-cn": "TEST: 正确设置智能 CT 模式和智能匹配模式 - 需要反馈 !\n从计算中取消了效率,因为看来Zendure已经包括了它负责和排放值"
+      },
       "1.13.0": {
         "en": "Add possibility to deactivate automatic restart of adapter in adapter settings (recommended only on local mode!)\nFixed missing control state \"hubState\"",
         "de": "Möglichkeit hinzufügen, den automatischen Neustart des Adapters in Adaptereinstellungen zu deaktivieren (nur im lokalen Modus eingeschaltet!)\nFester fehlender Kontrollzustand \"hubState\"",
@@ -80,19 +93,6 @@
         "pl": "Dodaj 2 więcej urządzeń w trybie \"lokalnym\"\nNapraw subskrypcję mqtt 2. urządzenia w trybie \"lokalnym\"",
         "uk": "Додайте ще 2 пристрої, якщо використовується режим \"локального\"\nВиправлення mqtt підписки 2. пристрій в режимі \"локальний\"",
         "zh-cn": "如果使用“ 本地” 模式, 将增加两个设备\n在“ 本地” 模式下修复 mqtt 订阅 2 设备"
-      },
-      "1.12.2": {
-        "en": "Fix reset of calculation values on \"local\" mode",
-        "de": "Reset von Berechnungswerten im \"lokalen\" Modus",
-        "ru": "Исправление сброса расчетных значений в «локальном» режиме",
-        "pt": "Corrigir redefinição de valores de cálculo no modo \"local\"",
-        "nl": "Reset van berekeningswaarden op \"lokale\" modus repareren",
-        "fr": "Correction de la remise des valeurs de calcul en mode \"local\"",
-        "it": "Ripristino dei valori di calcolo sulla modalità \"locale\"",
-        "es": "Fijar el reajuste de los valores de cálculo en modo \"local\"",
-        "pl": "Napraw resetowanie wartości obliczeniowych w trybie \"lokalnym\"",
-        "uk": "Виправлення значень розрахунку на режим «локального»",
-        "zh-cn": "修复“ 本地” 模式上的计算值"
       }
     },
     "titleLang": {
