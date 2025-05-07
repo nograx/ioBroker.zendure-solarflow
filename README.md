@@ -57,6 +57,11 @@ You can still do firmware updates with the official Zendure app via bluetooth an
 Credits goes to https://github.com/reinhard-brandstaedter/solarflow which helped a lot with the knowledge about the MQTT server from Zendure! Thanks!
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Fix AC Mode showing unknown parameter on ACE 1500
+
 ### 1.13.1 (2025-05-05)
 
 - TEST: Set Smart CT Mode and Smart Matching Mode correctly - Feedback needed!
