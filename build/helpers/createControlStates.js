@@ -77,7 +77,7 @@ const createControlStates = async (adapter, productKey, deviceKey, productName) 
           desc: state.title,
           role: state.role,
           read: true,
-          write: false,
+          write: true,
           unit: state.unit,
           states: state.states
         },

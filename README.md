@@ -55,6 +55,11 @@ You can still do firmware updates with the official Zendure app via bluetooth an
 Credits goes to https://github.com/reinhard-brandstaedter/solarflow which helped a lot with the knowledge about the MQTT server from Zendure! Thanks!
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Fix control states not writable.
+
 ### 1.14.1 (2025-06-07)
 
 - IMPORTANT: This version will use a new way to check which states should be created for the device, so maybe something is broken on state creation!

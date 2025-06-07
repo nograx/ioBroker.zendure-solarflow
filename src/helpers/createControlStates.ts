@@ -69,7 +69,7 @@ export const createControlStates = async (
           desc: state.title,
           role: state.role,
           read: true,
-          write: false,
+          write: true,
           unit: state.unit,
           states: state.states,
         },
