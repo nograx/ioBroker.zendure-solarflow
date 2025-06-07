@@ -55,8 +55,7 @@ You can still do firmware updates with the official Zendure app via bluetooth an
 Credits goes to https://github.com/reinhard-brandstaedter/solarflow which helped a lot with the knowledge about the MQTT server from Zendure! Thanks!
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 1.14.1 (2025-06-07)
 
 - IMPORTANT: This version will use a new way to check which states should be created for the device, so maybe something is broken on state creation!
 - Add support for AC2400, Solarflow 800 and Solarflow 800 Pro. All devices are untested as Zendure won't allow to share data to other users on these new devices AND I don't own any of the devices!
