@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.14.1",
+    "version": "1.14.2",
     "news": {
+      "1.14.2": {
+        "en": "Fix control states not writable.",
+        "de": "Kontrollzustände nicht schreibbar reparieren.",
+        "ru": "Установить контрольные состояния, не подлежащие написанию.",
+        "pt": "Corrigir estados de controle não graváveis.",
+        "nl": "Regel controle staten niet schrijfbaar.",
+        "fr": "Fixez les états de contrôle qui ne sont pas lisibles.",
+        "it": "Fissare gli stati di controllo non scrivibile.",
+        "es": "Arreglar estados de control no es obligatorio.",
+        "pl": "Naprawa stanów kontroli nie jest możliwa do zapisu.",
+        "uk": "Виправлення контрольних станів не дратуються.",
+        "zh-cn": "修复控制状态不可写入 ."
+      },
       "1.14.1": {
         "en": "IMPORTANT: This version will use a new way to check which states should be created for the device, so maybe something is broken on state creation!\nAdd support for AC2400, Solarflow 800 and Solarflow 800 Pro. All devices are untested as Zendure won't allow to share data to other users on these new devices AND I don't own any of the devices!\nRemoved the \"standby usage\" on batteries, as it confused some people.",
         "de": "WICHTIG: Diese Version wird einen neuen Weg verwenden, um zu überprüfen, welche Zustände für das Gerät erstellt werden sollten, also ist vielleicht etwas auf die staatliche Schöpfung gebrochen!\nUnterstützung für AC2400, Solarflow 800 und Solarflow 800 Pro. Alle Geräte sind nicht getestet, da Zendure nicht zulassen wird, Daten an andere Benutzer auf diesen neuen Geräten zu teilen und ich habe keine der Geräte!\nEntfernt die \"Standby-Nutzung\" auf Batterien, da es einige Leute verwirrt.",
@@ -80,19 +93,6 @@
         "pl": "Dodaj produkt Klucz \"gDa3tb\" dla Hyper 2000",
         "uk": "Додати товар Ключ \"gDa3tb\" для Hyper 2000",
         "zh-cn": "添加产品 Hyper 2000 的密钥“ gDa3tb ”"
-      },
-      "1.12.6": {
-        "en": "Fix onMessage Debug message",
-        "de": "Fix onMessage Debug-Nachricht",
-        "ru": "Отправить сообщение Message Debug",
-        "pt": "Corrigir mensagem de depuração na mensagem",
-        "nl": "OnMessage-debugbericht herstellen",
-        "fr": "Correction du message de débogage surMessage",
-        "it": "Fissare il messaggio Debug suMessage",
-        "es": "Corregir el mensaje de depuración de mensajes",
-        "pl": "Popraw wiadomość o debugowaniu wiadomości",
-        "uk": "Виправлення onMessage Debug повідомлення",
-        "zh-cn": "在 Message 调试消息上修正"
       }
     },
     "titleLang": {
