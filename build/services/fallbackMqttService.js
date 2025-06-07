@@ -173,12 +173,12 @@ const onMessage = async (topic, message) => {
       (x) => x.deviceKey == deviceKey && x.productKey == productKey
     )) {
       const device = {
-        productName: "Solarflow",
+        productName: "Solarflow2.0",
         deviceKey,
         productKey
       };
       adapter.deviceList.push(device);
-      await (0, import_createSolarFlowStates.createSolarFlowStates)(adapter, device, "solarflow");
+      await (0, import_createSolarFlowStates.createSolarFlowStates)(adapter, device);
       await (0, import_adapterService.updateSolarFlowState)(
         adapter,
         productKey,

@@ -108,7 +108,10 @@ export const checkVoltage = async (
         true
       );
 
-      if (adapter.config.forceShutdownOnLowVoltage) {
+      if (
+        adapter.config.useLowVoltageBlock &&
+        adapter.config.forceShutdownOnLowVoltage
+      ) {
         setDischargeLimit(
           adapter,
           productKey,

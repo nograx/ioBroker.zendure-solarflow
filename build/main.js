@@ -182,21 +182,11 @@ class ZendureSolarflow extends utils.Adapter {
             await this.deviceList.forEach(
               async (device) => {
                 var _a;
-                let type = "solarflow";
-                if (device.productName.toLocaleLowerCase().includes("hyper")) {
-                  type = "hyper";
-                } else if (device.productName.toLocaleLowerCase().includes("ace")) {
-                  type = "ace";
-                } else if (device.productName.toLocaleLowerCase().includes("aio")) {
-                  type = "aio";
-                } else if (device.productName.toLocaleLowerCase().includes("smart plug")) {
-                  type = "smartPlug";
-                }
                 if (device.packList && device.packList.length > 0) {
                   device.packList.forEach(async (subDevice) => {
                     if (subDevice.productName.toLocaleLowerCase() == "ace 1500") {
                       device._connectedWithAce = true;
-                      await (0, import_createSolarFlowStates.createSolarFlowStates)(this, subDevice, "ace");
+                      await (0, import_createSolarFlowStates.createSolarFlowStates)(this, subDevice);
                       await (0, import_adapterService.updateSolarFlowState)(
                         this,
                         subDevice.productKey,
@@ -207,7 +197,7 @@ class ZendureSolarflow extends utils.Adapter {
                     }
                   });
                 }
-                await (0, import_createSolarFlowStates.createSolarFlowStates)(this, device, type);
+                await (0, import_createSolarFlowStates.createSolarFlowStates)(this, device);
                 if (!device.productName.toLowerCase().includes("smart plug")) {
                   await (0, import_adapterService.updateSolarFlowState)(
                     this,
@@ -294,50 +284,68 @@ class ZendureSolarflow extends utils.Adapter {
       } else if (state.val != void 0 && state.val != null && !state.ack) {
         switch (stateName1) {
           case "control":
-            if (stateName2 == "setOutputLimit") {
-              (0, import_mqttService.setOutputLimit)(this, productKey, deviceKey, Number(state.val));
-            } else if (stateName2 == "setInputLimit") {
-              (0, import_mqttService.setInputLimit)(this, productKey, deviceKey, Number(state.val));
-            } else if (stateName2 == "dischargeLimit") {
-              (0, import_mqttService.setDischargeLimit)(this, productKey, deviceKey, Number(state.val));
-            } else if (stateName2 == "chargeLimit") {
-              (0, import_mqttService.setChargeLimit)(this, productKey, deviceKey, Number(state.val));
-            } else if (stateName2 == "passMode") {
-              (0, import_mqttService.setPassMode)(this, productKey, deviceKey, Number(state.val));
-            } else if (stateName2 == "dcSwitch") {
-              (0, import_mqttService.setDcSwitch)(
-                this,
-                productKey,
-                deviceKey,
-                state.val ? true : false
-              );
-            } else if (stateName2 == "acSwitch") {
-              (0, import_mqttService.setAcSwitch)(
-                this,
-                productKey,
-                deviceKey,
-                state.val ? true : false
-              );
-            } else if (stateName2 == "acMode") {
-              (0, import_mqttService.setAcMode)(this, productKey, deviceKey, Number(state.val));
-            } else if (stateName2 == "hubState") {
-              (0, import_mqttService.setHubState)(this, productKey, deviceKey, Number(state.val));
-            } else if (stateName2 == "autoModel") {
-              (0, import_mqttService.setAutoModel)(this, productKey, deviceKey, Number(state.val));
-            } else if (stateName2 == "autoRecover") {
-              (0, import_mqttService.setAutoRecover)(
-                this,
-                productKey,
-                deviceKey,
-                state.val ? true : false
-              );
-            } else if (stateName2 == "buzzerSwitch") {
-              (0, import_mqttService.setBuzzerSwitch)(
-                this,
-                productKey,
-                deviceKey,
-                state.val ? true : false
-              );
+            switch (stateName2) {
+              case "setOutputLimit":
+                (0, import_mqttService.setOutputLimit)(this, productKey, deviceKey, Number(state.val));
+                break;
+              case "setInputLimit":
+                (0, import_mqttService.setInputLimit)(this, productKey, deviceKey, Number(state.val));
+                break;
+              case "chargeLimit":
+                (0, import_mqttService.setChargeLimit)(this, productKey, deviceKey, Number(state.val));
+                break;
+              case "dischargeLimit":
+                (0, import_mqttService.setDischargeLimit)(
+                  this,
+                  productKey,
+                  deviceKey,
+                  Number(state.val)
+                );
+                break;
+              case "passMode":
+                (0, import_mqttService.setPassMode)(this, productKey, deviceKey, Number(state.val));
+                break;
+              case "dcSwitch":
+                (0, import_mqttService.setDcSwitch)(
+                  this,
+                  productKey,
+                  deviceKey,
+                  state.val ? true : false
+                );
+                break;
+              case "acSwitch":
+                (0, import_mqttService.setAcSwitch)(
+                  this,
+                  productKey,
+                  deviceKey,
+                  state.val ? true : false
+                );
+                break;
+              case "acMode":
+                (0, import_mqttService.setAcMode)(this, productKey, deviceKey, Number(state.val));
+                break;
+              case "hubState":
+                (0, import_mqttService.setHubState)(this, productKey, deviceKey, Number(state.val));
+                break;
+              case "autoModel":
+                (0, import_mqttService.setAutoModel)(this, productKey, deviceKey, Number(state.val));
+                break;
+              case "autoRecover":
+                (0, import_mqttService.setAutoRecover)(
+                  this,
+                  productKey,
+                  deviceKey,
+                  state.val ? true : false
+                );
+                break;
+              case "buzzerSwitch":
+                (0, import_mqttService.setBuzzerSwitch)(
+                  this,
+                  productKey,
+                  deviceKey,
+                  state.val ? true : false
+                );
+                break;
             }
             break;
           default:

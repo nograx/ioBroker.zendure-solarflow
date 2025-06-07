@@ -1,10 +1,12 @@
 /* eslint-disable @typescript-eslint/indent */
 
+import { ac2400States } from "../constants/ac2400States";
 import { aceStates } from "../constants/aceStates";
 import { aioStates } from "../constants/aioStates";
 import { hubStates } from "../constants/hubStates";
 import { hyperStates } from "../constants/hyperStates";
-import { smartPlugStates } from "../constants/smartPlugStates";
+import { solarflow800ProStates } from "../constants/solarflow800ProStates";
+import { solarflow800States } from "../constants/solarflow800States";
 import { ZendureSolarflow } from "../main";
 import { ISolarFlowDeviceDetails } from "../models/ISolarFlowDeviceDetails";
 import { ISolarflowState } from "../models/ISolarflowState";
@@ -13,18 +15,24 @@ import { createCalculationStates } from "./createCalculationStates";
 import { createControlStates } from "./createControlStates";
 //import { deleteCalculationStates } from "./deleteCalculationStates";
 
-export const getStateDefinition = (type: string): ISolarflowState[] => {
-  switch (type) {
-    case "aio":
-      return aioStates;
-    case "hyper":
+export const getStateDefinition = (productName: string): ISolarflowState[] => {
+  switch (productName.toLocaleLowerCase()) {
+    case "hyper 2000":
       return hyperStates;
-    case "solarflow":
+    case "solarflow 800":
+      return solarflow800States;
+    case "solarflow2.0":
       return hubStates;
-    case "ace":
+    case "solarflow hub 2000":
+      return hubStates;
+    case "solarflow aio zy":
+      return aioStates;
+    case "ace 1500":
       return aceStates;
-    case "smartPlug":
-      return smartPlugStates;
+    case "solarflow 800 pro":
+      return solarflow800ProStates;
+    case "solarflow 2400 ac":
+      return ac2400States;
     default:
       return [];
   }
@@ -32,15 +40,19 @@ export const getStateDefinition = (type: string): ISolarflowState[] => {
 
 export const createSolarFlowStates = async (
   adapter: ZendureSolarflow,
-  device: ISolarFlowDeviceDetails,
-  type: string
+  device: ISolarFlowDeviceDetails
 ): Promise<void> => {
-  let productKey = device.productKey.replace(adapter.FORBIDDEN_CHARS, "");
-  let deviceKey = device.deviceKey.replace(adapter.FORBIDDEN_CHARS, "");
+  const productKey = device.productKey.replace(adapter.FORBIDDEN_CHARS, "");
+  const deviceKey = device.deviceKey.replace(adapter.FORBIDDEN_CHARS, "");
 
-  if (device.productKey == "s3Xk4x" && adapter && adapter.userId && device.id) {
-    productKey = adapter.userId;
-    deviceKey = device.id.toString();
+  if (
+    device.productKey ==
+    "s3Xk4x" /*  && adapter && adapter.userId && device.id */
+  ) {
+    adapter.log.debug(`[createSolarFlowStates] Smart Plug not supported.`);
+    return;
+    // productKey = adapter.userId;
+    // deviceKey = device.id.toString();
   }
 
   adapter.log.debug(
@@ -72,7 +84,7 @@ export const createSolarFlowStates = async (
   });
 
   // Create pack data folder
-  if (type != "smartPlug") {
+  if (!device.productName.toLocaleLowerCase().includes("smart plug")) {
     await adapter?.extendObject(`${productKey}.${deviceKey}.packData`, {
       type: "channel",
       common: {
@@ -85,7 +97,14 @@ export const createSolarFlowStates = async (
     });
   }
 
-  const states = getStateDefinition(type);
+  const states = getStateDefinition(device.productName);
+
+  if (states.length == 0) {
+    adapter.log.error(
+      `[createSolarFlowLocalStates] Unknown product (${device.productName}). We cannot create control states! Please contact the developer!`
+    );
+    return;
+  }
 
   states.forEach(async (state: ISolarflowState) => {
     await adapter?.extendObject(`${productKey}.${deviceKey}.${state.title}`, {
@@ -108,7 +127,10 @@ export const createSolarFlowStates = async (
   });
 
   // Set SOC from device
-  if (device.electricity && type != "smartPlug") {
+  if (
+    device.electricity &&
+    !device.productName.toLocaleLowerCase().includes("smart plug")
+  ) {
     await updateSolarFlowState(
       adapter,
       device.productKey,
@@ -131,7 +153,8 @@ export const createSolarFlowStates = async (
 
   // Set the ACE connection info if is solarflow hub device
   if (
-    type == "solarflow" &&
+    (device.productName.toLocaleLowerCase() == "solarflow hub 2000" ||
+      device.productName.toLocaleLowerCase() == "solarflow2.0") &&
     device._connectedWithAce != null &&
     device._connectedWithAce != undefined
   ) {
@@ -162,10 +185,15 @@ export const createSolarFlowStates = async (
     device.wifiStatus ? "Connected" : "Disconnected"
   );
 
-  if (type != "smartPlug") {
+  if (!device.productName.toLocaleLowerCase().includes("smart plug")) {
     // Create control states only when using App MQTT servers - and not the fallback one!
     if (!adapter.config.useFallbackService) {
-      await createControlStates(adapter, productKey, deviceKey, type);
+      await createControlStates(
+        adapter,
+        productKey,
+        deviceKey,
+        device.productName
+      );
     }
 
     if (adapter.config.useCalculation) {
@@ -181,7 +209,7 @@ export const createSolarFlowStates = async (
         native: {},
       });
 
-      await createCalculationStates(adapter, productKey, deviceKey, type);
+      await createCalculationStates(adapter, productKey, deviceKey);
     } else {
       //await deleteCalculationStates(adapter, productKey, deviceKey);
     }

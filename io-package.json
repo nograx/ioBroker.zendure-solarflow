@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.13.1",
+    "version": "1.13.2",
     "news": {
+      "1.13.2": {
+        "en": "Fix AC Mode showing unknown parameter on ACE 1500",
+        "de": "Fix AC Modus mit unbekanntem Parameter auf ACE 1500",
+        "ru": "Исправить AC Режим с неизвестным параметром на ACE 1500",
+        "pt": "AC de fixação Modo mostrando parâmetro desconhecido em ACE 1500",
+        "nl": "Fix AC Modus met onbekende parameter op ACE 1500",
+        "fr": "Corriger AC Mode montrant un paramètre inconnu sur ACE 1500",
+        "it": "Correzione AC Modalità che mostra un parametro sconosciuto su ACE 1500",
+        "es": "Fijar AC Mode showing unknown parameter on ACE 1500",
+        "pl": "Napraw AC Tryb wyświetlający nieznany parametr na ACE 1500",
+        "uk": "Фіксація змінного струму Режим відображення невідомого параметра на ACE 1500",
+        "zh-cn": "修复 AC 在ACE 1500上显示未知参数的模式"
+      },
       "1.13.1": {
         "en": "TEST: Set Smart CT Mode and Smart Matching Mode correctly - Feedback needed!\nRemoved efficiency from calculation, as it seems Zendure already included it in charge and discharge values",
         "de": "TEST: Setzen Sie Smart CT Modus und Smart Matching Modus richtig - Feedback erforderlich!\nEntzogene Effizienz von der Berechnung, wie es scheint, Zendure bereits in die Gebühren- und Entladewerte enthalten",
@@ -80,19 +93,6 @@
         "pl": "Popraw obliczanie SOC, jeśli używany jest tryb \"lokalny\"",
         "uk": "Фіксований розрахунок СОУ, якщо використовується режим «локального»",
         "zh-cn": "如果使用“ 本地” 模式, 固定 SOC 的计算"
-      },
-      "1.12.3": {
-        "en": "Add 2 more devices if \"local\" mode is used\nFix mqtt subscription of 2. device in \"local\" mode",
-        "de": "Fügen Sie 2 weitere Geräte hinzu, wenn \"lokal\" Modus verwendet wird\nFix mqt Abonnement von 2. Gerät im \"lokalen\" Modus",
-        "ru": "Добавьте еще 2 устройства, если используется «местный» режим\nИсправьте mqtt подписку на 2. устройство в «местном» режиме",
-        "pt": "Adicione mais 2 dispositivos se o modo \"local\" for usado\nCorrigir assinatura mqtt de 2. dispositivo no modo \"local\"",
-        "nl": "Voeg nog 2 apparaten toe als de \"lokale\" modus wordt gebruikt\nFix mqtt abonnement van 2. apparaat in \"lokale\" modus",
-        "fr": "Ajouter 2 autres appareils si le mode \"local\" est utilisé\nCorrection de l'abonnement mqtt de 2. appareil en mode \"local\"",
-        "it": "Aggiungere altri 2 dispositivi se viene utilizzata la modalità \"locale\"\nAbbonamento fisso di mqtt 2. dispositivo in modalità \"locale\"",
-        "es": "Añadir 2 dispositivos más si se utiliza el modo \"local\"\nFijar la suscripción de mqtt de 2. dispositivo en modo \"local\"",
-        "pl": "Dodaj 2 więcej urządzeń w trybie \"lokalnym\"\nNapraw subskrypcję mqtt 2. urządzenia w trybie \"lokalnym\"",
-        "uk": "Додайте ще 2 пристрої, якщо використовується режим \"локального\"\nВиправлення mqtt підписки 2. пристрій в режимі \"локальний\"",
-        "zh-cn": "如果使用“ 本地” 模式, 将增加两个设备\n在“ 本地” 模式下修复 mqtt 订阅 2 设备"
       }
     },
     "titleLang": {
@@ -155,7 +155,7 @@
     ],
     "globalDependencies": [
       {
-        "admin": ">=6.0.0"
+        "admin": ">=7.4.10"
       }
     ]
   },

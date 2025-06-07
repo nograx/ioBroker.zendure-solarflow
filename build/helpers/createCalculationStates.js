@@ -21,47 +21,45 @@ __export(createCalculationStates_exports, {
   createCalculationStates: () => createCalculationStates
 });
 module.exports = __toCommonJS(createCalculationStates_exports);
-const createCalculationStates = async (adapter, productKey, deviceKey, type) => {
-  if (type == "aio" || type == "hyper" || type == "ace" || type == "solarflow") {
-    await (adapter == null ? void 0 : adapter.extendObject(
-      `${productKey}.${deviceKey}.calculations.gridInputEnergyTodayWh`,
-      {
-        type: "state",
-        common: {
-          name: {
-            de: "Heutige Ladung per AC (Wh)",
-            en: "Charged by AC (Wh)"
-          },
-          type: "number",
-          desc: "gridInputEnergyTodayWh",
-          role: "value.energy",
-          read: true,
-          write: false,
-          unit: "Wh"
+const createCalculationStates = async (adapter, productKey, deviceKey) => {
+  await (adapter == null ? void 0 : adapter.extendObject(
+    `${productKey}.${deviceKey}.calculations.gridInputEnergyTodayWh`,
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Heutige Ladung per AC (Wh)",
+          en: "Charged by AC (Wh)"
         },
-        native: {}
-      }
-    ));
-    await (adapter == null ? void 0 : adapter.extendObject(
-      `${productKey}.${deviceKey}.calculations.gridInputEnergyTodaykWh`,
-      {
-        type: "state",
-        common: {
-          name: {
-            de: "Heutige Ladung per AC (kWh)",
-            en: "Charged by AC (kWh)"
-          },
-          type: "number",
-          desc: "gridInputEnergyTodaykWh",
-          role: "value.energy",
-          read: true,
-          write: false,
-          unit: "kWh"
+        type: "number",
+        desc: "gridInputEnergyTodayWh",
+        role: "value.energy",
+        read: true,
+        write: false,
+        unit: "Wh"
+      },
+      native: {}
+    }
+  ));
+  await (adapter == null ? void 0 : adapter.extendObject(
+    `${productKey}.${deviceKey}.calculations.gridInputEnergyTodaykWh`,
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Heutige Ladung per AC (kWh)",
+          en: "Charged by AC (kWh)"
         },
-        native: {}
-      }
-    ));
-  }
+        type: "number",
+        desc: "gridInputEnergyTodaykWh",
+        role: "value.energy",
+        read: true,
+        write: false,
+        unit: "kWh"
+      },
+      native: {}
+    }
+  ));
   await (adapter == null ? void 0 : adapter.extendObject(
     `${productKey}.${deviceKey}.calculations.solarInputEnergyTodayWh`,
     {

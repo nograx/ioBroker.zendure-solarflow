@@ -95,7 +95,7 @@ const checkVoltage = async (adapter, productKey, deviceKey, voltage) => {
         false,
         true
       ));
-      if (adapter.config.forceShutdownOnLowVoltage) {
+      if (adapter.config.useLowVoltageBlock && adapter.config.forceShutdownOnLowVoltage) {
         (0, import_mqttService.setDischargeLimit)(
           adapter,
           productKey,

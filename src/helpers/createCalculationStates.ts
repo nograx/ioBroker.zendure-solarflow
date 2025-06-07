@@ -4,55 +4,47 @@ import { ZendureSolarflow } from "../main";
 export const createCalculationStates = async (
   adapter: ZendureSolarflow,
   productKey: string,
-  deviceKey: string,
-  type: string
+  deviceKey: string
 ): Promise<void> => {
-  if (
-    type == "aio" ||
-    type == "hyper" ||
-    type == "ace" ||
-    type == "solarflow"
-  ) {
-    await adapter?.extendObject(
-      `${productKey}.${deviceKey}.calculations.gridInputEnergyTodayWh`,
-      {
-        type: "state",
-        common: {
-          name: {
-            de: "Heutige Ladung per AC (Wh)",
-            en: "Charged by AC (Wh)",
-          },
-          type: "number",
-          desc: "gridInputEnergyTodayWh",
-          role: "value.energy",
-          read: true,
-          write: false,
-          unit: "Wh",
+  await adapter?.extendObject(
+    `${productKey}.${deviceKey}.calculations.gridInputEnergyTodayWh`,
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Heutige Ladung per AC (Wh)",
+          en: "Charged by AC (Wh)",
         },
-        native: {},
-      }
-    );
+        type: "number",
+        desc: "gridInputEnergyTodayWh",
+        role: "value.energy",
+        read: true,
+        write: false,
+        unit: "Wh",
+      },
+      native: {},
+    }
+  );
 
-    await adapter?.extendObject(
-      `${productKey}.${deviceKey}.calculations.gridInputEnergyTodaykWh`,
-      {
-        type: "state",
-        common: {
-          name: {
-            de: "Heutige Ladung per AC (kWh)",
-            en: "Charged by AC (kWh)",
-          },
-          type: "number",
-          desc: "gridInputEnergyTodaykWh",
-          role: "value.energy",
-          read: true,
-          write: false,
-          unit: "kWh",
+  await adapter?.extendObject(
+    `${productKey}.${deviceKey}.calculations.gridInputEnergyTodaykWh`,
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Heutige Ladung per AC (kWh)",
+          en: "Charged by AC (kWh)",
         },
-        native: {},
-      }
-    );
-  }
+        type: "number",
+        desc: "gridInputEnergyTodaykWh",
+        role: "value.energy",
+        read: true,
+        write: false,
+        unit: "kWh",
+      },
+      native: {},
+    }
+  );
 
   /*
     Start Solar Input Energy states

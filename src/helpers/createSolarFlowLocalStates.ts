@@ -7,6 +7,25 @@ import { createControlStates } from "./createControlStates";
 import { getStateDefinition } from "./createSolarFlowStates";
 //import { deleteCalculationStates } from "./deleteCalculationStates";
 
+const getProductNameFromProductKey = (productKey: string): string => {
+  switch (productKey) {
+    case "73bkTV":
+      return "Solarflow2.0";
+    case "A8yh63":
+      return "Solarflow Hub 2000";
+    case "yWF7hV":
+      return "Solarflow AIO zy";
+    case "ja72U0ha":
+      return "Hyper 2000";
+    case "gDa3tb":
+      return "Hyper 2000";
+    case "8bM93H":
+      return "ACE 1500";
+    default:
+      return "";
+  }
+};
+
 export const createSolarFlowLocalStates = async (
   adapter: ZendureSolarflow,
   productKey: string,
@@ -15,36 +34,13 @@ export const createSolarFlowLocalStates = async (
   productKey = productKey.replace(adapter.FORBIDDEN_CHARS, "");
   deviceKey = deviceKey.replace(adapter.FORBIDDEN_CHARS, "");
 
-  let productName = "";
-  let type = "";
+  const productName = getProductNameFromProductKey(productKey);
 
-  switch (productKey) {
-    case "73bkTV":
-      productName = "Hub 1200";
-      type = "solarflow";
-      break;
-    case "A8yh63":
-      productName = "Hub 2000";
-      type = "solarflow";
-      break;
-    case "yWF7hV":
-      productName = "AIO 2400";
-      type = "aio";
-      break;
-    case "ja72U0ha":
-      productName = "Hyper 2000";
-      type = "hyper";
-      break;
-    case "gDa3tb":
-      productName = "Hyper 2000";
-      type = "hyper";
-      break;
-    case "8bM93H":
-      productName = "ACE 1500";
-      type = "ace";
-      break;
-    default:
-      break;
+  if (productName == "") {
+    adapter.log.error(
+      `[createSolarFlowLocalStates] Unknown product (${productKey}/${deviceKey}). We cannot create control states! Please contact the developer!`
+    );
+    return;
   }
 
   adapter.log.debug(
@@ -76,7 +72,7 @@ export const createSolarFlowLocalStates = async (
   });
 
   // Create pack data folder
-  if (type != "smartPlug") {
+  if (productName?.toLowerCase().includes("smart plug")) {
     await adapter?.extendObject(`${productKey}.${deviceKey}.packData`, {
       type: "channel",
       common: {
@@ -89,7 +85,7 @@ export const createSolarFlowLocalStates = async (
     });
   }
 
-  const states = getStateDefinition(type);
+  const states = getStateDefinition(productName);
 
   states.forEach(async (state: ISolarflowState) => {
     await adapter?.extendObject(`${productKey}.${deviceKey}.${state.title}`, {
@@ -111,10 +107,8 @@ export const createSolarFlowLocalStates = async (
     });
   });
 
-  // Create control states only when using App MQTT servers - and not the fallback one!
-  if (!adapter.config.useFallbackService) {
-    await createControlStates(adapter, productKey, deviceKey, type);
-  }
+  // Create control states
+  await createControlStates(adapter, productKey, deviceKey, productName);
 
   if (adapter.config.useCalculation) {
     // Create calculations folder
@@ -129,7 +123,7 @@ export const createSolarFlowLocalStates = async (
       native: {},
     });
 
-    await createCalculationStates(adapter, productKey, deviceKey, type);
+    await createCalculationStates(adapter, productKey, deviceKey);
   } else {
     //await deleteCalculationStates(adapter, productKey, deviceKey);
   }

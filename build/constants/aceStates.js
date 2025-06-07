@@ -43,7 +43,13 @@ const aceStates = import_sharedStates.sharedStates.concat([
     nameDe: "AC Modus",
     nameEn: "AC mode",
     type: "number",
-    role: "value"
+    role: "value",
+    states: {
+      0: "Nothing",
+      1: "Normal work mode",
+      2: "Never turn off",
+      3: "Automatic shutdown AC"
+    }
   },
   {
     title: "batteryElectric",

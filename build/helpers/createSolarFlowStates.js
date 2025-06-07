@@ -22,36 +22,44 @@ __export(createSolarFlowStates_exports, {
   getStateDefinition: () => getStateDefinition
 });
 module.exports = __toCommonJS(createSolarFlowStates_exports);
+var import_ac2400States = require("../constants/ac2400States");
 var import_aceStates = require("../constants/aceStates");
 var import_aioStates = require("../constants/aioStates");
 var import_hubStates = require("../constants/hubStates");
 var import_hyperStates = require("../constants/hyperStates");
-var import_smartPlugStates = require("../constants/smartPlugStates");
+var import_solarflow800ProStates = require("../constants/solarflow800ProStates");
+var import_solarflow800States = require("../constants/solarflow800States");
 var import_adapterService = require("../services/adapterService");
 var import_createCalculationStates = require("./createCalculationStates");
 var import_createControlStates = require("./createControlStates");
-const getStateDefinition = (type) => {
-  switch (type) {
-    case "aio":
-      return import_aioStates.aioStates;
-    case "hyper":
+const getStateDefinition = (productName) => {
+  switch (productName.toLocaleLowerCase()) {
+    case "hyper 2000":
       return import_hyperStates.hyperStates;
-    case "solarflow":
+    case "solarflow 800":
+      return import_solarflow800States.solarflow800States;
+    case "solarflow2.0":
       return import_hubStates.hubStates;
-    case "ace":
+    case "solarflow hub 2000":
+      return import_hubStates.hubStates;
+    case "solarflow aio zy":
+      return import_aioStates.aioStates;
+    case "ace 1500":
       return import_aceStates.aceStates;
-    case "smartPlug":
-      return import_smartPlugStates.smartPlugStates;
+    case "solarflow 800 pro":
+      return import_solarflow800ProStates.solarflow800ProStates;
+    case "solarflow 2400 ac":
+      return import_ac2400States.ac2400States;
     default:
       return [];
   }
 };
-const createSolarFlowStates = async (adapter, device, type) => {
-  let productKey = device.productKey.replace(adapter.FORBIDDEN_CHARS, "");
-  let deviceKey = device.deviceKey.replace(adapter.FORBIDDEN_CHARS, "");
-  if (device.productKey == "s3Xk4x" && adapter && adapter.userId && device.id) {
-    productKey = adapter.userId;
-    deviceKey = device.id.toString();
+const createSolarFlowStates = async (adapter, device) => {
+  const productKey = device.productKey.replace(adapter.FORBIDDEN_CHARS, "");
+  const deviceKey = device.deviceKey.replace(adapter.FORBIDDEN_CHARS, "");
+  if (device.productKey == "s3Xk4x") {
+    adapter.log.debug(`[createSolarFlowStates] Smart Plug not supported.`);
+    return;
   }
   adapter.log.debug(
     `[createSolarFlowStates] Creating or updating SolarFlow states for ${device.productName} (${productKey}/${deviceKey}) and name '${device.name}'.`
@@ -76,7 +84,7 @@ const createSolarFlowStates = async (adapter, device, type) => {
     },
     native: {}
   }));
-  if (type != "smartPlug") {
+  if (!device.productName.toLocaleLowerCase().includes("smart plug")) {
     await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.packData`, {
       type: "channel",
       common: {
@@ -88,7 +96,13 @@ const createSolarFlowStates = async (adapter, device, type) => {
       native: {}
     }));
   }
-  const states = getStateDefinition(type);
+  const states = getStateDefinition(device.productName);
+  if (states.length == 0) {
+    adapter.log.error(
+      `[createSolarFlowLocalStates] Unknown product (${device.productName}). We cannot create control states! Please contact the developer!`
+    );
+    return;
+  }
   states.forEach(async (state) => {
     await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.${state.title}`, {
       type: "state",
@@ -108,7 +122,7 @@ const createSolarFlowStates = async (adapter, device, type) => {
       native: {}
     }));
   });
-  if (device.electricity && type != "smartPlug") {
+  if (device.electricity && !device.productName.toLocaleLowerCase().includes("smart plug")) {
     await (0, import_adapterService.updateSolarFlowState)(
       adapter,
       device.productKey,
@@ -126,7 +140,7 @@ const createSolarFlowStates = async (adapter, device, type) => {
       device.snNumber.toString()
     );
   }
-  if (type == "solarflow" && device._connectedWithAce != null && device._connectedWithAce != void 0) {
+  if ((device.productName.toLocaleLowerCase() == "solarflow hub 2000" || device.productName.toLocaleLowerCase() == "solarflow2.0") && device._connectedWithAce != null && device._connectedWithAce != void 0) {
     await (0, import_adapterService.updateSolarFlowState)(
       adapter,
       device.productKey,
@@ -149,9 +163,14 @@ const createSolarFlowStates = async (adapter, device, type) => {
     "wifiState",
     device.wifiStatus ? "Connected" : "Disconnected"
   );
-  if (type != "smartPlug") {
+  if (!device.productName.toLocaleLowerCase().includes("smart plug")) {
     if (!adapter.config.useFallbackService) {
-      await (0, import_createControlStates.createControlStates)(adapter, productKey, deviceKey, type);
+      await (0, import_createControlStates.createControlStates)(
+        adapter,
+        productKey,
+        deviceKey,
+        device.productName
+      );
     }
     if (adapter.config.useCalculation) {
       await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.calculations`, {
@@ -164,7 +183,7 @@ const createSolarFlowStates = async (adapter, device, type) => {
         },
         native: {}
       }));
-      await (0, import_createCalculationStates.createCalculationStates)(adapter, productKey, deviceKey, type);
+      await (0, import_createCalculationStates.createCalculationStates)(adapter, productKey, deviceKey);
     } else {
     }
   }

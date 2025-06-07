@@ -46,17 +46,18 @@ export const addOrUpdatePackData = async (
         let batType = "";
         if (productKey == "yWF7hV") {
           batType = "AIO2400";
+        } else if (x.sn.startsWith("A")) {
+          batType = "AB1000";
+        } else if (x.sn.startsWith("B")) {
+          batType = "AB1000S";
         } else if (x.sn.startsWith("C")) {
           if (x.sn[3] == "F") {
-            // It's a AB2000S
             batType = "AB2000S";
           } else {
-            // It's a AB2000
             batType = "AB2000";
           }
-        } else if (x.sn.startsWith("A")) {
-          // It's a AB1000
-          batType = "AB1000";
+        } else if (x.sn.startsWith("F")) {
+          batType = "AB3000X";
         }
 
         // Check if is in Pack2device list
@@ -619,32 +620,12 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
       obj.properties?.packInputPower != null &&
       obj.properties?.packInputPower != undefined
     ) {
-      let standbyUsage = 0;
-
-      // Aktuelle Solar-Power abfragen, wenn 0 Standby-Verbrauch dazu rechnen
-      const solarInputPower = await adapter?.getStateAsync(
-        `${productKey}.${deviceKey}.solarInputPower`
-      );
-
-      if (solarInputPower && Number(solarInputPower.val) < 10) {
-        standbyUsage = 7 - Number(solarInputPower.val);
-      }
-
-      // Check if connected with Ace, if so add 10 Watt to standby usage!
-      const device = adapter?.deviceList?.find(
-        (x) => x.deviceKey == deviceKey && x.productKey == productKey
-      );
-
-      if (device && device._connectedWithAce) {
-        standbyUsage += 7;
-      }
-
       updateSolarFlowState(
         adapter,
         productKey,
         deviceKey,
         "packInputPower",
-        obj.properties.packInputPower + standbyUsage
+        obj.properties.packInputPower
       );
 
       // if packInputPower set outputPackPower to 0
@@ -1016,39 +997,30 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
     }
 
     if (obj.properties && adapter.log.level == "debug") {
-      let type = "solarflow";
       const _productName = productName?.val?.toString();
 
-      if (_productName?.toLowerCase().includes("hyper")) {
-        type = "hyper";
-      } else if (_productName?.toLowerCase().includes("ace")) {
-        type = "ace";
-      } else if (_productName?.toLowerCase().includes("aio")) {
-        type = "aio";
-      } else if (_productName?.toLowerCase().includes("smart plug")) {
-        type = "smartPlug";
-      }
+      if (_productName) {
+        const states = getStateDefinition(_productName);
+        let found = false;
 
-      const states = getStateDefinition(type);
-      let found = false;
+        Object.entries(obj.properties).forEach(([key, value]) => {
+          states.forEach((state: ISolarflowState) => {
+            if (state.title == key) {
+              found = true;
+            }
+          });
 
-      Object.entries(obj.properties).forEach(([key, value]) => {
-        states.forEach((state: ISolarflowState) => {
-          if (state.title == key) {
-            found = true;
+          if (found) {
+            //console.log(
+            //  `${productName?.val}: ${key} with value ${value} is a KNOWN Mqtt Prop!`
+            //);
+          } else {
+            adapter?.log.debug(
+              `[onMessage] ${productName?.val}: ${key} with value ${value} is a UNKNOWN Mqtt Property!`
+            );
           }
         });
-
-        if (found) {
-          //console.log(
-          //  `${productName?.val}: ${key} with value ${value} is a KNOWN Mqtt Prop!`
-          //);
-        } else {
-          adapter?.log.debug(
-            `[onMessage] ${productName?.val}: ${key} with value ${value} is a UNKNOWN Mqtt Property!`
-          );
-        }
-      });
+      }
     }
   }
 };

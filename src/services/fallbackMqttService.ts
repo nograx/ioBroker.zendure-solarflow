@@ -194,14 +194,14 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
     ) {
       // Create an "fake" device
       const device: ISolarFlowDeviceDetails = {
-        productName: "Solarflow",
+        productName: "Solarflow2.0",
         deviceKey: deviceKey,
         productKey: productKey,
       };
       adapter.deviceList.push(device);
 
       // Wir erstellen bzw. aktualisieren die States, erfolgt im "normalen" MQTT in der main.ts
-      await createSolarFlowStates(adapter, device, "solarflow");
+      await createSolarFlowStates(adapter, device);
 
       await updateSolarFlowState(
         adapter,

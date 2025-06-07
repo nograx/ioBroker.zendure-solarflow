@@ -225,29 +225,6 @@ export class ZendureSolarflow extends utils.Adapter {
 
               await this.deviceList.forEach(
                 async (device: ISolarFlowDeviceDetails) => {
-                  let type = "solarflow";
-
-                  if (
-                    device.productName.toLocaleLowerCase().includes("hyper")
-                  ) {
-                    type = "hyper";
-                  } else if (
-                    device.productName.toLocaleLowerCase().includes("ace")
-                  ) {
-                    type = "ace";
-                  } else if (
-                    device.productName.toLocaleLowerCase().includes("aio")
-                  ) {
-                    type = "aio";
-                  } else if (
-                    device.productName
-                      .toLocaleLowerCase()
-                      .includes("smart plug")
-                  ) {
-                    //console.log(device);
-                    type = "smartPlug";
-                  }
-
                   // Check if has subdevice e.g. ACE?
                   if (device.packList && device.packList.length > 0) {
                     device.packList.forEach(async (subDevice) => {
@@ -256,7 +233,7 @@ export class ZendureSolarflow extends utils.Adapter {
                       ) {
                         device._connectedWithAce = true;
                         // States erstellen
-                        await createSolarFlowStates(this, subDevice, "ace");
+                        await createSolarFlowStates(this, subDevice);
 
                         await updateSolarFlowState(
                           this,
@@ -270,7 +247,7 @@ export class ZendureSolarflow extends utils.Adapter {
                   }
 
                   // States erstellen
-                  await createSolarFlowStates(this, device, type);
+                  await createSolarFlowStates(this, device);
 
                   if (
                     !device.productName.toLowerCase().includes("smart plug")
@@ -367,10 +344,10 @@ export class ZendureSolarflow extends utils.Adapter {
 
       // Read product and device key from string
       const splitted = id.split(".");
-      const productKey = splitted[2];
-      const deviceKey = splitted[3];
-      const stateName1 = splitted[4];
-      const stateName2 = splitted[5];
+      const productKey = splitted[2]; // Product Key
+      const deviceKey = splitted[3]; // Device Key
+      const stateName1 = splitted[4]; // Folder/State Name 1 (e.g. 'control')
+      const stateName2 = splitted[5]; // State Name, like 'setOutputLimit'
 
       if (this.config.useFallbackService && stateName1 == "control") {
         this.log.warn(
@@ -381,50 +358,68 @@ export class ZendureSolarflow extends utils.Adapter {
       else if (state.val != undefined && state.val != null && !state.ack) {
         switch (stateName1) {
           case "control":
-            if (stateName2 == "setOutputLimit") {
-              setOutputLimit(this, productKey, deviceKey, Number(state.val));
-            } else if (stateName2 == "setInputLimit") {
-              setInputLimit(this, productKey, deviceKey, Number(state.val));
-            } else if (stateName2 == "dischargeLimit") {
-              setDischargeLimit(this, productKey, deviceKey, Number(state.val));
-            } else if (stateName2 == "chargeLimit") {
-              setChargeLimit(this, productKey, deviceKey, Number(state.val));
-            } else if (stateName2 == "passMode") {
-              setPassMode(this, productKey, deviceKey, Number(state.val));
-            } else if (stateName2 == "dcSwitch") {
-              setDcSwitch(
-                this,
-                productKey,
-                deviceKey,
-                state.val ? true : false
-              );
-            } else if (stateName2 == "acSwitch") {
-              setAcSwitch(
-                this,
-                productKey,
-                deviceKey,
-                state.val ? true : false
-              );
-            } else if (stateName2 == "acMode") {
-              setAcMode(this, productKey, deviceKey, Number(state.val));
-            } else if (stateName2 == "hubState") {
-              setHubState(this, productKey, deviceKey, Number(state.val));
-            } else if (stateName2 == "autoModel") {
-              setAutoModel(this, productKey, deviceKey, Number(state.val));
-            } else if (stateName2 == "autoRecover") {
-              setAutoRecover(
-                this,
-                productKey,
-                deviceKey,
-                state.val ? true : false
-              );
-            } else if (stateName2 == "buzzerSwitch") {
-              setBuzzerSwitch(
-                this,
-                productKey,
-                deviceKey,
-                state.val ? true : false
-              );
+            switch (stateName2) {
+              case "setOutputLimit":
+                setOutputLimit(this, productKey, deviceKey, Number(state.val));
+                break;
+              case "setInputLimit":
+                setInputLimit(this, productKey, deviceKey, Number(state.val));
+                break;
+              case "chargeLimit":
+                setChargeLimit(this, productKey, deviceKey, Number(state.val));
+                break;
+              case "dischargeLimit":
+                setDischargeLimit(
+                  this,
+                  productKey,
+                  deviceKey,
+                  Number(state.val)
+                );
+                break;
+              case "passMode":
+                setPassMode(this, productKey, deviceKey, Number(state.val));
+                break;
+              case "dcSwitch":
+                setDcSwitch(
+                  this,
+                  productKey,
+                  deviceKey,
+                  state.val ? true : false
+                );
+                break;
+              case "acSwitch":
+                setAcSwitch(
+                  this,
+                  productKey,
+                  deviceKey,
+                  state.val ? true : false
+                );
+                break;
+              case "acMode":
+                setAcMode(this, productKey, deviceKey, Number(state.val));
+                break;
+              case "hubState":
+                setHubState(this, productKey, deviceKey, Number(state.val));
+                break;
+              case "autoModel":
+                setAutoModel(this, productKey, deviceKey, Number(state.val));
+                break;
+              case "autoRecover":
+                setAutoRecover(
+                  this,
+                  productKey,
+                  deviceKey,
+                  state.val ? true : false
+                );
+                break;
+              case "buzzerSwitch":
+                setBuzzerSwitch(
+                  this,
+                  productKey,
+                  deviceKey,
+                  state.val ? true : false
+                );
+                break;
             }
             break;
           default:
