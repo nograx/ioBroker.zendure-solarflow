@@ -1165,13 +1165,15 @@ export const setOutputLimit = async (
       await adapter.getStateAsync(productKey + "." + deviceKey + ".outputLimit")
     )?.val;
 
-    const productName = (
-      await adapter.getStateAsync(productKey + "." + deviceKey + ".productName")
-    )?.val
-      ?.toString()
-      .toLowerCase();
-
     if (currentLimit != null && currentLimit != undefined) {
+      const productName = (
+        await adapter.getStateAsync(
+          productKey + "." + deviceKey + ".productName"
+        )
+      )?.val
+        ?.toString()
+        .toLowerCase();
+
       if (currentLimit != limit) {
         if (
           limit < 100 &&
@@ -1200,8 +1202,44 @@ export const setOutputLimit = async (
           }
         }
 
-        if (limit > 1200) {
-          limit = 1200;
+        switch (productName?.toLocaleLowerCase()) {
+          case "hyper 2000":
+            if (limit > 1200) {
+              limit = 1200;
+            }
+            break;
+          case "solarflow 800":
+            if (limit > 800) {
+              limit = 800;
+            }
+            break;
+          case "solarflow2.0":
+            if (limit > 1200) {
+              limit = 1200;
+            }
+            break;
+          case "solarflow hub 2000":
+            if (limit > 1200) {
+              limit = 1200;
+            }
+            break;
+          case "solarflow aio zy":
+            if (limit > 1200) {
+              limit = 1200;
+            }
+            break;
+          case "solarflow 800 pro":
+            if (limit > 800) {
+              limit = 800;
+            }
+            break;
+          case "solarflow 2400 ac":
+            if (limit > 2400) {
+              limit = 2400;
+            }
+            break;
+          default:
+            break;
         }
 
         const topic = `iot/${productKey}/${deviceKey}/properties/write`;
@@ -1239,6 +1277,14 @@ export const setInputLimit = async (
 
     if (productName?.includes("hyper")) {
       maxLimit = 1200;
+    }
+
+    if (productName?.includes("2400 ac")) {
+      maxLimit = 2400;
+    }
+
+    if (productName?.includes("solarflow 800")) {
+      maxLimit = 800;
     }
 
     if (productName?.includes("ace")) {
