@@ -24,28 +24,11 @@ module.exports = __toCommonJS(createSolarFlowLocalStates_exports);
 var import_createCalculationStates = require("./createCalculationStates");
 var import_createControlStates = require("./createControlStates");
 var import_createSolarFlowStates = require("./createSolarFlowStates");
-const getProductNameFromProductKey = (productKey) => {
-  switch (productKey) {
-    case "73bkTV":
-      return "Solarflow2.0";
-    case "A8yh63":
-      return "Solarflow Hub 2000";
-    case "yWF7hV":
-      return "Solarflow AIO zy";
-    case "ja72U0ha":
-      return "Hyper 2000";
-    case "gDa3tb":
-      return "Hyper 2000";
-    case "8bM93H":
-      return "ACE 1500";
-    default:
-      return "";
-  }
-};
+var import_helpers = require("./helpers");
 const createSolarFlowLocalStates = async (adapter, productKey, deviceKey) => {
   productKey = productKey.replace(adapter.FORBIDDEN_CHARS, "");
   deviceKey = deviceKey.replace(adapter.FORBIDDEN_CHARS, "");
-  const productName = getProductNameFromProductKey(productKey);
+  const productName = (0, import_helpers.getProductNameFromProductKey)(productKey);
   if (productName == "") {
     adapter.log.error(
       `[createSolarFlowLocalStates] Unknown product (${productKey}/${deviceKey}). We cannot create control states! Please contact the developer!`

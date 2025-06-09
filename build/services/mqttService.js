@@ -869,8 +869,10 @@ const setOutputLimit = async (adapter2, productKey, deviceKey, limit) => {
       }
     }
     const currentLimit = (_b = await adapter2.getStateAsync(productKey + "." + deviceKey + ".outputLimit")) == null ? void 0 : _b.val;
-    const productName = (_d = (_c = await adapter2.getStateAsync(productKey + "." + deviceKey + ".productName")) == null ? void 0 : _c.val) == null ? void 0 : _d.toString().toLowerCase();
     if (currentLimit != null && currentLimit != void 0) {
+      const productName = (_d = (_c = await adapter2.getStateAsync(
+        productKey + "." + deviceKey + ".productName"
+      )) == null ? void 0 : _c.val) == null ? void 0 : _d.toString().toLowerCase();
       if (currentLimit != limit) {
         if (limit < 100 && limit != 90 && limit != 60 && limit != 30 && limit != 0) {
           if (limit < 100 && limit > 90 && !(productName == null ? void 0 : productName.includes("hyper"))) {
@@ -883,8 +885,44 @@ const setOutputLimit = async (adapter2, productKey, deviceKey, limit) => {
             limit = 30;
           }
         }
-        if (limit > 1200) {
-          limit = 1200;
+        switch (productName == null ? void 0 : productName.toLocaleLowerCase()) {
+          case "hyper 2000":
+            if (limit > 1200) {
+              limit = 1200;
+            }
+            break;
+          case "solarflow 800":
+            if (limit > 800) {
+              limit = 800;
+            }
+            break;
+          case "solarflow2.0":
+            if (limit > 1200) {
+              limit = 1200;
+            }
+            break;
+          case "solarflow hub 2000":
+            if (limit > 1200) {
+              limit = 1200;
+            }
+            break;
+          case "solarflow aio zy":
+            if (limit > 1200) {
+              limit = 1200;
+            }
+            break;
+          case "solarflow 800 pro":
+            if (limit > 800) {
+              limit = 800;
+            }
+            break;
+          case "solarflow 2400 ac":
+            if (limit > 2400) {
+              limit = 2400;
+            }
+            break;
+          default:
+            break;
         }
         const topic = `iot/${productKey}/${deviceKey}/properties/write`;
         const outputlimit = { properties: { outputLimit: limit } };
@@ -906,6 +944,12 @@ const setInputLimit = async (adapter2, productKey, deviceKey, limit) => {
     const productName = (_c = (_b = await adapter2.getStateAsync(productKey + "." + deviceKey + ".productName")) == null ? void 0 : _b.val) == null ? void 0 : _c.toString().toLowerCase();
     if (productName == null ? void 0 : productName.includes("hyper")) {
       maxLimit = 1200;
+    }
+    if (productName == null ? void 0 : productName.includes("2400 ac")) {
+      maxLimit = 2400;
+    }
+    if (productName == null ? void 0 : productName.includes("solarflow 800")) {
+      maxLimit = 800;
     }
     if (productName == null ? void 0 : productName.includes("ace")) {
       limit = Math.ceil(limit / 100) * 100;
