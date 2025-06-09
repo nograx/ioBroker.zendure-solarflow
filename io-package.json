@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.14.2",
+    "version": "1.14.3",
     "news": {
+      "1.14.3": {
+        "en": "Fix input and output limit for Solarflow 2400 AC",
+        "de": "Feste Eingangs- und Ausgangsgrenze für Solarflow 2400 AC",
+        "ru": "Установить предел ввода и вывода для Solarflow 2400 AC",
+        "pt": "Fix input and output limit for Solarflow 2400 AC",
+        "nl": "Fix ingang en output limiet voor Solarflow 2400 AC",
+        "fr": "Fixer la limite d'entrée et de sortie pour Solarflow 2400 AC",
+        "it": "Limite di ingresso e uscita per Solarflow 2400 AC",
+        "es": "Fijar el límite de entrada y salida para el flujo solar 2400 AC",
+        "pl": "Granica wejścia i wyjścia dla Solarflow 2400 AC",
+        "uk": "Фіксований вхід і вихідний ліміт для Solarflow 2400 AC",
+        "zh-cn": "修正太阳流2400 AC的输入和输出限制"
+      },
       "1.14.2": {
         "en": "Fix control states not writable.",
         "de": "Kontrollzustände nicht schreibbar reparieren.",
@@ -80,19 +93,6 @@
         "pl": "Dodaj możliwość wyłączenia automatycznego restartu adaptera w ustawieniach adaptera (zalecane tylko w trybie lokalnym!)\nNaprawiono brakujący stan kontroli \"hubState\"",
         "uk": "Додайте можливість деактивувати автоматичний перезапуск адаптера в налаштуваннях адаптера (відповіли тільки на локальному режимі!)\nВиправлено відсутній контрольний стан \"hubState\"",
         "zh-cn": "添加在适配器设置中解除适配器自动重新启动的可能性( 仅在本地模式上推荐 !)\n固定缺失控制状态“ hubstate”"
-      },
-      "1.12.7": {
-        "en": "Add productKey \"gDa3tb\" for Hyper 2000",
-        "de": "Produkt hinzufügen Schlüssel \"gDa3tb\" für Hyper 2000",
-        "ru": "Добавить продукт Ключ «gDa3tb» для Hyper 2000",
-        "pt": "Adicionar produto Chave \"gDa3tb\" para Hyper 2000",
-        "nl": "Product toevoegen Sleutel \"gDa3tb\" voor Hyper 2000",
-        "fr": "Ajouter le produit Clé « gDa3tb » pour Hyper 2000",
-        "it": "Aggiungi il prodotto Chiave \"gDa3tb\" per Hyper 2000",
-        "es": "Añadir producto Clave \"gDa3tb\" para Hyper 2000",
-        "pl": "Dodaj produkt Klucz \"gDa3tb\" dla Hyper 2000",
-        "uk": "Додати товар Ключ \"gDa3tb\" для Hyper 2000",
-        "zh-cn": "添加产品 Hyper 2000 的密钥“ gDa3tb ”"
       }
     },
     "titleLang": {
