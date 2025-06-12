@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.14.3",
+    "version": "1.2.1",
     "news": {
+      "1.2.1": {
+        "en": "Version update.",
+        "de": "Versionsaktualisierung.",
+        "ru": "Обновление версии.",
+        "pt": "Atualização de versão.",
+        "nl": "Versie update.",
+        "fr": "Mise à jour de version.",
+        "it": "Aggiornamento della versione.",
+        "es": "Actualización de versión.",
+        "pl": "Aktualizacja wersji.",
+        "uk": "Оновлення версії.",
+        "zh-cn": "版本更新。"
+      },
       "1.14.3": {
         "en": "Fix input and output limit for Solarflow 2400 AC",
         "de": "Feste Eingangs- und Ausgangsgrenze für Solarflow 2400 AC",
