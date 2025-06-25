@@ -55,6 +55,12 @@ You can still do firmware updates with the official Zendure app via bluetooth an
 Credits goes to https://github.com/reinhard-brandstaedter/solarflow which helped a lot with the knowledge about the MQTT server from Zendure! Thanks!
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Add Product Key for Solarflow 800
+- Update dependencys
+
 ### 1.14.3 (2025-06-09)
 
 - Fix input and output limit for Solarflow 2400 AC
