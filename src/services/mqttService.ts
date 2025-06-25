@@ -18,6 +18,7 @@ import {
 import { createSolarFlowLocalStates } from "../helpers/createSolarFlowLocalStates";
 import { ISolarflowState } from "../models/ISolarflowState";
 import { getStateDefinition } from "../helpers/createSolarFlowStates";
+import { getProductNameFromProductKey } from "../helpers/helpers";
 
 let adapter: ZendureSolarflow | undefined = undefined;
 
@@ -1166,13 +1167,7 @@ export const setOutputLimit = async (
     )?.val;
 
     if (currentLimit != null && currentLimit != undefined) {
-      const productName = (
-        await adapter.getStateAsync(
-          productKey + "." + deviceKey + ".productName"
-        )
-      )?.val
-        ?.toString()
-        .toLowerCase();
+      const productName = getProductNameFromProductKey(productKey);
 
       if (currentLimit != limit) {
         if (
@@ -1183,18 +1178,28 @@ export const setOutputLimit = async (
           limit != 0
         ) {
           // NUR Solarflow HUB: Das Limit kann unter 100 nur in 30er Schritten gesetzt werden, dH. 30/60/90/100, wir rechnen das also um
-          if (limit < 100 && limit > 90 && !productName?.includes("hyper")) {
+          if (
+            limit < 100 &&
+            limit > 90 &&
+            !productName?.includes("hyper") &&
+            !productName?.includes("2400 ac") &&
+            !productName?.includes("solarflow 800")
+          ) {
             limit = 90;
           } else if (
             limit > 60 &&
             limit < 90 &&
-            !productName?.includes("hyper")
+            !productName?.includes("hyper") &&
+            !productName?.includes("2400 ac") &&
+            !productName?.includes("solarflow 800")
           ) {
             limit = 60;
           } else if (
             limit > 30 &&
             limit < 60 &&
-            !productName?.includes("hyper")
+            !productName?.includes("hyper") &&
+            !productName?.includes("2400 ac") &&
+            !productName?.includes("solarflow 800")
           ) {
             limit = 30;
           } else if (limit < 30) {
@@ -1269,11 +1274,7 @@ export const setInputLimit = async (
       await adapter.getStateAsync(productKey + "." + deviceKey + ".inputLimit")
     )?.val;
 
-    const productName = (
-      await adapter.getStateAsync(productKey + "." + deviceKey + ".productName")
-    )?.val
-      ?.toString()
-      .toLowerCase();
+    const productName = getProductNameFromProductKey(productKey);
 
     if (productName?.includes("hyper")) {
       maxLimit = 1200;

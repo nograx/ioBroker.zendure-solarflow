@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["../../src/helpers/helpers.ts"],
-  "sourcesContent": ["/* eslint-disable @typescript-eslint/indent */\n\nexport const getProductNameFromProductKey = (productKey: string): string => {\n  switch (productKey) {\n    case \"73bkTV\":\n      return \"Solarflow2.0\";\n    case \"A8yh63\":\n      return \"Solarflow Hub 2000\";\n    case \"yWF7hV\":\n      return \"Solarflow AIO zy\";\n    case \"ja72U0ha\":\n      return \"Hyper 2000\";\n    case \"gDa3tb\":\n      return \"Hyper 2000\";\n    case \"8bM93H\":\n      return \"ACE 1500\";\n    default:\n      return \"\";\n  }\n};\n"],
-  "mappings": ";;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAEO,MAAM,+BAA+B,CAAC,eAA+B;AAC1E,UAAQ,YAAY;AAAA,IAClB,KAAK;AACH,aAAO;AAAA,IACT,KAAK;AACH,aAAO;AAAA,IACT,KAAK;AACH,aAAO;AAAA,IACT,KAAK;AACH,aAAO;AAAA,IACT,KAAK;AACH,aAAO;AAAA,IACT,KAAK;AACH,aAAO;AAAA,IACT;AACE,aAAO;AAAA,EACX;AACF;",
+  "sourcesContent": ["/* eslint-disable @typescript-eslint/indent */\r\n\r\nexport const getProductNameFromProductKey = (productKey: string): string => {\r\n  switch (productKey.toLowerCase()) {\r\n    case \"73bktv\":\r\n      return \"solarflow2.0\";\r\n    case \"a8yh63\":\r\n      return \"solarflow hub 2000\";\r\n    case \"ywf7hv\":\r\n      return \"solarflow aio zy\";\r\n    case \"ja72u0ha\":\r\n      return \"hyper 2000\";\r\n    case \"gda3tb\":\r\n      return \"hyper 2000\";\r\n    case \"8bm93h\":\r\n      return \"ace 1500\";\r\n    case \"bc8b7f\":\r\n      return \"solarflow 2400 ac\";\r\n    default:\r\n      return \"\";\r\n  }\r\n};\r\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAEO,MAAM,+BAA+B,CAAC,eAA+B;AAC1E,UAAQ,WAAW,YAAY,GAAG;AAAA,IAChC,KAAK;AACH,aAAO;AAAA,IACT,KAAK;AACH,aAAO;AAAA,IACT,KAAK;AACH,aAAO;AAAA,IACT,KAAK;AACH,aAAO;AAAA,IACT,KAAK;AACH,aAAO;AAAA,IACT,KAAK;AACH,aAAO;AAAA,IACT,KAAK;AACH,aAAO;AAAA,IACT;AACE,aAAO;AAAA,EACX;AACF;",
   "names": []
 }

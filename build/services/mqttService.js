@@ -54,6 +54,7 @@ var import_calculationService = require("./calculationService");
 var import_jobSchedule = require("./jobSchedule");
 var import_createSolarFlowLocalStates = require("../helpers/createSolarFlowLocalStates");
 var import_createSolarFlowStates = require("../helpers/createSolarFlowStates");
+var import_helpers = require("../helpers/helpers");
 let adapter = void 0;
 const knownPackDataProperties = [
   "sn",
@@ -840,7 +841,7 @@ const setHubState = async (adapter2, productKey, deviceKey, hubState) => {
   }
 };
 const setOutputLimit = async (adapter2, productKey, deviceKey, limit) => {
-  var _a, _b, _c, _d, _e;
+  var _a, _b, _c;
   if (adapter2.mqttClient && productKey && deviceKey) {
     const autoModel = (_a = await adapter2.getStateAsync(productKey + "." + deviceKey + ".autoModel")) == null ? void 0 : _a.val;
     if (autoModel != 0) {
@@ -870,16 +871,14 @@ const setOutputLimit = async (adapter2, productKey, deviceKey, limit) => {
     }
     const currentLimit = (_b = await adapter2.getStateAsync(productKey + "." + deviceKey + ".outputLimit")) == null ? void 0 : _b.val;
     if (currentLimit != null && currentLimit != void 0) {
-      const productName = (_d = (_c = await adapter2.getStateAsync(
-        productKey + "." + deviceKey + ".productName"
-      )) == null ? void 0 : _c.val) == null ? void 0 : _d.toString().toLowerCase();
+      const productName = (0, import_helpers.getProductNameFromProductKey)(productKey);
       if (currentLimit != limit) {
         if (limit < 100 && limit != 90 && limit != 60 && limit != 30 && limit != 0) {
-          if (limit < 100 && limit > 90 && !(productName == null ? void 0 : productName.includes("hyper"))) {
+          if (limit < 100 && limit > 90 && !(productName == null ? void 0 : productName.includes("hyper")) && !(productName == null ? void 0 : productName.includes("2400 ac")) && !(productName == null ? void 0 : productName.includes("solarflow 800"))) {
             limit = 90;
-          } else if (limit > 60 && limit < 90 && !(productName == null ? void 0 : productName.includes("hyper"))) {
+          } else if (limit > 60 && limit < 90 && !(productName == null ? void 0 : productName.includes("hyper")) && !(productName == null ? void 0 : productName.includes("2400 ac")) && !(productName == null ? void 0 : productName.includes("solarflow 800"))) {
             limit = 60;
-          } else if (limit > 30 && limit < 60 && !(productName == null ? void 0 : productName.includes("hyper"))) {
+          } else if (limit > 30 && limit < 60 && !(productName == null ? void 0 : productName.includes("hyper")) && !(productName == null ? void 0 : productName.includes("2400 ac")) && !(productName == null ? void 0 : productName.includes("solarflow 800"))) {
             limit = 30;
           } else if (limit < 30) {
             limit = 30;
@@ -926,13 +925,13 @@ const setOutputLimit = async (adapter2, productKey, deviceKey, limit) => {
         }
         const topic = `iot/${productKey}/${deviceKey}/properties/write`;
         const outputlimit = { properties: { outputLimit: limit } };
-        (_e = adapter2.mqttClient) == null ? void 0 : _e.publish(topic, JSON.stringify(outputlimit));
+        (_c = adapter2.mqttClient) == null ? void 0 : _c.publish(topic, JSON.stringify(outputlimit));
       }
     }
   }
 };
 const setInputLimit = async (adapter2, productKey, deviceKey, limit) => {
-  var _a, _b, _c, _d;
+  var _a, _b;
   if (adapter2.mqttClient && productKey && deviceKey) {
     if (limit) {
       limit = Math.round(limit);
@@ -941,7 +940,7 @@ const setInputLimit = async (adapter2, productKey, deviceKey, limit) => {
     }
     let maxLimit = 900;
     const currentLimit = (_a = await adapter2.getStateAsync(productKey + "." + deviceKey + ".inputLimit")) == null ? void 0 : _a.val;
-    const productName = (_c = (_b = await adapter2.getStateAsync(productKey + "." + deviceKey + ".productName")) == null ? void 0 : _b.val) == null ? void 0 : _c.toString().toLowerCase();
+    const productName = (0, import_helpers.getProductNameFromProductKey)(productKey);
     if (productName == null ? void 0 : productName.includes("hyper")) {
       maxLimit = 1200;
     }
@@ -965,7 +964,7 @@ const setInputLimit = async (adapter2, productKey, deviceKey, limit) => {
       if (currentLimit != limit) {
         const topic = `iot/${productKey}/${deviceKey}/properties/write`;
         const inputLimitContent = { properties: { inputLimit: limit } };
-        (_d = adapter2.mqttClient) == null ? void 0 : _d.publish(topic, JSON.stringify(inputLimitContent));
+        (_b = adapter2.mqttClient) == null ? void 0 : _b.publish(topic, JSON.stringify(inputLimitContent));
       }
     }
   }
