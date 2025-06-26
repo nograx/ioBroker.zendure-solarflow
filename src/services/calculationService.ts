@@ -394,7 +394,7 @@ const resetValuesForDevice = (
   adapter: ZendureSolarflow,
   productKey: string,
   deviceKey: string
-) => {
+): void => {
   calculationStateKeys.forEach(async (stateKey: string) => {
     let stateNameEnergyWh = "";
     let stateNameEnergykWh = "";
