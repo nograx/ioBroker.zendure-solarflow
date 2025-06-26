@@ -37,6 +37,8 @@ const getProductNameFromProductKey = (productKey) => {
       return "ace 1500";
     case "bc8b7f":
       return "solarflow 2400 ac";
+    case "b1nhmc":
+      return "solarflow 800";
     default:
       return "";
   }

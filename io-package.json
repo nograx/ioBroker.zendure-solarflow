@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.14.3",
+    "version": "1.14.4",
     "news": {
+      "1.14.4": {
+        "en": "Add Product Key for Solarflow 800\nUpdate dependencys",
+        "de": "Produktschlüssel für Solarflow 800 hinzufügen\nAktualisieren von Abhängigkeiten",
+        "ru": "Добавить ключ продукта для Solarflow 800\nОбновление зависимостей",
+        "pt": "Adicionar chave de produto para Solarflow 800\nAtualizar dependências",
+        "nl": "Productsleutel voor Solarflow 800 toevoegen\nAfhankelijkheden bijwerken",
+        "fr": "Ajouter une clé de produit pour Solarflow 800\nMettre à jour les dépendances",
+        "it": "Aggiungi la chiave del prodotto per Solarflow 800\nDipendenze di aggiornamento",
+        "es": "Añadir Clave de producto para el flujo solar 800\nActualizar las dependencias",
+        "pl": "Dodaj klucz produktu dla Solarflow 800\nUaktualnianie zależności",
+        "uk": "Додати ключ продукту для Solarflow 800\nОновлення залежності",
+        "zh-cn": "添加太阳流800的产品密钥\n更新依赖关系"
+      },
       "1.14.3": {
         "en": "Fix input and output limit for Solarflow 2400 AC",
         "de": "Feste Eingangs- und Ausgangsgrenze für Solarflow 2400 AC",
