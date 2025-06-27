@@ -148,6 +148,7 @@
   },
   "native": {
     "userName": "",
+    "password": "",
     "server": "global",
     "useCalculation": false,
     "useLowVoltageBlock": false,
