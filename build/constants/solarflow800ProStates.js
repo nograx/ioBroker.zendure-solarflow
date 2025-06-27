@@ -24,6 +24,14 @@ module.exports = __toCommonJS(solarflow800ProStates_exports);
 var import_sharedStates = require("./sharedStates");
 const solarflow800ProStates = import_sharedStates.sharedStates.concat([
   {
+    title: "hyperTmp",
+    nameDe: "Temperatur des Solarflow 800",
+    nameEn: "Temperature of Solarflow 800",
+    type: "number",
+    role: "value.temperature",
+    unit: "\xB0C"
+  },
+  {
     title: "inverseMaxPower",
     nameDe: "Maximal akzeptabler Eingang des PV-Mikrowechselrichters",
     nameEn: "highest acceptable input power",

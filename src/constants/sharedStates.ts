@@ -84,6 +84,14 @@ export const sharedStates: ISolarflowState[] = [
     unit: "W",
   },
   {
+    title: "packPower", // This is not a Zendure datapoint
+    nameDe: "Lade/Entladeleistung der Batterie",
+    nameEn: "charge/discharge power",
+    type: "number",
+    role: "value.power",
+    unit: "W",
+  },
+  {
     title: "outputPackPower",
     nameDe: "Ladeleistung zur Batterie",
     nameEn: "charge power",

@@ -4,6 +4,14 @@ import { sharedStates } from "./sharedStates";
 
 export const solarflow800ProStates: ISolarflowState[] = sharedStates.concat([
   {
+    title: "hyperTmp",
+    nameDe: "Temperatur des Solarflow 800",
+    nameEn: "Temperature of Solarflow 800",
+    type: "number",
+    role: "value.temperature",
+    unit: "°C",
+  },
+  {
     title: "inverseMaxPower",
     nameDe: "Maximal akzeptabler Eingang des PV-Mikrowechselrichters",
     nameEn: "highest acceptable input power",

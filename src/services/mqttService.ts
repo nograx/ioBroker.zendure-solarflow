@@ -477,6 +477,11 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
               ? "Discharging"
               : "Unknown";
       updateSolarFlowState(adapter, productKey, deviceKey, "packState", value);
+
+      if (obj.properties?.packState) {
+        // Update combined data point
+        updateSolarFlowState(adapter, productKey, deviceKey, "packPower", 0);
+      }
     }
 
     if (
@@ -613,6 +618,17 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         obj.properties.outputPackPower
       );
 
+      if (obj.properties?.outputPackPower > 0) {
+        // Update combined data point
+        updateSolarFlowState(
+          adapter,
+          productKey,
+          deviceKey,
+          "packPower",
+          obj.properties.outputPackPower
+        );
+      }
+
       // if outPutPackPower set packInputPower to 0
       updateSolarFlowState(adapter, productKey, deviceKey, "packInputPower", 0);
     }
@@ -628,6 +644,17 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         "packInputPower",
         obj.properties.packInputPower
       );
+
+      if (obj.properties?.packInputPower > 0) {
+        // Update combined data point
+        updateSolarFlowState(
+          adapter,
+          productKey,
+          deviceKey,
+          "packPower",
+          -Math.abs(obj.properties.packInputPower)
+        );
+      }
 
       // if packInputPower set outputPackPower to 0
       updateSolarFlowState(
