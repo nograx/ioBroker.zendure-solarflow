@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.14.4",
+    "version": "1.15.0",
     "news": {
+      "1.15.0": {
+        "en": "Add 'packPower' state, which shows combined power from (packInputPower and outputPackPower). Discharging will be shown with a negative value.\nAdd 'hyperTmp' to Solarflow 800 devices in hope this will show the temperature of the Solarflow 800 (can not test it due to lack of test device).",
+        "de": "Fügen Sie 'packPower' Zustand hinzu, der kombinierte Leistung von (packInputPower und outputPackPower) zeigt. Das Abladen wird mit einem negativen Wert angezeigt.\nFügen Sie 'hyperTmp' zu Solarflow 800 Geräten in der Hoffnung, dies zeigt die Temperatur des Solarflow 800 (kann nicht testen, es aufgrund fehlender Testvorrichtung).",
+        "ru": "Добавьте состояние «packPower», которое показывает комбинированную мощность от (packInputPower и outputPackPower). Разрядка будет показана с отрицательным значением.\nДобавьте «гиперTmp» в устройства Solarflow 800 в надежде, что это покажет температуру Solarflow 800 (не может проверить его из-за отсутствия тестового устройства).",
+        "pt": "Adicione o estado 'packPower', que mostra potência combinada de (packInputPower e saídaPackPower). O descarregamento será mostrado com um valor negativo.\nAdicione 'hyperTmp' aos dispositivos Solarflow 800 na esperança de que isso mostre a temperatura do Solarflow 800 (não pode testá-lo devido à falta de dispositivo de teste).",
+        "nl": "Voeg 'packPower' staat, die gecombineerde kracht toont van (packInputPower en outputPackPower). Uitladen zal worden getoond met een negatieve waarde.\nVoeg 'hyperTmp' toe aan Solarflow 800 apparaten in de hoop dat dit de temperatuur van de Solarflow 800 zal tonen (kan het niet testen door gebrek aan testapparaat).",
+        "fr": "Ajouter l'état \"packPower\", qui affiche la puissance combinée de (packInputPower et sortiePackPower). La charge sera affichée avec une valeur négative.\nAjouter 'hyperTmp' aux appareils Solarflow 800 dans l'espoir que cela montrera la température du Solarflow 800 (ne peut pas le tester en raison de l'absence de dispositif d'essai).",
+        "it": "Aggiungi 'packPower' stato, che mostra potenza combinata da (packInputPower e outputPackPower). La scarica sarà mostrata con un valore negativo.\nAggiungi 'hyperTmp' a Solarflow 800 dispositivi nella speranza che questo mostrerà la temperatura del Solarflow 800 (non può testarlo a causa della mancanza di dispositivo di prova).",
+        "es": "Añadir 'packPower' estado, que muestra la potencia combinada de (packInputPower y salidaPackPower). La descarga se mostrará con un valor negativo.\nAñadir 'hiperTmp' a Solarflow 800 dispositivos con la esperanza de que esto muestre la temperatura del flujo solar 800 (no puede probarlo debido a la falta de dispositivo de prueba).",
+        "pl": "Dodać stan 'packPower', który pokazuje łączną moc z (packInputPower i outputPackPower). Wyładowanie zostanie pokazane z wartością ujemną.\nDodać 'hiperTmp' do urządzeń Solarflow 800 w nadziei, że pokaże to temperaturę Solarflow 800 (nie można go przetestować z powodu braku urządzenia testowego).",
+        "uk": "Додати стан \"packPower\", який показує комбіновану потужність з (packInputPower і вихідPackPower). Відхилення буде показано з негативним значенням.\nДодати \"гіперTmp\" до пристроїв Solarflow 800 надії, це покаже температуру Solarflow 800 (не можна перевірити це через відсутність тестового пристрою).",
+        "zh-cn": "添加“ packPower” 状态, 显示来自( pack InputPower 和 输出 PackPower ) 的综合电源 。 充电将以负值显示 .\n在 Solarflow 800 设备中添加“ hyperTmp” , 希望这将显示 Solarflow 800 的温度( 由于缺乏测试设备, 无法测试) ."
+      },
       "1.14.4": {
         "en": "Add Product Key for Solarflow 800\nUpdate dependencys",
         "de": "Produktschlüssel für Solarflow 800 hinzufügen\nAktualisieren von Abhängigkeiten",
