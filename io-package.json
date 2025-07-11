@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.15.0",
+    "version": "1.15.1",
     "news": {
+      "1.15.1": {
+        "en": "Fix missing Solar Input 3 & 4 on Solarflow 800 Pro\nFix 'packPower' state did not set to 0 if no input/output",
+        "de": "Fix fehlende Solar Input 3 & 4 auf Solarflow 800 Pro\n'packPower' Zustand wurde nicht auf 0 gesetzt, wenn keine Eingabe/Ausgabe",
+        "ru": "Недостающий Solar Input 3 и 4 на Solarflow 800 Pro\nСостояние «packPower» не устанавливается на 0, если нет ввода/вывода",
+        "pt": "Corrigir falta de entrada solar 3 & 4 no Solarflow 800 Pro\nCorrigir o estado de 'packPower' não definido para 0 se não houver entrada/saída",
+        "nl": "Fix ontbrekende Solar Input 3 & 4 op Solarflow 800 Pro\nFix 'packPower' status is niet ingesteld op 0 als geen invoer/uitvoer",
+        "fr": "Correction de l'entrée solaire 3 & 4 manquante sur Solarflow 800 Pro\nCorrection de l'état 'packPower' n'a pas été réglé à 0 si aucune entrée/sortie",
+        "it": "Fissare l'ingresso solare mancante 3 & 4 su Solarflow 800 Pro\nFissare lo stato 'packPower' non è stato impostato a 0 se nessun input/output",
+        "es": "Fijar la entrada solar faltante 3 \" 4 en el flujo solar 800 Pro\nFijar 'paquetePower' estado no se estableció a 0 si no entrada / salida",
+        "pl": "Popraw brakujące wejście Solar 3 i 4 na Solarflow 800 Pro\nStan 'packPower' nie ustawił się na 0, jeśli nie ma wejścia / wyjścia",
+        "uk": "Виправлення відсутніх сонячних входів 3 & 4 на Solarflow 800 Pro\nВиправлення 'packPower' стану не встановлено до 0, якщо немає входу/виходу",
+        "zh-cn": "在太阳流800 Pro 上修复缺失的太阳输入 3 & 4\n将“ packPower” 状态固定为 0 如果没有输入/输出"
+      },
       "1.15.0": {
         "en": "Add 'packPower' state, which shows combined power from (packInputPower and outputPackPower). Discharging will be shown with a negative value.\nAdd 'hyperTmp' to Solarflow 800 devices in hope this will show the temperature of the Solarflow 800 (can not test it due to lack of test device).",
         "de": "Fügen Sie 'packPower' Zustand hinzu, der kombinierte Leistung von (packInputPower und outputPackPower) zeigt. Das Abladen wird mit einem negativen Wert angezeigt.\nFügen Sie 'hyperTmp' zu Solarflow 800 Geräten in der Hoffnung, dies zeigt die Temperatur des Solarflow 800 (kann nicht testen, es aufgrund fehlender Testvorrichtung).",
@@ -80,19 +93,6 @@
         "pl": "TEST: Ustaw tryb inteligentnego CT i tryb inteligentnego dopasowywania poprawnie - wymagane informacje zwrotne!\nUsunięto wydajność z obliczeń, jak wydaje się, że Zabb już włączył go do opłat i wartości zrzutu",
         "uk": "TEST: Встановити розумний режим КТ і розумний режим матчу - Зворотній зв'язок потрібно!\nВилучена ефективність з розрахунку, так як вона здається Zendure вже включена до його заряду та значень розряду",
         "zh-cn": "TEST: 正确设置智能 CT 模式和智能匹配模式 - 需要反馈 !\n从计算中取消了效率,因为看来Zendure已经包括了它负责和排放值"
-      },
-      "1.13.0": {
-        "en": "Add possibility to deactivate automatic restart of adapter in adapter settings (recommended only on local mode!)\nFixed missing control state \"hubState\"",
-        "de": "Möglichkeit hinzufügen, den automatischen Neustart des Adapters in Adaptereinstellungen zu deaktivieren (nur im lokalen Modus eingeschaltet!)\nFester fehlender Kontrollzustand \"hubState\"",
-        "ru": "Добавить возможность отключения автоматического перезапуска адаптера в настройках адаптера (рекомендуется только в локальном режиме!)\nИсправлено отсутствующее государство контроля «HubState»",
-        "pt": "Adicione a possibilidade de desativar o reinício automático do adaptador nas configurações do adaptador (recomendado apenas no modo local!)\nEstado de controle ausente fixo \"hubState\"",
-        "nl": "Voeg mogelijkheid toe om de automatische herstart van de adapter in adapterinstellingen te deactiveren (alleen aanbevolen op lokale modus!)\nVaste ontbrekende controlestatus \"hubState\"",
-        "fr": "Ajouter la possibilité de désactiver le redémarrage automatique de l'adaptateur dans les paramètres de l'adaptateur (recommandé uniquement en mode local!)\nÉtat de contrôle manquant fixe \"hubState\"",
-        "it": "Aggiungi la possibilità di disattivare il riavvio automatico dell'adattatore nelle impostazioni dell'adattatore (consigliato solo in modalità locale!)\nStato di controllo mancante fisso \"hubState\"",
-        "es": "Añadir posibilidad de desactivar el reinicio automático del adaptador en la configuración del adaptador (recomendado sólo en el modo local!)\nEstado de control perdido fijo \"hubState\"",
-        "pl": "Dodaj możliwość wyłączenia automatycznego restartu adaptera w ustawieniach adaptera (zalecane tylko w trybie lokalnym!)\nNaprawiono brakujący stan kontroli \"hubState\"",
-        "uk": "Додайте можливість деактивувати автоматичний перезапуск адаптера в налаштуваннях адаптера (відповіли тільки на локальному режимі!)\nВиправлено відсутній контрольний стан \"hubState\"",
-        "zh-cn": "添加在适配器设置中解除适配器自动重新启动的可能性( 仅在本地模式上推荐 !)\n固定缺失控制状态“ hubstate”"
       }
     },
     "titleLang": {
