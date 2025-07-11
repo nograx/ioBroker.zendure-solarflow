@@ -111,6 +111,7 @@ export const startCheckStatesAndConnectionJob = async (
     "gridInputPower",
     "packInputPower",
     "solarInputPower",
+    "packPower",
   ];
 
   let refreshAccessTokenNeeded = false;

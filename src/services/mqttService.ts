@@ -627,6 +627,22 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
           "packPower",
           obj.properties.outputPackPower
         );
+      } else if (obj.properties?.outputPackPower == 0) {
+        // Check if packInputPower is 0
+        const packInputPower = await adapter?.getStateAsync(
+          productKey + "." + deviceKey + ".packInputPower"
+        );
+
+        if (packInputPower?.val == 0) {
+          // Update combined data point to 0 as both are 0
+          updateSolarFlowState(
+            adapter,
+            productKey,
+            deviceKey,
+            "packPower",
+            -Math.abs(obj.properties.outputPackPower)
+          );
+        }
       }
 
       // if outPutPackPower set packInputPower to 0
@@ -654,6 +670,22 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
           "packPower",
           -Math.abs(obj.properties.packInputPower)
         );
+      } else if (obj.properties?.packInputPower == 0) {
+        // Check if outputPackPower is 0
+        const outputPackPower = await adapter?.getStateAsync(
+          productKey + "." + deviceKey + ".outputPackPower"
+        );
+
+        if (outputPackPower?.val == 0) {
+          // Update combined data point to 0 as both are 0
+          updateSolarFlowState(
+            adapter,
+            productKey,
+            deviceKey,
+            "packPower",
+            -Math.abs(obj.properties.packInputPower)
+          );
+        }
       }
 
       // if packInputPower set outputPackPower to 0
@@ -728,6 +760,32 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
         deviceKey,
         "pvPower2",
         obj.properties.solarPower2
+      );
+    }
+
+    if (
+      obj.properties?.solarPower3 != null &&
+      obj.properties?.solarPower3 != undefined
+    ) {
+      updateSolarFlowState(
+        adapter,
+        productKey,
+        deviceKey,
+        "pvPower3",
+        obj.properties.solarPower3
+      );
+    }
+
+    if (
+      obj.properties?.solarPower4 != null &&
+      obj.properties?.solarPower4 != undefined
+    ) {
+      updateSolarFlowState(
+        adapter,
+        productKey,
+        deviceKey,
+        "pvPower4",
+        obj.properties.solarPower4
       );
     }
 

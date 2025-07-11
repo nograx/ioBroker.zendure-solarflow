@@ -100,7 +100,8 @@ const startCheckStatesAndConnectionJob = async (adapter) => {
     "outputPackPower",
     "gridInputPower",
     "packInputPower",
-    "solarInputPower"
+    "solarInputPower",
+    "packPower"
   ];
   let refreshAccessTokenNeeded = false;
   adapter.log.debug(

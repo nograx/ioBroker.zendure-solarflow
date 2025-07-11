@@ -55,6 +55,12 @@ You can still do firmware updates with the official Zendure app via bluetooth an
 Credits goes to https://github.com/reinhard-brandstaedter/solarflow which helped a lot with the knowledge about the MQTT server from Zendure! Thanks!
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Fix missing Solar Input 3 & 4 on Solarflow 800 Pro
+- Fix 'packPower' state did not set to 0 if no input/output
+
 ### 1.15.0 (2025-06-27)
 
 - Add 'packPower' state, which shows combined power from (packInputPower and outputPackPower). Discharging will be shown with a negative value.
