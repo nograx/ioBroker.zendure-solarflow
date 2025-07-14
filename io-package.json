@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.15.1",
+    "version": "1.15.2",
     "news": {
+      "1.15.2": {
+        "en": "Fix missing SF 800 & 2400 AC in local mode settings",
+        "de": "Fehlerhafte SF 800 & 2400 AC in lokalen Moduseinstellungen beheben",
+        "ru": "Исправление пропущенных SF 800 и 2400 AC в локальных настройках режима",
+        "pt": "Corrigir falta SF 800 & 2400 AC em configurações de modo local",
+        "nl": "Fix ontbrekende SF 800 & 2400 AC in lokale modus instellingen",
+        "fr": "Correction manquante SF 800 & 2400 AC en mode local",
+        "it": "Fissare SF 800 & 2400 AC mancanti nelle impostazioni di modalità locale",
+        "es": "Fijar SF 800 & 2400 AC desaparecidos en la configuración del modo local",
+        "pl": "Naprawianie brakujących SF 800 & 2400 AC w lokalnych ustawieniach trybu",
+        "uk": "Виправлення відсутніх SF 800 & 2400 AC в налаштуваннях локального режиму",
+        "zh-cn": "在本地模式设置中修复缺失的 SF 800 & 2400 AC"
+      },
       "1.15.1": {
         "en": "Fix missing Solar Input 3 & 4 on Solarflow 800 Pro\nFix 'packPower' state did not set to 0 if no input/output",
         "de": "Fix fehlende Solar Input 3 & 4 auf Solarflow 800 Pro\n'packPower' Zustand wurde nicht auf 0 gesetzt, wenn keine Eingabe/Ausgabe",
@@ -80,19 +93,6 @@
         "pl": "WAŻNE: Ta wersja użyje nowego sposobu, aby sprawdzić, które stany powinny być utworzone dla urządzenia, więc może coś jest zepsute na tworzenie stanu!\nDodaj wsparcie dla AC2400, Solarflow 800 i Solarflow 800 Pro. Wszystkie urządzenia są nietestowane, ponieważ Zhand nie pozwala udostępniać danych innym użytkownikom na tych nowych urządzeniach i nie jestem właścicielem żadnego z urządzeń!\nUsunięto \"tryb czuwania\" na bateriach, ponieważ to myliło niektórych ludzi.",
         "uk": "ВАЖЛИВО: Ця версія буде використовувати новий спосіб перевірки стану, який повинен бути створений для пристрою, тому, можливо, щось зламане на державному створенні!\nДодавання підтримки AC2400, Solarflow 800 та Solarflow 800 Pro. Всі пристрої не перевірені як Zendure не дозволяють ділитися даними іншим користувачам на цих нових пристроях і не власними пристроями!\nЗняти \"розумне використання\" на батареях, так як він плутав деяких людей.",
         "zh-cn": "ImportANT:这个版本将使用一种新的方法来检查哪些状态应该为设备创建,所以也许有些东西在状态创建上被打破了!\n添加支持AC2400,太阳流800和太阳流800 Pro. 所有设备都未经测试,因为Zendure不允许在这些新设备上与其他用户共享数据,而且我也没有任何设备!\n取消了电池上的\"备用用量\",因为它使一些人感到困惑."
-      },
-      "1.13.1": {
-        "en": "TEST: Set Smart CT Mode and Smart Matching Mode correctly - Feedback needed!\nRemoved efficiency from calculation, as it seems Zendure already included it in charge and discharge values",
-        "de": "TEST: Setzen Sie Smart CT Modus und Smart Matching Modus richtig - Feedback erforderlich!\nEntzogene Effizienz von der Berechnung, wie es scheint, Zendure bereits in die Gebühren- und Entladewerte enthalten",
-        "ru": "TEST: Установите режим Smart CT и режим Smart Matching правильно - обратная связь необходима!\nСнята эффективность с расчетов, так как, похоже, Zendure уже включила в него значения заряда и разряда",
-        "pt": "TEST: Defina o modo Smart CT e o modo Smart Matching corretamente - Feedback necessário!\nEficiência removida do cálculo, pois parece que Zendure já o incluiu nos valores de carga e descarga",
-        "nl": "TEST: Smart CT-modus en Smart Matching-modus correct instellen - feedback nodig!\nVerwijderde efficiëntie van de berekening, zoals het lijkt Zendure al opgenomen in de leiding en kwijting waarden",
-        "fr": "ESSAI: Réglez le mode CT intelligent et le mode de correspondance intelligent correctement - Feedback nécessaire!\nEfficience supprimée du calcul, comme il semble que Zendure l'ait déjà inclus en charge et valeurs de décharge",
-        "it": "TEST: Impostare la modalità Smart CT e la modalità Smart Matching correttamente - Feedback necessario!\nEfficienza eliminata dal calcolo, come sembra Zendure già incluso in carica e valori di scarico",
-        "es": "TEST: Set Smart CT Mode y Smart Matching Mode correctamente - ¡Retroalimentación necesaria!\nEficiencia eliminada del cálculo, ya que parece que Zendure ya lo incluyó a cargo y valores de descarga",
-        "pl": "TEST: Ustaw tryb inteligentnego CT i tryb inteligentnego dopasowywania poprawnie - wymagane informacje zwrotne!\nUsunięto wydajność z obliczeń, jak wydaje się, że Zabb już włączył go do opłat i wartości zrzutu",
-        "uk": "TEST: Встановити розумний режим КТ і розумний режим матчу - Зворотній зв'язок потрібно!\nВилучена ефективність з розрахунку, так як вона здається Zendure вже включена до його заряду та значень розряду",
-        "zh-cn": "TEST: 正确设置智能 CT 模式和智能匹配模式 - 需要反馈 !\n从计算中取消了效率,因为看来Zendure已经包括了它负责和排放值"
       }
     },
     "titleLang": {
