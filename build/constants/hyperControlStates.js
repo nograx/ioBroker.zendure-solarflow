@@ -177,6 +177,15 @@ const hyperControlStates = [
     role: "indicator.lowbat",
     read: true,
     write: false
+  },
+  {
+    nameDe: "Smart Mode",
+    nameEn: "Smart Mode",
+    type: "boolean",
+    title: "smartMode",
+    role: "switch",
+    read: true,
+    write: true
   }
 ];
 // Annotate the CommonJS export names for ESM import in node:

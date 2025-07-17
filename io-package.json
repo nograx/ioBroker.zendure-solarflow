@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.15.3",
+    "version": "1.15.4",
     "news": {
+      "1.15.4": {
+        "en": "Add smart mode control parameter for more devices",
+        "de": "Smart-Mode-Control-Parameter für mehr Geräte hinzufügen",
+        "ru": "Добавьте параметр управления умным режимом для большего количества устройств",
+        "pt": "Adicionar parâmetro de controle de modo inteligente para mais dispositivos",
+        "nl": "Smart mode control parameter voor meer apparaten toevoegen",
+        "fr": "Ajouter le paramètre de contrôle du mode intelligent pour plus de périphériques",
+        "it": "Aggiungi il parametro di controllo della modalità intelligente per più dispositivi",
+        "es": "Añadir parámetro de control de modo inteligente para más dispositivos",
+        "pl": "Dodaj inteligentny parametr sterowania trybem dla większej liczby urządzeń",
+        "uk": "Додавання параметра керування смарт-режимом для більших пристроїв",
+        "zh-cn": "为更多设备添加智能模式控制参数"
+      },
       "1.15.3": {
         "en": "Match case sensitive product key for SF 2400 AC and SF 800 in settings if local mode is used\nAdd sensor and control of \"SmartMode\"",
         "de": "Passender Case sensitiver Produktschlüssel für SF 2400 AC und SF 800 in Einstellungen, wenn der lokale Modus verwendet wird\nSensor und Steuerung von \"SmartMode\" hinzufügen",
@@ -80,19 +93,6 @@
         "pl": "Dodaj klucz produktu dla Solarflow 800\nUaktualnianie zależności",
         "uk": "Додати ключ продукту для Solarflow 800\nОновлення залежності",
         "zh-cn": "添加太阳流800的产品密钥\n更新依赖关系"
-      },
-      "1.14.3": {
-        "en": "Fix input and output limit for Solarflow 2400 AC",
-        "de": "Feste Eingangs- und Ausgangsgrenze für Solarflow 2400 AC",
-        "ru": "Установить предел ввода и вывода для Solarflow 2400 AC",
-        "pt": "Fix input and output limit for Solarflow 2400 AC",
-        "nl": "Fix ingang en output limiet voor Solarflow 2400 AC",
-        "fr": "Fixer la limite d'entrée et de sortie pour Solarflow 2400 AC",
-        "it": "Limite di ingresso e uscita per Solarflow 2400 AC",
-        "es": "Fijar el límite de entrada y salida para el flujo solar 2400 AC",
-        "pl": "Granica wejścia i wyjścia dla Solarflow 2400 AC",
-        "uk": "Фіксований вхід і вихідний ліміт для Solarflow 2400 AC",
-        "zh-cn": "修正太阳流2400 AC的输入和输出限制"
       }
     },
     "titleLang": {
