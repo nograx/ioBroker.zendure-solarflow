@@ -55,8 +55,7 @@ You can still do firmware updates with the official Zendure app via bluetooth an
 Credits goes to https://github.com/reinhard-brandstaedter/solarflow which helped a lot with the knowledge about the MQTT server from Zendure! Thanks!
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 1.15.3 (2025-07-17)
 
 - Match case sensitive product key for SF 2400 AC and SF 800 in settings if local mode is used
 - Add sensor and control of "SmartMode"

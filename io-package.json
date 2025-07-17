@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "1.15.3-alpha.0",
+    "version": "1.15.3",
     "news": {
+      "1.15.3": {
+        "en": "Match case sensitive product key for SF 2400 AC and SF 800 in settings if local mode is used\nAdd sensor and control of \"SmartMode\"",
+        "de": "Passender Case sensitiver Produktschlüssel für SF 2400 AC und SF 800 in Einstellungen, wenn der lokale Modus verwendet wird\nSensor und Steuerung von \"SmartMode\" hinzufügen",
+        "ru": "Ключ для SF 2400 AC и SF 800 в настройках, если используется локальный режим\nДобавить сенсор и управление «SmartMode»",
+        "pt": "Chave de produto sensível à caixa para SF 2400 AC e SF 800 em configurações se o modo local for usado\nAdicionar sensor e controle de \"SmartMode\"",
+        "nl": "Match hoofdlettergevoelige productsleutel voor SF 2400 AC en SF 800 in instellingen als lokale modus wordt gebruikt\nVoeg sensor en bediening van \"SmartMode\" toe",
+        "fr": "Clé de produit sensible à la casse pour SF 2400 AC et SF 800 dans les paramètres si le mode local est utilisé\nAjouter le capteur et le contrôle de \"SmartMode\"",
+        "it": "Chiave di prodotto sensibile caso di corrispondenza per SF 2400 AC e SF 800 nelle impostazioni se la modalità locale viene utilizzata\nAggiungi sensore e controllo di \"SmartMode\"",
+        "es": "Clave de producto sensible de caso de coincidencia para SF 2400 AC y SF 800 en ajustes si se utiliza el modo local\nAñadir sensor y control de \"SmartMode\"",
+        "pl": "Klucz produktu wrażliwego na dopasowanie dla SF 2400 AC i SF 800 w ustawieniach w trybie lokalnym\nDodaj czujnik i sterowanie \"SmartMode\"",
+        "uk": "У разі використання чутливого продукту для SF 2400 AC та SF 800 у налаштуваннях, якщо використовується локальний режим\nДодати датчик і контроль \"SmartMode\"",
+        "zh-cn": "如果使用本地模式, 匹配 SF 2400 AC 和 SF 800 的大小写敏感产品密钥\n添加“ SmartMode” 的传感器和控制"
+      },
       "1.15.3-alpha.0": {
         "en": "Match case sensitive product key for SF 2400 AC",
         "de": "Passender Case sensitiver Produktschlüssel für SF 2400 AC",
@@ -80,19 +93,6 @@
         "pl": "Granica wejścia i wyjścia dla Solarflow 2400 AC",
         "uk": "Фіксований вхід і вихідний ліміт для Solarflow 2400 AC",
         "zh-cn": "修正太阳流2400 AC的输入和输出限制"
-      },
-      "1.14.2": {
-        "en": "Fix control states not writable.",
-        "de": "Kontrollzustände nicht schreibbar reparieren.",
-        "ru": "Установить контрольные состояния, не подлежащие написанию.",
-        "pt": "Corrigir estados de controle não graváveis.",
-        "nl": "Regel controle staten niet schrijfbaar.",
-        "fr": "Fixez les états de contrôle qui ne sont pas lisibles.",
-        "it": "Fissare gli stati di controllo non scrivibile.",
-        "es": "Arreglar estados de control no es obligatorio.",
-        "pl": "Naprawa stanów kontroli nie jest możliwa do zapisu.",
-        "uk": "Виправлення контрольних станів не дратуються.",
-        "zh-cn": "修复控制状态不可写入 ."
       }
     },
     "titleLang": {
