@@ -159,4 +159,13 @@ export const ac2400ControlStates: ISolarflowState[] = [
     read: true,
     write: false,
   },
+  {
+    nameDe: "Smart Mode",
+    nameEn: "Smart Mode",
+    type: "boolean",
+    title: "smartMode",
+    role: "switch",
+    read: true,
+    write: true,
+  },
 ];

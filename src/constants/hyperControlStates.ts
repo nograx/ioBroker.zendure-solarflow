@@ -158,4 +158,13 @@ export const hyperControlStates: ISolarflowState[] = [
     read: true,
     write: false,
   },
+  {
+    nameDe: "Smart Mode",
+    nameEn: "Smart Mode",
+    type: "boolean",
+    title: "smartMode",
+    role: "switch",
+    read: true,
+    write: true,
+  },
 ];
