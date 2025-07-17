@@ -50,6 +50,7 @@ export interface ISolarFlowMqttProperties {
   hyperTmp?: number;
   autoModel?: number;
   heatState?: number;
+  smartMode?: number;
   // ambientLightNess
   // ambientLightColor
   // ambientLightMode
@@ -79,6 +80,7 @@ export const knownMqttProps = [
   "outputHomePower",
   "outputLimit",
   "buzzerSwitch",
+  "smartMode",
   "outputPackPower",
   "packInputPower",
   "solarInputPower",

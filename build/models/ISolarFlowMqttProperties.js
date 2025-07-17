@@ -31,6 +31,7 @@ const knownMqttProps = [
   "outputHomePower",
   "outputLimit",
   "buzzerSwitch",
+  "smartMode",
   "outputPackPower",
   "packInputPower",
   "solarInputPower",

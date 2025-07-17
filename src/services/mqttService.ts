@@ -584,6 +584,23 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
     }
 
     if (
+      obj.properties?.smartMode != null &&
+      obj.properties?.smartMode != undefined
+    ) {
+      const value = obj.properties?.smartMode == 0 ? false : true;
+
+      updateSolarFlowState(adapter, productKey, deviceKey, "smartMode", value);
+
+      updateSolarFlowControlState(
+        adapter,
+        productKey,
+        deviceKey,
+        "smartMode",
+        value
+      );
+    }
+
+    if (
       obj.properties?.buzzerSwitch != null &&
       obj.properties?.buzzerSwitch != undefined
     ) {
@@ -1394,6 +1411,25 @@ export const setInputLimit = async (
         adapter.mqttClient?.publish(topic, JSON.stringify(inputLimitContent));
       }
     }
+  }
+};
+
+export const setSmartMode = async (
+  adapter: ZendureSolarflow,
+  productKey: string,
+  deviceKey: string,
+  smartModeOn: boolean
+): Promise<void> => {
+  if (adapter.mqttClient && productKey && deviceKey) {
+    const topic = `iot/${productKey}/${deviceKey}/properties/write`;
+
+    const setSmartModeContent = {
+      properties: { smartMode: smartModeOn ? 1 : 0 },
+    };
+    adapter.log.debug(
+      `[setBuzzer] Setting Smart Mode for device key ${deviceKey} to ${smartModeOn}!`
+    );
+    adapter.mqttClient?.publish(topic, JSON.stringify(setSmartModeContent));
   }
 };
 

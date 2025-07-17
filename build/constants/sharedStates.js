@@ -137,6 +137,13 @@ const sharedStates = [
     unit: "W"
   },
   {
+    title: "smartMode",
+    nameDe: "Smart Mode",
+    nameEn: "Smart Mode",
+    type: "boolean",
+    role: "value"
+  },
+  {
     title: "pvPower1",
     nameDe: "Leistung PV 1",
     nameEn: "solar power channel 1",

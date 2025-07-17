@@ -21,6 +21,7 @@ import {
   setInputLimit,
   setOutputLimit,
   setPassMode,
+  setSmartMode,
 } from "./services/mqttService";
 import { getDeviceList, login } from "./services/webService";
 import { ISolarFlowDeviceDetails } from "./models/ISolarFlowDeviceDetails";
@@ -414,6 +415,14 @@ export class ZendureSolarflow extends utils.Adapter {
                 break;
               case "buzzerSwitch":
                 setBuzzerSwitch(
+                  this,
+                  productKey,
+                  deviceKey,
+                  state.val ? true : false
+                );
+                break;
+              case "smartMode":
+                setSmartMode(
                   this,
                   productKey,
                   deviceKey,

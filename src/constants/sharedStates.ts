@@ -208,4 +208,11 @@ export const sharedStates: ISolarflowState[] = [
     type: "boolean",
     role: "value",
   },
+  {
+    title: "smartMode",
+    nameDe: "Smart Mode",
+    nameEn: "Smart Mode",
+    type: "boolean",
+    role: "value",
+  },
 ];

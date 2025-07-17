@@ -98,6 +98,15 @@ const hubControlStates = [
     }
   },
   {
+    nameDe: "Smart Mode",
+    nameEn: "Smart Mode",
+    type: "boolean",
+    title: "smartMode",
+    role: "switch",
+    read: true,
+    write: true
+  },
+  {
     nameDe: "Am n\xE4chsten Tag Bypass auf Automatik",
     nameEn: "Automatic recovery of bypass",
     type: "boolean",

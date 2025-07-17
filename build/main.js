@@ -346,6 +346,14 @@ class ZendureSolarflow extends utils.Adapter {
                   state.val ? true : false
                 );
                 break;
+              case "smartMode":
+                (0, import_mqttService.setSmartMode)(
+                  this,
+                  productKey,
+                  deviceKey,
+                  state.val ? true : false
+                );
+                break;
             }
             break;
           default:
