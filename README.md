@@ -55,6 +55,11 @@ You can still do firmware updates with the official Zendure app via bluetooth an
 Credits goes to https://github.com/reinhard-brandstaedter/solarflow which helped a lot with the knowledge about the MQTT server from Zendure! Thanks!
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Breaking Change: Add control parameter 'setDeviceAutomation' which emulates Zendure's Smart Matching mode. Since there were concerns that setting limits would be stored in the flash memory, I recommend using this device automation instead of 'setInputLimit'/'setOutputLimit' from now on. You can use negative values for charging and positive for feed in.
+
 ### 1.15.4 (2025-07-17)
 
 - Add smart mode control parameter for more devices

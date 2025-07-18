@@ -16,6 +16,7 @@ import {
   setBuzzerSwitch,
   setChargeLimit,
   setDcSwitch,
+  setDeviceAutomationLimit,
   setDischargeLimit,
   setHubState,
   setInputLimit,
@@ -56,6 +57,8 @@ export class ZendureSolarflow extends utils.Adapter {
   public deviceList: ISolarFlowDeviceDetails[] = [];
   public paths: ISolarFlowPaths | undefined = undefined;
   public pack2Devices: IPack2Device[] = [];
+
+  public msgCounter: number = 700000;
 
   public lastLogin: Date | undefined = undefined;
 
@@ -427,6 +430,14 @@ export class ZendureSolarflow extends utils.Adapter {
                   productKey,
                   deviceKey,
                   state.val ? true : false
+                );
+                break;
+              case "setDeviceAutomationLimit":
+                setDeviceAutomationLimit(
+                  this,
+                  productKey,
+                  deviceKey,
+                  Number(state.val)
                 );
                 break;
             }

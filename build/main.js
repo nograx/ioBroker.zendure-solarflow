@@ -53,6 +53,7 @@ class ZendureSolarflow extends utils.Adapter {
     this.deviceList = [];
     this.paths = void 0;
     this.pack2Devices = [];
+    this.msgCounter = 7e5;
     this.lastLogin = void 0;
     this.mqttClient = void 0;
     this.resetValuesJob = void 0;
@@ -352,6 +353,14 @@ class ZendureSolarflow extends utils.Adapter {
                   productKey,
                   deviceKey,
                   state.val ? true : false
+                );
+                break;
+              case "setDeviceAutomationLimit":
+                (0, import_mqttService.setDeviceAutomationLimit)(
+                  this,
+                  productKey,
+                  deviceKey,
+                  Number(state.val)
                 );
                 break;
             }

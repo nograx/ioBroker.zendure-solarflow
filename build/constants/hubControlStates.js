@@ -188,6 +188,17 @@ const hubControlStates = [
     role: "indicator.lowbat",
     read: true,
     write: false
+  },
+  {
+    nameDe: "Ger\xE4te Automation Limit (negativ = Laden, positiv = Einspeisen)",
+    nameEn: "Device Automation Limit (negative = charging, positive = feed in)",
+    type: "number",
+    title: "setDeviceAutomationLimit",
+    role: "value.power",
+    read: true,
+    write: true,
+    min: 0,
+    unit: "W"
   }
 ];
 // Annotate the CommonJS export names for ESM import in node:

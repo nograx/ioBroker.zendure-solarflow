@@ -22,3 +22,83 @@ export const getProductNameFromProductKey = (productKey: string): string => {
       return "";
   }
 };
+
+export const getMinAndMaxOutputLimitForProductKey = (
+  productKey: string,
+  limit: number
+): number => {
+  const productName = getProductNameFromProductKey(productKey);
+
+  if (limit < 100 && limit != 90 && limit != 60 && limit != 30 && limit != 0) {
+    // NUR Solarflow HUB: Das Limit kann unter 100 nur in 30er Schritten gesetzt werden, dH. 30/60/90/100, wir rechnen das also um
+    if (
+      limit < 100 &&
+      limit > 90 &&
+      !productName?.includes("hyper") &&
+      !productName?.includes("2400 ac") &&
+      !productName?.includes("solarflow 800")
+    ) {
+      limit = 90;
+    } else if (
+      limit > 60 &&
+      limit < 90 &&
+      !productName?.includes("hyper") &&
+      !productName?.includes("2400 ac") &&
+      !productName?.includes("solarflow 800")
+    ) {
+      limit = 60;
+    } else if (
+      limit > 30 &&
+      limit < 60 &&
+      !productName?.includes("hyper") &&
+      !productName?.includes("2400 ac") &&
+      !productName?.includes("solarflow 800")
+    ) {
+      limit = 30;
+    } else if (limit < 30) {
+      limit = 30;
+    }
+  }
+
+  switch (productName?.toLocaleLowerCase()) {
+    case "hyper 2000":
+      if (limit > 1200) {
+        limit = 1200;
+      }
+      break;
+    case "solarflow 800":
+      if (limit > 800) {
+        limit = 800;
+      }
+      break;
+    case "solarflow2.0":
+      if (limit > 1200) {
+        limit = 1200;
+      }
+      break;
+    case "solarflow hub 2000":
+      if (limit > 1200) {
+        limit = 1200;
+      }
+      break;
+    case "solarflow aio zy":
+      if (limit > 1200) {
+        limit = 1200;
+      }
+      break;
+    case "solarflow 800 pro":
+      if (limit > 800) {
+        limit = 800;
+      }
+      break;
+    case "solarflow 2400 ac":
+      if (limit > 2400) {
+        limit = 2400;
+      }
+      break;
+    default:
+      break;
+  }
+
+  return limit;
+};

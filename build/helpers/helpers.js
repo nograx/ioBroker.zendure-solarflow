@@ -18,6 +18,7 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var helpers_exports = {};
 __export(helpers_exports, {
+  getMinAndMaxOutputLimitForProductKey: () => getMinAndMaxOutputLimitForProductKey,
   getProductNameFromProductKey: () => getProductNameFromProductKey
 });
 module.exports = __toCommonJS(helpers_exports);
@@ -43,8 +44,63 @@ const getProductNameFromProductKey = (productKey) => {
       return "";
   }
 };
+const getMinAndMaxOutputLimitForProductKey = (productKey, limit) => {
+  const productName = getProductNameFromProductKey(productKey);
+  if (limit < 100 && limit != 90 && limit != 60 && limit != 30 && limit != 0) {
+    if (limit < 100 && limit > 90 && !(productName == null ? void 0 : productName.includes("hyper")) && !(productName == null ? void 0 : productName.includes("2400 ac")) && !(productName == null ? void 0 : productName.includes("solarflow 800"))) {
+      limit = 90;
+    } else if (limit > 60 && limit < 90 && !(productName == null ? void 0 : productName.includes("hyper")) && !(productName == null ? void 0 : productName.includes("2400 ac")) && !(productName == null ? void 0 : productName.includes("solarflow 800"))) {
+      limit = 60;
+    } else if (limit > 30 && limit < 60 && !(productName == null ? void 0 : productName.includes("hyper")) && !(productName == null ? void 0 : productName.includes("2400 ac")) && !(productName == null ? void 0 : productName.includes("solarflow 800"))) {
+      limit = 30;
+    } else if (limit < 30) {
+      limit = 30;
+    }
+  }
+  switch (productName == null ? void 0 : productName.toLocaleLowerCase()) {
+    case "hyper 2000":
+      if (limit > 1200) {
+        limit = 1200;
+      }
+      break;
+    case "solarflow 800":
+      if (limit > 800) {
+        limit = 800;
+      }
+      break;
+    case "solarflow2.0":
+      if (limit > 1200) {
+        limit = 1200;
+      }
+      break;
+    case "solarflow hub 2000":
+      if (limit > 1200) {
+        limit = 1200;
+      }
+      break;
+    case "solarflow aio zy":
+      if (limit > 1200) {
+        limit = 1200;
+      }
+      break;
+    case "solarflow 800 pro":
+      if (limit > 800) {
+        limit = 800;
+      }
+      break;
+    case "solarflow 2400 ac":
+      if (limit > 2400) {
+        limit = 2400;
+      }
+      break;
+    default:
+      break;
+  }
+  return limit;
+};
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  getMinAndMaxOutputLimitForProductKey,
   getProductNameFromProductKey
 });
 //# sourceMappingURL=helpers.js.map

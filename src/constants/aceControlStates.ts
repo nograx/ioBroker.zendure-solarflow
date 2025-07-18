@@ -177,4 +177,15 @@ export const aceControlStates: ISolarflowState[] = [
     read: true,
     write: true,
   },
+  {
+    nameDe: "Geräte Automation Limit (negativ = Laden, positiv = Einspeisen)",
+    nameEn: "Device Automation Limit (negative = charging, positive = feed in)",
+    type: "number",
+    title: "setDeviceAutomationLimit",
+    role: "value.power",
+    read: true,
+    write: true,
+    min: 0,
+    unit: "W",
+  },
 ];

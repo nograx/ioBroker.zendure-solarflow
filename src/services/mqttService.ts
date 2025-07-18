@@ -18,7 +18,11 @@ import {
 import { createSolarFlowLocalStates } from "../helpers/createSolarFlowLocalStates";
 import { ISolarflowState } from "../models/ISolarflowState";
 import { getStateDefinition } from "../helpers/createSolarFlowStates";
-import { getProductNameFromProductKey } from "../helpers/helpers";
+import {
+  getMinAndMaxOutputLimitForProductKey,
+  getProductNameFromProductKey,
+} from "../helpers/helpers";
+import { IDeviceAutomationPayload } from "../models/IDeviceAutomationPayload";
 
 let adapter: ZendureSolarflow | undefined = undefined;
 
@@ -334,7 +338,9 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
     );
 
     if (adapter.log.level == "debug") {
-      adapter.log.debug(`[onMessage] MQTT message: ${message.toString()}`);
+      adapter.log.debug(
+        `[onMessage] MQTT message on topic '${topic}': ${message.toString()}`
+      );
     }
 
     if (obj.timestamp) {
@@ -1119,7 +1125,7 @@ const onMessage = async (topic: string, message: Buffer): Promise<void> => {
             //);
           } else {
             adapter?.log.debug(
-              `[onMessage] ${productName?.val}: ${key} with value ${value} is a UNKNOWN Mqtt Property!`
+              `[onMessage] ${productName?.val}: ${key} with value ${JSON.stringify(value)} is a UNKNOWN Mqtt Property!`
             );
           }
         });
@@ -1214,6 +1220,156 @@ export const setHubState = async (
   }
 };
 
+export const setDeviceAutomationLimit = async (
+  adapter: ZendureSolarflow,
+  productKey: string,
+  deviceKey: string,
+  limit: number // can be negative, negative will trigger charging mode
+): Promise<void> => {
+  if (adapter.mqttClient && productKey && deviceKey) {
+    adapter.log.debug(
+      `[setDeviceAutomationLimit] Set device Automation limit to ${limit}!`
+    );
+
+    if (limit) {
+      limit = Math.round(limit);
+    } else {
+      limit = 0;
+    }
+
+    if (adapter.config.useLowVoltageBlock) {
+      const lowVoltageBlockState = await adapter.getStateAsync(
+        productKey + "." + deviceKey + ".control.lowVoltageBlock"
+      );
+      if (
+        lowVoltageBlockState &&
+        lowVoltageBlockState.val &&
+        lowVoltageBlockState.val == true
+      ) {
+        limit = 0;
+      }
+
+      const fullChargeNeeded = await adapter.getStateAsync(
+        productKey + "." + deviceKey + ".control.fullChargeNeeded"
+      );
+
+      if (
+        fullChargeNeeded &&
+        fullChargeNeeded.val &&
+        fullChargeNeeded.val == true
+      ) {
+        limit = 0;
+      }
+    }
+
+    limit = getMinAndMaxOutputLimitForProductKey(productKey, limit);
+
+    const topic = `iot/${productKey}/${deviceKey}/function/invoke`;
+
+    adapter.msgCounter += 1;
+
+    const timestamp = new Date();
+    timestamp.setMilliseconds(0);
+
+    // HUB1200 & HUB 2000
+    let _arguments: IDeviceAutomationPayload[] = [
+      {
+        autoModelProgram: 2,
+        autoModelValue: limit,
+        msgType: 1,
+        autoModel: 8,
+      },
+    ];
+
+    const productName = getProductNameFromProductKey(productKey);
+
+    // Wenn kein Hub1200 oder Hub2000 überschreiben wir die Werte.
+    if (
+      productName.toLowerCase().includes("2400 ac") ||
+      productName.toLowerCase().includes("solarflow 800")
+    ) {
+      // HEMS Variante
+      const outputlimit = {
+        arguments: {
+          outputPower: limit,
+          chargeState: limit > 0 ? 0 : 1,
+          chargePower: limit > 0 ? 0 : -limit,
+          mode: 9,
+        },
+        function: "deviceAutomation",
+        messageId: adapter.msgCounter,
+        deviceKey: deviceKey,
+        timestamp: timestamp.getTime() / 1000,
+      };
+
+      adapter.mqttClient?.publish(topic, JSON.stringify(outputlimit));
+    } else if (productName.toLowerCase().includes("ace")) {
+      _arguments = [
+        {
+          autoModelProgram: 2,
+          autoModelValue: {
+            chargingType: limit > 0 ? 0 : 1,
+            chargingPower: limit > 0 ? 0 : -limit,
+            freq: 0,
+            outPower: limit,
+          },
+          msgType: 1,
+          autoModel: 8,
+        },
+      ];
+    } else {
+      if (productName.toLowerCase().includes("hyper")) {
+        if (limit < 0) {
+          _arguments = [
+            {
+              autoModelProgram: 1,
+              autoModelValue: {
+                upTime: 0,
+                chargingType: 1,
+                pullTime: 1800,
+                price: 2,
+                chargingPower: -limit,
+                prices: [
+                  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                  1, 1, 1,
+                ],
+                outPower: 0,
+                freq: 0,
+              },
+              msgType: 1,
+              autoModel: 8,
+            },
+          ];
+        } else {
+          _arguments = [
+            {
+              autoModelProgram: 2,
+              autoModelValue: {
+                chargingType: 0,
+                chargingPower: 0,
+                freq: 0,
+                outPower: limit,
+              },
+              msgType: 1,
+              autoModel: 8,
+            },
+          ];
+        }
+      }
+
+      const outputlimit = {
+        arguments: _arguments,
+        function: "deviceAutomation",
+        messageId: adapter.msgCounter,
+        deviceKey: deviceKey,
+        timestamp: timestamp.getTime() / 1000,
+      };
+
+      adapter.mqttClient?.publish(topic, JSON.stringify(outputlimit));
+    }
+  }
+};
+
 export const setOutputLimit = async (
   adapter: ZendureSolarflow,
   productKey: string,
@@ -1221,7 +1377,7 @@ export const setOutputLimit = async (
   limit: number
 ): Promise<void> => {
   if (adapter.mqttClient && productKey && deviceKey) {
-    // Check if autoModel is set to 0
+    // Check if autoModel is set to 0 (Nothing) or 8 (Smart Matching)
     const autoModel = (
       await adapter.getStateAsync(productKey + "." + deviceKey + ".autoModel")
     )?.val;
@@ -1269,89 +1425,18 @@ export const setOutputLimit = async (
     )?.val;
 
     if (currentLimit != null && currentLimit != undefined) {
-      const productName = getProductNameFromProductKey(productKey);
-
       if (currentLimit != limit) {
-        if (
-          limit < 100 &&
-          limit != 90 &&
-          limit != 60 &&
-          limit != 30 &&
-          limit != 0
-        ) {
-          // NUR Solarflow HUB: Das Limit kann unter 100 nur in 30er Schritten gesetzt werden, dH. 30/60/90/100, wir rechnen das also um
-          if (
-            limit < 100 &&
-            limit > 90 &&
-            !productName?.includes("hyper") &&
-            !productName?.includes("2400 ac") &&
-            !productName?.includes("solarflow 800")
-          ) {
-            limit = 90;
-          } else if (
-            limit > 60 &&
-            limit < 90 &&
-            !productName?.includes("hyper") &&
-            !productName?.includes("2400 ac") &&
-            !productName?.includes("solarflow 800")
-          ) {
-            limit = 60;
-          } else if (
-            limit > 30 &&
-            limit < 60 &&
-            !productName?.includes("hyper") &&
-            !productName?.includes("2400 ac") &&
-            !productName?.includes("solarflow 800")
-          ) {
-            limit = 30;
-          } else if (limit < 30) {
-            limit = 30;
-          }
-        }
-
-        switch (productName?.toLocaleLowerCase()) {
-          case "hyper 2000":
-            if (limit > 1200) {
-              limit = 1200;
-            }
-            break;
-          case "solarflow 800":
-            if (limit > 800) {
-              limit = 800;
-            }
-            break;
-          case "solarflow2.0":
-            if (limit > 1200) {
-              limit = 1200;
-            }
-            break;
-          case "solarflow hub 2000":
-            if (limit > 1200) {
-              limit = 1200;
-            }
-            break;
-          case "solarflow aio zy":
-            if (limit > 1200) {
-              limit = 1200;
-            }
-            break;
-          case "solarflow 800 pro":
-            if (limit > 800) {
-              limit = 800;
-            }
-            break;
-          case "solarflow 2400 ac":
-            if (limit > 2400) {
-              limit = 2400;
-            }
-            break;
-          default:
-            break;
-        }
+        limit = getMinAndMaxOutputLimitForProductKey(productKey, limit);
 
         const topic = `iot/${productKey}/${deviceKey}/properties/write`;
 
         const outputlimit = { properties: { outputLimit: limit } };
+
+        adapter.msgCounter += 1;
+
+        const timestamp = new Date();
+        timestamp.setMilliseconds(0);
+
         adapter.mqttClient?.publish(topic, JSON.stringify(outputlimit));
       }
     }

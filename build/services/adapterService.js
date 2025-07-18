@@ -42,6 +42,7 @@ const updateSolarFlowControlState = async (adapter, productKey, deviceKey, state
   }
 };
 const checkVoltage = async (adapter, productKey, deviceKey, voltage) => {
+  var _a;
   if (voltage < 46.1) {
     if (adapter.config.useCalculation) {
       (0, import_calculationService.setSocToZero)(adapter, productKey, deviceKey);
@@ -52,7 +53,12 @@ const checkVoltage = async (adapter, productKey, deviceKey, voltage) => {
         true,
         true
       ));
-      (0, import_mqttService.setOutputLimit)(adapter, productKey, deviceKey, 0);
+      const autoModel = (_a = await adapter.getStateAsync(productKey + "." + deviceKey + ".autoModel")) == null ? void 0 : _a.val;
+      if (autoModel == 8) {
+        (0, import_mqttService.setDeviceAutomationLimit)(adapter, productKey, deviceKey, 0);
+      } else {
+        (0, import_mqttService.setOutputLimit)(adapter, productKey, deviceKey, 0);
+      }
       if (adapter.config.forceShutdownOnLowVoltage) {
         const currentSoc = await adapter.getStateAsync(
           `${productKey}.${deviceKey}.electricLevel`

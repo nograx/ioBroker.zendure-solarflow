@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/models/IDeviceAutomationPayload.ts"],
+  "sourcesContent": ["/* eslint-disable @typescript-eslint/indent */\r\nexport interface IDeviceAutomationPayload {\r\n  autoModelProgram: number;\r\n  autoModelValue: IAutoModelValue | number;\r\n  msgType: number;\r\n  autoModel: number;\r\n}\r\n\r\ninterface IAutoModelValue {\r\n  upTime?: number;\r\n  chargingType: number;\r\n  pullTime?: number;\r\n  price?: number;\r\n  chargingPower: number;\r\n  prices?: number[];\r\n  outPower: number;\r\n  freq: number;\r\n}\r\n"],
+  "mappings": ";;;;;;;;;;;;;;AAAA;AAAA;",
+  "names": []
+}

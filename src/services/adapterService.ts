@@ -1,8 +1,11 @@
+/* eslint-disable @typescript-eslint/indent */
 import { ZendureSolarflow } from "../main";
 import { setSocToZero } from "./calculationService";
-import { setDischargeLimit, setOutputLimit } from "./mqttService";
-
-/* eslint-disable @typescript-eslint/indent */
+import {
+  setDeviceAutomationLimit,
+  setDischargeLimit,
+  setOutputLimit,
+} from "./mqttService";
 
 export const updateSolarFlowState = async (
   adapter: ZendureSolarflow,
@@ -56,7 +59,14 @@ export const checkVoltage = async (
       );
 
       // Low Voltage Block activated, stop power input immediately
-      setOutputLimit(adapter, productKey, deviceKey, 0);
+      const autoModel = (
+        await adapter.getStateAsync(productKey + "." + deviceKey + ".autoModel")
+      )?.val;
+      if (autoModel == 8) {
+        setDeviceAutomationLimit(adapter, productKey, deviceKey, 0);
+      } else {
+        setOutputLimit(adapter, productKey, deviceKey, 0);
+      }
 
       if (adapter.config.forceShutdownOnLowVoltage) {
         const currentSoc = await adapter.getStateAsync(
