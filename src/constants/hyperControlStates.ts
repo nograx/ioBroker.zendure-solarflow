@@ -171,7 +171,7 @@ export const hyperControlStates: ISolarflowState[] = [
     nameDe: "Geräte Automation Limit (negativ = Laden, positiv = Einspeisen)",
     nameEn: "Device Automation Limit (negative = charging, positive = feed in)",
     type: "number",
-    title: "setDeviceAutomationLimit",
+    title: "setDeviceAutomationInOutLimit",
     role: "value.power",
     read: true,
     write: true,

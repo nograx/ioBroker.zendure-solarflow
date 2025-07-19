@@ -19,6 +19,7 @@ import { createSolarFlowLocalStates } from "../helpers/createSolarFlowLocalState
 import { ISolarflowState } from "../models/ISolarflowState";
 import { getStateDefinition } from "../helpers/createSolarFlowStates";
 import {
+  getMinAndMaxInputLimitForProductKey,
   getMinAndMaxOutputLimitForProductKey,
   getProductNameFromProductKey,
 } from "../helpers/helpers";
@@ -1220,7 +1221,7 @@ export const setHubState = async (
   }
 };
 
-export const setDeviceAutomationLimit = async (
+export const setDeviceAutomationInOutLimit = async (
   adapter: ZendureSolarflow,
   productKey: string,
   deviceKey: string,
@@ -1228,7 +1229,7 @@ export const setDeviceAutomationLimit = async (
 ): Promise<void> => {
   if (adapter.mqttClient && productKey && deviceKey) {
     adapter.log.debug(
-      `[setDeviceAutomationLimit] Set device Automation limit to ${limit}!`
+      `[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`
     );
 
     if (limit) {
@@ -1244,7 +1245,8 @@ export const setDeviceAutomationLimit = async (
       if (
         lowVoltageBlockState &&
         lowVoltageBlockState.val &&
-        lowVoltageBlockState.val == true
+        lowVoltageBlockState.val == true &&
+        limit > 0
       ) {
         limit = 0;
       }
@@ -1256,13 +1258,19 @@ export const setDeviceAutomationLimit = async (
       if (
         fullChargeNeeded &&
         fullChargeNeeded.val &&
-        fullChargeNeeded.val == true
+        fullChargeNeeded.val == true &&
+        limit > 0
       ) {
         limit = 0;
       }
     }
 
-    limit = getMinAndMaxOutputLimitForProductKey(productKey, limit);
+    if (limit < 0) {
+      // Get input limit, make number positive and the new value negative
+      limit = -getMinAndMaxInputLimitForProductKey(productKey, -limit);
+    } else {
+      limit = getMinAndMaxOutputLimitForProductKey(productKey, limit);
+    }
 
     const topic = `iot/${productKey}/${deviceKey}/function/invoke`;
 
@@ -1456,46 +1464,12 @@ export const setInputLimit = async (
       limit = 0;
     }
 
-    let maxLimit = 900;
-    const currentLimit = (
-      await adapter.getStateAsync(productKey + "." + deviceKey + ".inputLimit")
-    )?.val;
+    limit = getMinAndMaxInputLimitForProductKey(productKey, limit);
 
-    const productName = getProductNameFromProductKey(productKey);
+    const topic = `iot/${productKey}/${deviceKey}/properties/write`;
 
-    if (productName?.includes("hyper")) {
-      maxLimit = 1200;
-    }
-
-    if (productName?.includes("2400 ac")) {
-      maxLimit = 2400;
-    }
-
-    if (productName?.includes("solarflow 800")) {
-      maxLimit = 800;
-    }
-
-    if (productName?.includes("ace")) {
-      // Das Limit kann nur in 100er Schritten gesetzt werden
-      limit = Math.ceil(limit / 100) * 100;
-    }
-
-    if (limit < 0) {
-      limit = 0;
-    } else if (limit > 0 && limit <= 30) {
-      limit = 30;
-    } else if (limit > maxLimit) {
-      limit = maxLimit;
-    }
-
-    if (currentLimit != null && currentLimit != undefined) {
-      if (currentLimit != limit) {
-        const topic = `iot/${productKey}/${deviceKey}/properties/write`;
-
-        const inputLimitContent = { properties: { inputLimit: limit } };
-        adapter.mqttClient?.publish(topic, JSON.stringify(inputLimitContent));
-      }
-    }
+    const inputLimitContent = { properties: { inputLimit: limit } };
+    adapter.mqttClient?.publish(topic, JSON.stringify(inputLimitContent));
   }
 };
 

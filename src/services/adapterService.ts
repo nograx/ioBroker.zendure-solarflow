@@ -2,7 +2,7 @@
 import { ZendureSolarflow } from "../main";
 import { setSocToZero } from "./calculationService";
 import {
-  setDeviceAutomationLimit,
+  setDeviceAutomationInOutLimit,
   setDischargeLimit,
   setOutputLimit,
 } from "./mqttService";
@@ -63,7 +63,7 @@ export const checkVoltage = async (
         await adapter.getStateAsync(productKey + "." + deviceKey + ".autoModel")
       )?.val;
       if (autoModel == 8) {
-        setDeviceAutomationLimit(adapter, productKey, deviceKey, 0);
+        setDeviceAutomationInOutLimit(adapter, productKey, deviceKey, 0);
       } else {
         setOutputLimit(adapter, productKey, deviceKey, 0);
       }

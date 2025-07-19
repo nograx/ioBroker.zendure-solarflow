@@ -16,7 +16,7 @@ import {
   setBuzzerSwitch,
   setChargeLimit,
   setDcSwitch,
-  setDeviceAutomationLimit,
+  setDeviceAutomationInOutLimit,
   setDischargeLimit,
   setHubState,
   setInputLimit,
@@ -432,8 +432,8 @@ export class ZendureSolarflow extends utils.Adapter {
                   state.val ? true : false
                 );
                 break;
-              case "setDeviceAutomationLimit":
-                setDeviceAutomationLimit(
+              case "setDeviceAutomationInOutLimit":
+                setDeviceAutomationInOutLimit(
                   this,
                   productKey,
                   deviceKey,

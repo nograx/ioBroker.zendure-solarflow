@@ -55,7 +55,7 @@ const checkVoltage = async (adapter, productKey, deviceKey, voltage) => {
       ));
       const autoModel = (_a = await adapter.getStateAsync(productKey + "." + deviceKey + ".autoModel")) == null ? void 0 : _a.val;
       if (autoModel == 8) {
-        (0, import_mqttService.setDeviceAutomationLimit)(adapter, productKey, deviceKey, 0);
+        (0, import_mqttService.setDeviceAutomationInOutLimit)(adapter, productKey, deviceKey, 0);
       } else {
         (0, import_mqttService.setOutputLimit)(adapter, productKey, deviceKey, 0);
       }

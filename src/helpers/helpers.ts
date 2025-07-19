@@ -102,3 +102,39 @@ export const getMinAndMaxOutputLimitForProductKey = (
 
   return limit;
 };
+
+export const getMinAndMaxInputLimitForProductKey = (
+  productKey: string,
+  limit: number
+): number => {
+  let maxLimit = 900;
+
+  const productName = getProductNameFromProductKey(productKey);
+
+  if (productName?.includes("hyper")) {
+    maxLimit = 1200;
+  }
+
+  if (productName?.includes("2400 ac")) {
+    maxLimit = 2400;
+  }
+
+  if (productName?.includes("solarflow 800")) {
+    maxLimit = 800;
+  }
+
+  if (productName?.includes("ace")) {
+    // Das Limit kann nur in 100er Schritten gesetzt werden
+    limit = Math.ceil(limit / 100) * 100;
+  }
+
+  if (limit < 0) {
+    limit = 0;
+  } else if (limit > 0 && limit <= 30) {
+    limit = 30;
+  } else if (limit > maxLimit) {
+    limit = maxLimit;
+  }
+
+  return limit;
+};

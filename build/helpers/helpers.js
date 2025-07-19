@@ -18,6 +18,7 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var helpers_exports = {};
 __export(helpers_exports, {
+  getMinAndMaxInputLimitForProductKey: () => getMinAndMaxInputLimitForProductKey,
   getMinAndMaxOutputLimitForProductKey: () => getMinAndMaxOutputLimitForProductKey,
   getProductNameFromProductKey: () => getProductNameFromProductKey
 });
@@ -98,8 +99,33 @@ const getMinAndMaxOutputLimitForProductKey = (productKey, limit) => {
   }
   return limit;
 };
+const getMinAndMaxInputLimitForProductKey = (productKey, limit) => {
+  let maxLimit = 900;
+  const productName = getProductNameFromProductKey(productKey);
+  if (productName == null ? void 0 : productName.includes("hyper")) {
+    maxLimit = 1200;
+  }
+  if (productName == null ? void 0 : productName.includes("2400 ac")) {
+    maxLimit = 2400;
+  }
+  if (productName == null ? void 0 : productName.includes("solarflow 800")) {
+    maxLimit = 800;
+  }
+  if (productName == null ? void 0 : productName.includes("ace")) {
+    limit = Math.ceil(limit / 100) * 100;
+  }
+  if (limit < 0) {
+    limit = 0;
+  } else if (limit > 0 && limit <= 30) {
+    limit = 30;
+  } else if (limit > maxLimit) {
+    limit = maxLimit;
+  }
+  return limit;
+};
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  getMinAndMaxInputLimitForProductKey,
   getMinAndMaxOutputLimitForProductKey,
   getProductNameFromProductKey
 });

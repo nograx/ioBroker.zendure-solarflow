@@ -38,7 +38,7 @@ __export(mqttService_exports, {
   setBuzzerSwitch: () => setBuzzerSwitch,
   setChargeLimit: () => setChargeLimit,
   setDcSwitch: () => setDcSwitch,
-  setDeviceAutomationLimit: () => setDeviceAutomationLimit,
+  setDeviceAutomationInOutLimit: () => setDeviceAutomationInOutLimit,
   setDischargeLimit: () => setDischargeLimit,
   setHubState: () => setHubState,
   setInputLimit: () => setInputLimit,
@@ -920,11 +920,11 @@ const setHubState = async (adapter2, productKey, deviceKey, hubState) => {
     }
   }
 };
-const setDeviceAutomationLimit = async (adapter2, productKey, deviceKey, limit) => {
+const setDeviceAutomationInOutLimit = async (adapter2, productKey, deviceKey, limit) => {
   var _a, _b;
   if (adapter2.mqttClient && productKey && deviceKey) {
     adapter2.log.debug(
-      `[setDeviceAutomationLimit] Set device Automation limit to ${limit}!`
+      `[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`
     );
     if (limit) {
       limit = Math.round(limit);
@@ -935,17 +935,21 @@ const setDeviceAutomationLimit = async (adapter2, productKey, deviceKey, limit) 
       const lowVoltageBlockState = await adapter2.getStateAsync(
         productKey + "." + deviceKey + ".control.lowVoltageBlock"
       );
-      if (lowVoltageBlockState && lowVoltageBlockState.val && lowVoltageBlockState.val == true) {
+      if (lowVoltageBlockState && lowVoltageBlockState.val && lowVoltageBlockState.val == true && limit > 0) {
         limit = 0;
       }
       const fullChargeNeeded = await adapter2.getStateAsync(
         productKey + "." + deviceKey + ".control.fullChargeNeeded"
       );
-      if (fullChargeNeeded && fullChargeNeeded.val && fullChargeNeeded.val == true) {
+      if (fullChargeNeeded && fullChargeNeeded.val && fullChargeNeeded.val == true && limit > 0) {
         limit = 0;
       }
     }
-    limit = (0, import_helpers.getMinAndMaxOutputLimitForProductKey)(productKey, limit);
+    if (limit < 0) {
+      limit = -(0, import_helpers.getMinAndMaxInputLimitForProductKey)(productKey, -limit);
+    } else {
+      limit = (0, import_helpers.getMinAndMaxOutputLimitForProductKey)(productKey, limit);
+    }
     const topic = `iot/${productKey}/${deviceKey}/function/invoke`;
     adapter2.msgCounter += 1;
     const timestamp = /* @__PURE__ */ new Date();
@@ -1103,42 +1107,17 @@ const setOutputLimit = async (adapter2, productKey, deviceKey, limit) => {
   }
 };
 const setInputLimit = async (adapter2, productKey, deviceKey, limit) => {
-  var _a, _b;
+  var _a;
   if (adapter2.mqttClient && productKey && deviceKey) {
     if (limit) {
       limit = Math.round(limit);
     } else {
       limit = 0;
     }
-    let maxLimit = 900;
-    const currentLimit = (_a = await adapter2.getStateAsync(productKey + "." + deviceKey + ".inputLimit")) == null ? void 0 : _a.val;
-    const productName = (0, import_helpers.getProductNameFromProductKey)(productKey);
-    if (productName == null ? void 0 : productName.includes("hyper")) {
-      maxLimit = 1200;
-    }
-    if (productName == null ? void 0 : productName.includes("2400 ac")) {
-      maxLimit = 2400;
-    }
-    if (productName == null ? void 0 : productName.includes("solarflow 800")) {
-      maxLimit = 800;
-    }
-    if (productName == null ? void 0 : productName.includes("ace")) {
-      limit = Math.ceil(limit / 100) * 100;
-    }
-    if (limit < 0) {
-      limit = 0;
-    } else if (limit > 0 && limit <= 30) {
-      limit = 30;
-    } else if (limit > maxLimit) {
-      limit = maxLimit;
-    }
-    if (currentLimit != null && currentLimit != void 0) {
-      if (currentLimit != limit) {
-        const topic = `iot/${productKey}/${deviceKey}/properties/write`;
-        const inputLimitContent = { properties: { inputLimit: limit } };
-        (_b = adapter2.mqttClient) == null ? void 0 : _b.publish(topic, JSON.stringify(inputLimitContent));
-      }
-    }
+    limit = (0, import_helpers.getMinAndMaxInputLimitForProductKey)(productKey, limit);
+    const topic = `iot/${productKey}/${deviceKey}/properties/write`;
+    const inputLimitContent = { properties: { inputLimit: limit } };
+    (_a = adapter2.mqttClient) == null ? void 0 : _a.publish(topic, JSON.stringify(inputLimitContent));
   }
 };
 const setSmartMode = async (adapter2, productKey, deviceKey, smartModeOn) => {
@@ -1491,7 +1470,7 @@ const connectLocalMqttClient = (_adapter) => {
   setBuzzerSwitch,
   setChargeLimit,
   setDcSwitch,
-  setDeviceAutomationLimit,
+  setDeviceAutomationInOutLimit,
   setDischargeLimit,
   setHubState,
   setInputLimit,

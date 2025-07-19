@@ -355,8 +355,8 @@ class ZendureSolarflow extends utils.Adapter {
                   state.val ? true : false
                 );
                 break;
-              case "setDeviceAutomationLimit":
-                (0, import_mqttService.setDeviceAutomationLimit)(
+              case "setDeviceAutomationInOutLimit":
+                (0, import_mqttService.setDeviceAutomationInOutLimit)(
                   this,
                   productKey,
                   deviceKey,

@@ -192,7 +192,7 @@ const solarflow800ProControlStates = [
     nameDe: "Ger\xE4te Automation Limit (negativ = Laden, positiv = Einspeisen)",
     nameEn: "Device Automation Limit (negative = charging, positive = feed in)",
     type: "number",
-    title: "setDeviceAutomationLimit",
+    title: "setDeviceAutomationInOutLimit",
     role: "value.power",
     read: true,
     write: true,
