@@ -285,6 +285,9 @@ class ZendureSolarflow extends utils.Adapter {
       } else if (state.val != void 0 && state.val != null && !state.ack) {
         switch (stateName1) {
           case "control":
+            this.log.debug(
+              `[onStateChange] Control state '${stateName2}' changed, new value is ${state.val}, ack = ${state.ack}!`
+            );
             switch (stateName2) {
               case "setOutputLimit":
                 (0, import_mqttService.setOutputLimit)(this, productKey, deviceKey, Number(state.val));

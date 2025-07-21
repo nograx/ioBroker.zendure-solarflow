@@ -74,4 +74,11 @@ export const hubStates: ISolarflowState[] = sharedStates.concat([
     type: "boolean",
     role: "value",
   },
+  {
+    title: "smartMode",
+    nameDe: "Smart Mode",
+    nameEn: "Smart Mode",
+    type: "boolean",
+    role: "value",
+  },
 ]);

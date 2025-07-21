@@ -74,6 +74,13 @@ const aioStates = import_sharedStates.sharedStates.concat([
     type: "number",
     role: "value.power",
     unit: "W"
+  },
+  {
+    title: "smartMode",
+    nameDe: "Smart Mode",
+    nameEn: "Smart Mode",
+    type: "boolean",
+    role: "value"
   }
 ]);
 // Annotate the CommonJS export names for ESM import in node:

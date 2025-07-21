@@ -160,15 +160,6 @@ export const solarflow800ControlStates: ISolarflowState[] = [
     write: false,
   },
   {
-    nameDe: "Smart Mode",
-    nameEn: "Smart Mode",
-    type: "boolean",
-    title: "smartMode",
-    role: "switch",
-    read: true,
-    write: true,
-  },
-  {
     nameDe: "Geräte Automation Limit (negativ = Laden, positiv = Einspeisen)",
     nameEn: "Device Automation Limit (negative = charging, positive = feed in)",
     type: "number",

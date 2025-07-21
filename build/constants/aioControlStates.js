@@ -122,32 +122,6 @@ const aioControlStates = [
     }
   },
   {
-    nameDe: "AC Schalter",
-    nameEn: "AC switch",
-    type: "boolean",
-    title: "acSwitch",
-    role: "switch",
-    read: true,
-    write: true
-  },
-  {
-    nameDe: "AC Modus",
-    nameEn: "AC mode",
-    type: "number",
-    title: "acMode",
-    role: "switch",
-    min: 0,
-    max: 2,
-    step: 1,
-    read: true,
-    write: true,
-    states: {
-      0: "Nothing",
-      1: "AC input mode",
-      2: "AC output mode"
-    }
-  },
-  {
     nameDe: "Niedrige Batteriespannung erkannt",
     nameEn: "Low Voltage on battery detected",
     type: "boolean",
@@ -166,8 +140,17 @@ const aioControlStates = [
     write: false
   },
   {
-    nameDe: "Ger\xE4te Automation Limit (negativ = Laden, positiv = Einspeisen)",
-    nameEn: "Device Automation Limit (negative = charging, positive = feed in)",
+    nameDe: "Smart Mode",
+    nameEn: "Smart Mode",
+    type: "boolean",
+    title: "smartMode",
+    role: "switch",
+    read: true,
+    write: true
+  },
+  {
+    nameDe: "Ger\xE4te Automation Input/Output Limit (negativ = Laden, positiv = Einspeisen)",
+    nameEn: "Device automation input/output limit (negative = charging, positive = feed in)",
     type: "number",
     title: "setDeviceAutomationInOutLimit",
     role: "value.power",

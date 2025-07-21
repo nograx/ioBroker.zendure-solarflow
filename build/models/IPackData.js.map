@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["../../src/models/IPackData.ts"],
-  "sourcesContent": ["/* eslint-disable @typescript-eslint/indent */\r\nexport interface IPackData {\r\n  sn: string;\r\n  socLevel: number;\r\n  maxTemp: number;\r\n  minVol: number;\r\n  maxVol: number;\r\n  totalVol: number;\r\n  soh: number;\r\n  batcur: number;\r\n  //softVersion: number\r\n}\r\n"],
+  "sourcesContent": ["/* eslint-disable @typescript-eslint/indent */\r\nexport interface IPackData {\r\n  sn: string;\r\n  socLevel: number;\r\n  maxTemp: number;\r\n  minVol: number;\r\n  maxVol: number;\r\n  totalVol: number;\r\n  soh: number;\r\n  batcur: number;\r\n  power?: number;\r\n  //softVersion: number\r\n}\r\n"],
   "mappings": ";;;;;;;;;;;;;;AAAA;AAAA;",
   "names": []
 }

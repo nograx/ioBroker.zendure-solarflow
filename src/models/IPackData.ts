@@ -8,5 +8,6 @@ export interface IPackData {
   totalVol: number;
   soh: number;
   batcur: number;
+  power?: number;
   //softVersion: number
 }

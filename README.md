@@ -42,22 +42,31 @@ If the Zendure device communicates with your MQTT server, you can connect this i
 
 You can still do firmware updates with the official Zendure app via bluetooth and use both bluetooth tools to reconnect the device to the cloud!
 
+## Important
+
+If you plan to control the charging and feed in of your device with a script/blockly, I recommend using the control parameter '**setDeviceAutomationInOutLimit**', as this controls the device without writing to the flash memory of the device. It is also a good idea to set the control state '**smartMode**' to true if you own a HUB 1200/2000 with ACE 1500, as it will also force the device to write 'acMode' changes to the ram instead of flash memory.
+
+### Hyper 2000, SF 2400 AC oder SF 800 (pro)
+
+On devices like the Hyper 2000, SF 2400 AC oder SF 800 (pro) you can use negative values to trigger charging from grid. SF 2400 AC oder SF 800 (pro) is currently **untested**!
+
+### HUB 1200 / HUB 2000 / ACE 1500 Combo
+
+On a HUB 1200 / HUB 2000 / ACE 1500 combination you have to use '**setDeviceAutomationInOutLimit**' for feed in and manualy switch acMode and the '**setInputLimit**' if you want to charge from the grid. Setting the '**smartMode**' to true is highly recommended in this scenario!
+
 ## Notes
 
-1. Please deactivate/uncheck all modes in the Zendure App, otherwise it is not possible to set the output limit! You can also set "autoModel" to 0 via control folder in adapter/objects.
-
-   ![Solarflow Settings Window](https://raw.github.com/nograx/ioBroker.zendure-solarflow/master/Screenshots/ZendureSolarflowSettings.png)
-
-2. You will be logged out of the official iOS or Android App after logging in with the ioBroker adapter. This is a normal behavior. As a workaround you can create an second Zendure account with another e-mail and grant access to your Solarflow HUB to this account. Then use the second account for ioBroker / the Zendure Solarflow adapter. This is not working für new devices like SF 2400 AC or SF 800 (Pro).
+You will be logged out of the official iOS or Android App after logging in with the ioBroker adapter. This is a normal behavior. As a workaround you can create an second Zendure account with another e-mail and grant access to your Solarflow HUB to this account. Then use the second account for ioBroker / the Zendure Solarflow adapter. This is not working für new devices like SF 2400 AC or SF 800 (Pro).
 
 ## Credits
 
 Credits goes to https://github.com/reinhard-brandstaedter/solarflow which helped a lot with the knowledge about the MQTT server from Zendure! Thanks!
 
 ## Changelog
-### 2.0.0-alpha.1 (2025-07-19)
 
-- Breaking Change: Add control parameter 'setDeviceAutomationInOutLimit' which emulates Zendure's Smart Matching mode. Since there were concerns that setting limits would be stored in the flash memory, I recommend using this device automation instead of 'setInputLimit'/'setOutputLimit' from now on. You can use negative values for charging and positive for feed in.
+### **WORK IN PROGRESS**
+
+- Breaking Change: Add control parameter 'setDeviceAutomationInOutLimit' which emulates Zendure's Smart Matching mode. I recommend using this device automation instead of 'setInputLimit'/'setOutputLimit' from now on, as there were concerns that setting limits/modes would be stored in the flash memory. You can use negative values for charging and positive for feed in. On HUB 1200/2000 with ACE 1500 you can use "smartMode" to prevent switching AC mode trigger writing to the flash memory. Check you the readme for more details or participate in the ioBroker forum.
 
 ### 1.15.4 (2025-07-17)
 

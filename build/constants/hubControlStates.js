@@ -98,15 +98,6 @@ const hubControlStates = [
     }
   },
   {
-    nameDe: "Smart Mode",
-    nameEn: "Smart Mode",
-    type: "boolean",
-    title: "smartMode",
-    role: "switch",
-    read: true,
-    write: true
-  },
-  {
     nameDe: "Am n\xE4chsten Tag Bypass auf Automatik",
     nameEn: "Automatic recovery of bypass",
     type: "boolean",
@@ -188,6 +179,15 @@ const hubControlStates = [
     role: "indicator.lowbat",
     read: true,
     write: false
+  },
+  {
+    nameDe: "Smart Mode",
+    nameEn: "Smart Mode",
+    type: "boolean",
+    title: "smartMode",
+    role: "switch",
+    read: true,
+    write: true
   },
   {
     nameDe: "Ger\xE4te Automation Limit (negativ = Laden, positiv = Einspeisen)",

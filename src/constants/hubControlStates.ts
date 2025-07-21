@@ -79,15 +79,6 @@ export const hubControlStates: ISolarflowState[] = [
     },
   },
   {
-    nameDe: "Smart Mode",
-    nameEn: "Smart Mode",
-    type: "boolean",
-    title: "smartMode",
-    role: "switch",
-    read: true,
-    write: true,
-  },
-  {
     nameDe: "Am nächsten Tag Bypass auf Automatik",
     nameEn: "Automatic recovery of bypass",
     type: "boolean",
@@ -167,6 +158,15 @@ export const hubControlStates: ISolarflowState[] = [
     role: "indicator.lowbat",
     read: true,
     write: false,
+  },
+  {
+    nameDe: "Smart Mode",
+    nameEn: "Smart Mode",
+    type: "boolean",
+    title: "smartMode",
+    role: "switch",
+    read: true,
+    write: true,
   },
   {
     nameDe: "Geräte Automation Limit (negativ = Laden, positiv = Einspeisen)",

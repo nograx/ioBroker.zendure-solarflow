@@ -1,11 +1,16 @@
 /* eslint-disable @typescript-eslint/indent */
 import { IPackData } from "./IPackData";
 
+//[onMessage] MQTT message on topic '/A8yh63/R7D06K7W/function/invoke/reply': {"messageId":700001,"deviceId":"R7D06K7W","timestamp":1753079364,"function":"deviceAutomation","output":"success","success":1}
 export interface IMqttData {
   timestamp?: number;
   properties?: ISolarFlowMqttProperties;
   packData?: IPackData[];
   power?: number;
+  function?: string;
+  deviceId?: string;
+  output?: string;
+  success?: number;
 }
 
 export interface ISolarFlowMqttProperties {

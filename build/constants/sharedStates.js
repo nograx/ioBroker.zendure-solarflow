@@ -228,13 +228,6 @@ const sharedStates = [
     nameEn: "Heat state",
     type: "boolean",
     role: "value"
-  },
-  {
-    title: "smartMode",
-    nameDe: "Smart Mode",
-    nameEn: "Smart Mode",
-    type: "boolean",
-    role: "value"
   }
 ];
 // Annotate the CommonJS export names for ESM import in node:

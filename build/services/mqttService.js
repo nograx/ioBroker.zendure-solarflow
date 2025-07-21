@@ -271,6 +271,25 @@ const addOrUpdatePackData = async (productKey, deviceKey, packData, isSolarFlow)
           }));
           await (adapter == null ? void 0 : adapter.setState(key + ".soh", x.soh / 10, true));
         }
+        if (x.power) {
+          await (adapter == null ? void 0 : adapter.extendObject(key + ".power", {
+            type: "state",
+            common: {
+              name: {
+                de: "Energie",
+                en: "Power"
+              },
+              type: "number",
+              desc: "Power",
+              read: true,
+              write: false,
+              role: "value.power",
+              unit: "W"
+            },
+            native: {}
+          }));
+          await (adapter == null ? void 0 : adapter.setState(key + ".power", x.power, true));
+        }
         let found = false;
         Object.entries(x).forEach(([key2, value]) => {
           knownPackDataProperties.forEach((property) => {
@@ -345,6 +364,22 @@ const onMessage = async (topic, message) => {
       "lastUpdate",
       (/* @__PURE__ */ new Date()).getTime()
     );
+    if (obj.function == "deviceAutomation" && obj.success == 1) {
+      const currentValue = await adapter.getStateAsync(
+        productKey + "." + deviceKey + ".control.setDeviceAutomationInOutLimit"
+      );
+      (0, import_adapterService.updateSolarFlowControlState)(
+        adapter,
+        productKey,
+        deviceKey,
+        "setDeviceAutomationInOutLimit",
+        (currentValue == null ? void 0 : currentValue.val) ? currentValue.val : 0
+      );
+    } else if (obj.function == "deviceAutomation" && obj.success == 0) {
+      adapter == null ? void 0 : adapter.log.warn(
+        `[onMessage] device automation failed for ${productName == null ? void 0 : productName.val}: ${productKey}/${deviceKey}!`
+      );
+    }
     if (((_a = obj.properties) == null ? void 0 : _a.autoModel) != null && ((_b = obj.properties) == null ? void 0 : _b.autoModel) != void 0) {
       (0, import_adapterService.updateSolarFlowState)(
         adapter,
@@ -861,13 +896,21 @@ const onMessage = async (topic, message) => {
 const setAcMode = async (adapter2, productKey, deviceKey, acMode) => {
   var _a;
   if (adapter2.mqttClient && productKey && deviceKey) {
-    if (acMode >= 0 && acMode <= 2) {
+    if (acMode >= 0 && acMode <= 3) {
       const topic = `iot/${productKey}/${deviceKey}/properties/write`;
       const setAcMode2 = { properties: { acMode } };
       adapter2.log.debug(`[setAcMode] Set AC mode to ${acMode}!`);
       (_a = adapter2.mqttClient) == null ? void 0 : _a.publish(topic, JSON.stringify(setAcMode2));
+      const smartMode = await adapter2.getStateAsync(
+        productKey + "." + deviceKey + ".control.smartMode"
+      );
+      if (smartMode && !smartMode.val) {
+        adapter2.log.warn(
+          `[setAcMode] AC mode was switched and smartMode is false - changes will be written to flash memory. In the worst case, the device may break or changes may no longer be saved!`
+        );
+      }
     } else {
-      adapter2.log.error(`[setAcMode] AC mode must be a value between 0 and 2!`);
+      adapter2.log.error(`[setAcMode] AC mode must be a value between 0 and 3!`);
     }
   }
 };
@@ -954,103 +997,108 @@ const setDeviceAutomationInOutLimit = async (adapter2, productKey, deviceKey, li
     adapter2.msgCounter += 1;
     const timestamp = /* @__PURE__ */ new Date();
     timestamp.setMilliseconds(0);
-    let _arguments = [
-      {
-        autoModelProgram: 2,
-        autoModelValue: limit,
-        msgType: 1,
-        autoModel: 8
-      }
-    ];
+    let _arguments = [];
     const productName = (0, import_helpers.getProductNameFromProductKey)(productKey);
     if (productName.toLowerCase().includes("2400 ac") || productName.toLowerCase().includes("solarflow 800")) {
+      adapter2.log.debug(
+        `[setDeviceAutomationInOutLimit] Using HEMS Variant of device automation, as device '${productName}' detected!`
+      );
       const outputlimit = {
         arguments: {
-          outputPower: limit,
+          outputPower: limit > 0 ? limit : 0,
           chargeState: limit > 0 ? 0 : 1,
           chargePower: limit > 0 ? 0 : -limit,
           mode: 9
         },
-        function: "deviceAutomation",
+        function: "hemsEP",
         messageId: adapter2.msgCounter,
         deviceKey,
         timestamp: timestamp.getTime() / 1e3
       };
       (_a = adapter2.mqttClient) == null ? void 0 : _a.publish(topic, JSON.stringify(outputlimit));
-    } else if (productName.toLowerCase().includes("ace")) {
-      _arguments = [
-        {
-          autoModelProgram: 2,
-          autoModelValue: {
-            chargingType: limit > 0 ? 0 : 1,
-            chargingPower: limit > 0 ? 0 : -limit,
-            freq: 0,
-            outPower: limit
-          },
-          msgType: 1,
-          autoModel: 8
-        }
-      ];
+      return;
+    } else if (productName.toLowerCase().includes("hyper")) {
+      if (limit < 0) {
+        adapter2.log.debug(
+          `[setDeviceAutomationInOutLimit] Using CHARGE variant of HYPER device automation, as device '${productName}' detected and limit is negative!`
+        );
+        _arguments = [
+          {
+            autoModelProgram: 1,
+            autoModelValue: {
+              upTime: 0,
+              chargingType: 1,
+              pullTime: 1800,
+              price: 2,
+              chargingPower: -limit,
+              prices: [
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              outPower: 0,
+              freq: 0
+            },
+            msgType: 1,
+            autoModel: 8
+          }
+        ];
+      } else {
+        adapter2.log.debug(
+          `[setDeviceAutomationInOutLimit] Using FEED IN variant of HYPER device automation, as device '${productName}' detected and limit is positive!`
+        );
+        _arguments = [
+          {
+            autoModelProgram: 2,
+            autoModelValue: {
+              chargingType: 0,
+              chargingPower: 0,
+              freq: 0,
+              outPower: limit
+            },
+            msgType: 1,
+            autoModel: 8
+          }
+        ];
+      }
     } else {
-      if (productName.toLowerCase().includes("hyper")) {
-        if (limit < 0) {
-          _arguments = [
-            {
-              autoModelProgram: 1,
-              autoModelValue: {
-                upTime: 0,
-                chargingType: 1,
-                pullTime: 1800,
-                price: 2,
-                chargingPower: -limit,
-                prices: [
-                  1,
-                  1,
-                  1,
-                  1,
-                  1,
-                  1,
-                  1,
-                  1,
-                  1,
-                  1,
-                  1,
-                  1,
-                  1,
-                  1,
-                  1,
-                  1,
-                  1,
-                  1,
-                  1,
-                  1,
-                  1,
-                  1,
-                  1,
-                  1
-                ],
-                outPower: 0,
-                freq: 0
-              },
-              msgType: 1,
-              autoModel: 8
-            }
-          ];
-        } else {
-          _arguments = [
-            {
-              autoModelProgram: 2,
-              autoModelValue: {
-                chargingType: 0,
-                chargingPower: 0,
-                freq: 0,
-                outPower: limit
-              },
-              msgType: 1,
-              autoModel: 8
-            }
-          ];
-        }
+      if (limit < 0) {
+        adapter2.log.warn(
+          `[setDeviceAutomationInOutLimit] Using CHARGE variant of Hub device automation is currently not working! You have to manualy switch acMode and inputLimit!`
+        );
+      } else {
+        adapter2.log.debug(
+          `[setDeviceAutomationInOutLimit] Using FEED IN variant of Hub device automation, as device '${productName}' detected and limit is positive!`
+        );
+        _arguments = [
+          {
+            autoModelProgram: 2,
+            autoModelValue: limit,
+            msgType: 1,
+            autoModel: 8
+          }
+        ];
       }
       const outputlimit = {
         arguments: _arguments,

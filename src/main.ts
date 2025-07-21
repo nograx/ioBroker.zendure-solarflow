@@ -362,6 +362,9 @@ export class ZendureSolarflow extends utils.Adapter {
       else if (state.val != undefined && state.val != null && !state.ack) {
         switch (stateName1) {
           case "control":
+            this.log.debug(
+              `[onStateChange] Control state '${stateName2}' changed, new value is ${state.val}, ack = ${state.ack}!`
+            );
             switch (stateName2) {
               case "setOutputLimit":
                 setOutputLimit(this, productKey, deviceKey, Number(state.val));

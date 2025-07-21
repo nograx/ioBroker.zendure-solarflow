@@ -55,4 +55,11 @@ export const aioStates: ISolarflowState[] = sharedStates.concat([
     role: "value.power",
     unit: "W",
   },
+  {
+    title: "smartMode",
+    nameDe: "Smart Mode",
+    nameEn: "Smart Mode",
+    type: "boolean",
+    role: "value",
+  },
 ]);
