@@ -1003,7 +1003,7 @@ const setDeviceAutomationInOutLimit = async (adapter2, productKey, deviceKey, li
       adapter2.log.debug(
         `[setDeviceAutomationInOutLimit] Using HEMS Variant of device automation, as device '${productName}' detected!`
       );
-      const outputlimit2 = {
+      const hemsEP = {
         arguments: {
           outputPower: limit > 0 ? limit : 0,
           chargeState: limit > 0 ? 0 : 1,
@@ -1015,7 +1015,7 @@ const setDeviceAutomationInOutLimit = async (adapter2, productKey, deviceKey, li
         deviceKey,
         timestamp: timestamp.getTime() / 1e3
       };
-      (_a = adapter2.mqttClient) == null ? void 0 : _a.publish(topic, JSON.stringify(outputlimit2));
+      (_a = adapter2.mqttClient) == null ? void 0 : _a.publish(topic, JSON.stringify(hemsEP));
       return;
     } else if (productName.toLowerCase().includes("hyper")) {
       if (limit < 0) {
@@ -1101,14 +1101,14 @@ const setDeviceAutomationInOutLimit = async (adapter2, productKey, deviceKey, li
         ];
       }
     }
-    const outputlimit = {
+    const deviceAutomation = {
       arguments: _arguments,
       function: "deviceAutomation",
       messageId: adapter2.msgCounter,
       deviceKey,
       timestamp: timestamp.getTime() / 1e3
     };
-    (_b = adapter2.mqttClient) == null ? void 0 : _b.publish(topic, JSON.stringify(outputlimit));
+    (_b = adapter2.mqttClient) == null ? void 0 : _b.publish(topic, JSON.stringify(deviceAutomation));
   }
 };
 const setOutputLimit = async (adapter2, productKey, deviceKey, limit) => {

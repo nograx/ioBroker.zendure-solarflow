@@ -63,8 +63,7 @@ You will be logged out of the official iOS or Android App after logging in with 
 Credits goes to https://github.com/reinhard-brandstaedter/solarflow which helped a lot with the knowledge about the MQTT server from Zendure! Thanks!
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 2.0.1 (2025-07-22)
 
 - Small fix MQTT service
 

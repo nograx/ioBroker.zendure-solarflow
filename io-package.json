@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "news": {
+      "2.0.1": {
+        "en": "Small fix MQTT service",
+        "de": "Kleiner MQTT-Service",
+        "ru": "Небольшой ремонт MQTT",
+        "pt": "Pequeno serviço de correção MQTT",
+        "nl": "Kleine reparatie MQTT service",
+        "fr": "Petit service MQTT fixe",
+        "it": "Servizio MQTT piccolo fix",
+        "es": "Servicio de fijación pequeña MQTT",
+        "pl": "Usługa małej naprawy MQTT",
+        "uk": "Невелика фіксація MQTT сервіс",
+        "zh-cn": "小修补 MQTT 服务"
+      },
       "2.0.0": {
         "en": "Breaking Change: Add control parameter 'setDeviceAutomationInOutLimit' which emulates Zendure's Smart Matching mode. I recommend using this device automation instead of 'setInputLimit'/'setOutputLimit' from now on, as there were concerns that setting limits/modes would be stored in the flash memory. You can use negative values for charging and positive for feed in. On HUB 1200/2000 with ACE 1500 you can use \"smartMode\" to prevent switching AC mode trigger writing to the flash memory. Check you the readme for more details or participate in the ioBroker forum.",
         "de": "Veränderung: Fügen Sie den Steuerparameter 'setDeviceAutomationInOutLimit' hinzu, der den Smart Matching-Modus von Zendure emuliert. Ich empfehle, diese Geräteautomatisierung anstelle von 'setInputLimit'/'setOutputLimit' von jetzt an zu verwenden, da es Bedenken gab, dass Einstelllimits/Mode im Flash-Speicher gespeichert würden. Sie können negative Werte für das Laden und positiv für das Einspeisen verwenden. Auf HUB 1200/2000 mit ACE 1500 können Sie \"smartMode\" verwenden, um zu verhindern, dass Wechselstrommodus das Schreiben an den Flash-Speicher auslöst. Überprüfen Sie das Readme für weitere Details oder nehmen Sie am ioBroker Forum teil.",
@@ -80,19 +93,6 @@
         "pl": "Klucz produktu wrażliwego na dopasowanie dla SF 2400 AC",
         "uk": "Ключ до чутливого продукту для SF 2400 AC",
         "zh-cn": "匹配 SF 2400 AC 的大小写敏感产品密钥"
-      },
-      "1.15.2": {
-        "en": "Fix missing SF 800 & 2400 AC in local mode settings",
-        "de": "Fehlerhafte SF 800 & 2400 AC in lokalen Moduseinstellungen beheben",
-        "ru": "Исправление пропущенных SF 800 и 2400 AC в локальных настройках режима",
-        "pt": "Corrigir falta SF 800 & 2400 AC em configurações de modo local",
-        "nl": "Fix ontbrekende SF 800 & 2400 AC in lokale modus instellingen",
-        "fr": "Correction manquante SF 800 & 2400 AC en mode local",
-        "it": "Fissare SF 800 & 2400 AC mancanti nelle impostazioni di modalità locale",
-        "es": "Fijar SF 800 & 2400 AC desaparecidos en la configuración del modo local",
-        "pl": "Naprawianie brakujących SF 800 & 2400 AC w lokalnych ustawieniach trybu",
-        "uk": "Виправлення відсутніх SF 800 & 2400 AC в налаштуваннях локального режиму",
-        "zh-cn": "在本地模式设置中修复缺失的 SF 800 & 2400 AC"
       }
     },
     "titleLang": {
