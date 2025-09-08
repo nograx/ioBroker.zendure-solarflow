@@ -27,5 +27,19 @@
     "useCalculation": "Utiliser des calculs (valeurs quotidiennes, soc)",
     "useLowVoltageBlock": "Utiliser un bloc basse tension (désactive la puissance de sortie lorsque la tension d'une batterie tombe en dessous de la tension critique)",
     "donateHeader": "Faire un don",
-    "enterPassword": "Veuillez fournir un mot de passe !"
+    "enterPassword": "Veuillez fournir un mot de passe !",
+    "forceShutdownOnLowVoltage": "Forcer le dispositif Solarflow à s'arrêter en définissant le min. SOC dès que la tension tombe en dessous de la limite",
+    "fullChargeIfNeeded": "Charge à 100% si Zenture SOC est supérieure à 50% lorsque la tension critique est atteinte.",
+    "dischargeLimit": "Limite de décharge",
+    "local": "Serveur MQTT local",
+    "useFallbackService": "Utilisez Fallback Server (Connectez-vous au développeur MQTT Server - Lire uniquement!)",
+    "snNumber": "ID série de l'appareil Solarflow",
+    "enterSnNumber": "Veuillez saisir un ID de série valide!",
+    "HUB 1200": "Hub 1200",
+    "HUB 2000": "Hub 2000",
+    "Hyper 2000": "Hyper 2000",
+    "Ace 1500": "ACE 1500",
+    "AIO 2400": "AIO 2400",
+    "localMqttUrl": "URL / IP du serveur MQTT local",
+    "useRestart": "Utilisez le redémarrage de l'adaptateur toutes les 3 heures pour actualiser le jeton d'accès"
 }

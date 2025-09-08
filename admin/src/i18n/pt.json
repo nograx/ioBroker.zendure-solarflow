@@ -27,5 +27,19 @@
     "useCalculation": "Use cálculos (valores diários, soc)",
     "useLowVoltageBlock": "Use bloco de baixa tensão (desativa a saída de energia quando a tensão de uma bateria cai abaixo da tensão crítica)",
     "donateHeader": "Doar",
-    "enterPassword": "Forneça uma senha!"
+    "enterPassword": "Forneça uma senha!",
+    "forceShutdownOnLowVoltage": "Força o dispositivo SolarFlow para desligar, definindo o mínimo. SoC assim que a tensão cair abaixo do limite",
+    "fullChargeIfNeeded": "Cobrar para 100% se o Zendure Soc for maior que 50% quando a tensão crítica for atingida.",
+    "dischargeLimit": "Limite de descarga",
+    "local": "Servidor MQTT local",
+    "useFallbackService": "Use o Fallback Server (conecte -se ao desenvolvedor MQTT Server - somente leitura!)",
+    "snNumber": "ID em série do dispositivo solarflow",
+    "enterSnNumber": "Por favor, insira um ID de série válido!",
+    "HUB 1200": "Hub 1200",
+    "HUB 2000": "Hub 2000",
+    "Hyper 2000": "Hyper 2000",
+    "Ace 1500": "ACE 1500",
+    "AIO 2400": "AIO 2400",
+    "localMqttUrl": "URL/IP do servidor MQTT local",
+    "useRestart": "Use o reinício do adaptador a cada 3 horas para atualizar o token de acesso"
 }

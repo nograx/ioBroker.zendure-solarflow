@@ -27,5 +27,19 @@
     "useCalculation": "使用计算（每日值、soc）",
     "useLowVoltageBlock": "使用低电压模块（当一节电池的电压低于临界电压时停用电源输出）",
     "donateHeader": "捐",
-    "enterPassword": "请提供密码！"
+    "enterPassword": "请提供密码！",
+    "forceShutdownOnLowVoltage": "通过设置最小值来强制太阳能设备关闭。 SOC一旦电压低于极限",
+    "fullChargeIfNeeded": "当达到临界电压时，如果Zendure SOC大于50％，则充电至100％。",
+    "dischargeLimit": "放电限制",
+    "local": "本地MQTT服务器",
+    "useFallbackService": "使用后备服务器（连接到开发人员MQTT服务器 - 仅读取！）",
+    "snNumber": "太阳能设备的串行ID",
+    "enterSnNumber": "请输入有效的序列ID！",
+    "HUB 1200": "集线器1200",
+    "HUB 2000": "集线器2000",
+    "Hyper 2000": "Hyper 2000",
+    "Ace 1500": "王牌1500",
+    "AIO 2400": "AIO 2400",
+    "localMqttUrl": "本地MQTT服务器URL/IP",
+    "useRestart": "每3小时使用重新启动适配器来刷新访问令牌"
 }

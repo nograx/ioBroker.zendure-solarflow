@@ -27,5 +27,19 @@
     "useCalculation": "Użyj obliczeń (wartości dzienne, soc)",
     "useLowVoltageBlock": "Użyj bloku niskiego napięcia (wyłącza moc wyjściową, gdy napięcie jednego akumulatora spadnie poniżej napięcia krytycznego)",
     "donateHeader": "Podarować",
-    "enterPassword": "Podaj hasło!"
+    "enterPassword": "Podaj hasło!",
+    "forceShutdownOnLowVoltage": "Wymień urządzenie SolarFlow do zamknięcia, ustawiając min. SoC, gdy tylko napięcie spadnie poniżej limitu",
+    "fullChargeIfNeeded": "Opłata do 100%, jeśli Zendure SoC jest większy niż 50%, gdy osiągnięto napięcie krytyczne.",
+    "dischargeLimit": "Limit rozładowania",
+    "local": "Lokalny serwer MQTT",
+    "useFallbackService": "Użyj serwera Fallback (połącz się z programistą MQTT Server - tylko odczyt!)",
+    "snNumber": "Serialny identyfikator urządzenia Solarflow",
+    "enterSnNumber": "Wprowadź ważny identyfikator seryjny!",
+    "HUB 1200": "Hub 1200",
+    "HUB 2000": "Hub 2000",
+    "Hyper 2000": "Hyper 2000",
+    "Ace 1500": "Ace 1500",
+    "AIO 2400": "AIO 2400",
+    "localMqttUrl": "Lokalny adres URL/IP serwera MQTT",
+    "useRestart": "Użyj restartu adaptera co 3 godziny, aby odświeżyć token dostępu"
 }

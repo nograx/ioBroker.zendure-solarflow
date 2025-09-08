@@ -27,5 +27,19 @@
     "useCalculation": "Gebruik berekeningen (dagwaarden, soc)",
     "useLowVoltageBlock": "Gebruik een laagspanningsblok (deactiveert de stroomuitvoer wanneer de spanning van één batterij onder de kritische spanning daalt)",
     "donateHeader": "Doneer",
-    "enterPassword": "Geef een wachtwoord op!"
+    "enterPassword": "Geef een wachtwoord op!",
+    "forceShutdownOnLowVoltage": "Force SolarFlow -apparaat om af te sluiten door de min in te stellen. SOC zodra de spanning onder de limiet valt",
+    "fullChargeIfNeeded": "Laad op 100% als Zendure SOC groter is dan 50% wanneer de kritieke spanning wordt bereikt.",
+    "dischargeLimit": "Lozingslimiet",
+    "local": "Lokale MQTT -server",
+    "useFallbackService": "Gebruik Fallback Server (verbinding maken met ontwikkelaar MQTT Server - Alleen lezen!)",
+    "snNumber": "Seriële ID van SolarFlow -apparaat",
+    "enterSnNumber": "Voer een geldige seriële ID in!",
+    "HUB 1200": "Hub 1200",
+    "HUB 2000": "Hub 2000",
+    "Hyper 2000": "Hyper 2000",
+    "Ace 1500": "Ace 1500",
+    "AIO 2400": "AIO 2400",
+    "localMqttUrl": "Lokale MQTT Server URL/IP",
+    "useRestart": "Gebruik de herstart van de adapter om de 3 uur om de toegangstoken te vernieuwen"
 }
