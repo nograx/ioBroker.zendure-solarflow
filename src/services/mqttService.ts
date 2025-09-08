@@ -1409,6 +1409,9 @@ export const setDeviceAutomationInOutLimit = async (
     } else {
       // Device Automation for devices like HUB 1200, HUB 2000, AIO 2400 and Ace 1500
       if (limit < 0) {
+        adapter.log.debug(
+          `[setDeviceAutomationInOutLimit] Using CHARGE variant of HUB device automation, as device '${productName}' detected and limit is negative!`
+        );
         _arguments = [
           {
             autoModelProgram: 2,

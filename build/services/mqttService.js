@@ -1084,6 +1084,9 @@ const setDeviceAutomationInOutLimit = async (adapter2, productKey, deviceKey, li
       }
     } else {
       if (limit < 0) {
+        adapter2.log.debug(
+          `[setDeviceAutomationInOutLimit] Using CHARGE variant of HUB device automation, as device '${productName}' detected and limit is negative!`
+        );
         _arguments = [
           {
             autoModelProgram: 2,
