@@ -65,7 +65,9 @@ const knownPackDataProperties = [
   "minVol",
   "socLevel",
   "maxTemp",
-  "soh"
+  "soh",
+  "power",
+  "batcur"
 ];
 const addOrUpdatePackData = async (productKey, deviceKey, packData, isSolarFlow) => {
   if (adapter && productKey && deviceKey) {

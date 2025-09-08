@@ -35,6 +35,8 @@ const knownPackDataProperties = [
   "socLevel",
   "maxTemp",
   "soh",
+  "power",
+  "batcur",
 ];
 
 export const addOrUpdatePackData = async (
