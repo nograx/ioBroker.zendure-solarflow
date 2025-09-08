@@ -1340,6 +1340,7 @@ export const setDeviceAutomationInOutLimit = async (
       productName.toLowerCase().includes("2400 ac") ||
       productName.toLowerCase().includes("solarflow 800")
     ) {
+      // Device Automation for Solarflow 2400 AC and Solarflow 800
       adapter.log.debug(
         `[setDeviceAutomationInOutLimit] Using HEMS Variant of device automation, as device '${productName}' detected!`
       );
@@ -1360,6 +1361,7 @@ export const setDeviceAutomationInOutLimit = async (
       adapter.mqttClient?.publish(topic, JSON.stringify(hemsEP));
       return;
     } else if (productName.toLowerCase().includes("hyper")) {
+      // Device Automation for Hyper 2000
       if (limit < 0) {
         adapter.log.debug(
           `[setDeviceAutomationInOutLimit] Using CHARGE variant of HYPER device automation, as device '${productName}' detected and limit is negative!`
@@ -1369,9 +1371,7 @@ export const setDeviceAutomationInOutLimit = async (
           {
             autoModelProgram: 1,
             autoModelValue: {
-              upTime: 0,
               chargingType: 1,
-              pullTime: 1800,
               price: 2,
               chargingPower: -limit,
               prices: [
@@ -1405,31 +1405,21 @@ export const setDeviceAutomationInOutLimit = async (
         ];
       }
     } else {
+      // Device Automation for devices like HUB 1200, HUB 2000, AIO 2400 and Ace 1500
       if (limit < 0) {
-        adapter.log.warn(
-          `[setDeviceAutomationInOutLimit] Using CHARGE variant of Hub device automation is currently not working! You have to manualy switch acMode and inputLimit!`
-        );
-        /* // Input / Charge
         _arguments = [
           {
             autoModelProgram: 2,
             autoModelValue: {
-              upTime: 0,
               chargingType: 1,
-              pullTime: 1800,
-              price: 2,
               chargingPower: -limit,
-              prices: [
-                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                1, 1, 1,
-              ],
-              outPower: 0,
               freq: 0,
+              outPower: 0,
             },
             msgType: 1,
             autoModel: 8,
           },
-        ]; */
+        ];
       } else {
         // Output
         adapter.log.debug(

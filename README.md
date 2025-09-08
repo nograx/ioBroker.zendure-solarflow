@@ -63,6 +63,12 @@ You will be logged out of the official iOS or Android App after logging in with 
 Credits goes to https://github.com/reinhard-brandstaedter/solarflow which helped a lot with the knowledge about the MQTT server from Zendure! Thanks!
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Removed parameter 'upTime' and 'pullTime' from 'setDeviceAutomationInOutLimit'
+- TEST: Use 'setDeviceAutomationInOutLimit' to let HUB1200/HUB2000 charge with connected ACE 1500
+
 ### 2.0.1 (2025-07-22)
 
 - Small fix MQTT service

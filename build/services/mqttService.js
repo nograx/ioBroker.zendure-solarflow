@@ -1026,9 +1026,7 @@ const setDeviceAutomationInOutLimit = async (adapter2, productKey, deviceKey, li
           {
             autoModelProgram: 1,
             autoModelValue: {
-              upTime: 0,
               chargingType: 1,
-              pullTime: 1800,
               price: 2,
               chargingPower: -limit,
               prices: [
@@ -1084,9 +1082,19 @@ const setDeviceAutomationInOutLimit = async (adapter2, productKey, deviceKey, li
       }
     } else {
       if (limit < 0) {
-        adapter2.log.warn(
-          `[setDeviceAutomationInOutLimit] Using CHARGE variant of Hub device automation is currently not working! You have to manualy switch acMode and inputLimit!`
-        );
+        _arguments = [
+          {
+            autoModelProgram: 2,
+            autoModelValue: {
+              chargingType: 1,
+              chargingPower: -limit,
+              freq: 0,
+              outPower: 0
+            },
+            msgType: 1,
+            autoModel: 8
+          }
+        ];
       } else {
         adapter2.log.debug(
           `[setDeviceAutomationInOutLimit] Using FEED IN variant of Hub device automation, as device '${productName}' detected and limit is positive!`
