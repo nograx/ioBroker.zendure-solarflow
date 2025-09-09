@@ -35,6 +35,8 @@ const getProductNameFromProductKey = (productKey) => {
       return "hyper 2000";
     case "gda3tb":
       return "hyper 2000";
+    case "b3dxda":
+      "hyper 2000";
     case "8bm93h":
       return "ace 1500";
     case "bc8b7f":

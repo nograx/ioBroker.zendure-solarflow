@@ -66,6 +66,7 @@ Credits goes to https://github.com/reinhard-brandstaedter/solarflow which helped
 
 ### **WORK IN PROGRESS**
 
+- Added 'B3Dxda' as new Hyper 2000 deviceKey
 - Removed parameter 'upTime' and 'pullTime' from 'setDeviceAutomationInOutLimit'
 - TEST: Use 'setDeviceAutomationInOutLimit' to let HUB1200/HUB2000 charge with connected ACE 1500
 

@@ -12,6 +12,8 @@ export const getProductNameFromProductKey = (productKey: string): string => {
       return "hyper 2000";
     case "gda3tb":
       return "hyper 2000";
+    case "b3dxda":
+      "hyper 2000";
     case "8bm93h":
       return "ace 1500";
     case "bc8b7f":
