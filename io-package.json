@@ -1,7 +1,7 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "2.0.1",
+    "version": "2.0.2",
     "news": {
       "2.0.2": {
         "en": "Added 'B3Dxda' as new Hyper 2000 deviceKey. Removed parameter 'upTime' and 'pullTime' from 'setDeviceAutomationInOutLimit'. TEST: Use 'setDeviceAutomationInOutLimit' to let HUB1200/HUB2000 charge with connected ACE 1500",
@@ -93,19 +93,6 @@
         "pl": "Klucz produktu wrażliwego na dopasowanie dla SF 2400 AC i SF 800 w ustawieniach w trybie lokalnym\nDodaj czujnik i sterowanie \"SmartMode\"",
         "uk": "У разі використання чутливого продукту для SF 2400 AC та SF 800 у налаштуваннях, якщо використовується локальний режим\nДодати датчик і контроль \"SmartMode\"",
         "zh-cn": "如果使用本地模式, 匹配 SF 2400 AC 和 SF 800 的大小写敏感产品密钥\n添加“ SmartMode” 的传感器和控制"
-      },
-      "1.15.3-alpha.0": {
-        "en": "Match case sensitive product key for SF 2400 AC",
-        "de": "Passender Case sensitiver Produktschlüssel für SF 2400 AC",
-        "ru": "Ключ для чувствительного кейса для SF 2400 AC",
-        "pt": "Chave de produto sensível à caixa para SF 2400 AC",
-        "nl": "Match hoofdlettergevoelige productsleutel voor SF 2400 AC",
-        "fr": "Clé de produit sensible à la coque pour SF 2400 AC",
-        "it": "Chiave di prodotto sensibile caso per SF 2400 AC",
-        "es": "Clave de producto sensible de caso de coincidencia para SF 2400 AC",
-        "pl": "Klucz produktu wrażliwego na dopasowanie dla SF 2400 AC",
-        "uk": "Ключ до чутливого продукту для SF 2400 AC",
-        "zh-cn": "匹配 SF 2400 AC 的大小写敏感产品密钥"
       }
     },
     "titleLang": {
