@@ -3,6 +3,19 @@
     "name": "zendure-solarflow",
     "version": "2.0.1",
     "news": {
+      "2.0.2": {
+        "en": "Added 'B3Dxda' as new Hyper 2000 deviceKey. Removed parameter 'upTime' and 'pullTime' from 'setDeviceAutomationInOutLimit'. TEST: Use 'setDeviceAutomationInOutLimit' to let HUB1200/HUB2000 charge with connected ACE 1500",
+        "de": "B3Dxda' als neuer Hyper 2000 deviceKey hinzugefügt. Parameter 'upTime' und 'pullTime' aus 'setDeviceAutomationInOutLimit' entfernt. TEST: Verwenden Sie 'setDeviceAutomationInOutLimit', um HUB1200/HUB2000 mit angeschlossenem ACE 1500 laden zu lassen.",
+        "ru": "Добавлен 'B3Dxda' в качестве нового ключа устройства Hyper 2000. Удалены параметры 'upTime' и 'pullTime' из 'setDeviceAutomationInOutLimit'. ТЕСТ: Используйте 'setDeviceAutomationInOutLimit', чтобы позволить HUB1200/HUB2000 заряжаться с подключенным ACE 1500.",
+        "pt": "Adicionado 'B3Dxda' como nova deviceKey Hyper 2000. Removido o parâmetro 'upTime' e 'pullTime' de 'setDeviceAutomationInOutLimit'. TESTE: Utilizar 'setDeviceAutomationInOutLimit' para permitir que o HUB1200/HUB2000 carregue com o ACE 1500 ligado",
+        "nl": "B3Dxda' toegevoegd als nieuwe Hyper 2000 deviceKey. Parameter 'upTime' en 'pullTime' verwijderd uit 'setDeviceAutomationInOutLimit'. TEST: Gebruik 'setDeviceAutomationInOutLimit' om HUB1200/HUB2000 te laten laden met aangesloten ACE 1500.",
+        "fr": "Ajout de 'B3Dxda' comme nouvelle clé de périphérique Hyper 2000. Suppression des paramètres 'upTime' et 'pullTime' de 'setDeviceAutomationInOutLimit'. TEST : Utilisez 'setDeviceAutomationInOutLimit' pour permettre au HUB1200/HUB2000 de se recharger avec un ACE 1500 connecté.",
+        "it": "Aggiunto 'B3Dxda' come nuovo deviceKey Hyper 2000. Rimosso il parametro 'upTime' e 'pullTime' da 'setDeviceAutomationInOutLimit'. TEST: utilizzare 'setDeviceAutomationInOutLimit' per consentire a HUB1200/HUB2000 di caricarsi con l'ACE 1500 collegato.",
+        "es": "Añadido 'B3Dxda' como nuevo deviceKey de Hyper 2000. Eliminados los parámetros 'upTime' y 'pullTime' de 'setDeviceAutomationInOutLimit'. PRUEBA: Utiliza 'setDeviceAutomationInOutLimit' para que HUB1200/HUB2000 se cargue con ACE 1500 conectado.",
+        "pl": "Dodano \"B3Dxda\" jako nowy klucz urządzenia Hyper 2000. Usunięto parametr 'upTime' i 'pullTime' z 'setDeviceAutomationInOutLimit'. TEST: Użyj 'setDeviceAutomationInOutLimit', aby umożliwić ładowanie HUB1200/HUB2000 z podłączonym ACE 1500.",
+        "uk": "Додано 'B3Dxda' як новий Hyper 2000 deviceKey. Видалено параметри 'upTime' та 'pullTime' з 'setDeviceAutomationInOutLimit'. ТЕСТ: Використовуйте 'setDeviceAutomationInOutLimit', щоб дозволити HUB1200/HUB2000 заряджатися з підключеним ACE 1500",
+        "zh-cn": "Added 'B3Dxda' as new Hyper 2000 deviceKey. Removed parameter 'upTime' and 'pullTime' from 'setDeviceAutomationInOutLimit'. TEST: Use 'setDeviceAutomationInOutLimit' to let HUB1200/HUB2000 charge with connected ACE 1500"
+      },
       "2.0.1": {
         "en": "Small fix MQTT service",
         "de": "Kleiner MQTT-Service",
