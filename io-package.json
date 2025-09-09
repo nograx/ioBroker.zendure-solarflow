@@ -1,7 +1,7 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "2.0.2",
+    "version": "2.0.3",
     "news": {
       "2.0.3": {
         "en": "Added 'B3Dxda' as new Hyper 2000 productKey. Removed parameter 'upTime' and 'pullTime' from 'setDeviceAutomationInOutLimit'. TEST: Use 'setDeviceAutomationInOutLimit' to let HUB1200/HUB2000 charge with connected ACE 1500",
