@@ -64,7 +64,7 @@ Credits goes to https://github.com/reinhard-brandstaedter/solarflow which helped
 
 ## Changelog
 
-### 2.0.2 (2025-09-09)
+### **WORK IN PROGRESS**
 
 - Added 'B3Dxda' as new Hyper 2000 productKey
 - Removed parameter 'upTime' and 'pullTime' from 'setDeviceAutomationInOutLimit'
