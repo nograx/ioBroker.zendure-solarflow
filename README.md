@@ -63,9 +63,10 @@ You will be logged out of the official iOS or Android App after logging in with 
 Credits goes to https://github.com/reinhard-brandstaedter/solarflow which helped a lot with the knowledge about the MQTT server from Zendure! Thanks!
 
 ## Changelog
+
 ### 2.0.2 (2025-09-09)
 
-- Added 'B3Dxda' as new Hyper 2000 deviceKey
+- Added 'B3Dxda' as new Hyper 2000 productKey
 - Removed parameter 'upTime' and 'pullTime' from 'setDeviceAutomationInOutLimit'
 - TEST: Use 'setDeviceAutomationInOutLimit' to let HUB1200/HUB2000 charge with connected ACE 1500
 
