@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "2.0.3",
+    "version": "2.0.4",
     "news": {
+      "2.0.4": {
+        "en": "Fix creation of control states on new Hyper 2000 v3\nUpdates dependencies",
+        "de": "Behebung der Erstellung von Steuerungszuständen auf dem neuen Hyper 2000 v3\nAktualisiert Abhängigkeiten",
+        "ru": "Исправлена создания состояний управления на новом Hyper 2000 v3\nОбновлены зависимости",
+        "pt": "Correção da criação de estados de controle no novo Hyper 2000 v3\nAtualiza dependências",
+        "nl": "Oplossing voor het aanmaken van bedieningstoestanden op nieuwe Hyper 2000 v3\nWerk dependencies bij",
+        "fr": "Corriger la création des états de contrôle sur le nouveau Hyper 2000 v3\nMise à jour des dépendances",
+        "it": "Correzione della creazione degli stati di controllo su Hyper 2000 v3\nAggiornamento delle dipendenze",
+        "es": "Corregir la creación de estados de control en el nuevo Hyper 2000 v3.\nActualización de dependencias",
+        "pl": "Napraw utworzenie stanów kontrolnych w nowym Hyper 2000 v3\nAktualizacja zależności",
+        "uk": "Виправлення створення станів управління на новому Hyper 2000 v3.\nОновлення залежностей",
+        "zh-cn": "修复在新的Hyper 2000 v3上创建控制状态\n更新依赖项"
+      },
       "2.0.3": {
         "en": "Added 'B3Dxda' as new Hyper 2000 productKey. Removed parameter 'upTime' and 'pullTime' from 'setDeviceAutomationInOutLimit'. TEST: Use 'setDeviceAutomationInOutLimit' to let HUB1200/HUB2000 charge with connected ACE 1500",
         "de": "B3Dxda' als neuer Hyper 2000 productKey hinzugefügt. Parameter 'upTime' und 'pullTime' aus 'setDeviceAutomationInOutLimit' entfernt. TEST: Verwenden Sie 'setDeviceAutomationInOutLimit', um HUB1200/HUB2000 mit angeschlossenem ACE 1500 laden zu lassen.",
@@ -80,19 +93,6 @@
         "pl": "Dodaj inteligentny parametr sterowania trybem dla większej liczby urządzeń",
         "uk": "Додавання параметра керування смарт-режимом для більших пристроїв",
         "zh-cn": "为更多设备添加智能模式控制参数"
-      },
-      "1.15.3": {
-        "en": "Match case sensitive product key for SF 2400 AC and SF 800 in settings if local mode is used\nAdd sensor and control of \"SmartMode\"",
-        "de": "Passender Case sensitiver Produktschlüssel für SF 2400 AC und SF 800 in Einstellungen, wenn der lokale Modus verwendet wird\nSensor und Steuerung von \"SmartMode\" hinzufügen",
-        "ru": "Ключ для SF 2400 AC и SF 800 в настройках, если используется локальный режим\nДобавить сенсор и управление «SmartMode»",
-        "pt": "Chave de produto sensível à caixa para SF 2400 AC e SF 800 em configurações se o modo local for usado\nAdicionar sensor e controle de \"SmartMode\"",
-        "nl": "Match hoofdlettergevoelige productsleutel voor SF 2400 AC en SF 800 in instellingen als lokale modus wordt gebruikt\nVoeg sensor en bediening van \"SmartMode\" toe",
-        "fr": "Clé de produit sensible à la casse pour SF 2400 AC et SF 800 dans les paramètres si le mode local est utilisé\nAjouter le capteur et le contrôle de \"SmartMode\"",
-        "it": "Chiave di prodotto sensibile caso di corrispondenza per SF 2400 AC e SF 800 nelle impostazioni se la modalità locale viene utilizzata\nAggiungi sensore e controllo di \"SmartMode\"",
-        "es": "Clave de producto sensible de caso de coincidencia para SF 2400 AC y SF 800 en ajustes si se utiliza el modo local\nAñadir sensor y control de \"SmartMode\"",
-        "pl": "Klucz produktu wrażliwego na dopasowanie dla SF 2400 AC i SF 800 w ustawieniach w trybie lokalnym\nDodaj czujnik i sterowanie \"SmartMode\"",
-        "uk": "У разі використання чутливого продукту для SF 2400 AC та SF 800 у налаштуваннях, якщо використовується локальний режим\nДодати датчик і контроль \"SmartMode\"",
-        "zh-cn": "如果使用本地模式, 匹配 SF 2400 AC 和 SF 800 的大小写敏感产品密钥\n添加“ SmartMode” 的传感器和控制"
       }
     },
     "titleLang": {
