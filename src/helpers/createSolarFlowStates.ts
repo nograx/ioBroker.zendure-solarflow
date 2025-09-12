@@ -13,6 +13,7 @@ import { ISolarflowState } from "../models/ISolarflowState";
 import { updateSolarFlowState } from "../services/adapterService";
 import { createCalculationStates } from "./createCalculationStates";
 import { createControlStates } from "./createControlStates";
+import { getProductNameFromProductKey } from "./helpers";
 //import { deleteCalculationStates } from "./deleteCalculationStates";
 
 export const getStateDefinition = (productName: string): ISolarflowState[] => {
@@ -44,6 +45,7 @@ export const createSolarFlowStates = async (
 ): Promise<void> => {
   const productKey = device.productKey.replace(adapter.FORBIDDEN_CHARS, "");
   const deviceKey = device.deviceKey.replace(adapter.FORBIDDEN_CHARS, "");
+  const productName = getProductNameFromProductKey(productKey);
 
   if (
     device.productKey ==
@@ -97,11 +99,11 @@ export const createSolarFlowStates = async (
     });
   }
 
-  const states = getStateDefinition(device.productName);
+  const states = getStateDefinition(productName);
 
   if (states.length == 0) {
     adapter.log.error(
-      `[createSolarFlowLocalStates] Unknown product (${device.productName}). We cannot create control states! Please contact the developer!`
+      `[createSolarFlowLocalStates] Unknown product (${device.productKey}/'${device.productName}'). We cannot create control states! Please contact the developer!`
     );
     return;
   }
@@ -188,12 +190,7 @@ export const createSolarFlowStates = async (
   if (!device.productName.toLocaleLowerCase().includes("smart plug")) {
     // Create control states only when using App MQTT servers - and not the fallback one!
     if (!adapter.config.useFallbackService) {
-      await createControlStates(
-        adapter,
-        productKey,
-        deviceKey,
-        device.productName
-      );
+      await createControlStates(adapter, productKey, deviceKey, productName);
     }
 
     if (adapter.config.useCalculation) {

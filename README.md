@@ -63,6 +63,11 @@ You will be logged out of the official iOS or Android App after logging in with 
 Credits goes to https://github.com/reinhard-brandstaedter/solarflow which helped a lot with the knowledge about the MQTT server from Zendure! Thanks!
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Fix creation of control states on new Hyper 2000 v3
+
 ### 2.0.3 (2025-09-09)
 
 - Added 'B3Dxda' as new Hyper 2000 productKey

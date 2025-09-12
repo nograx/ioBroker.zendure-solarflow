@@ -32,6 +32,7 @@ var import_solarflow800States = require("../constants/solarflow800States");
 var import_adapterService = require("../services/adapterService");
 var import_createCalculationStates = require("./createCalculationStates");
 var import_createControlStates = require("./createControlStates");
+var import_helpers = require("./helpers");
 const getStateDefinition = (productName) => {
   switch (productName.toLocaleLowerCase()) {
     case "hyper 2000":
@@ -57,6 +58,7 @@ const getStateDefinition = (productName) => {
 const createSolarFlowStates = async (adapter, device) => {
   const productKey = device.productKey.replace(adapter.FORBIDDEN_CHARS, "");
   const deviceKey = device.deviceKey.replace(adapter.FORBIDDEN_CHARS, "");
+  const productName = (0, import_helpers.getProductNameFromProductKey)(productKey);
   if (device.productKey == "s3Xk4x") {
     adapter.log.debug(`[createSolarFlowStates] Smart Plug not supported.`);
     return;
@@ -96,10 +98,10 @@ const createSolarFlowStates = async (adapter, device) => {
       native: {}
     }));
   }
-  const states = getStateDefinition(device.productName);
+  const states = getStateDefinition(productName);
   if (states.length == 0) {
     adapter.log.error(
-      `[createSolarFlowLocalStates] Unknown product (${device.productName}). We cannot create control states! Please contact the developer!`
+      `[createSolarFlowLocalStates] Unknown product (${device.productKey}/'${device.productName}'). We cannot create control states! Please contact the developer!`
     );
     return;
   }
@@ -165,12 +167,7 @@ const createSolarFlowStates = async (adapter, device) => {
   );
   if (!device.productName.toLocaleLowerCase().includes("smart plug")) {
     if (!adapter.config.useFallbackService) {
-      await (0, import_createControlStates.createControlStates)(
-        adapter,
-        productKey,
-        deviceKey,
-        device.productName
-      );
+      await (0, import_createControlStates.createControlStates)(adapter, productKey, deviceKey, productName);
     }
     if (adapter.config.useCalculation) {
       await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.calculations`, {
