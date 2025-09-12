@@ -67,6 +67,7 @@ Credits goes to https://github.com/reinhard-brandstaedter/solarflow which helped
 ### **WORK IN PROGRESS**
 
 - Fix creation of control states on new Hyper 2000 v3
+- Updates dependencies
 
 ### 2.0.3 (2025-09-09)
 
