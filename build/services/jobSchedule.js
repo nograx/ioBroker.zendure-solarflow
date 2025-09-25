@@ -95,6 +95,8 @@ const startCheckStatesAndConnectionJob = async (adapter) => {
           )}, set Wifi state to Disconnected!`
         );
         device == null ? void 0 : device.updateSolarFlowState("wifiState", "Disconnected");
+      } else {
+        device == null ? void 0 : device.updateSolarFlowState("wifiState", "Connected");
       }
       if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < fiveMinutesAgo && !refreshAccessTokenNeeded) {
         adapter.log.debug(

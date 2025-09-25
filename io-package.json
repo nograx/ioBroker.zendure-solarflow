@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "2.0.4",
+    "version": "3.0.0-alpha.0",
     "news": {
+      "3.0.0-alpha.0": {
+        "en": "Breaking Change: Change authentication to \"authentication cloud key\". You can generate a key in the official zendure app\nRemoved fallback server\nRefactor a lot of code",
+        "de": "Veränderung: Ändern Sie die Authentifizierung auf \"Authentifizierungs-Cloud-Taste\". Sie können einen Schlüssel in der offiziellen Zendure-App generieren\nEntfernen von Fallback-Server\nRefactor eine Menge Code",
+        "ru": "Переломные изменения: Измените аутентификацию на «облачный ключ аутентификации». Вы можете создать ключ в официальном приложении zendure\nУдаленный сервер Fallback\nРефактор много кода",
+        "pt": "Quebrar a Mudança: Alterar autenticação para \"chave de nuvem de autenticação\". Você pode gerar uma chave no aplicativo oficial zendure\nServidor de reserva removido\nRefactorar um monte de código",
+        "nl": "Verandering doorbreken: Authenticatie wijzigen naar \"authentication cloud key.\" U kunt een sleutel genereren in de officiële zindure app\nTerugvalserver verwijderd\nRefactor veel code",
+        "fr": "Briser le changement : Changez l'authentification en \"clé de nuage d'authentification\". Vous pouvez générer une clé dans l'application officielle zendure\nServeur de repli supprimé\nRefactor beaucoup de code",
+        "it": "Cambiamento di rottura: Modificare l'autenticazione a \"chiave cloud di autenticazione\". È possibile generare una chiave nell'app ufficiale zendure\nServer di failback rimosso\nRefactor un sacco di codice",
+        "es": "Cambio de ruptura: Cambiar la autenticación a \"la clave de nube de autenticación\". Usted puede generar una clave en la aplicación oficial de zendure\nServidor de retroceso eliminado\nRefactor mucho código",
+        "pl": "Łamanie zmian: Zmień uwierzytelnianie na \"klucz do uwierzytelniania w chmurze\". Możesz wygenerować klucz w oficjalnej aplikacji Zabb\nUsunięto serwer awaryjny\nZmień dużo kodu",
+        "uk": "Зміна несправностей: Зміна автентифікації на \"автентифікаційний ключ хмари\". Ви можете генерувати ключ в офіційному додатку zendure\nВидалити резервний сервер\nРефактор багато коду",
+        "zh-cn": "中断更改 : 认证改为\"认证云密钥\". 您可以在正式 Zendure app 中生成密钥\n删除后退服务器\n重构很多代码"
+      },
       "2.0.4": {
         "en": "Fix creation of control states on new Hyper 2000 v3\nUpdates dependencies",
         "de": "Behebung der Erstellung von Steuerungszuständen auf dem neuen Hyper 2000 v3\nAktualisiert Abhängigkeiten",
@@ -80,19 +93,6 @@
         "pl": "Łamanie zmian: Dodaj parametr sterowania 'setDeviceAutomation', który emuluje tryb Smart Matching Zabada. Ponieważ pojawiły się obawy, że w pamięci flash zostaną zapisane granice ustawień, zalecam stosowanie automatyzacji tego urządzenia zamiast 'setInputLimit' / 'setOutputLimit'. Możesz użyć wartości ujemnych do ładowania i dodatnich do podawania.",
         "uk": "Зміна несправностей: Додавання параметра керування «setDeviceAutomation», який визначає режим Smart Matching Zendure. З тих пір, як було занепокоєння, що обмеження налаштування будуть зберігатися в флеш-пам'яті, я рекомендую використовувати цей пристрій автоматизації замість 'setInputLimit'/'setOutputLimit' відтепер. Ви можете використовувати негативні значення для зарядки та позитиву для живлення.",
         "zh-cn": "中断更改 : 添加模拟 Zendure 智能匹配模式的控制参数“ setDeviceAutomation ” 。 由于有人担心设定限制会存储在闪存中,我建议从现在开始使用这个设备自动化,而不是“setInputLimit”/“setOutputLimit”. 可以使用负值充电,正值用于饲料输入."
-      },
-      "1.15.4": {
-        "en": "Add smart mode control parameter for more devices",
-        "de": "Smart-Mode-Control-Parameter für mehr Geräte hinzufügen",
-        "ru": "Добавьте параметр управления умным режимом для большего количества устройств",
-        "pt": "Adicionar parâmetro de controle de modo inteligente para mais dispositivos",
-        "nl": "Smart mode control parameter voor meer apparaten toevoegen",
-        "fr": "Ajouter le paramètre de contrôle du mode intelligent pour plus de périphériques",
-        "it": "Aggiungi il parametro di controllo della modalità intelligente per più dispositivi",
-        "es": "Añadir parámetro de control de modo inteligente para más dispositivos",
-        "pl": "Dodaj inteligentny parametr sterowania trybem dla większej liczby urządzeń",
-        "uk": "Додавання параметра керування смарт-режимом для більших пристроїв",
-        "zh-cn": "为更多设备添加智能模式控制参数"
       }
     },
     "titleLang": {
@@ -230,7 +230,6 @@
   "protectedNative": [
     "password"
   ],
-  
   "objects": [],
   "instanceObjects": []
 }

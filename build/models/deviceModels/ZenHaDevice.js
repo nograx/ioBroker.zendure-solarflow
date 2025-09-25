@@ -413,6 +413,7 @@ class ZenHaDevice {
         }
       }
     };
+    var _a, _b;
     this.zenHaDeviceDetails = _zenHaDeviceDetails;
     this.adapter = _adapter;
     this.productKey = _productKey;
@@ -427,6 +428,11 @@ class ZenHaDevice {
     this.adapter.setTimeout(() => {
       this.triggerFullTelemetryUpdate();
     }, 5e3);
+    if ((_a = this.zenHaDeviceDetails) == null ? void 0 : _a.online) {
+      this.updateSolarFlowState("wifiState", "Connected");
+    } else if (((_b = this.zenHaDeviceDetails) == null ? void 0 : _b.online) == false) {
+      this.updateSolarFlowState("wifiState", "Disconnected");
+    }
   }
   async createSolarFlowStates() {
     var _a, _b, _c, _d, _e;
