@@ -20,7 +20,7 @@ module.exports = {
 		},
 	},
 	rules: {
-		"indent": "off",
+		"indent": ["warning", 2],
 		"@typescript-eslint/indent": [
 			"error",
 			"tab",

@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/indent */
 import { scheduleJob } from "node-schedule";
 import { ZendureSolarflow } from "../main";
-import { ISolarFlowDeviceDetails } from "../models/ISolarFlowDeviceDetails";
-import { calculateEnergy, resetTodaysValues } from "./calculationService";
 
 export const startRefreshAccessTokenTimerJob = async (
   adapter: ZendureSolarflow
@@ -26,7 +24,9 @@ export const startResetValuesJob = async (
 ): Promise<void> => {
   adapter.resetValuesJob = scheduleJob("5 0 0 * * *", () => {
     // Reset Values
-    resetTodaysValues(adapter);
+    adapter.zenHaDeviceList.forEach((device) => {
+      device.resetValuesForDevice();
+    });
   });
 };
 
@@ -34,70 +34,11 @@ export const startCalculationJob = async (
   adapter: ZendureSolarflow
 ): Promise<void> => {
   adapter.calculationJob = scheduleJob("*/30 * * * * *", () => {
-    if (adapter.config.server == "local") {
-      if (
-        adapter.config.localDevice1ProductKey &&
-        adapter.config.localDevice1DeviceKey
-      ) {
-        calculateEnergy(
-          adapter,
-          adapter.config.localDevice1ProductKey,
-          adapter.config.localDevice1DeviceKey
-        );
+    adapter.zenHaDeviceList.forEach((device) => {
+      if (device.productKey != "s3Xk4x") {
+        device.calculateEnergy();
       }
-
-      if (
-        adapter.config.localDevice2ProductKey &&
-        adapter.config.localDevice2DeviceKey
-      ) {
-        calculateEnergy(
-          adapter,
-          adapter.config.localDevice2ProductKey,
-          adapter.config.localDevice2DeviceKey
-        );
-      }
-
-      if (
-        adapter.config.localDevice3ProductKey &&
-        adapter.config.localDevice3DeviceKey
-      ) {
-        calculateEnergy(
-          adapter,
-          adapter.config.localDevice3ProductKey,
-          adapter.config.localDevice3DeviceKey
-        );
-      }
-
-      if (
-        adapter.config.localDevice4ProductKey &&
-        adapter.config.localDevice4DeviceKey
-      ) {
-        calculateEnergy(
-          adapter,
-          adapter.config.localDevice4ProductKey,
-          adapter.config.localDevice4DeviceKey
-        );
-      }
-    } else {
-      adapter.deviceList.forEach((device) => {
-        if (device.productKey != "s3Xk4x") {
-          calculateEnergy(adapter, device.productKey, device.deviceKey);
-
-          // Check if connected with ACE, then calculate also for ACE device
-          if (device.packList && device.packList.length > 0) {
-            device.packList.forEach(async (subDevice) => {
-              if (subDevice.productName.toLocaleLowerCase() == "ace 1500") {
-                calculateEnergy(
-                  adapter,
-                  subDevice.productKey,
-                  subDevice.deviceKey
-                );
-              }
-            });
-          }
-        }
-      });
-    }
+    });
   });
 };
 
@@ -121,7 +62,7 @@ export const startCheckStatesAndConnectionJob = async (
   );
 
   adapter.checkStatesJob = scheduleJob("*/5 * * * *", async () => {
-    adapter.deviceList.forEach(async (device: ISolarFlowDeviceDetails) => {
+    adapter.zenHaDeviceList.forEach(async (device) => {
       if (refreshAccessTokenNeeded) {
         return;
       }
@@ -140,8 +81,9 @@ export const startCheckStatesAndConnectionJob = async (
       if (
         lastUpdate &&
         lastUpdate.val &&
-        Number(lastUpdate.val) < fiveMinutesAgo &&
-        wifiState?.val == "Connected"
+        Number(lastUpdate.val) < tenMinutesAgo &&
+        wifiState?.val == "Connected" &&
+        adapter.config.connectionMode == "authKey"
       ) {
         adapter.log.warn(
           `[checkStatesJob] Last update for deviceKey ${
@@ -156,12 +98,30 @@ export const startCheckStatesAndConnectionJob = async (
 
         // set marker, so we discontinue the forEach Loop because of reconnect!
         refreshAccessTokenNeeded = true;
+      } else if (
+        lastUpdate &&
+        lastUpdate.val &&
+        Number(lastUpdate.val) < tenMinutesAgo &&
+        wifiState?.val == "Connected" &&
+        adapter.config.connectionMode == "local"
+      ) {
+        adapter.log.warn(
+          `[checkStatesJob] Last update for deviceKey ${
+            device.deviceKey
+          } was at ${new Date(
+            Number(lastUpdate)
+          )}, set Wifi state to Disconnected!`
+        );
+
+        device?.updateSolarFlowState("wifiState", "Disconnected");
+      } else {
+        device?.updateSolarFlowState("wifiState", "Connected");
       }
 
       if (
         lastUpdate &&
         lastUpdate.val &&
-        Number(lastUpdate.val) < tenMinutesAgo &&
+        Number(lastUpdate.val) < fiveMinutesAgo &&
         !refreshAccessTokenNeeded
       ) {
         adapter.log.debug(
@@ -179,15 +139,6 @@ export const startCheckStatesAndConnectionJob = async (
             true
           );
         });
-
-        // set electricLevel from deviceList
-        if (device.electricity) {
-          await adapter?.setState(
-            device.productKey + "." + device.deviceKey + ".electricLevel",
-            device.electricity,
-            true
-          );
-        }
       }
     });
   });

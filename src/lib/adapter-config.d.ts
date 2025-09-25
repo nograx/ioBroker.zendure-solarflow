@@ -5,9 +5,8 @@
 declare global {
   namespace ioBroker {
     interface AdapterConfig {
-      server: string; // EU, global or local mqtt
-      userName: string;
-      password: string;
+      connectionMode; // Cloud (api key) or local MQTT
+      authorizationCloudKey: string;
       localMqttUrl: string;
       localMqttPort: number;
       localDevice1ProductKey: string;
@@ -24,8 +23,6 @@ declare global {
       fullChargeIfNeeded: boolean;
       dischargeLimit: number;
       useRestart: boolean;
-      useFallbackService: boolean;
-      snNumber: string;
     }
   }
 }

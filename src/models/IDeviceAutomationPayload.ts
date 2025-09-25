@@ -6,6 +6,13 @@ export interface IDeviceAutomationPayload {
   autoModel: number;
 }
 
+export interface IHemsEpPayload {
+  outputPower: number;
+  chargeState: number;
+  chargePower: number;
+  mode: number;
+}
+
 interface IAutoModelValue {
   upTime?: number;
   chargingType: number;

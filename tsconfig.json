@@ -11,7 +11,7 @@
     // check JS files, but do not compile them => tsconfig.build.json
     "allowJs": true,
     "checkJs": true,
-
+    "forceConsistentCasingInFileNames": true,
     "noEmitOnError": true,
     "outDir": "./build/",
     "removeComments": false,

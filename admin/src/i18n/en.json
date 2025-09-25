@@ -38,5 +38,8 @@
   "Ace 1500": "Ace 1500",
   "AIO 2400": "AIO 2400",
   "localMqttUrl": "Local MQTT Server URL/IP",
-  "useRestart": "Use restart of adapter every 3 hours to refresh access token"
+  "useRestart": "Use restart of adapter every 3 hours to refresh access token",
+  "connectionMode": "Connection mode",
+  "authKey": "Authorization Cloud Key",
+  "usrPwd": "Username & password"
 }

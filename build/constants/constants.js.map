@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/constants/constants.ts"],
+  "sourcesContent": ["export const haKey: string = \"C*dafwArEOXK\";\r\n\r\nexport const calculationStateKeys = [\r\n  \"packInput\",\r\n  \"outputHome\",\r\n  \"outputPack\",\r\n  \"outputPack\",\r\n  \"solarInput\",\r\n  \"gridInput\",\r\n  \"pvPower1\",\r\n  \"pvPower2\",\r\n];\r\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAO,MAAM,QAAgB;AAEtB,MAAM,uBAAuB;AAAA,EAClC;AAAA,EACA;AAAA,EACA;AAAA,EACA;AAAA,EACA;AAAA,EACA;AAAA,EACA;AAAA,EACA;AACF;",
+  "names": []
+}

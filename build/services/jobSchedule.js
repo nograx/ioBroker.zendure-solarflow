@@ -25,7 +25,6 @@ __export(jobSchedule_exports, {
 });
 module.exports = __toCommonJS(jobSchedule_exports);
 var import_node_schedule = require("node-schedule");
-var import_calculationService = require("./calculationService");
 const startRefreshAccessTokenTimerJob = async (adapter) => {
   adapter.refreshAccessTokenInterval = adapter.setInterval(
     async () => {
@@ -40,58 +39,18 @@ const startRefreshAccessTokenTimerJob = async (adapter) => {
 };
 const startResetValuesJob = async (adapter) => {
   adapter.resetValuesJob = (0, import_node_schedule.scheduleJob)("5 0 0 * * *", () => {
-    (0, import_calculationService.resetTodaysValues)(adapter);
+    adapter.zenHaDeviceList.forEach((device) => {
+      device.resetValuesForDevice();
+    });
   });
 };
 const startCalculationJob = async (adapter) => {
   adapter.calculationJob = (0, import_node_schedule.scheduleJob)("*/30 * * * * *", () => {
-    if (adapter.config.server == "local") {
-      if (adapter.config.localDevice1ProductKey && adapter.config.localDevice1DeviceKey) {
-        (0, import_calculationService.calculateEnergy)(
-          adapter,
-          adapter.config.localDevice1ProductKey,
-          adapter.config.localDevice1DeviceKey
-        );
+    adapter.zenHaDeviceList.forEach((device) => {
+      if (device.productKey != "s3Xk4x") {
+        device.calculateEnergy();
       }
-      if (adapter.config.localDevice2ProductKey && adapter.config.localDevice2DeviceKey) {
-        (0, import_calculationService.calculateEnergy)(
-          adapter,
-          adapter.config.localDevice2ProductKey,
-          adapter.config.localDevice2DeviceKey
-        );
-      }
-      if (adapter.config.localDevice3ProductKey && adapter.config.localDevice3DeviceKey) {
-        (0, import_calculationService.calculateEnergy)(
-          adapter,
-          adapter.config.localDevice3ProductKey,
-          adapter.config.localDevice3DeviceKey
-        );
-      }
-      if (adapter.config.localDevice4ProductKey && adapter.config.localDevice4DeviceKey) {
-        (0, import_calculationService.calculateEnergy)(
-          adapter,
-          adapter.config.localDevice4ProductKey,
-          adapter.config.localDevice4DeviceKey
-        );
-      }
-    } else {
-      adapter.deviceList.forEach((device) => {
-        if (device.productKey != "s3Xk4x") {
-          (0, import_calculationService.calculateEnergy)(adapter, device.productKey, device.deviceKey);
-          if (device.packList && device.packList.length > 0) {
-            device.packList.forEach(async (subDevice) => {
-              if (subDevice.productName.toLocaleLowerCase() == "ace 1500") {
-                (0, import_calculationService.calculateEnergy)(
-                  adapter,
-                  subDevice.productKey,
-                  subDevice.deviceKey
-                );
-              }
-            });
-          }
-        }
-      });
-    }
+    });
   });
 };
 const startCheckStatesAndConnectionJob = async (adapter) => {
@@ -108,7 +67,7 @@ const startCheckStatesAndConnectionJob = async (adapter) => {
     `[checkStatesJob] Starting check of states and connection!`
   );
   adapter.checkStatesJob = (0, import_node_schedule.scheduleJob)("*/5 * * * *", async () => {
-    adapter.deviceList.forEach(async (device) => {
+    adapter.zenHaDeviceList.forEach(async (device) => {
       if (refreshAccessTokenNeeded) {
         return;
       }
@@ -120,7 +79,7 @@ const startCheckStatesAndConnectionJob = async (adapter) => {
       ));
       const fiveMinutesAgo = (Date.now() / 1e3 - 5 * 60) * 1e3;
       const tenMinutesAgo = (Date.now() / 1e3 - 10 * 60) * 1e3;
-      if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < fiveMinutesAgo && (wifiState == null ? void 0 : wifiState.val) == "Connected") {
+      if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < tenMinutesAgo && (wifiState == null ? void 0 : wifiState.val) == "Connected" && adapter.config.connectionMode == "authKey") {
         adapter.log.warn(
           `[checkStatesJob] Last update for deviceKey ${device.deviceKey} was at ${new Date(
             Number(lastUpdate)
@@ -129,8 +88,15 @@ const startCheckStatesAndConnectionJob = async (adapter) => {
         await adapter.delay(20 * 1e3);
         adapter.restart();
         refreshAccessTokenNeeded = true;
+      } else if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < tenMinutesAgo && (wifiState == null ? void 0 : wifiState.val) == "Connected" && adapter.config.connectionMode == "local") {
+        adapter.log.warn(
+          `[checkStatesJob] Last update for deviceKey ${device.deviceKey} was at ${new Date(
+            Number(lastUpdate)
+          )}, set Wifi state to Disconnected!`
+        );
+        device == null ? void 0 : device.updateSolarFlowState("wifiState", "Disconnected");
       }
-      if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < tenMinutesAgo && !refreshAccessTokenNeeded) {
+      if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < fiveMinutesAgo && !refreshAccessTokenNeeded) {
         adapter.log.debug(
           `[checkStatesJob] Last update for deviceKey ${device.deviceKey} was at ${new Date(
             Number(lastUpdate)
@@ -143,13 +109,6 @@ const startCheckStatesAndConnectionJob = async (adapter) => {
             true
           ));
         });
-        if (device.electricity) {
-          await (adapter == null ? void 0 : adapter.setState(
-            device.productKey + "." + device.deviceKey + ".electricLevel",
-            device.electricity,
-            true
-          ));
-        }
       }
     });
   });

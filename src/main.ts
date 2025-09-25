@@ -6,40 +6,17 @@
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
 import * as utils from "@iobroker/adapter-core";
-import {
-  connectCloudMqttClient,
-  connectLocalMqttClient,
-  setAcMode,
-  setAcSwitch,
-  setAutoModel,
-  setAutoRecover,
-  setBuzzerSwitch,
-  setChargeLimit,
-  setDcSwitch,
-  setDeviceAutomationInOutLimit,
-  setDischargeLimit,
-  setHubState,
-  setInputLimit,
-  setOutputLimit,
-  setPassMode,
-  setSmartMode,
-} from "./services/mqttService";
-import { getDeviceList, login } from "./services/webService";
-import { ISolarFlowDeviceDetails } from "./models/ISolarFlowDeviceDetails";
-import { ISolarFlowPaths } from "./models/ISolarFlowPaths";
-import { pathsEu, pathsGlobal } from "./constants/paths";
+
+import { zenLogin } from "./services/zenWebService";
 import { Job } from "node-schedule";
 import { MqttClient } from "mqtt";
-import {
-  checkDevicesServer,
-  updateSolarFlowState,
-} from "./services/adapterService";
-import { createSolarFlowStates } from "./helpers/createSolarFlowStates";
-import { createDeveloperAccount } from "./services/fallbackWebService";
-import { ISolarFlowDevRegisterData } from "./models/ISolarflowDevRegisterResponse";
-import { connectFallbackMqttClient } from "./services/fallbackMqttService";
-import { IPack2Device } from "./models/IPack2Device";
 import { startRefreshAccessTokenTimerJob } from "./services/jobSchedule";
+import { connectLocalMqttClient } from "./services/mqttLocalService";
+import { IZenHaDeviceDetails } from "./models/IZenHaDeviceDetails";
+import { connectCloudZenMqttClient } from "./services/mqttCloudZenService";
+import { IZenHaMqttData } from "./models/IZenHaMqttData";
+import { ZenHaDevice } from "./models/deviceModels/ZenHaDevice";
+import { createDeviceModel } from "./helpers/helpers";
 
 export class ZendureSolarflow extends utils.Adapter {
   public constructor(options: Partial<utils.AdapterOptions> = {}) {
@@ -52,14 +29,10 @@ export class ZendureSolarflow extends utils.Adapter {
     this.on("unload", this.onUnload.bind(this));
   }
 
-  public userId: string | undefined = undefined; // User ID, needed for connection with Smart Plug
-  public accessToken: string | undefined = undefined; // Access Token for Zendure Rest API
-  public deviceList: ISolarFlowDeviceDetails[] = [];
-  public paths: ISolarFlowPaths | undefined = undefined;
-  public pack2Devices: IPack2Device[] = [];
+  public zenHaDeviceList: ZenHaDevice[] = []; // All found devices for this instance will be in this array
+  public mqttSettings: IZenHaMqttData | undefined = undefined;
 
   public msgCounter: number = 700000;
-
   public lastLogin: Date | undefined = undefined;
 
   public mqttClient: MqttClient | undefined = undefined;
@@ -116,177 +89,126 @@ export class ZendureSolarflow extends utils.Adapter {
       native: {},
     });
 
-    // Select paths by config value
-    if (this.config.server && this.config.server == "eu") {
-      this.paths = pathsEu;
-    } else {
-      this.paths = pathsGlobal;
-    }
-
-    this.log.debug("[onReady] Using server " + this.config.server);
-
     this.setState("info.errorMessage", "", true);
+    this.setState("info.connection", false, true);
 
-    if (this.config.server == "local") {
-      this.log.debug("[onReady] Using local MQTT server");
+    switch (this.config.connectionMode) {
+      case "authKey":
+        this.log.debug("[onReady] Using Authorization Cloud Key");
+        const data = await zenLogin(this);
 
-      connectLocalMqttClient(this);
+        if (typeof data === "string" || data == undefined) {
+          // Fehler
+          this.setState("info.connection", false, true);
+        } else {
+          this.mqttSettings = data.mqtt;
 
-      if (this.config.useRestart) {
-        // Add interval to restart adapter every 3 hours
-        startRefreshAccessTokenTimerJob(this);
-      }
-    } else if (this.config.useFallbackService && this.config.snNumber) {
-      this.log.debug("[onReady] Using Fallback Mode (Dev-Server)");
-      // Use Fallback service. Using the developer version of the MQTT and Webservice from zendure
-      createDeveloperAccount(this).then((data: ISolarFlowDevRegisterData) => {
-        //console.log(data);
-        if (data.appKey && data.mqttUrl && data.port && data.secret) {
-          connectFallbackMqttClient(
-            this,
-            data.appKey,
-            data.secret,
-            data.mqttUrl,
-            data.port
+          if (!connectCloudZenMqttClient(this)) {
+            return;
+          }
+
+          this.log.debug(
+            `[onReady] Creating ${data.deviceList.length} devices...`
           );
+
+          await data.deviceList.forEach(async (device: IZenHaDeviceDetails) => {
+            // States erstellen
+            const deviceModel = createDeviceModel(
+              this,
+              device.productKey,
+              device.deviceKey,
+              device
+            );
+
+            if (deviceModel) {
+              this.zenHaDeviceList.push(deviceModel);
+            }
+          });
         }
-      });
-    } else if (
-      !this.config.useFallbackService &&
-      this.config.userName &&
-      this.config.password
-    ) {
-      // App mode: If Username and Password is provided, try to login and get the access token.
-      let _accessToken: string | undefined = undefined;
-      let retryCounter = 0;
+        break;
+      case "local": {
+        this.log.debug("[onReady] Using local MQTT server");
 
-      if (this.config.useRestart) {
-        // Add interval to restart adapter every 3 hours
-        startRefreshAccessTokenTimerJob(this);
-      }
+        connectLocalMqttClient(this);
 
-      while (retryCounter <= 10) {
-        try {
-          _accessToken = await login(this);
-        } catch (ex: any) {
-          this.setState("info.message", ex.message, true);
-          if (ex.message.includes("Request failed with status code 400")) {
-            this.log.warn(
-              `[onReady] Error 400, maybe your credentials are invalid!`
-            );
-            break;
-          } else {
-            this.log.error(
-              `[onReady] Error connecting to Zendure Cloud. Error: ${ex.message}`
-            );
+        // Subscribe to 1. device from local settings
+        if (
+          this.config.localDevice1ProductKey &&
+          this.config.localDevice1DeviceKey
+        ) {
+          // States erstellen
+          const deviceModel = createDeviceModel(
+            this,
+            this.config.localDevice1ProductKey,
+            this.config.localDevice1DeviceKey
+          );
+
+          if (deviceModel) {
+            this.zenHaDeviceList.push(deviceModel);
           }
         }
 
-        if (_accessToken != undefined) {
-          this.accessToken = _accessToken;
-          break;
+        // Subscribe to 2. device from local settings
+        if (
+          this.config.localDevice2ProductKey &&
+          this.config.localDevice2DeviceKey
+        ) {
+          // States erstellen
+          const deviceModel = createDeviceModel(
+            this,
+            this.config.localDevice2ProductKey,
+            this.config.localDevice2DeviceKey
+          );
+
+          if (deviceModel) {
+            this.zenHaDeviceList.push(deviceModel);
+          }
         }
 
-        retryCounter++;
+        // Subscribe to 3. device from local settings
+        if (
+          this.config.localDevice3ProductKey &&
+          this.config.localDevice3DeviceKey
+        ) {
+          // States erstellen
+          const deviceModel = createDeviceModel(
+            this,
+            this.config.localDevice3ProductKey,
+            this.config.localDevice3DeviceKey
+          );
 
-        const milliseconds = 4000 * retryCounter;
+          if (deviceModel) {
+            this.zenHaDeviceList.push(deviceModel);
+          }
+        }
 
-        this.log.warn(
-          `[onReady] Retrying to connect to Zendure Cloud in ${milliseconds / 1000} seconds (Retry #${retryCounter} of 10).`
-        );
+        // Subscribe to 4. device from local settings
+        if (
+          this.config.localDevice4ProductKey &&
+          this.config.localDevice4DeviceKey
+        ) {
+          // States erstellen
+          const deviceModel = createDeviceModel(
+            this,
+            this.config.localDevice4ProductKey,
+            this.config.localDevice4DeviceKey
+          );
 
-        // Add a small sleep
-        await new Promise(
-          (r) =>
-            (this.retryTimeout = this.setTimeout(r, milliseconds, undefined))
-        );
+          if (deviceModel) {
+            this.zenHaDeviceList.push(deviceModel);
+          }
+        }
+
+        if (this.config.useRestart) {
+          // Add interval to restart adapter every 3 hours
+          startRefreshAccessTokenTimerJob(this);
+        }
+        break;
       }
-
-      if (_accessToken != undefined) {
-        this.setState("info.connection", true, true);
-        this.lastLogin = new Date();
-
-        // Try to get the device list
-        getDeviceList(this)
-          .then(async (result: ISolarFlowDeviceDetails[]) => {
-            if (result) {
-              // Device List found. Save in the adapter properties and connect to MQTT
-
-              // Filtering to SolarFlow devices
-              this.deviceList = result.filter(
-                (device) =>
-                  device.productName.toLowerCase().includes("solarflow") ||
-                  device.productName.toLowerCase().includes("hyper") ||
-                  device.productName.toLowerCase() == "ace 1500" ||
-                  device.productName.toLowerCase().includes("smart plug")
-              );
-
-              await checkDevicesServer(this);
-
-              this.log.info(
-                `[onReady] Found ${this.deviceList.length} SolarFlow device(s).`
-              );
-
-              await this.deviceList.forEach(
-                async (device: ISolarFlowDeviceDetails) => {
-                  // Check if has subdevice e.g. ACE?
-                  if (device.packList && device.packList.length > 0) {
-                    device.packList.forEach(async (subDevice) => {
-                      if (
-                        subDevice.productName.toLocaleLowerCase() == "ace 1500"
-                      ) {
-                        device._connectedWithAce = true;
-                        // States erstellen
-                        await createSolarFlowStates(this, subDevice);
-
-                        await updateSolarFlowState(
-                          this,
-                          subDevice.productKey,
-                          subDevice.deviceKey,
-                          "registeredServer",
-                          this.config.server
-                        );
-                      }
-                    });
-                  }
-
-                  // States erstellen
-                  await createSolarFlowStates(this, device);
-
-                  if (
-                    !device.productName.toLowerCase().includes("smart plug")
-                  ) {
-                    await updateSolarFlowState(
-                      this,
-                      device.productKey,
-                      device.deviceKey,
-                      "registeredServer",
-                      this.config.server
-                    );
-                  } else if (this?.userId && device.id) {
-                    await updateSolarFlowState(
-                      this,
-                      this.userId,
-                      device.id?.toString(),
-                      "registeredServer",
-                      this.config.server
-                    );
-                  }
-                }
-              );
-
-              connectCloudMqttClient(this);
-            }
-          })
-          .catch(() => {
-            this.setState("info.connection", false, true);
-            this.log?.error("[onReady] Retrieving device failed!");
-          });
-      }
-    } else {
-      this.setState("info.connection", false, true);
-      this.log.error("[onReady] No Login Information provided!");
-      //this.stop?.();
+      default:
+        this.setState("info.connection", false, true);
+        this.log.error("[onReady] No connection mode found or mode invalid!");
+        break;
     }
   }
 
@@ -344,7 +266,6 @@ export class ZendureSolarflow extends utils.Adapter {
   ): void {
     if (state) {
       // The state was changed
-      //this.log.debug(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
 
       // Read product and device key from string
       const splitted = id.split(".");
@@ -353,13 +274,19 @@ export class ZendureSolarflow extends utils.Adapter {
       const stateName1 = splitted[4]; // Folder/State Name 1 (e.g. 'control')
       const stateName2 = splitted[5]; // State Name, like 'setOutputLimit'
 
-      if (this.config.useFallbackService && stateName1 == "control") {
-        this.log.warn(
-          `[onStateChange] Using Fallback server, control of Solarflow device is not possible!`
+      const _device = this.zenHaDeviceList.find(
+        (x) => x.productKey == productKey && x.deviceKey == deviceKey
+      );
+
+      if (!_device) {
+        this.log.error(
+          `[onStateChange] Device '${deviceKey}' not found in zenHaDeviceList!`
         );
+        return;
       }
+
       // !!! Only stateChanges with ack==false are allowed to be processed.
-      else if (state.val != undefined && state.val != null && !state.ack) {
+      if (state.val != undefined && state.val != null && !state.ack) {
         switch (stateName1) {
           case "control":
             this.log.debug(
@@ -367,81 +294,46 @@ export class ZendureSolarflow extends utils.Adapter {
             );
             switch (stateName2) {
               case "setOutputLimit":
-                setOutputLimit(this, productKey, deviceKey, Number(state.val));
+                _device.setOutputLimit(Number(state.val));
                 break;
               case "setInputLimit":
-                setInputLimit(this, productKey, deviceKey, Number(state.val));
+                _device.setInputLimit(Number(state.val));
                 break;
               case "chargeLimit":
-                setChargeLimit(this, productKey, deviceKey, Number(state.val));
+                _device.setChargeLimit(Number(state.val));
                 break;
               case "dischargeLimit":
-                setDischargeLimit(
-                  this,
-                  productKey,
-                  deviceKey,
-                  Number(state.val)
-                );
+                _device.setDischargeLimit(Number(state.val));
                 break;
               case "passMode":
-                setPassMode(this, productKey, deviceKey, Number(state.val));
+                _device.setPassMode(Number(state.val));
                 break;
               case "dcSwitch":
-                setDcSwitch(
-                  this,
-                  productKey,
-                  deviceKey,
-                  state.val ? true : false
-                );
+                _device.setDcSwitch(state.val ? true : false);
                 break;
               case "acSwitch":
-                setAcSwitch(
-                  this,
-                  productKey,
-                  deviceKey,
-                  state.val ? true : false
-                );
+                _device.setAcSwitch(state.val ? true : false);
                 break;
               case "acMode":
-                setAcMode(this, productKey, deviceKey, Number(state.val));
+                _device.setAcMode(Number(state.val));
                 break;
               case "hubState":
-                setHubState(this, productKey, deviceKey, Number(state.val));
+                _device.setHubState(Number(state.val));
                 break;
               case "autoModel":
-                setAutoModel(this, productKey, deviceKey, Number(state.val));
+                _device.setAutoModel(Number(state.val));
                 break;
               case "autoRecover":
-                setAutoRecover(
-                  this,
-                  productKey,
-                  deviceKey,
-                  state.val ? true : false
-                );
+                _device.setAutoRecover(state.val ? true : false);
                 break;
               case "buzzerSwitch":
-                setBuzzerSwitch(
-                  this,
-                  productKey,
-                  deviceKey,
-                  state.val ? true : false
-                );
+                _device.setBuzzerSwitch(state.val ? true : false);
                 break;
               case "smartMode":
-                setSmartMode(
-                  this,
-                  productKey,
-                  deviceKey,
-                  state.val ? true : false
-                );
+                _device.setSmartMode(state.val ? true : false);
                 break;
               case "setDeviceAutomationInOutLimit":
-                setDeviceAutomationInOutLimit(
-                  this,
-                  productKey,
-                  deviceKey,
-                  Number(state.val)
-                );
+                _device.setDeviceAutomationInOutLimit(Number(state.val));
                 break;
             }
             break;

@@ -183,35 +183,29 @@ function Settings(props: SettingsProps) {
           <h3>{I18n.t("settings")}</h3>
         </div>
         <div>{I18n.t("settingsDesc")}</div>
+
+        {/* Connection mode Selection */}
         <div style={{ marginTop: 30 }}>
-          <FormLabel>{I18n.t("server")}:</FormLabel>
+          <FormLabel>{I18n.t("connectionMode")}:</FormLabel>
           <div>
-            {renderSelect("server", [
-              { value: "global", title: "global" },
-              { value: "eu", title: "eu" },
+            {renderSelect("connectionMode", [
+              { value: "authKey", title: "authKey" },
               { value: "local", title: "local" },
             ])}
           </div>
         </div>
 
-        <div>{renderCheckbox("useRestart", "useRestart")}</div>
-
-        {props.native["server"] != "local" && (
-          <div>
-            {renderCheckbox("useFallbackService", "useFallbackService")}
-          </div>
-        )}
-
-        {props.native["server"] != "local" && (
+        {/* Auth Key */}
+        {props.native["connectionMode"] == "authKey" && (
           <div style={{ marginTop: 10 }}>
             <div>
-              <FormLabel>{I18n.t("userName")}:</FormLabel>
+              <FormLabel>{I18n.t("authKey")}:</FormLabel>
             </div>
-            <div>{renderInput("userName", "text")}</div>
+            <div>{renderInput("authorizationCloudKey", "text")}</div>
           </div>
         )}
 
-        {props.native["server"] == "local" && (
+        {props.native["connectionMode"] == "local" && (
           <div style={{ marginTop: 10 }}>
             <div>
               <FormLabel>{I18n.t("localMqttUrl")}:</FormLabel>
@@ -220,30 +214,9 @@ function Settings(props: SettingsProps) {
           </div>
         )}
 
-        {props.native["server"] != "local" &&
-          (props.native["useFallbackService"] == undefined ||
-            props.native["useFallbackService"] == null ||
-            props.native["useFallbackService"] == false) && (
-            <div style={{ marginTop: 10 }}>
-              <FormLabel>{I18n.t("password")}:</FormLabel>
-              <div>
-                <TextField
-                  autoComplete="off"
-                  className={`${props.classes.input} ${props.classes.controlElement}`}
-                  value={password}
-                  type={"password"}
-                  onChange={(e) => setPassword(e.target.value)}
-                  margin="normal"
-                />
-              </div>
+        <div>{renderCheckbox("useRestart", "useRestart")}</div>
 
-              {password == "" && props.native["server"] != "local" && (
-                <div style={{ color: "red" }}>{I18n.t("enterPassword")}</div>
-              )}
-            </div>
-          )}
-
-        {props.native["server"] == "local" && (
+        {props.native["connectionMode"] == "local" && (
           <div style={{ marginTop: 10 }}>
             {/* Device 1 Settings  */}
             <FormLabel>Device 1:</FormLabel>
@@ -263,7 +236,7 @@ function Settings(props: SettingsProps) {
           </div>
         )}
 
-        {props.native["server"] == "local" &&
+        {props.native["connectionMode"] == "local" &&
           props.native["localDevice1DeviceKey"] && (
             <div style={{ marginTop: 10 }}>
               {/* Device 1 Settings  */}
@@ -284,7 +257,7 @@ function Settings(props: SettingsProps) {
             </div>
           )}
 
-        {props.native["server"] == "local" &&
+        {props.native["connectionMode"] == "local" &&
           props.native["localDevice2DeviceKey"] && (
             <div style={{ marginTop: 10 }}>
               {/* Device 1 Settings  */}
@@ -305,7 +278,7 @@ function Settings(props: SettingsProps) {
             </div>
           )}
 
-        {props.native["server"] == "local" &&
+        {props.native["connectionMode"] == "local" &&
           props.native["localDevice3DeviceKey"] && (
             <div style={{ marginTop: 10 }}>
               {/* Device 1 Settings  */}
@@ -325,19 +298,6 @@ function Settings(props: SettingsProps) {
               </div>
             </div>
           )}
-
-        {props.native["useFallbackService"] == true && (
-          <div style={{ marginTop: 10 }}>
-            <FormLabel>{I18n.t("snNumber")}:</FormLabel>
-            <div>{renderInput("snNumber", "text")}</div>
-
-            {(props.native["snNumber"] == undefined ||
-              props.native["snNumber"] == null ||
-              props.native["snNumber"] == "") && (
-              <div style={{ color: "red" }}>{I18n.t("enterSnNumber")}</div>
-            )}
-          </div>
-        )}
 
         <div>{renderCheckbox("useCalculation", "useCalculation")}</div>
         <div>{renderCheckbox("useLowVoltageBlock", "useLowVoltageBlock")}</div>

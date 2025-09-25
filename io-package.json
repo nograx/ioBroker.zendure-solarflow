@@ -157,11 +157,67 @@
       {
         "admin": ">=7.4.10"
       }
+    ],
+    "messages": [
+      {
+        "condition": {
+          "operand": "and",
+          "rules": [
+            "oldVersion<3.0.0",
+            "newVersion>=3.0.0"
+          ]
+        },
+        "title": {
+          "en": "Important notice!",
+          "de": "Wichtiger Hinweis!",
+          "ru": "Важное замечание!",
+          "pt": "Notícia importante!",
+          "nl": "Belangrijke mededeling!",
+          "fr": "Avis important!",
+          "it": "Avviso IMPORTANTE!",
+          "es": "Noticia importante!",
+          "pl": "Ważna uwaga!",
+          "zh-cn": "重要通知!"
+        },
+        "text": {
+          "en": "BREAKING CHANGE. <br> Changed authentication with username/password to 'cloud authentication key'. You have to generate a key in the official zendure app!<br>'Fallback server' is no longer supported and removed in this version!",
+          "de": "ÄNDERUNG. <br> Die Authentifizierung mit Benutzername/Passwort wurde auf 'Cloud-Authentifizierungsschlüssel' geändert. Sie müssen einen Schlüssel in der offiziellen Zendure-App generieren!<br>'Fallback Server' wird nicht mehr unterstützt und in dieser Version entfernt!",
+          "ru": "ИЗМЕНЕНИЕ. <br> Заменена аутентификация с помощью имени пользователя/пароля на \"ключ облачной аутентификации\". Вы должны сгенерировать ключ в официальном приложении zendure!<br> \"Fallback server\" больше не поддерживается и удален в этой версии!",
+          "pt": "MUDANÇA DE RUPTURA. <br> Alterada a autenticação com nome de usuário/senha para 'chave de autenticação na nuvem'. Você precisa gerar uma chave no aplicativo oficial do zendure!<br>'Servidor de fallback' não é mais suportado e foi removido nesta versão!",
+          "nl": "BREAKING WIJZIGING. <br> Verandering van authenticatie met gebruikersnaam/wachtwoord naar 'cloud authenticatie sleutel'. Je moet een sleutel genereren in de officiële zendure app!<br>'Fallback server' wordt niet langer ondersteund en verwijderd in deze versie!",
+          "fr": "BREAKING CHANGE. <br>Changement de l'authentification par nom d'utilisateur/mot de passe en 'clé d'authentification cloud'. Vous devez générer une clé dans l'application officielle de zendure!<br>Le 'Fallback server' n'est plus supporté et supprimé dans cette version !",
+          "it": "MODIFICA DI ROTTURA. <br> Cambiata l'autenticazione con nome utente/password in 'chiave di autenticazione cloud'. È necessario generare una chiave nell'app ufficiale di zendure!<br> Il 'Fallback server' non è più supportato e viene rimosso in questa versione!",
+          "es": "CAMBIO DE ÚLTIMA HORA. <br> Cambiada la autenticación con nombre de usuario/contraseña a 'clave de autenticación en la nube'. Usted tiene que generar una clave en la aplicación oficial zendure!<br>'Fallback server' ya no es compatible y eliminado en esta versión!",
+          "pl": "PRZEŁOMOWA ZMIANA. <br> Zmieniono uwierzytelnianie za pomocą nazwy użytkownika/hasła na \"klucz uwierzytelniania w chmurze\". Musisz wygenerować klucz w oficjalnej aplikacji zendure!<br>\"Serwer awaryjny\" nie jest już obsługiwany i został usunięty w tej wersji!",
+          "uk": "ЗМІНА, ЩО РУЙНУЄ. <br> Змінено автентифікацію за допомогою імені користувача/пароля на \"хмарний ключ автентифікації\". Ви повинні згенерувати ключ в офіційному додатку zendure! <br>\"Резервний сервер\" більше не підтримується і вилучений у цій версії!",
+          "zh-cn": "BREAKING CHANGE. <br> Changed authentication with username/password to 'cloud authentication key'. You have to generate a key in the official zendure app!<br>'Fallback server' is no longer supported and removed in this version!"
+        },
+        "link": "https://github.com/nograx/ioBroker.zendure-solarflow/blob/main/README.md",
+        "level": "warn",
+        "linkText": {
+          "en": "Readme",
+          "de": "Liesmich",
+          "ru": "Прочти меня",
+          "pt": "Leia-me",
+          "nl": "Leesmij",
+          "fr": "Lisez-moi",
+          "it": "Leggimi",
+          "es": "Léame",
+          "pl": "Readme",
+          "zh-cn": "自述文件"
+        },
+        "buttons": [
+          "agree",
+          "cancel"
+        ]
+      }
     ]
   },
   "native": {
     "userName": "",
     "password": "",
+    "connectionMode": "authKey",
+    "authorizationCloudKey": "",
     "server": "global",
     "useCalculation": false,
     "useLowVoltageBlock": false,
@@ -174,6 +230,7 @@
   "protectedNative": [
     "password"
   ],
+  
   "objects": [],
   "instanceObjects": []
 }

@@ -18,117 +18,105 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var helpers_exports = {};
 __export(helpers_exports, {
-  getMinAndMaxInputLimitForProductKey: () => getMinAndMaxInputLimitForProductKey,
-  getMinAndMaxOutputLimitForProductKey: () => getMinAndMaxOutputLimitForProductKey,
-  getProductNameFromProductKey: () => getProductNameFromProductKey
+  createDeviceModel: () => createDeviceModel
 });
 module.exports = __toCommonJS(helpers_exports);
-const getProductNameFromProductKey = (productKey) => {
-  switch (productKey.toLowerCase()) {
+var import_Ace1500 = require("../models/deviceModels/Ace1500");
+var import_Aio2400 = require("../models/deviceModels/Aio2400");
+var import_Hyper2000 = require("../models/deviceModels/Hyper2000");
+var import_Sf2400Ac = require("../models/deviceModels/Sf2400Ac");
+var import_Sf800 = require("../models/deviceModels/Sf800");
+var import_SfHub1200 = require("../models/deviceModels/SfHub1200");
+var import_SfHub2000 = require("../models/deviceModels/SfHub2000");
+const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetails) => {
+  switch (_productKey.toLowerCase()) {
     case "73bktv":
-      return "solarflow2.0";
+      return new import_SfHub1200.SfHub1200(
+        _adapter,
+        _productKey,
+        _deviceKey,
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.productModel : "HUB 1200",
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "HUB 1200",
+        _zenHaDeviceDetails
+      );
     case "a8yh63":
-      return "solarflow hub 2000";
+      return new import_SfHub2000.SfHub2000(
+        _adapter,
+        _productKey,
+        _deviceKey,
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.productModel : "HUB 2000",
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "HUB 2000",
+        _zenHaDeviceDetails
+      );
     case "ywf7hv":
-      return "solarflow aio zy";
+      return new import_Aio2400.Aio2400(
+        _adapter,
+        _productKey,
+        _deviceKey,
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.productModel : "AIO 2400",
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "AIO 2400",
+        _zenHaDeviceDetails
+      );
     case "ja72u0ha":
-      return "hyper 2000";
+      return new import_Hyper2000.Hyper2000(
+        _adapter,
+        _productKey,
+        _deviceKey,
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.productModel : "Hyper 2000",
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "Hyper 2000",
+        _zenHaDeviceDetails
+      );
     case "gda3tb":
-      return "hyper 2000";
+      return new import_Hyper2000.Hyper2000(
+        _adapter,
+        _productKey,
+        _deviceKey,
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.productModel : "Hyper 2000",
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "Hyper 2000",
+        _zenHaDeviceDetails
+      );
     case "b3dxda":
-      return "hyper 2000";
+      return new import_Hyper2000.Hyper2000(
+        _adapter,
+        _productKey,
+        _deviceKey,
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.productModel : "Hyper 2000",
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "Hyper 2000",
+        _zenHaDeviceDetails
+      );
     case "8bm93h":
-      return "ace 1500";
+      return new import_Ace1500.Ace1500(
+        _adapter,
+        _productKey,
+        _deviceKey,
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.productModel : "Ace 1500",
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "Ace 1500",
+        _zenHaDeviceDetails
+      );
     case "bc8b7f":
-      return "solarflow 2400 ac";
+      return new import_Sf2400Ac.Sf2400Ac(
+        _adapter,
+        _productKey,
+        _deviceKey,
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.productModel : "Solarflow 2400 AC",
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "Solarflow 2400 AC",
+        _zenHaDeviceDetails
+      );
     case "b1nhmc":
-      return "solarflow 800";
+      return new import_Sf800.Sf800(
+        _adapter,
+        _productKey,
+        _deviceKey,
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.productModel : "Solarflow 800",
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "Solarflow 800",
+        _zenHaDeviceDetails
+      );
     default:
-      return "";
+      return void 0;
   }
-};
-const getMinAndMaxOutputLimitForProductKey = (productKey, limit) => {
-  const productName = getProductNameFromProductKey(productKey);
-  if (limit < 100 && limit != 90 && limit != 60 && limit != 30 && limit != 0) {
-    if (limit < 100 && limit > 90 && !(productName == null ? void 0 : productName.includes("hyper")) && !(productName == null ? void 0 : productName.includes("2400 ac")) && !(productName == null ? void 0 : productName.includes("solarflow 800"))) {
-      limit = 90;
-    } else if (limit > 60 && limit < 90 && !(productName == null ? void 0 : productName.includes("hyper")) && !(productName == null ? void 0 : productName.includes("2400 ac")) && !(productName == null ? void 0 : productName.includes("solarflow 800"))) {
-      limit = 60;
-    } else if (limit > 30 && limit < 60 && !(productName == null ? void 0 : productName.includes("hyper")) && !(productName == null ? void 0 : productName.includes("2400 ac")) && !(productName == null ? void 0 : productName.includes("solarflow 800"))) {
-      limit = 30;
-    } else if (limit < 30) {
-      limit = 30;
-    }
-  }
-  switch (productName == null ? void 0 : productName.toLocaleLowerCase()) {
-    case "hyper 2000":
-      if (limit > 1200) {
-        limit = 1200;
-      }
-      break;
-    case "solarflow 800":
-      if (limit > 800) {
-        limit = 800;
-      }
-      break;
-    case "solarflow2.0":
-      if (limit > 1200) {
-        limit = 1200;
-      }
-      break;
-    case "solarflow hub 2000":
-      if (limit > 1200) {
-        limit = 1200;
-      }
-      break;
-    case "solarflow aio zy":
-      if (limit > 1200) {
-        limit = 1200;
-      }
-      break;
-    case "solarflow 800 pro":
-      if (limit > 800) {
-        limit = 800;
-      }
-      break;
-    case "solarflow 2400 ac":
-      if (limit > 2400) {
-        limit = 2400;
-      }
-      break;
-    default:
-      break;
-  }
-  return limit;
-};
-const getMinAndMaxInputLimitForProductKey = (productKey, limit) => {
-  let maxLimit = 900;
-  const productName = getProductNameFromProductKey(productKey);
-  if (productName == null ? void 0 : productName.includes("hyper")) {
-    maxLimit = 1200;
-  }
-  if (productName == null ? void 0 : productName.includes("2400 ac")) {
-    maxLimit = 2400;
-  }
-  if (productName == null ? void 0 : productName.includes("solarflow 800")) {
-    maxLimit = 800;
-  }
-  if (productName == null ? void 0 : productName.includes("ace")) {
-    limit = Math.ceil(limit / 100) * 100;
-  }
-  if (limit < 0) {
-    limit = 0;
-  } else if (limit > 0 && limit <= 30) {
-    limit = 30;
-  } else if (limit > maxLimit) {
-    limit = maxLimit;
-  }
-  return limit;
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  getMinAndMaxInputLimitForProductKey,
-  getMinAndMaxOutputLimitForProductKey,
-  getProductNameFromProductKey
+  createDeviceModel
 });
 //# sourceMappingURL=helpers.js.map

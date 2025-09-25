@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/models/IZenHaDeviceDetails.ts"],
+  "sourcesContent": ["/* eslint-disable @typescript-eslint/indent */\r\nexport interface IZenHaDeviceDetails {\r\n  deviceKey: string;\r\n  deviceName: string;\r\n  enable: boolean;\r\n  ip: string;\r\n  lcnSupport: number;\r\n  online: boolean;\r\n  password: string;\r\n  port: number;\r\n  productKey: string;\r\n  productModel: string;\r\n  protocol: string;\r\n  server: string;\r\n  snNumber: string;\r\n  username: string;\r\n}\r\n"],
+  "mappings": ";;;;;;;;;;;;;;AAAA;AAAA;",
+  "names": []
+}

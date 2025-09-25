@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../src/models/IPack2Device.ts"],
-  "sourcesContent": ["/* eslint-disable @typescript-eslint/indent */\r\nexport interface IPack2Device {\r\n  deviceKey: string;\r\n  packSn: string;\r\n  type: string;\r\n}\r\n"],
-  "mappings": ";;;;;;;;;;;;;;AAAA;AAAA;",
-  "names": []
-}

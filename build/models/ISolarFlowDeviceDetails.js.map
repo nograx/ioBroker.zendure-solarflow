@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../src/models/ISolarFlowDeviceDetails.ts"],
-  "sourcesContent": ["/* eslint-disable @typescript-eslint/indent */\r\nexport interface ISolarFlowDeviceDetails {\r\n  _connectedWithAce?: boolean;\r\n  batteryCode?: string;\r\n  bindId?: number;\r\n  bindStatus?: number;\r\n  bindType?: number;\r\n  blueState?: boolean;\r\n  deviceKey: string;\r\n  electricity?: number; // SOC\r\n  fourGStatus?: boolean;\r\n  id?: number;\r\n  input?: boolean;\r\n  inputPower?: number;\r\n  isShareFlag?: string;\r\n  isSwitch?: boolean;\r\n  name?: string; // SolarFlow\r\n  networkType?: number;\r\n  onlineFlag?: string;\r\n  output?: boolean;\r\n  outputPower?: number;\r\n  packList?: ISolarFlowDeviceDetails[];\r\n  parallelMode?: number;\r\n  productId?: number;\r\n  productKey: string;\r\n  productName: string;\r\n  productType?: number;\r\n  remainOutTime?: number;\r\n  seriesMode?: number;\r\n  slowChargePower?: number;\r\n  snNumber?: string;\r\n  standard?: string;\r\n  temperature?: number;\r\n  temperatureUnit?: number;\r\n  upgradeStatus?: unknown;\r\n  upgradeStatusDes?: string;\r\n  upsMode?: boolean;\r\n  url?: string;\r\n  wifiStatus?: boolean;\r\n}\r\n"],
-  "mappings": ";;;;;;;;;;;;;;AAAA;AAAA;",
-  "names": []
-}
