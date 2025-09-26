@@ -71,7 +71,7 @@ export class ZenHaDevice {
     }
   }
 
-  private async createSolarFlowStates() {
+  private async createSolarFlowStates(): Promise<void> {
     const productKey = this.productKey.replace(
       this.adapter.FORBIDDEN_CHARS,
       ""
@@ -202,7 +202,7 @@ export class ZenHaDevice {
     }
   }
 
-  public subscribeReportTopic() {
+  public subscribeReportTopic(): void {
     const reportTopic = `/${this.productKey}/${this.deviceKey}/#`;
 
     if (this.adapter) {
@@ -213,7 +213,7 @@ export class ZenHaDevice {
     }
   }
 
-  private subscribeIotTopic() {
+  private subscribeIotTopic(): void {
     const iotTopic = `iot/${this.productKey}/${this.deviceKey}/#`;
 
     this.adapter?.log.debug(
@@ -224,35 +224,35 @@ export class ZenHaDevice {
     });
   }
 
-  public setDeviceAutomationInOutLimit(limit: number) {
+  public setDeviceAutomationInOutLimit(limit: number): void {
     this.adapter?.log.error(
-      `[setAcMode] Method setDeviceAutomationInOutLimit not defined in base class!`
+      `[setAcMode] Method setDeviceAutomationInOutLimit (set to ${limit}) not defined in base class!`
     );
     return;
   }
 
-  public setAcMode(acMode: number) {
+  public setAcMode(acMode: number): void {
     this.adapter?.log.error(
-      `[setAcMode] Method setAcMode not defined in base class!`
+      `[setAcMode] Method setAcMode (set to ${acMode}) not defined in base class!`
     );
     return;
   }
 
-  public setDcSwitch(dcSwitch: boolean) {
+  public setDcSwitch(dcSwitch: boolean): void {
     this.adapter?.log.error(
-      `[setAcMode] Method setDcSwitch not defined in base class!`
+      `[setAcMode] Method setDcSwitch (set to ${dcSwitch}) not defined in base class!`
     );
     return;
   }
 
-  public setAcSwitch(acSwitch: boolean) {
+  public setAcSwitch(acSwitch: boolean): void {
     this.adapter?.log.error(
-      `[setAcMode] Method setAcSwitch not defined in base class!`
+      `[setAcMode] Method setAcSwitch (set to ${acSwitch}) not defined in base class!`
     );
     return;
   }
 
-  public setHubState(hubState: number) {
+  public setHubState(hubState: number): void {
     if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
       if (hubState == 0 || hubState == 1) {
         const topic = `iot/${this.productKey}/${this.deviceKey}/properties/write`;
@@ -268,7 +268,7 @@ export class ZenHaDevice {
     }
   }
 
-  public setPassMode(passMode: number) {
+  public setPassMode(passMode: number): void {
     if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
       const topic = `iot/${this.productKey}/${this.deviceKey}/properties/write`;
 
@@ -283,7 +283,7 @@ export class ZenHaDevice {
     }
   }
 
-  public setAutoRecover(autoRecover: boolean) {
+  public setAutoRecover(autoRecover: boolean): void {
     if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
       const topic = `iot/${this.productKey}/${this.deviceKey}/properties/write`;
 
@@ -305,7 +305,7 @@ export class ZenHaDevice {
    * @param socSet the desired minimum soc
    * @returns void
    */
-  public setDischargeLimit(minSoc: number) {
+  public setDischargeLimit(minSoc: number): void {
     if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
       if (minSoc >= 0 && minSoc <= 50) {
         const topic = `iot/${this.productKey}/${this.deviceKey}/properties/write`;
@@ -328,7 +328,7 @@ export class ZenHaDevice {
    * @param socSet the desired max SOC
    * @returns void
    */
-  public setChargeLimit(socSet: number) {
+  public setChargeLimit(socSet: number): void {
     if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
       if (socSet >= 40 && socSet <= 100) {
         const socSetLimit = { properties: { socSet: socSet * 10 } };
@@ -352,12 +352,13 @@ export class ZenHaDevice {
    * @param autoModel autoModel value, like 8 for smart matching
    * @returns void
    */
-  public setAutoModel(autoModel: number) {
+  public setAutoModel(autoModel: number): void {
     if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
       let setAutoModelContent: any = { properties: { autoModel: autoModel } };
 
       switch (autoModel) {
-        case 8: // Smart Matching Modus
+        case 8: {
+          // Smart Matching Modus
           setAutoModelContent = {
             properties: {
               autoModelProgram: 1,
@@ -371,6 +372,7 @@ export class ZenHaDevice {
             },
           };
           break;
+        }
         case 9: // Smart CT Modus
           setAutoModelContent = {
             properties: {
@@ -397,7 +399,7 @@ export class ZenHaDevice {
     }
   }
 
-  public async setOutputLimit(limit: number) {
+  public async setOutputLimit(limit: number): Promise<void> {
     if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
       // Check if autoModel is set to 0 (Nothing) or 8 (Smart Matching)
       const autoModel = (
@@ -493,7 +495,7 @@ export class ZenHaDevice {
     }
   }
 
-  public setInputLimit(limit: number) {
+  public setInputLimit(limit: number): void {
     if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
       if (limit) {
         limit = Math.round(limit);
@@ -522,7 +524,7 @@ export class ZenHaDevice {
     }
   }
 
-  public setSmartMode(smartModeOn: boolean) {
+  public setSmartMode(smartModeOn: boolean): void {
     if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
       const setSmartModeContent = {
         properties: { smartMode: smartModeOn ? 1 : 0 },
@@ -538,7 +540,7 @@ export class ZenHaDevice {
     }
   }
 
-  public setBuzzerSwitch(buzzerOn: boolean) {
+  public setBuzzerSwitch(buzzerOn: boolean): void {
     if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
       const setBuzzerSwitchContent = {
         properties: { buzzerSwitch: buzzerOn ? 1 : 0 },
@@ -553,7 +555,7 @@ export class ZenHaDevice {
     }
   }
 
-  public triggerFullTelemetryUpdate() {
+  public triggerFullTelemetryUpdate(): void {
     if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
       const topic = `iot/${this.productKey}/${this.deviceKey}/properties/read`;
 
@@ -568,7 +570,7 @@ export class ZenHaDevice {
   public async updateSolarFlowState(
     state: string,
     val: number | string | boolean
-  ) {
+  ): Promise<void> {
     const currentValue = await this.adapter.getStateAsync(
       `${this.productKey}.${this.deviceKey}.${state}`
     );
@@ -592,7 +594,7 @@ export class ZenHaDevice {
   public async updateSolarFlowControlState(
     state: string,
     val: number | string | boolean
-  ) {
+  ): Promise<void> {
     // First check if state exist
     const stateExist = await this.adapter?.objectExists(
       `${this.productKey}.${this.deviceKey}.control.${state}`
@@ -898,7 +900,7 @@ export class ZenHaDevice {
     }
   };
 
-  public async checkVoltage(voltage: number) {
+  public async checkVoltage(voltage: number): Promise<void> {
     if (voltage < 46.1) {
       if (this.adapter.config.useCalculation) {
         this.setSocToZero();
@@ -990,7 +992,7 @@ export class ZenHaDevice {
    *
    * @beta
    */
-  public calculateEnergy() {
+  public calculateEnergy(): void {
     calculationStateKeys.forEach(async (stateKey) => {
       let stateNameEnergyWh = "";
       let stateNameEnergykWh = "";
@@ -1289,7 +1291,7 @@ export class ZenHaDevice {
     }
   };
 
-  public async setSocToZero() {
+  public async setSocToZero(): Promise<void> {
     // Set SOC to 0
     await this.adapter?.setState(
       `${this.productKey}.${this.deviceKey}.calculations.soc`,
@@ -1322,7 +1324,7 @@ export class ZenHaDevice {
     );
   }
 
-  public async setEnergyWhMax() {
+  public async setEnergyWhMax(): Promise<void> {
     const currentEnergyState = await this.adapter?.getStateAsync(
       this.productKey + "." + this.deviceKey + ".calculations.energyWh"
     );
@@ -1336,7 +1338,7 @@ export class ZenHaDevice {
     }
   }
 
-  public resetValuesForDevice() {
+  public resetValuesForDevice(): void {
     calculationStateKeys.forEach(async (stateKey: string) => {
       let stateNameEnergyWh = "";
       let stateNameEnergykWh = "";

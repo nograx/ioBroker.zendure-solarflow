@@ -20,7 +20,6 @@ module.exports = {
 		},
 	},
 	rules: {
-		"indent": ["warn", 2],
 		"@typescript-eslint/indent": [
 			"warn",
 			2

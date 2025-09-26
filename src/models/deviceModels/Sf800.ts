@@ -30,7 +30,7 @@ export class Sf800 extends ZenHaDevice {
     );
   }
 
-  public async setAcMode(acMode: number) {
+  public async setAcMode(acMode: number): Promise<void> {
     if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
       if (acMode >= 0 && acMode <= 3) {
         const topic = `iot/${this.productKey}/${this.deviceKey}/properties/write`;
@@ -57,7 +57,7 @@ export class Sf800 extends ZenHaDevice {
     }
   }
 
-  public setAcSwitch(acSwitch: boolean) {
+  public setAcSwitch(acSwitch: boolean): void {
     if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
       const setAcSwitchContent = {
         properties: { acSwitch: acSwitch ? 1 : 0 },
@@ -74,7 +74,7 @@ export class Sf800 extends ZenHaDevice {
 
   public async setDeviceAutomationInOutLimit(
     limit: number // can be negative, negative will trigger charging mode
-  ) {
+  ): Promise<void> {
     if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
       this.adapter.log.debug(
         `[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`
@@ -135,7 +135,7 @@ export class Sf800 extends ZenHaDevice {
       );
 
       // HEMS Variante
-      let _arguments: IHemsEpPayload = {
+      const _arguments: IHemsEpPayload = {
         outputPower: limit > 0 ? limit : 0,
         chargeState: limit > 0 ? 0 : 1,
         chargePower: limit > 0 ? 0 : -limit,

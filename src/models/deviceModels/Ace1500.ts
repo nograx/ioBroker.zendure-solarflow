@@ -29,7 +29,7 @@ export class Ace1500 extends ZenHaDevice {
     );
   }
 
-  public setDcSwitch(dcSwitch: boolean) {
+  public setDcSwitch(dcSwitch: boolean): void {
     if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
       const setDcSwitchContent = {
         properties: { dcSwitch: dcSwitch ? 1 : 0 },
@@ -44,7 +44,7 @@ export class Ace1500 extends ZenHaDevice {
     }
   }
 
-  public setAcSwitch(acSwitch: boolean) {
+  public setAcSwitch(acSwitch: boolean): void {
     if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
       const setAcSwitchContent = {
         properties: { acSwitch: acSwitch ? 1 : 0 },

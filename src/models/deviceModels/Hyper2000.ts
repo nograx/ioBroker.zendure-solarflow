@@ -30,7 +30,7 @@ export class Hyper2000 extends ZenHaDevice {
     );
   }
 
-  public async setAcMode(acMode: number) {
+  public async setAcMode(acMode: number): Promise<void> {
     if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
       if (acMode >= 0 && acMode <= 3) {
         const setAcMode = { properties: { acMode: acMode } };
@@ -58,7 +58,7 @@ export class Hyper2000 extends ZenHaDevice {
     }
   }
 
-  public setAcSwitch(acSwitch: boolean) {
+  public setAcSwitch(acSwitch: boolean): void {
     if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
       const setAcSwitchContent = {
         properties: { acSwitch: acSwitch ? 1 : 0 },
@@ -75,7 +75,7 @@ export class Hyper2000 extends ZenHaDevice {
 
   public async setDeviceAutomationInOutLimit(
     limit: number // can be negative, negative will trigger charging mode
-  ) {
+  ): Promise<void> {
     if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
       this.adapter.log.debug(
         `[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`

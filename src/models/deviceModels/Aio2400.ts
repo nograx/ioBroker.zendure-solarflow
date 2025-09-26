@@ -32,7 +32,7 @@ export class Aio2400 extends ZenHaDevice {
 
   public async setDeviceAutomationInOutLimit(
     limit: number // can be negative, negative will trigger charging mode
-  ) {
+  ): Promise<void> {
     if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
       this.adapter.log.debug(
         `[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`
