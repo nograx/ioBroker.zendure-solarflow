@@ -573,28 +573,28 @@ class ZenHaDevice {
   setDeviceAutomationInOutLimit(limit) {
     var _a;
     (_a = this.adapter) == null ? void 0 : _a.log.error(
-      `[setAcMode] Method setDeviceAutomationInOutLimit not defined in base class!`
+      `[setAcMode] Method setDeviceAutomationInOutLimit (set to ${limit}) not defined in base class!`
     );
     return;
   }
   setAcMode(acMode) {
     var _a;
     (_a = this.adapter) == null ? void 0 : _a.log.error(
-      `[setAcMode] Method setAcMode not defined in base class!`
+      `[setAcMode] Method setAcMode (set to ${acMode}) not defined in base class!`
     );
     return;
   }
   setDcSwitch(dcSwitch) {
     var _a;
     (_a = this.adapter) == null ? void 0 : _a.log.error(
-      `[setAcMode] Method setDcSwitch not defined in base class!`
+      `[setAcMode] Method setDcSwitch (set to ${dcSwitch}) not defined in base class!`
     );
     return;
   }
   setAcSwitch(acSwitch) {
     var _a;
     (_a = this.adapter) == null ? void 0 : _a.log.error(
-      `[setAcMode] Method setAcSwitch not defined in base class!`
+      `[setAcMode] Method setAcSwitch (set to ${acSwitch}) not defined in base class!`
     );
     return;
   }
@@ -699,7 +699,7 @@ class ZenHaDevice {
     if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
       let setAutoModelContent = { properties: { autoModel } };
       switch (autoModel) {
-        case 8:
+        case 8: {
           setAutoModelContent = {
             properties: {
               autoModelProgram: 1,
@@ -713,6 +713,7 @@ class ZenHaDevice {
             }
           };
           break;
+        }
         case 9:
           setAutoModelContent = {
             properties: {

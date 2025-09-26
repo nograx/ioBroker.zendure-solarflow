@@ -63,8 +63,7 @@ This adapter will now use the Cloud Authorization Code for authentication on the
 Credits goes to https://github.com/reinhard-brandstaedter/solarflow which helped a lot with the knowledge about the MQTT server from Zendure! Thanks!
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 3.0.0-alpha.2 (2025-09-26)
 
 - Breaking Change: Change authentication to "authentication cloud key". You can generate a key in the official zendure app
 - Removed fallback server

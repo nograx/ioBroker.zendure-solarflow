@@ -117,7 +117,7 @@ class Sf800 extends import_ZenHaDevice.ZenHaDevice {
       this.adapter.log.debug(
         `[setDeviceAutomationInOutLimit] Using HEMS Variant of device automation, as deviceKey '${this.deviceKey}' detected!`
       );
-      let _arguments = {
+      const _arguments = {
         outputPower: limit > 0 ? limit : 0,
         chargeState: limit > 0 ? 0 : 1,
         chargePower: limit > 0 ? 0 : -limit,
