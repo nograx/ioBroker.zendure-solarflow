@@ -20,13 +20,10 @@ module.exports = {
 		},
 	},
 	rules: {
-		"indent": ["error", 2],
+		"indent": ["warn", 2],
 		"@typescript-eslint/indent": [
-			"error",
-			"tab",
-			{
-				"SwitchCase": 1
-			}
+			"warn",
+			2
 		],
 		"quotes": [
 			"error",
