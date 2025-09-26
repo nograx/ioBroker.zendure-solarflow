@@ -35,12 +35,6 @@ var import_axios = __toESM(require("axios"));
 var import_constants = require("../constants/constants");
 var crypto = __toESM(require("crypto"));
 const zenLogin = async (adapter) => {
-  if (!adapter.config.authorizationCloudKey) {
-    adapter.log.info(
-      "[zenWebService.login] authorization cloud key is missing!"
-    );
-    return Promise.reject(void 0);
-  }
   const decodedAuthCloudKey = Buffer.from(
     adapter.config.authorizationCloudKey,
     "base64"

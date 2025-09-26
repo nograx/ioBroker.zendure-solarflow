@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "3.0.0-alpha.0",
+    "version": "3.0.0-alpha.1",
     "news": {
+      "3.0.0-alpha.1": {
+        "en": "Breaking Change: Change authentication to \"authentication cloud key\". You can generate a key in the official zendure app\nRemoved fallback server\nRefactor a lot of code",
+        "de": "Veränderung: Ändern Sie die Authentifizierung auf \"Authentifizierungs-Cloud-Taste\". Sie können einen Schlüssel in der offiziellen Zendure-App generieren\nEntfernen von Fallback-Server\nRefactor eine Menge Code",
+        "ru": "Переломные изменения: Измените аутентификацию на «облачный ключ аутентификации». Вы можете создать ключ в официальном приложении zendure\nУдаленный сервер Fallback\nРефактор много кода",
+        "pt": "Quebrar a Mudança: Alterar autenticação para \"chave de nuvem de autenticação\". Você pode gerar uma chave no aplicativo oficial zendure\nServidor de reserva removido\nRefactorar um monte de código",
+        "nl": "Verandering doorbreken: Authenticatie wijzigen naar \"authentication cloud key.\" U kunt een sleutel genereren in de officiële zindure app\nTerugvalserver verwijderd\nRefactor veel code",
+        "fr": "Briser le changement : Changez l'authentification en \"clé de nuage d'authentification\". Vous pouvez générer une clé dans l'application officielle zendure\nServeur de repli supprimé\nRefactor beaucoup de code",
+        "it": "Cambiamento di rottura: Modificare l'autenticazione a \"chiave cloud di autenticazione\". È possibile generare una chiave nell'app ufficiale zendure\nServer di failback rimosso\nRefactor un sacco di codice",
+        "es": "Cambio de ruptura: Cambiar la autenticación a \"la clave de nube de autenticación\". Usted puede generar una clave en la aplicación oficial de zendure\nServidor de retroceso eliminado\nRefactor mucho código",
+        "pl": "Łamanie zmian: Zmień uwierzytelnianie na \"klucz do uwierzytelniania w chmurze\". Możesz wygenerować klucz w oficjalnej aplikacji Zabb\nUsunięto serwer awaryjny\nZmień dużo kodu",
+        "uk": "Зміна несправностей: Зміна автентифікації на \"автентифікаційний ключ хмари\". Ви можете генерувати ключ в офіційному додатку zendure\nВидалити резервний сервер\nРефактор багато коду",
+        "zh-cn": "中断更改 : 认证改为\"认证云密钥\". 您可以在正式 Zendure app 中生成密钥\n删除后退服务器\n重构很多代码"
+      },
       "3.0.0-alpha.0": {
         "en": "Breaking Change: Change authentication to \"authentication cloud key\". You can generate a key in the official zendure app\nRemoved fallback server\nRefactor a lot of code",
         "de": "Veränderung: Ändern Sie die Authentifizierung auf \"Authentifizierungs-Cloud-Taste\". Sie können einen Schlüssel in der offiziellen Zendure-App generieren\nEntfernen von Fallback-Server\nRefactor eine Menge Code",
@@ -80,19 +93,6 @@
         "pl": "Łamanie zmian: Dodaj parametr sterowania 'setDeviceAutomationInOutLimit', który emuluje tryb inteligentnego dopasowywania Zhamb. Ponieważ pojawiły się obawy, że w pamięci flash zostaną zapisane granice ustawień, zalecam stosowanie automatyzacji tego urządzenia zamiast 'setInputLimit' / 'setOutputLimit'. Możesz użyć wartości ujemnych do ładowania i dodatnich do podawania.",
         "uk": "Зміна несправностей: Додавання параметра керування «setDeviceAutomationInOutLimit», який визначає режим Smart Matching Zendure. З тих пір, як було занепокоєння, що обмеження налаштування будуть зберігатися в флеш-пам'яті, я рекомендую використовувати цей пристрій автоматизації замість 'setInputLimit'/'setOutputLimit' відтепер. Ви можете використовувати негативні значення для зарядки та позитиву для живлення.",
         "zh-cn": "中断更改 : 添加模拟 Zendure 智能匹配模式的控制参数“ set DeviceAutomation InOutLimit ” 。 由于有人担心设定限制会存储在闪存中,我建议从现在开始使用这个设备自动化,而不是“setInputLimit”/“setOutputLimit”. 可以使用负值充电,正值用于饲料输入."
-      },
-      "2.0.0-alpha.0": {
-        "en": "Breaking Change: Add control parameter 'setDeviceAutomation' which emulates Zendure's Smart Matching mode. Since there were concerns that setting limits would be stored in the flash memory, I recommend using this device automation instead of 'setInputLimit'/'setOutputLimit' from now on. You can use negative values for charging and positive for feed in.",
-        "de": "Veränderung: Fügen Sie den Steuerparameter 'setDeviceAutomation' hinzu, der den Smart Matching-Modus von Zendure emuliert. Da Bedenken bestehen, dass Einstellgrenzen im Flash-Speicher gespeichert werden würden, empfehle ich die Verwendung dieser Geräteautomatisierung anstelle von 'setInputLimit'/'setOutputLimit' von jetzt an. Sie können negative Werte für das Laden und positiv für das Einspeisen verwenden.",
-        "ru": "Переломные изменения: Добавьте параметр управления «setDeviceAutomation», который эмулирует режим Smart Matching от Zendure. Поскольку были опасения, что установление ограничений будет храниться во флэш-памяти, я рекомендую использовать эту автоматизацию устройства вместо «setInputLimit» / «setOutputLimit». Вы можете использовать отрицательные значения для зарядки и положительные для подачи.",
-        "pt": "Quebrar a Mudança: Adicionar parâmetro de controle 'setDeviceAutomation' que emula o modo Smart Matching da Zendure. Como havia preocupações de que a definição de limites seria armazenada na memória flash, eu recomendo usar esta automação do dispositivo em vez de 'setInputLimit'/'setOutputLimit' a partir de agora. Você pode usar valores negativos para carregar e positivos para alimentação.",
-        "nl": "Verandering doorbreken: Voeg controleparameter 'setDeviceAutomation' toe die Zendure's Smart Matching-modus emuleert. Aangezien er bezorgdheid was dat het instellen van limieten in het flashgeheugen zou worden opgeslagen, raad ik aan om deze apparaatautomatisering te gebruiken in plaats van 'setInputLimit'/'setOutputLimit' vanaf nu. U kunt negatieve waarden gebruiken voor het opladen en positief voor voer in.",
-        "fr": "Briser le changement : Ajouter le paramètre de contrôle 'setDeviceAutomation' qui émule le mode Smart Matching de Zendure. Étant donné qu'il y avait des inquiétudes quant au stockage des limites de réglage dans la mémoire flash, je recommande d'utiliser cette automatisation au lieu de 'setInputLimit'/'setOutputLimit' à partir de maintenant. Vous pouvez utiliser des valeurs négatives pour la charge et positives pour l'alimentation.",
-        "it": "Cambiamento di rottura: Aggiungi il parametro di controllo 'setDeviceAutomation' che emula la modalità Smart Matching di Zendure. Poiché ci sono state preoccupazioni che i limiti di impostazione sarebbero stati memorizzati nella memoria flash, consiglio di utilizzare questo dispositivo di automazione invece di 'setInputLimit'/'setOutputLimit' da ora in poi. È possibile utilizzare valori negativi per la ricarica e positivo per il feed in.",
-        "es": "Cambio de ruptura: Añadir parámetro de control 'setDeviceAutomation' que emula el modo Smart Matching de Zendure. Dado que había preocupaciones de que los límites de configuración se almacenarían en la memoria flash, recomiendo usar esta automatización de dispositivos en lugar de 'setInputLimit'/'setOutputLimit' de ahora en adelante. Puede utilizar valores negativos para cargar y positivos para alimentarse.",
-        "pl": "Łamanie zmian: Dodaj parametr sterowania 'setDeviceAutomation', który emuluje tryb Smart Matching Zabada. Ponieważ pojawiły się obawy, że w pamięci flash zostaną zapisane granice ustawień, zalecam stosowanie automatyzacji tego urządzenia zamiast 'setInputLimit' / 'setOutputLimit'. Możesz użyć wartości ujemnych do ładowania i dodatnich do podawania.",
-        "uk": "Зміна несправностей: Додавання параметра керування «setDeviceAutomation», який визначає режим Smart Matching Zendure. З тих пір, як було занепокоєння, що обмеження налаштування будуть зберігатися в флеш-пам'яті, я рекомендую використовувати цей пристрій автоматизації замість 'setInputLimit'/'setOutputLimit' відтепер. Ви можете використовувати негативні значення для зарядки та позитиву для живлення.",
-        "zh-cn": "中断更改 : 添加模拟 Zendure 智能匹配模式的控制参数“ setDeviceAutomation ” 。 由于有人担心设定限制会存储在闪存中,我建议从现在开始使用这个设备自动化,而不是“setInputLimit”/“setOutputLimit”. 可以使用负值充电,正值用于饲料输入."
       }
     },
     "titleLang": {
