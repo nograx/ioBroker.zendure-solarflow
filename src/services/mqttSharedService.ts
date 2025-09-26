@@ -1,11 +1,7 @@
 /* eslint-disable @typescript-eslint/indent */
 import { ZendureSolarflow } from "../main";
 
-import { IPackData } from "../models/IPackData";
-import {
-  IMqttData,
-  ISolarFlowMqttProperties,
-} from "../models/ISolarFlowMqttProperties";
+import { IMqttData } from "../models/ISolarFlowMqttProperties";
 import { ISolarflowState } from "../models/ISolarflowState";
 
 export let adapter: ZendureSolarflow | undefined = undefined;
