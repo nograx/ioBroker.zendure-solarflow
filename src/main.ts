@@ -95,6 +95,14 @@ export class ZendureSolarflow extends utils.Adapter {
     switch (this.config.connectionMode) {
       case "authKey":
         this.log.debug("[onReady] Using Authorization Cloud Key");
+
+        if (!this.config.authorizationCloudKey) {
+          this.log.error(
+            "[zenWebService.login] authorization cloud key is missing!"
+          );
+          break;
+        }
+
         const data = await zenLogin(this);
 
         if (typeof data === "string" || data == undefined) {

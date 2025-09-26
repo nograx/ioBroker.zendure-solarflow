@@ -8,13 +8,6 @@ import { IHaDeviceListData } from "../models/IHaDeviceListData";
 export const zenLogin = async (
   adapter: ZendureSolarflow
 ): Promise<string | IHaDeviceListData | undefined> => {
-  if (!adapter.config.authorizationCloudKey) {
-    adapter.log.info(
-      "[zenWebService.login] authorization cloud key is missing!"
-    );
-    return Promise.reject(undefined);
-  }
-
   const decodedAuthCloudKey = Buffer.from(
     adapter.config.authorizationCloudKey,
     "base64"
