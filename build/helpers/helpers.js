@@ -102,6 +102,15 @@ const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetail
         _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "Solarflow 2400 AC",
         _zenHaDeviceDetails
       );
+    case "a4ss5P":
+      return new import_Sf800.Sf800(
+        _adapter,
+        _productKey,
+        _deviceKey,
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.productModel : "Solarflow 800",
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "Solarflow 800",
+        _zenHaDeviceDetails
+      );
     case "b1nhmc":
       return new import_Sf800.Sf800(
         _adapter,

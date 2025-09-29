@@ -58,15 +58,13 @@ On a HUB 1200 / HUB 2000 / ACE 1500 combination you have to use '**setDeviceAuto
 
 This adapter will now use the Cloud Authorization Code for authentication on the official mqtt servers, which you can generate in the Zendure app!
 
-## Credits
-
-Credits goes to https://github.com/reinhard-brandstaedter/solarflow which helped a lot with the knowledge about the MQTT server from Zendure! Thanks!
-
 ## Changelog
-### 3.0.0-alpha.2 (2025-09-26)
+
+### **WORK IN PROGRESS**
 
 - Breaking Change: Change authentication to "authentication cloud key". You can generate a key in the official zendure app
 - Removed fallback server
+- Add deviceKey 'a4ss5P' for Solarflow 800
 - Refactor a lot of code
 
 ### 2.0.4 (2025-09-12)

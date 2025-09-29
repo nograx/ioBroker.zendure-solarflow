@@ -871,12 +871,12 @@ class ZenHaDevice {
     const currentValue = await this.adapter.getStateAsync(
       `${this.productKey}.${this.deviceKey}.${state}`
     );
+    await ((_a = this.adapter) == null ? void 0 : _a.setState(
+      `${this.productKey}.${this.deviceKey}.${state}`,
+      val,
+      true
+    ));
     if ((currentValue == null ? void 0 : currentValue.val) != val) {
-      await ((_a = this.adapter) == null ? void 0 : _a.setState(
-        `${this.productKey}.${this.deviceKey}.${state}`,
-        val,
-        true
-      ));
       await ((_b = this.adapter) == null ? void 0 : _b.setState(
         `${this.productKey}.${this.deviceKey}.lastUpdate`,
         (/* @__PURE__ */ new Date()).getTime(),

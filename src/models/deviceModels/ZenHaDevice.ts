@@ -575,14 +575,14 @@ export class ZenHaDevice {
       `${this.productKey}.${this.deviceKey}.${state}`
     );
 
-    if (currentValue?.val != val) {
-      await this.adapter?.setState(
-        `${this.productKey}.${this.deviceKey}.${state}`,
-        val,
-        true
-      );
+    await this.adapter?.setState(
+      `${this.productKey}.${this.deviceKey}.${state}`,
+      val,
+      true
+    );
 
-      // set lastUpdate for deviceKey
+    if (currentValue?.val != val) {
+      // Set lastUpdate for deviceKey if a value was changed!
       await this.adapter?.setState(
         `${this.productKey}.${this.deviceKey}.lastUpdate`,
         new Date().getTime(),

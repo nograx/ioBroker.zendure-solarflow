@@ -3,19 +3,6 @@
     "name": "zendure-solarflow",
     "version": "3.0.0-alpha.2",
     "news": {
-      "3.0.0-alpha.2": {
-        "en": "Breaking Change: Change authentication to \"authentication cloud key\". You can generate a key in the official zendure app\nRemoved fallback server\nRefactor a lot of code",
-        "de": "Veränderung: Ändern Sie die Authentifizierung auf \"Authentifizierungs-Cloud-Taste\". Sie können einen Schlüssel in der offiziellen Zendure-App generieren\nEntfernen von Fallback-Server\nRefactor eine Menge Code",
-        "ru": "Переломные изменения: Измените аутентификацию на «облачный ключ аутентификации». Вы можете создать ключ в официальном приложении zendure\nУдаленный сервер Fallback\nРефактор много кода",
-        "pt": "Quebrar a Mudança: Alterar autenticação para \"chave de nuvem de autenticação\". Você pode gerar uma chave no aplicativo oficial zendure\nServidor de reserva removido\nRefactorar um monte de código",
-        "nl": "Verandering doorbreken: Authenticatie wijzigen naar \"authentication cloud key.\" U kunt een sleutel genereren in de officiële zindure app\nTerugvalserver verwijderd\nRefactor veel code",
-        "fr": "Briser le changement : Changez l'authentification en \"clé de nuage d'authentification\". Vous pouvez générer une clé dans l'application officielle zendure\nServeur de repli supprimé\nRefactor beaucoup de code",
-        "it": "Cambiamento di rottura: Modificare l'autenticazione a \"chiave cloud di autenticazione\". È possibile generare una chiave nell'app ufficiale zendure\nServer di failback rimosso\nRefactor un sacco di codice",
-        "es": "Cambio de ruptura: Cambiar la autenticación a \"la clave de nube de autenticación\". Usted puede generar una clave en la aplicación oficial de zendure\nServidor de retroceso eliminado\nRefactor mucho código",
-        "pl": "Łamanie zmian: Zmień uwierzytelnianie na \"klucz do uwierzytelniania w chmurze\". Możesz wygenerować klucz w oficjalnej aplikacji Zabb\nUsunięto serwer awaryjny\nZmień dużo kodu",
-        "uk": "Зміна несправностей: Зміна автентифікації на \"автентифікаційний ключ хмари\". Ви можете генерувати ключ в офіційному додатку zendure\nВидалити резервний сервер\nРефактор багато коду",
-        "zh-cn": "中断更改 : 认证改为\"认证云密钥\". 您可以在正式 Zendure app 中生成密钥\n删除后退服务器\n重构很多代码"
-      },
       "2.0.4": {
         "en": "Fix creation of control states on new Hyper 2000 v3\nUpdates dependencies",
         "de": "Behebung der Erstellung von Steuerungszuständen auf dem neuen Hyper 2000 v3\nAktualisiert Abhängigkeiten",
