@@ -43,8 +43,6 @@ export class ZendureSolarflow extends utils.Adapter {
   public refreshAccessTokenInterval: ioBroker.Interval | undefined = undefined;
   public retryTimeout: ioBroker.Timeout | undefined = undefined;
 
-  public createdSnNumberSolarflowStates: string[] = [];
-
   /**
    * Is called when databases are connected and adapter received configuration.
    */

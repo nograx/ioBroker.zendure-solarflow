@@ -76,12 +76,12 @@ export const startCheckStatesAndConnectionJob = async (
       );
 
       const fiveMinutesAgo = (Date.now() / 1000 - 5 * 60) * 1000; // Five minutes ago
-      const tenMinutesAgo = (Date.now() / 1000 - 10 * 60) * 1000; // Ten minutes ago
+      const thirtyMinutesAgo = (Date.now() / 1000 - 30 * 60) * 1000; // Thirty minutes ago
 
       if (
         lastUpdate &&
         lastUpdate.val &&
-        Number(lastUpdate.val) < tenMinutesAgo &&
+        Number(lastUpdate.val) < thirtyMinutesAgo &&
         wifiState?.val == "Connected" &&
         adapter.config.connectionMode == "authKey"
       ) {
@@ -89,7 +89,7 @@ export const startCheckStatesAndConnectionJob = async (
           `[checkStatesJob] Last update for deviceKey ${
             device.deviceKey
           } was at ${new Date(
-            Number(lastUpdate)
+            Number(lastUpdate.val)
           )}, device seems to be online - so maybe connection is broken - restart adapter in 20 seconds!`
         );
 
@@ -101,7 +101,7 @@ export const startCheckStatesAndConnectionJob = async (
       } else if (
         lastUpdate &&
         lastUpdate.val &&
-        Number(lastUpdate.val) < tenMinutesAgo &&
+        Number(lastUpdate.val) < thirtyMinutesAgo &&
         wifiState?.val == "Connected" &&
         adapter.config.connectionMode == "local"
       ) {
@@ -109,7 +109,7 @@ export const startCheckStatesAndConnectionJob = async (
           `[checkStatesJob] Last update for deviceKey ${
             device.deviceKey
           } was at ${new Date(
-            Number(lastUpdate)
+            Number(lastUpdate.val)
           )}, set Wifi state to Disconnected!`
         );
 
@@ -128,7 +128,7 @@ export const startCheckStatesAndConnectionJob = async (
           `[checkStatesJob] Last update for deviceKey ${
             device.deviceKey
           } was at ${new Date(
-            Number(lastUpdate)
+            Number(lastUpdate.val)
           )}, checking for pseudo power values!`
         );
         // State was not updated in the last 10 minutes... set states to 0

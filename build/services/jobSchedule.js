@@ -78,20 +78,20 @@ const startCheckStatesAndConnectionJob = async (adapter) => {
         device.productKey + "." + device.deviceKey + ".wifiState"
       ));
       const fiveMinutesAgo = (Date.now() / 1e3 - 5 * 60) * 1e3;
-      const tenMinutesAgo = (Date.now() / 1e3 - 10 * 60) * 1e3;
-      if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < tenMinutesAgo && (wifiState == null ? void 0 : wifiState.val) == "Connected" && adapter.config.connectionMode == "authKey") {
+      const thirtyMinutesAgo = (Date.now() / 1e3 - 30 * 60) * 1e3;
+      if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < thirtyMinutesAgo && (wifiState == null ? void 0 : wifiState.val) == "Connected" && adapter.config.connectionMode == "authKey") {
         adapter.log.warn(
           `[checkStatesJob] Last update for deviceKey ${device.deviceKey} was at ${new Date(
-            Number(lastUpdate)
+            Number(lastUpdate.val)
           )}, device seems to be online - so maybe connection is broken - restart adapter in 20 seconds!`
         );
         await adapter.delay(20 * 1e3);
         adapter.restart();
         refreshAccessTokenNeeded = true;
-      } else if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < tenMinutesAgo && (wifiState == null ? void 0 : wifiState.val) == "Connected" && adapter.config.connectionMode == "local") {
+      } else if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < thirtyMinutesAgo && (wifiState == null ? void 0 : wifiState.val) == "Connected" && adapter.config.connectionMode == "local") {
         adapter.log.warn(
           `[checkStatesJob] Last update for deviceKey ${device.deviceKey} was at ${new Date(
-            Number(lastUpdate)
+            Number(lastUpdate.val)
           )}, set Wifi state to Disconnected!`
         );
         device == null ? void 0 : device.updateSolarFlowState("wifiState", "Disconnected");
@@ -101,7 +101,7 @@ const startCheckStatesAndConnectionJob = async (adapter) => {
       if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < fiveMinutesAgo && !refreshAccessTokenNeeded) {
         adapter.log.debug(
           `[checkStatesJob] Last update for deviceKey ${device.deviceKey} was at ${new Date(
-            Number(lastUpdate)
+            Number(lastUpdate.val)
           )}, checking for pseudo power values!`
         );
         await statesToReset.forEach(async (stateName) => {

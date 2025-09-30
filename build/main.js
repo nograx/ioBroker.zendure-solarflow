@@ -54,7 +54,6 @@ class ZendureSolarflow extends utils.Adapter {
     this.calculationJob = void 0;
     this.refreshAccessTokenInterval = void 0;
     this.retryTimeout = void 0;
-    this.createdSnNumberSolarflowStates = [];
     this.on("ready", this.onReady.bind(this));
     this.on("stateChange", this.onStateChange.bind(this));
     this.on("unload", this.onUnload.bind(this));
