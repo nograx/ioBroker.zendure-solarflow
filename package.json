@@ -1,6 +1,6 @@
 {
   "name": "iobroker.zendure-solarflow",
-  "version": "3.0.0-alpha.3",
+  "version": "3.0.0",
   "description": "zendure-solarflow",
   "author": {
     "name": "Peter",
