@@ -728,6 +728,25 @@ export class ZenHaDevice {
           }
 
           if (x.maxTemp) {
+            const maxTempCelsius = x.maxTemp / 10 - 273.15;
+            const maxTempState = await this.adapter?.getStateAsync(
+              key + ".maxTemp"
+            );
+
+            // Check if Value exist and changed, if so update lastUpdate!
+            if (
+              maxTempState &&
+              maxTempState.val &&
+              maxTempCelsius != maxTempState.val
+            ) {
+              // Value exist and value changed, update last update!
+              await this.adapter?.setState(
+                `${this.productKey}.${this.deviceKey}.lastUpdate`,
+                new Date().getTime(),
+                true
+              );
+            }
+
             // State für maxTemp
             await this.adapter?.extendObject(key + ".maxTemp", {
               type: "state",
@@ -749,12 +768,27 @@ export class ZenHaDevice {
             // Convert Kelvin to Celsius
             await this.adapter?.setState(
               key + ".maxTemp",
-              x.maxTemp / 10 - 273.15,
+              maxTempCelsius,
               true
             );
           }
 
           if (x.minVol) {
+            const minVol = x.minVol / 100;
+            const minVolState = await this.adapter?.getStateAsync(
+              key + ".minVol"
+            );
+
+            // Check if Value exist and changed, if so update lastUpdate!
+            if (minVolState && minVolState.val && minVol != minVolState.val) {
+              // Value exist and value changed, update last update!
+              await this.adapter?.setState(
+                `${this.productKey}.${this.deviceKey}.lastUpdate`,
+                new Date().getTime(),
+                true
+              );
+            }
+
             await this.adapter?.extendObject(key + ".minVol", {
               type: "state",
               common: {
@@ -769,7 +803,7 @@ export class ZenHaDevice {
               native: {},
             });
 
-            await this.adapter?.setState(key + ".minVol", x.minVol / 100, true);
+            await this.adapter?.setState(key + ".minVol", minVol, true);
           }
 
           if (x.batcur) {
@@ -790,7 +824,22 @@ export class ZenHaDevice {
             await this.adapter?.setState(key + ".batcur", x.batcur / 10, true);
           }
 
+          // Check if Value exist and changed, if so update lastUpdate!
           if (x.maxVol) {
+            const maxVol = x.maxVol / 100;
+            const maxVolState = await this.adapter?.getStateAsync(
+              key + ".maxVol"
+            );
+
+            if (maxVolState && maxVolState.val && maxVol != maxVolState.val) {
+              // Value exist and value changed, update last update!
+              await this.adapter?.setState(
+                `${this.productKey}.${this.deviceKey}.lastUpdate`,
+                new Date().getTime(),
+                true
+              );
+            }
+
             await this.adapter?.extendObject(key + ".maxVol", {
               type: "state",
               common: {
@@ -805,10 +854,30 @@ export class ZenHaDevice {
               native: {},
             });
 
-            await this.adapter?.setState(key + ".maxVol", x.maxVol / 100, true);
+            await this.adapter?.setState(key + ".maxVol", maxVol, true);
           }
 
+          // Check if Value exist and changed, if so update lastUpdate!
           if (x.totalVol) {
+            const totalVol = x.totalVol / 100;
+
+            const totalVolState = await this.adapter?.getStateAsync(
+              key + ".totalVol"
+            );
+
+            if (
+              totalVolState &&
+              totalVolState.val &&
+              totalVol != totalVolState.val
+            ) {
+              // Value exist and value changed, update last update!
+              await this.adapter?.setState(
+                `${this.productKey}.${this.deviceKey}.lastUpdate`,
+                new Date().getTime(),
+                true
+              );
+            }
+
             await this.adapter?.extendObject(key + ".totalVol", {
               type: "state",
               common: {
@@ -822,8 +891,6 @@ export class ZenHaDevice {
               },
               native: {},
             });
-
-            const totalVol = x.totalVol / 100;
 
             await this.adapter?.setState(key + ".totalVol", totalVol, true);
 

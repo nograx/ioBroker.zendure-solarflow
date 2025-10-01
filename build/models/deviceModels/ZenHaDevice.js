@@ -37,7 +37,7 @@ class ZenHaDevice {
     this.addOrUpdatePackData = async (packData, isSolarFlow) => {
       if (this.adapter && this.productKey && this.deviceKey) {
         await packData.forEach(async (x) => {
-          var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u;
+          var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C;
           if (x.sn && this.adapter) {
             let batType = "";
             if (this.productKey == "yWF7hV") {
@@ -127,7 +127,18 @@ class ZenHaDevice {
               await ((_g = this.adapter) == null ? void 0 : _g.setState(key + ".socLevel", x.socLevel, true));
             }
             if (x.maxTemp) {
-              await ((_h = this.adapter) == null ? void 0 : _h.extendObject(key + ".maxTemp", {
+              const maxTempCelsius = x.maxTemp / 10 - 273.15;
+              const maxTempState = await ((_h = this.adapter) == null ? void 0 : _h.getStateAsync(
+                key + ".maxTemp"
+              ));
+              if (maxTempState && maxTempState.val && maxTempCelsius != maxTempState.val) {
+                await ((_i = this.adapter) == null ? void 0 : _i.setState(
+                  `${this.productKey}.${this.deviceKey}.lastUpdate`,
+                  (/* @__PURE__ */ new Date()).getTime(),
+                  true
+                ));
+              }
+              await ((_j = this.adapter) == null ? void 0 : _j.extendObject(key + ".maxTemp", {
                 type: "state",
                 common: {
                   name: {
@@ -143,14 +154,25 @@ class ZenHaDevice {
                 },
                 native: {}
               }));
-              await ((_i = this.adapter) == null ? void 0 : _i.setState(
+              await ((_k = this.adapter) == null ? void 0 : _k.setState(
                 key + ".maxTemp",
-                x.maxTemp / 10 - 273.15,
+                maxTempCelsius,
                 true
               ));
             }
             if (x.minVol) {
-              await ((_j = this.adapter) == null ? void 0 : _j.extendObject(key + ".minVol", {
+              const minVol = x.minVol / 100;
+              const minVolState = await ((_l = this.adapter) == null ? void 0 : _l.getStateAsync(
+                key + ".minVol"
+              ));
+              if (minVolState && minVolState.val && minVol != minVolState.val) {
+                await ((_m = this.adapter) == null ? void 0 : _m.setState(
+                  `${this.productKey}.${this.deviceKey}.lastUpdate`,
+                  (/* @__PURE__ */ new Date()).getTime(),
+                  true
+                ));
+              }
+              await ((_n = this.adapter) == null ? void 0 : _n.extendObject(key + ".minVol", {
                 type: "state",
                 common: {
                   name: "minVol",
@@ -163,10 +185,10 @@ class ZenHaDevice {
                 },
                 native: {}
               }));
-              await ((_k = this.adapter) == null ? void 0 : _k.setState(key + ".minVol", x.minVol / 100, true));
+              await ((_o = this.adapter) == null ? void 0 : _o.setState(key + ".minVol", minVol, true));
             }
             if (x.batcur) {
-              await ((_l = this.adapter) == null ? void 0 : _l.extendObject(key + ".batcur", {
+              await ((_p = this.adapter) == null ? void 0 : _p.extendObject(key + ".batcur", {
                 type: "state",
                 common: {
                   name: "batcur",
@@ -179,10 +201,21 @@ class ZenHaDevice {
                 },
                 native: {}
               }));
-              await ((_m = this.adapter) == null ? void 0 : _m.setState(key + ".batcur", x.batcur / 10, true));
+              await ((_q = this.adapter) == null ? void 0 : _q.setState(key + ".batcur", x.batcur / 10, true));
             }
             if (x.maxVol) {
-              await ((_n = this.adapter) == null ? void 0 : _n.extendObject(key + ".maxVol", {
+              const maxVol = x.maxVol / 100;
+              const maxVolState = await ((_r = this.adapter) == null ? void 0 : _r.getStateAsync(
+                key + ".maxVol"
+              ));
+              if (maxVolState && maxVolState.val && maxVol != maxVolState.val) {
+                await ((_s = this.adapter) == null ? void 0 : _s.setState(
+                  `${this.productKey}.${this.deviceKey}.lastUpdate`,
+                  (/* @__PURE__ */ new Date()).getTime(),
+                  true
+                ));
+              }
+              await ((_t = this.adapter) == null ? void 0 : _t.extendObject(key + ".maxVol", {
                 type: "state",
                 common: {
                   name: "maxVol",
@@ -195,10 +228,21 @@ class ZenHaDevice {
                 },
                 native: {}
               }));
-              await ((_o = this.adapter) == null ? void 0 : _o.setState(key + ".maxVol", x.maxVol / 100, true));
+              await ((_u = this.adapter) == null ? void 0 : _u.setState(key + ".maxVol", maxVol, true));
             }
             if (x.totalVol) {
-              await ((_p = this.adapter) == null ? void 0 : _p.extendObject(key + ".totalVol", {
+              const totalVol = x.totalVol / 100;
+              const totalVolState = await ((_v = this.adapter) == null ? void 0 : _v.getStateAsync(
+                key + ".totalVol"
+              ));
+              if (totalVolState && totalVolState.val && totalVol != totalVolState.val) {
+                await ((_w = this.adapter) == null ? void 0 : _w.setState(
+                  `${this.productKey}.${this.deviceKey}.lastUpdate`,
+                  (/* @__PURE__ */ new Date()).getTime(),
+                  true
+                ));
+              }
+              await ((_x = this.adapter) == null ? void 0 : _x.extendObject(key + ".totalVol", {
                 type: "state",
                 common: {
                   name: "totalVol",
@@ -211,14 +255,13 @@ class ZenHaDevice {
                 },
                 native: {}
               }));
-              const totalVol = x.totalVol / 100;
-              await ((_q = this.adapter) == null ? void 0 : _q.setState(key + ".totalVol", totalVol, true));
+              await ((_y = this.adapter) == null ? void 0 : _y.setState(key + ".totalVol", totalVol, true));
               if (isSolarFlow) {
                 this.checkVoltage(totalVol);
               }
             }
             if (x.soh) {
-              await ((_r = this.adapter) == null ? void 0 : _r.extendObject(key + ".soh", {
+              await ((_z = this.adapter) == null ? void 0 : _z.extendObject(key + ".soh", {
                 type: "state",
                 common: {
                   name: {
@@ -234,10 +277,10 @@ class ZenHaDevice {
                 },
                 native: {}
               }));
-              await ((_s = this.adapter) == null ? void 0 : _s.setState(key + ".soh", x.soh / 10, true));
+              await ((_A = this.adapter) == null ? void 0 : _A.setState(key + ".soh", x.soh / 10, true));
             }
             if (x.power) {
-              await ((_t = this.adapter) == null ? void 0 : _t.extendObject(key + ".power", {
+              await ((_B = this.adapter) == null ? void 0 : _B.extendObject(key + ".power", {
                 type: "state",
                 common: {
                   name: {
@@ -253,7 +296,7 @@ class ZenHaDevice {
                 },
                 native: {}
               }));
-              await ((_u = this.adapter) == null ? void 0 : _u.setState(key + ".power", x.power, true));
+              await ((_C = this.adapter) == null ? void 0 : _C.setState(key + ".power", x.power, true));
             }
             let found = false;
             Object.entries(x).forEach(([key2, value]) => {
