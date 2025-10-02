@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "3.0.0",
+    "version": "3.0.1",
     "news": {
+      "3.0.1": {
+        "en": "Update 'lastUpdate' when a battery value changes\nAdd deviceKey 'R3mn8U' for Solarflow 800 Pro",
+        "de": "Aktualisieren Sie 'lastUpdate', wenn sich ein Batteriewert ändert\nGerät hinzufügenKey 'R3mn8U' für Solarflow 800 Pro",
+        "ru": "Обновление «lastUpdate» при изменении стоимости батареи\nДобавить устройствоKey 'R3mn8U для Solarflow 800 Pro",
+        "pt": "Atualizar 'lastUpdate' quando um valor da bateria mudar\nAdicionar dispositivoKey 'R3mn8U' para Solarflow 800 Pro",
+        "nl": "Update 'lastUpdate' wanneer een batterijwaarde verandert\nApparaat toevoegenKey 'R3mn8U' voor Solarflow 800 Pro",
+        "fr": "Mettre à jour la dernière mise à jour lorsqu'une valeur de batterie change\nAjouter la clé de périphérique 'R3mn8U' pour Solarflow 800 Pro",
+        "it": "Aggiorna 'lastUpdate' quando cambia il valore della batteria\nAggiungi dispositivoKey 'R3mn8U' per Solarflow 800 Pro",
+        "es": "Actualizar 'última actualización' cuando un valor de batería cambia\nAñadir dispositivoKey 'R3mn8U' para Solarflow 800 Pro",
+        "pl": "Aktualizuj 'lastUpdate', gdy zmienia się wartość baterii\nDodaj deviceKey 'R3mn8U' dla Solarflow 800 Pro",
+        "uk": "Оновлення \"lastUpdate\" при зміні значення батареї\nДодати пристрійKey 'R3mn8U' для Solarflow 800 Pro",
+        "zh-cn": "当电池值改变时更新“ last Update ”\n为 Solarflow 800 Pro 添加设备Key “ R3mn8U ”"
+      },
       "3.0.0": {
         "en": "Breaking Change: Change authentication to \"authentication cloud key\". You can generate a key in the official zendure app\nRemoved fallback server\nAdd deviceKey 'a4ss5P' for Solarflow 800\nRefactor a lot of code",
         "de": "Veränderung: Ändern Sie die Authentifizierung auf \"Authentifizierungs-Cloud-Taste\". Sie können einen Schlüssel in der offiziellen Zendure-App generieren\nEntfernen von Fallback-Server\nGerät hinzufügenKey 'a4ss5P' für Solarflow 800\nRefactor eine Menge Code",

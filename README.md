@@ -59,8 +59,7 @@ On a HUB 1200 / HUB 2000 / ACE 1500 combination you have to use '**setDeviceAuto
 This adapter will now use the Cloud Authorization Code for authentication on the official mqtt servers, which you can generate in the Zendure app!
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 3.0.1 (2025-10-02)
 
 - Update 'lastUpdate' when a battery value changes
 - Add deviceKey 'R3mn8U' for Solarflow 800 Pro
