@@ -60,6 +60,7 @@ const productKeys: { value; title }[] = [
   { value: "8bM93H", title: "Ace 1500 (8bM93H)" },
   { value: "BC8B7F", title: "SolarFlow 2400 AC (BC8B7F)" },
   { value: "B1NHMC", title: "SolarFlow 800 (B1NHMC)" },
+  { value: "R3mn8U", title: "SolarFlow 800 Pro (R3mn8U)" },
 ];
 
 interface SettingsProps {

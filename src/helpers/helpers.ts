@@ -116,6 +116,17 @@ export const createDeviceModel = (
         _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "Solarflow 800",
         _zenHaDeviceDetails
       );
+    case "R3mn8U":
+      return new Sf800(
+        _adapter,
+        _productKey,
+        _deviceKey,
+        _zenHaDeviceDetails
+          ? _zenHaDeviceDetails.productModel
+          : "Solarflow 800",
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "Solarflow 800",
+        _zenHaDeviceDetails
+      );
     default:
       return undefined;
   }

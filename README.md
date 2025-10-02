@@ -63,6 +63,7 @@ This adapter will now use the Cloud Authorization Code for authentication on the
 ### **WORK IN PROGRESS**
 
 - Update 'lastUpdate' when a battery value changes
+- Add deviceKey 'R3mn8U' for Solarflow 800 Pro
 
 ### 3.0.0 (2025-09-30)
 
