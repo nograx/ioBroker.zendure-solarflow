@@ -919,7 +919,7 @@ class ZenHaDevice {
       val,
       true
     ));
-    if ((currentValue == null ? void 0 : currentValue.val) != val) {
+    if ((currentValue == null ? void 0 : currentValue.val) != val && state != "wifiState") {
       await ((_b = this.adapter) == null ? void 0 : _b.setState(
         `${this.productKey}.${this.deviceKey}.lastUpdate`,
         (/* @__PURE__ */ new Date()).getTime(),

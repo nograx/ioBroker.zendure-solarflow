@@ -581,7 +581,7 @@ export class ZenHaDevice {
       true
     );
 
-    if (currentValue?.val != val) {
+    if (currentValue?.val != val && state != "wifiState") {
       // Set lastUpdate for deviceKey if a value was changed!
       await this.adapter?.setState(
         `${this.productKey}.${this.deviceKey}.lastUpdate`,
