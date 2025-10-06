@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "3.0.1",
+    "version": "3.0.2",
     "news": {
+      "3.0.2": {
+        "en": "Ignore 'wifiState' for last update value",
+        "de": "'wifiState' für den letzten Updatewert ignorieren",
+        "ru": "Игнорируйте значение «wifiState» для последнего обновления",
+        "pt": "Ignorar 'wifiState' para o valor da última atualização",
+        "nl": "'wifiState' negeren voor laatste updatewaarde",
+        "fr": "Ignorer 'wifiState' pour la dernière valeur de mise à jour",
+        "it": "Ignora 'wifiState' per l'ultimo valore di aggiornamento",
+        "es": "Ignora 'wifiState' por último valor de actualización",
+        "pl": "Ignoruj 'wifiState' dla ostatniej wartości aktualizacji",
+        "uk": "Ignore 'wifiState' для останнього оновлення значення",
+        "zh-cn": "忽略上次更新值的“ wifi State ”"
+      },
       "3.0.1": {
         "en": "Update 'lastUpdate' when a battery value changes\nAdd deviceKey 'R3mn8U' for Solarflow 800 Pro",
         "de": "Aktualisieren Sie 'lastUpdate', wenn sich ein Batteriewert ändert\nGerät hinzufügenKey 'R3mn8U' für Solarflow 800 Pro",
@@ -80,19 +93,6 @@
         "pl": "Łamanie zmian: Dodaj parametr sterowania 'setDeviceAutomationInOutLimit', który emuluje tryb inteligentnego dopasowywania Zhamb. Zalecam stosowanie automatyzacji tego urządzenia zamiast 'setInputLimit' / 'setOutputLimit' od teraz, ponieważ istniały obawy, że ustawianie limitów / trybów będzie przechowywane w pamięci flash. Możesz użyć wartości ujemnych do ładowania i dodatnich do podawania. W HUB 1200 / 2000 z ACE 1500 można użyć \"smartMode\", aby zapobiec przełączaniu zapisu trybu AC do pamięci flash. Sprawdź czytaj więcej szczegółów lub uczestnicz w forum jOBroker.",
         "uk": "Зміна несправностей: Додавання параметра керування «setDeviceAutomationInOutLimit», який визначає режим Smart Matching Zendure. Я рекомендую використовувати цей пристрій автоматизації замість 'setInputLimit'/'setOutputLimit' відтепер, оскільки є побоювання, що налаштування лімітів/модів буде зберігатися в флеш-пам'яті. Ви можете використовувати негативні значення для зарядки та позитиву для живлення. На HUB 1200/2000 з ACE 1500 ви можете використовувати \"smartMode\" для запобігання перемикання режиму змінного струму, що тривають на флеш-пам'ять. Перевірити читання для отримання більш детальної інформації або участі в форумі ioBroker.",
         "zh-cn": "中断更改 : 添加模拟 Zendure 智能匹配模式的控制参数“ set DeviceAutomation InOutLimit ” 。 我建议从现在开始使用这个设备自动化, 而不是“ setInputLimit ” /“ setOutputLimit ” , 因为有人担心设定限制/ modes会存储在闪存中 。 可以使用负值充电,正值用于饲料输入. 在 HUB 1200/2000 与 ACE 1500 可以使用\"smartMode\"来防止将 AC 模式触发写入到闪存中. 请检查access-date=中的日期值 (帮助) 更多细节或参加ioBroker论坛."
-      },
-      "2.0.0-alpha.1": {
-        "en": "Breaking Change: Add control parameter 'setDeviceAutomationInOutLimit' which emulates Zendure's Smart Matching mode. Since there were concerns that setting limits would be stored in the flash memory, I recommend using this device automation instead of 'setInputLimit'/'setOutputLimit' from now on. You can use negative values for charging and positive for feed in.",
-        "de": "Veränderung: Fügen Sie den Steuerparameter 'setDeviceAutomationInOutLimit' hinzu, der den Smart Matching-Modus von Zendure emuliert. Da Bedenken bestehen, dass Einstellgrenzen im Flash-Speicher gespeichert werden würden, empfehle ich die Verwendung dieser Geräteautomatisierung anstelle von 'setInputLimit'/'setOutputLimit' von jetzt an. Sie können negative Werte für das Laden und positiv für das Einspeisen verwenden.",
-        "ru": "Переломные изменения: Добавьте параметр управления «setDeviceAutomationInOutLimit», который эмулирует режим Smart Matching от Zendure. Поскольку были опасения, что установление ограничений будет храниться во флэш-памяти, я рекомендую использовать эту автоматизацию устройства вместо «setInputLimit» / «setOutputLimit». Вы можете использовать отрицательные значения для зарядки и положительные для подачи.",
-        "pt": "Quebrar a Mudança: Adicionar parâmetro de controle 'setDeviceAutomationInOutLimit' que emula o modo Smart Matching da Zendure. Como havia preocupações de que a definição de limites seria armazenada na memória flash, eu recomendo usar esta automação do dispositivo em vez de 'setInputLimit'/'setOutputLimit' a partir de agora. Você pode usar valores negativos para carregar e positivos para alimentação.",
-        "nl": "Verandering doorbreken: Voeg controleparameter 'setDeviceAutomationInOutLimit' toe die Zendure's Smart Matching-modus emuleert. Aangezien er bezorgdheid was dat het instellen van limieten in het flashgeheugen zou worden opgeslagen, raad ik aan om deze apparaatautomatisering te gebruiken in plaats van 'setInputLimit'/'setOutputLimit' vanaf nu. U kunt negatieve waarden gebruiken voor het opladen en positief voor voer in.",
-        "fr": "Briser le changement : Ajouter le paramètre de contrôle 'setDeviceAutomationInOutLimit' qui émule le mode Smart Matching de Zendure. Étant donné qu'il y avait des inquiétudes quant au stockage des limites de réglage dans la mémoire flash, je recommande d'utiliser cette automatisation au lieu de 'setInputLimit'/'setOutputLimit' à partir de maintenant. Vous pouvez utiliser des valeurs négatives pour la charge et positives pour l'alimentation.",
-        "it": "Cambiamento di rottura: Aggiungi il parametro di controllo 'setDeviceAutomationInOutLimit' che emula la modalità Smart Matching di Zendure. Poiché ci sono state preoccupazioni che i limiti di impostazione sarebbero stati memorizzati nella memoria flash, consiglio di utilizzare questo dispositivo di automazione invece di 'setInputLimit'/'setOutputLimit' da ora in poi. È possibile utilizzare valori negativi per la ricarica e positivo per il feed in.",
-        "es": "Cambio de ruptura: Añadir parámetro de control 'setDeviceAutomationInOutLimit' que emula el modo Smart Matching de Zendure. Dado que había preocupaciones de que los límites de configuración se almacenarían en la memoria flash, recomiendo usar esta automatización de dispositivos en lugar de 'setInputLimit'/'setOutputLimit' de ahora en adelante. Puede utilizar valores negativos para cargar y positivos para alimentarse.",
-        "pl": "Łamanie zmian: Dodaj parametr sterowania 'setDeviceAutomationInOutLimit', który emuluje tryb inteligentnego dopasowywania Zhamb. Ponieważ pojawiły się obawy, że w pamięci flash zostaną zapisane granice ustawień, zalecam stosowanie automatyzacji tego urządzenia zamiast 'setInputLimit' / 'setOutputLimit'. Możesz użyć wartości ujemnych do ładowania i dodatnich do podawania.",
-        "uk": "Зміна несправностей: Додавання параметра керування «setDeviceAutomationInOutLimit», який визначає режим Smart Matching Zendure. З тих пір, як було занепокоєння, що обмеження налаштування будуть зберігатися в флеш-пам'яті, я рекомендую використовувати цей пристрій автоматизації замість 'setInputLimit'/'setOutputLimit' відтепер. Ви можете використовувати негативні значення для зарядки та позитиву для живлення.",
-        "zh-cn": "中断更改 : 添加模拟 Zendure 智能匹配模式的控制参数“ set DeviceAutomation InOutLimit ” 。 由于有人担心设定限制会存储在闪存中,我建议从现在开始使用这个设备自动化,而不是“setInputLimit”/“setOutputLimit”. 可以使用负值充电,正值用于饲料输入."
       }
     },
     "titleLang": {
