@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "3.0.2",
+    "version": "3.0.3",
     "news": {
+      "3.0.3": {
+        "en": "Optimize setting of wifiMode in local mode\nOptimize Debug option",
+        "de": "Optimieren Sie die Einstellung von wifiMode im lokalen Modus\nOptimierung der Debug-Option",
+        "ru": "Оптимизируйте настройку WiFiMode в локальном режиме\nОптимизируйте опцию Debug",
+        "pt": "Otimizar a configuração do wifiMode no modo local\nOtimizar a opção de depuração",
+        "nl": "Optimaliseer de instelling van wifiMode in lokale modus\nOptimaliseer debug-optie",
+        "fr": "Optimiser le réglage du wifiMode en mode local\nOptimiser l'option de débogage",
+        "it": "Ottimizzare l'impostazione di wifiMode in modalità locale\nOttimizzare l'opzione Debug",
+        "es": "Optimize setting of wifiMode in local mode\nOpción Optimize Debug",
+        "pl": "Optymalizacja ustawień WifiMode w trybie lokalnym\nOptymalizacja opcji debugowania",
+        "uk": "Оптимізуйте налаштування wifiMode в локальному режимі\nОптимізуйте опцію Debug",
+        "zh-cn": "优化本地模式的 wifiMode 设置\n优化调试选项"
+      },
       "3.0.2": {
         "en": "Ignore 'wifiState' for last update value",
         "de": "'wifiState' für den letzten Updatewert ignorieren",
@@ -80,19 +93,6 @@
         "pl": "Usługa małej naprawy MQTT",
         "uk": "Невелика фіксація MQTT сервіс",
         "zh-cn": "小修补 MQTT 服务"
-      },
-      "2.0.0": {
-        "en": "Breaking Change: Add control parameter 'setDeviceAutomationInOutLimit' which emulates Zendure's Smart Matching mode. I recommend using this device automation instead of 'setInputLimit'/'setOutputLimit' from now on, as there were concerns that setting limits/modes would be stored in the flash memory. You can use negative values for charging and positive for feed in. On HUB 1200/2000 with ACE 1500 you can use \"smartMode\" to prevent switching AC mode trigger writing to the flash memory. Check you the readme for more details or participate in the ioBroker forum.",
-        "de": "Veränderung: Fügen Sie den Steuerparameter 'setDeviceAutomationInOutLimit' hinzu, der den Smart Matching-Modus von Zendure emuliert. Ich empfehle, diese Geräteautomatisierung anstelle von 'setInputLimit'/'setOutputLimit' von jetzt an zu verwenden, da es Bedenken gab, dass Einstelllimits/Mode im Flash-Speicher gespeichert würden. Sie können negative Werte für das Laden und positiv für das Einspeisen verwenden. Auf HUB 1200/2000 mit ACE 1500 können Sie \"smartMode\" verwenden, um zu verhindern, dass Wechselstrommodus das Schreiben an den Flash-Speicher auslöst. Überprüfen Sie das Readme für weitere Details oder nehmen Sie am ioBroker Forum teil.",
-        "ru": "Переломные изменения: Добавьте параметр управления «setDeviceAutomationInOutLimit», который эмулирует режим Smart Matching от Zendure. Отныне я рекомендую использовать автоматизацию этого устройства вместо «setInputLimit» / «setOutputLimit», поскольку были опасения, что установка ограничений / режимов будет храниться во флэш-памяти. Вы можете использовать отрицательные значения для зарядки и положительные для подачи. На HUB 1200/2000 с ACE 1500 можно использовать «smartMode», чтобы предотвратить переключение записи в режиме переменного тока на флэш-память. Проверьте Readme для получения более подробной информации или участвуйте в форуме ioBroker.",
-        "pt": "Quebrar a Mudança: Adicionar parâmetro de controle 'setDeviceAutomationInOutLimit' que emula o modo Smart Matching da Zendure. Eu recomendo usar esta automação de dispositivo em vez de 'setInputLimit'/'setOutputLimit' a partir de agora, como havia preocupações de que definir limites/modos seria armazenado na memória flash. Você pode usar valores negativos para carregar e positivos para alimentação. Em HUB 1200/2000 com ACE 1500 você pode usar \"smartMode\" para evitar a ativação do modo AC de comutação de gravação para a memória flash. Confira o readme para mais detalhes ou participe no fórum ioBroker.",
-        "nl": "Verandering doorbreken: Voeg controleparameter 'setDeviceAutomationInOutLimit' toe die Zendure's Smart Matching-modus emuleert. Ik adviseer deze apparaatautomatisering vanaf nu te gebruiken in plaats van 'setInputLimit'/'setOutputLimit', omdat er bezorgdheid bestond dat het instellen van limieten/modi in het flitsgeheugen zou worden opgeslagen. U kunt negatieve waarden gebruiken voor het opladen en positief voor voer in. Op HUB 1200/2000 met ACE 1500 kunt u \"smartMode\" gebruiken om te voorkomen dat het schakelen van de AC-modus trigger schrijven naar het flitsgeheugen. Bekijk de readme voor meer details of neem deel aan het ioBroker forum.",
-        "fr": "Briser le changement : Ajouter le paramètre de contrôle 'setDeviceAutomationInOutLimit' qui émule le mode Smart Matching de Zendure. Je recommande d'utiliser cette automatisation de périphérique au lieu de 'setInputLimit'/'setOutputLimit' à partir de maintenant, car il y avait des préoccupations que le réglage des limites/modes serait stocké dans la mémoire flash. Vous pouvez utiliser des valeurs négatives pour la charge et positives pour l'alimentation. Sur HUB 1200/2000 avec ACE 1500, vous pouvez utiliser \"smartMode\" pour empêcher le passage de l'écriture du déclencheur en mode AC à la mémoire flash. Vérifiez la lecture pour plus de détails ou participez au forum ioBroker.",
-        "it": "Cambiamento di rottura: Aggiungi il parametro di controllo 'setDeviceAutomationInOutLimit' che emula la modalità Smart Matching di Zendure. Raccomando di utilizzare questo dispositivo di automazione invece di 'setInputLimit'/'setOutputLimit' da ora in poi, in quanto vi erano preoccupazioni che la regolazione dei limiti/modi sarebbe memorizzata nella memoria flash. È possibile utilizzare valori negativi per la ricarica e positivo per il feed in. Su HUB 1200/2000 con ACE 1500 è possibile utilizzare \"smartMode\" per evitare di commutare la modalità AC di attivare la scrittura alla memoria flash. Controlla il readme per maggiori dettagli o partecipa al forum ioBroker.",
-        "es": "Cambio de ruptura: Añadir parámetro de control 'setDeviceAutomationInOutLimit' que emula el modo Smart Matching de Zendure. Recomiendo usar esta automatización de dispositivos en lugar de 'setInputLimit'/'setOutputLimit' a partir de ahora, ya que había preocupaciones de que fijar límites/modes se almacenarían en la memoria flash. Puede utilizar valores negativos para cargar y positivos para alimentarse. En HUB 1200/2000 con ACE 1500 se puede utilizar \"smartMode\" para evitar cambiar el modo AC activando la escritura a la memoria flash. Comprueba la lectura para más detalles o participa en el foro ioBroker.",
-        "pl": "Łamanie zmian: Dodaj parametr sterowania 'setDeviceAutomationInOutLimit', który emuluje tryb inteligentnego dopasowywania Zhamb. Zalecam stosowanie automatyzacji tego urządzenia zamiast 'setInputLimit' / 'setOutputLimit' od teraz, ponieważ istniały obawy, że ustawianie limitów / trybów będzie przechowywane w pamięci flash. Możesz użyć wartości ujemnych do ładowania i dodatnich do podawania. W HUB 1200 / 2000 z ACE 1500 można użyć \"smartMode\", aby zapobiec przełączaniu zapisu trybu AC do pamięci flash. Sprawdź czytaj więcej szczegółów lub uczestnicz w forum jOBroker.",
-        "uk": "Зміна несправностей: Додавання параметра керування «setDeviceAutomationInOutLimit», який визначає режим Smart Matching Zendure. Я рекомендую використовувати цей пристрій автоматизації замість 'setInputLimit'/'setOutputLimit' відтепер, оскільки є побоювання, що налаштування лімітів/модів буде зберігатися в флеш-пам'яті. Ви можете використовувати негативні значення для зарядки та позитиву для живлення. На HUB 1200/2000 з ACE 1500 ви можете використовувати \"smartMode\" для запобігання перемикання режиму змінного струму, що тривають на флеш-пам'ять. Перевірити читання для отримання більш детальної інформації або участі в форумі ioBroker.",
-        "zh-cn": "中断更改 : 添加模拟 Zendure 智能匹配模式的控制参数“ set DeviceAutomation InOutLimit ” 。 我建议从现在开始使用这个设备自动化, 而不是“ setInputLimit ” /“ setOutputLimit ” , 因为有人担心设定限制/ modes会存储在闪存中 。 可以使用负值充电,正值用于饲料输入. 在 HUB 1200/2000 与 ACE 1500 可以使用\"smartMode\"来防止将 AC 模式触发写入到闪存中. 请检查access-date=中的日期值 (帮助) 更多细节或参加ioBroker论坛."
       }
     },
     "titleLang": {
