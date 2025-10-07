@@ -925,6 +925,12 @@ class ZenHaDevice {
         (/* @__PURE__ */ new Date()).getTime(),
         true
       ));
+      const currentWifiState = await this.adapter.getStateAsync(
+        `${this.productKey}.${this.deviceKey}.wifiState`
+      );
+      if (currentWifiState && currentWifiState.val == "Disconnected") {
+        this.updateSolarFlowState("wifiState", "Connected");
+      }
     }
   }
   async updateSolarFlowControlState(state, val) {

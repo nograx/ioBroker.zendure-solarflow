@@ -76,12 +76,12 @@ export const startCheckStatesAndConnectionJob = async (
       );
 
       const fiveMinutesAgo = (Date.now() / 1000 - 5 * 60) * 1000; // Five minutes ago
-      const thirtyMinutesAgo = (Date.now() / 1000 - 30 * 60) * 1000; // Thirty minutes ago
+      const tenMinutesAgo = (Date.now() / 1000 - 10 * 60) * 1000; // Thirty minutes ago
 
       if (
         lastUpdate &&
         lastUpdate.val &&
-        Number(lastUpdate.val) < thirtyMinutesAgo &&
+        Number(lastUpdate.val) < tenMinutesAgo &&
         wifiState?.val == "Connected" &&
         adapter.config.connectionMode == "authKey"
       ) {
@@ -101,7 +101,7 @@ export const startCheckStatesAndConnectionJob = async (
       } else if (
         lastUpdate &&
         lastUpdate.val &&
-        Number(lastUpdate.val) < thirtyMinutesAgo &&
+        Number(lastUpdate.val) < tenMinutesAgo &&
         wifiState?.val == "Connected" &&
         adapter.config.connectionMode == "local"
       ) {
@@ -114,8 +114,6 @@ export const startCheckStatesAndConnectionJob = async (
         );
 
         device?.updateSolarFlowState("wifiState", "Disconnected");
-      } else {
-        device?.updateSolarFlowState("wifiState", "Connected");
       }
 
       if (

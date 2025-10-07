@@ -78,8 +78,8 @@ const startCheckStatesAndConnectionJob = async (adapter) => {
         device.productKey + "." + device.deviceKey + ".wifiState"
       ));
       const fiveMinutesAgo = (Date.now() / 1e3 - 5 * 60) * 1e3;
-      const thirtyMinutesAgo = (Date.now() / 1e3 - 30 * 60) * 1e3;
-      if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < thirtyMinutesAgo && (wifiState == null ? void 0 : wifiState.val) == "Connected" && adapter.config.connectionMode == "authKey") {
+      const tenMinutesAgo = (Date.now() / 1e3 - 10 * 60) * 1e3;
+      if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < tenMinutesAgo && (wifiState == null ? void 0 : wifiState.val) == "Connected" && adapter.config.connectionMode == "authKey") {
         adapter.log.warn(
           `[checkStatesJob] Last update for deviceKey ${device.deviceKey} was at ${new Date(
             Number(lastUpdate.val)
@@ -88,15 +88,13 @@ const startCheckStatesAndConnectionJob = async (adapter) => {
         await adapter.delay(20 * 1e3);
         adapter.restart();
         refreshAccessTokenNeeded = true;
-      } else if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < thirtyMinutesAgo && (wifiState == null ? void 0 : wifiState.val) == "Connected" && adapter.config.connectionMode == "local") {
+      } else if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < tenMinutesAgo && (wifiState == null ? void 0 : wifiState.val) == "Connected" && adapter.config.connectionMode == "local") {
         adapter.log.warn(
           `[checkStatesJob] Last update for deviceKey ${device.deviceKey} was at ${new Date(
             Number(lastUpdate.val)
           )}, set Wifi state to Disconnected!`
         );
         device == null ? void 0 : device.updateSolarFlowState("wifiState", "Disconnected");
-      } else {
-        device == null ? void 0 : device.updateSolarFlowState("wifiState", "Connected");
       }
       if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < fiveMinutesAgo && !refreshAccessTokenNeeded) {
         adapter.log.debug(

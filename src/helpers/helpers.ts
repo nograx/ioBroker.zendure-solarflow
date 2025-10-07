@@ -16,7 +16,14 @@ export const createDeviceModel = (
   _productKey: string,
   _deviceKey: string,
   _zenHaDeviceDetails?: IZenHaDeviceDetails
-): Ace1500 | Hyper2000 | Sf2400Ac | undefined => {
+):
+  | SfHub1200
+  | SfHub2000
+  | Ace1500
+  | Hyper2000
+  | Sf2400Ac
+  | Sf800
+  | undefined => {
   switch (_productKey.toLowerCase()) {
     case "73bktv":
       return new SfHub1200(
