@@ -137,6 +137,12 @@ class ZenHaDevice {
                   (/* @__PURE__ */ new Date()).getTime(),
                   true
                 ));
+                const currentWifiState = await this.adapter.getStateAsync(
+                  `${this.productKey}.${this.deviceKey}.wifiState`
+                );
+                if (currentWifiState && currentWifiState.val == "Disconnected") {
+                  this.updateSolarFlowState("wifiState", "Connected");
+                }
               }
               await ((_j = this.adapter) == null ? void 0 : _j.extendObject(key + ".maxTemp", {
                 type: "state",
@@ -171,6 +177,12 @@ class ZenHaDevice {
                   (/* @__PURE__ */ new Date()).getTime(),
                   true
                 ));
+                const currentWifiState = await this.adapter.getStateAsync(
+                  `${this.productKey}.${this.deviceKey}.wifiState`
+                );
+                if (currentWifiState && currentWifiState.val == "Disconnected") {
+                  this.updateSolarFlowState("wifiState", "Connected");
+                }
               }
               await ((_n = this.adapter) == null ? void 0 : _n.extendObject(key + ".minVol", {
                 type: "state",
@@ -214,6 +226,12 @@ class ZenHaDevice {
                   (/* @__PURE__ */ new Date()).getTime(),
                   true
                 ));
+                const currentWifiState = await this.adapter.getStateAsync(
+                  `${this.productKey}.${this.deviceKey}.wifiState`
+                );
+                if (currentWifiState && currentWifiState.val == "Disconnected") {
+                  this.updateSolarFlowState("wifiState", "Connected");
+                }
               }
               await ((_t = this.adapter) == null ? void 0 : _t.extendObject(key + ".maxVol", {
                 type: "state",
@@ -241,6 +259,12 @@ class ZenHaDevice {
                   (/* @__PURE__ */ new Date()).getTime(),
                   true
                 ));
+                const currentWifiState = await this.adapter.getStateAsync(
+                  `${this.productKey}.${this.deviceKey}.wifiState`
+                );
+                if (currentWifiState && currentWifiState.val == "Disconnected") {
+                  this.updateSolarFlowState("wifiState", "Connected");
+                }
               }
               await ((_x = this.adapter) == null ? void 0 : _x.extendObject(key + ".totalVol", {
                 type: "state",
@@ -855,8 +879,8 @@ class ZenHaDevice {
         limit = 0;
       } else if (limit > 0 && limit <= 30) {
         limit = 30;
-      } else if (limit > -this.maxInputLimit) {
-        limit = -this.maxInputLimit;
+      } else if (limit > this.maxInputLimit) {
+        limit = this.maxInputLimit;
       }
       if (this.productKey.includes("8bm93h")) {
         limit = Math.ceil(limit / 100) * 100;
