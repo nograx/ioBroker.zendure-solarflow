@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "3.0.3",
+    "version": "3.0.4",
     "news": {
+      "3.0.4": {
+        "en": "Fix inputLimit issue\nFix Wifi status not updating when packData changes",
+        "de": "InputLimit Problem beheben\nWifi-Status nicht aktualisieren, wenn packData Änderungen",
+        "ru": "Исправить ошибку inputLimit issue\nСтатус Wi-Fi не обновляется при изменении пакетных данных",
+        "pt": "Corrigir a entradaLimit issue\nCorrigir o estado do Wifi não actualizado quando o pacote de dados mudar",
+        "nl": "Fix inputLimit probleem\nFix Wifi-status niet bijwerken wanneer packData wijzigingen",
+        "fr": "Correction du problème d'entréeLimit\nCorrection de l'état Wifi non mis à jour lorsque le paquetLes données changent",
+        "it": "Risolvere il numero di inputLimit\nFissare lo stato Wifi non aggiornando quando PackData cambia",
+        "es": "Corrección de entrada\nFijar el estado de Wifi no actualizar cuando el paqueteLos cambios de datos",
+        "pl": "Fix inputLimit wydania\nNaprawianie stanu Wifi nie aktualizuje się przy zmianie PackData",
+        "uk": "Виправлення вхідного номера\nВиправлення стану Wifi не оновлення при зміні пакетаData",
+        "zh-cn": "修正输入范围\nBackData 更改时不更新 Wifi 状态"
+      },
       "3.0.3": {
         "en": "Optimize setting of wifiMode in local mode\nOptimize Debug option",
         "de": "Optimieren Sie die Einstellung von wifiMode im lokalen Modus\nOptimierung der Debug-Option",
@@ -80,19 +93,6 @@
         "pl": "Dodano \"B3Dxda\" jako nowy klucz urządzenia Hyper 2000. Usunięto parametr 'upTime' i 'pullTime' z 'setDeviceAutomationInOutLimit'. TEST: Użyj 'setDeviceAutomationInOutLimit', aby umożliwić ładowanie HUB1200/HUB2000 z podłączonym ACE 1500.",
         "uk": "Додано 'B3Dxda' як новий Hyper 2000 productKey. Видалено параметри 'upTime' та 'pullTime' з 'setDeviceAutomationInOutLimit'. ТЕСТ: Використовуйте 'setDeviceAutomationInOutLimit', щоб дозволити HUB1200/HUB2000 заряджатися з підключеним ACE 1500",
         "zh-cn": "Added 'B3Dxda' as new Hyper 2000 productKey. Removed parameter 'upTime' and 'pullTime' from 'setDeviceAutomationInOutLimit'. TEST: Use 'setDeviceAutomationInOutLimit' to let HUB1200/HUB2000 charge with connected ACE 1500"
-      },
-      "2.0.1": {
-        "en": "Small fix MQTT service",
-        "de": "Kleiner MQTT-Service",
-        "ru": "Небольшой ремонт MQTT",
-        "pt": "Pequeno serviço de correção MQTT",
-        "nl": "Kleine reparatie MQTT service",
-        "fr": "Petit service MQTT fixe",
-        "it": "Servizio MQTT piccolo fix",
-        "es": "Servicio de fijación pequeña MQTT",
-        "pl": "Usługa małej naprawy MQTT",
-        "uk": "Невелика фіксація MQTT сервіс",
-        "zh-cn": "小修补 MQTT 服务"
       }
     },
     "titleLang": {
