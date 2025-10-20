@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "3.0.5",
+    "version": "3.0.6",
     "news": {
+      "3.0.6": {
+        "en": "Fix creation of SF 800 Pro device",
+        "de": "Feste Erstellung von SF 800 Pro Gerät",
+        "ru": "Создание SF 800 Устройство Pro",
+        "pt": "Fixar a criação de SF 800 Dispositivo Pro",
+        "nl": "Fix creatie van SF 800 Pro apparaat",
+        "fr": "Correction de la création de SF 800 Appareil pro",
+        "it": "Creazione fissa di SF 800 Dispositivo Pro",
+        "es": "Creación fija de SF 800 Dispositivo Pro",
+        "pl": "Popraw tworzenie SF 800 Urządzenie Pro",
+        "uk": "Фіксація створення SF 800 Про пристрій",
+        "zh-cn": "固定创建 SF 800 Pro 设备"
+      },
       "3.0.5": {
         "en": "Add some more log information on device creation",
         "de": "Fügen Sie weitere Log-Informationen zur Geräteerstellung hinzu",
@@ -80,19 +93,6 @@
         "pl": "Łamanie zmian: Zmień uwierzytelnianie na \"klucz do uwierzytelniania w chmurze\". Możesz wygenerować klucz w oficjalnej aplikacji Zabb\nUsunięto serwer awaryjny\nDodaj deviceKey 'a4ss5P' dla Solarflow 800\nZmień dużo kodu",
         "uk": "Зміна несправностей: Зміна автентифікації на \"автентифікаційний ключ хмари\". Ви можете генерувати ключ в офіційному додатку zendure\nВидалити резервний сервер\nДодати пристрійKey 'a4ss5P' для Solarflow 800\nРефактор багато коду",
         "zh-cn": "中断更改 : 认证改为\"认证云密钥\". 您可以在正式 Zendure app 中生成密钥\n删除后退服务器\n为 Solarflow 800 添加设备Key 'a4ss5P'\n重构很多代码"
-      },
-      "2.0.4": {
-        "en": "Fix creation of control states on new Hyper 2000 v3\nUpdates dependencies",
-        "de": "Behebung der Erstellung von Steuerungszuständen auf dem neuen Hyper 2000 v3\nAktualisiert Abhängigkeiten",
-        "ru": "Исправлена создания состояний управления на новом Hyper 2000 v3\nОбновлены зависимости",
-        "pt": "Correção da criação de estados de controle no novo Hyper 2000 v3\nAtualiza dependências",
-        "nl": "Oplossing voor het aanmaken van bedieningstoestanden op nieuwe Hyper 2000 v3\nWerk dependencies bij",
-        "fr": "Corriger la création des états de contrôle sur le nouveau Hyper 2000 v3\nMise à jour des dépendances",
-        "it": "Correzione della creazione degli stati di controllo su Hyper 2000 v3\nAggiornamento delle dipendenze",
-        "es": "Corregir la creación de estados de control en el nuevo Hyper 2000 v3.\nActualización de dependencias",
-        "pl": "Napraw utworzenie stanów kontrolnych w nowym Hyper 2000 v3\nAktualizacja zależności",
-        "uk": "Виправлення створення станів управління на новому Hyper 2000 v3.\nОновлення залежностей",
-        "zh-cn": "修复在新的Hyper 2000 v3上创建控制状态\n更新依赖项"
       }
     },
     "titleLang": {
