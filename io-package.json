@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "3.0.6",
+    "version": "3.0.7",
     "news": {
+      "3.0.7": {
+        "en": "Fix creation of SF 800 Pro device",
+        "de": "Feste Erstellung von SF 800 Pro Gerät",
+        "ru": "Создание SF 800 Устройство Pro",
+        "pt": "Fixar a criação de SF 800 Dispositivo Pro",
+        "nl": "Fix creatie van SF 800 Pro apparaat",
+        "fr": "Correction de la création de SF 800 Appareil pro",
+        "it": "Creazione fissa di SF 800 Dispositivo Pro",
+        "es": "Creación fija de SF 800 Dispositivo Pro",
+        "pl": "Popraw tworzenie SF 800 Urządzenie Pro",
+        "uk": "Фіксація створення SF 800 Про пристрій",
+        "zh-cn": "固定创建 SF 800 Pro 设备"
+      },
       "3.0.5": {
         "en": "Add some more log information on device creation",
         "de": "Fügen Sie weitere Log-Informationen zur Geräteerstellung hinzu",
