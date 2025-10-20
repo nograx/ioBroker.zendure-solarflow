@@ -6,6 +6,7 @@ import { Aio2400 } from "../models/deviceModels/Aio2400";
 import { Hyper2000 } from "../models/deviceModels/Hyper2000";
 import { Sf2400Ac } from "../models/deviceModels/Sf2400Ac";
 import { Sf800 } from "../models/deviceModels/Sf800";
+import { Sf800Pro } from "../models/deviceModels/Sf800Pro";
 import { SfHub1200 } from "../models/deviceModels/SfHub1200";
 import { SfHub2000 } from "../models/deviceModels/SfHub2000";
 
@@ -157,14 +158,16 @@ export const createDeviceModel = (
       _adapter.log.debug(
         `[onReady] Creating deviceModel SF 800 Pro ${_productKey}`
       );
-      return new Sf800(
+      return new Sf800Pro(
         _adapter,
         _productKey,
         _deviceKey,
         _zenHaDeviceDetails
           ? _zenHaDeviceDetails.productModel
-          : "Solarflow 800",
-        _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "Solarflow 800",
+          : "Solarflow 800 Pro",
+        _zenHaDeviceDetails
+          ? _zenHaDeviceDetails.deviceName
+          : "Solarflow 800 Pro",
         _zenHaDeviceDetails
       );
     default:

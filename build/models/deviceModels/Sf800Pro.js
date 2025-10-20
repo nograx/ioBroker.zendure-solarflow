@@ -18,13 +18,13 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var Sf800Pro_exports = {};
 __export(Sf800Pro_exports, {
-  Sf800: () => Sf800
+  Sf800Pro: () => Sf800Pro
 });
 module.exports = __toCommonJS(Sf800Pro_exports);
 var import_solarflow800ProControlStates = require("../../constants/solarflow800ProControlStates");
 var import_solarflow800ProStates = require("../../constants/solarflow800ProStates");
 var import_ZenHaDevice = require("./ZenHaDevice");
-class Sf800 extends import_ZenHaDevice.ZenHaDevice {
+class Sf800Pro extends import_ZenHaDevice.ZenHaDevice {
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {
     super(
       _adapter,
@@ -139,6 +139,6 @@ class Sf800 extends import_ZenHaDevice.ZenHaDevice {
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  Sf800
+  Sf800Pro
 });
 //# sourceMappingURL=Sf800Pro.js.map

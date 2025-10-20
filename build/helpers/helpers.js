@@ -26,6 +26,7 @@ var import_Aio2400 = require("../models/deviceModels/Aio2400");
 var import_Hyper2000 = require("../models/deviceModels/Hyper2000");
 var import_Sf2400Ac = require("../models/deviceModels/Sf2400Ac");
 var import_Sf800 = require("../models/deviceModels/Sf800");
+var import_Sf800Pro = require("../models/deviceModels/Sf800Pro");
 var import_SfHub1200 = require("../models/deviceModels/SfHub1200");
 var import_SfHub2000 = require("../models/deviceModels/SfHub2000");
 const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetails) => {
@@ -154,12 +155,12 @@ const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetail
       _adapter.log.debug(
         `[onReady] Creating deviceModel SF 800 Pro ${_productKey}`
       );
-      return new import_Sf800.Sf800(
+      return new import_Sf800Pro.Sf800Pro(
         _adapter,
         _productKey,
         _deviceKey,
-        _zenHaDeviceDetails ? _zenHaDeviceDetails.productModel : "Solarflow 800",
-        _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "Solarflow 800",
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.productModel : "Solarflow 800 Pro",
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "Solarflow 800 Pro",
         _zenHaDeviceDetails
       );
     default:

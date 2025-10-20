@@ -5,7 +5,7 @@ import { IHemsEpPayload } from "../IDeviceAutomationPayload";
 import { IZenHaDeviceDetails } from "../IZenHaDeviceDetails";
 import { ZenHaDevice } from "./ZenHaDevice";
 
-export class Sf800 extends ZenHaDevice {
+export class Sf800Pro extends ZenHaDevice {
   maxInputLimit = 800;
   maxOutputLimit = 800;
 
