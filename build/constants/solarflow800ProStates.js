@@ -110,6 +110,13 @@ const solarflow800ProStates = import_sharedStates.sharedStates.concat([
       1: "AC input mode",
       2: "AC output mode"
     }
+  },
+  {
+    title: "smartMode",
+    nameDe: "Smart Mode",
+    nameEn: "Smart Mode",
+    type: "boolean",
+    role: "value"
   }
 ]);
 // Annotate the CommonJS export names for ESM import in node:

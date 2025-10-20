@@ -170,4 +170,13 @@ export const solarflow800ProControlStates: ISolarflowState[] = [
     min: 0,
     unit: "W",
   },
+  {
+    nameDe: "Smart Mode",
+    nameEn: "Smart Mode",
+    type: "boolean",
+    title: "smartMode",
+    role: "switch",
+    read: true,
+    write: true,
+  },
 ];
