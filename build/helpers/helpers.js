@@ -150,9 +150,9 @@ const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetail
         _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "Solarflow 800",
         _zenHaDeviceDetails
       );
-    case "R3mn8U":
+    case "r3mn8u":
       _adapter.log.debug(
-        `[onReady] Creating deviceModel SF 800 ${_productKey}`
+        `[onReady] Creating deviceModel SF 800 Pro ${_productKey}`
       );
       return new import_Sf800.Sf800(
         _adapter,
