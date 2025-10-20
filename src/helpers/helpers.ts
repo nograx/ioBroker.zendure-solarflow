@@ -26,6 +26,9 @@ export const createDeviceModel = (
   | undefined => {
   switch (_productKey.toLowerCase()) {
     case "73bktv":
+      _adapter.log.debug(
+        `[onReady] Creating deviceModel HUB 1200 ${_productKey}`
+      );
       return new SfHub1200(
         _adapter,
         _productKey,
@@ -35,6 +38,9 @@ export const createDeviceModel = (
         _zenHaDeviceDetails
       );
     case "a8yh63":
+      _adapter.log.debug(
+        `[onReady] Creating deviceModel HUB 2000 ${_productKey}`
+      );
       return new SfHub2000(
         _adapter,
         _productKey,
@@ -44,6 +50,9 @@ export const createDeviceModel = (
         _zenHaDeviceDetails
       );
     case "ywf7hv":
+      _adapter.log.debug(
+        `[onReady] Creating deviceModel AIO 2400 ${_productKey}`
+      );
       return new Aio2400(
         _adapter,
         _productKey,
@@ -53,6 +62,9 @@ export const createDeviceModel = (
         _zenHaDeviceDetails
       );
     case "ja72u0ha":
+      _adapter.log.debug(
+        `[onReady] Creating deviceModel Hyper 2000 ${_productKey}`
+      );
       return new Hyper2000(
         _adapter,
         _productKey,
@@ -62,6 +74,9 @@ export const createDeviceModel = (
         _zenHaDeviceDetails
       );
     case "gda3tb":
+      _adapter.log.debug(
+        `[onReady] Creating deviceModel Hyper 2000 ${_productKey}`
+      );
       return new Hyper2000(
         _adapter,
         _productKey,
@@ -71,6 +86,9 @@ export const createDeviceModel = (
         _zenHaDeviceDetails
       );
     case "b3dxda":
+      _adapter.log.debug(
+        `[onReady] Creating deviceModel Hyper 2000 ${_productKey}`
+      );
       return new Hyper2000(
         _adapter,
         _productKey,
@@ -80,6 +98,9 @@ export const createDeviceModel = (
         _zenHaDeviceDetails
       );
     case "8bm93h":
+      _adapter.log.debug(
+        `[onReady] Creating deviceModel ACE 1500 ${_productKey}`
+      );
       return new Ace1500(
         _adapter,
         _productKey,
@@ -89,6 +110,9 @@ export const createDeviceModel = (
         _zenHaDeviceDetails
       );
     case "bc8b7f":
+      _adapter.log.debug(
+        `[onReady] Creating deviceModel SF 2400 AC ${_productKey}`
+      );
       return new Sf2400Ac(
         _adapter,
         _productKey,
@@ -102,6 +126,9 @@ export const createDeviceModel = (
         _zenHaDeviceDetails
       );
     case "a4ss5P":
+      _adapter.log.debug(
+        `[onReady] Creating deviceModel SF 800 ${_productKey}`
+      );
       return new Sf800(
         _adapter,
         _productKey,
@@ -113,6 +140,9 @@ export const createDeviceModel = (
         _zenHaDeviceDetails
       );
     case "b1nhmc":
+      _adapter.log.debug(
+        `[onReady] Creating deviceModel SF 800 ${_productKey}`
+      );
       return new Sf800(
         _adapter,
         _productKey,
@@ -124,6 +154,9 @@ export const createDeviceModel = (
         _zenHaDeviceDetails
       );
     case "R3mn8U":
+      _adapter.log.debug(
+        `[onReady] Creating deviceModel SF 800 ${_productKey}`
+      );
       return new Sf800(
         _adapter,
         _productKey,

@@ -31,6 +31,9 @@ var import_SfHub2000 = require("../models/deviceModels/SfHub2000");
 const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetails) => {
   switch (_productKey.toLowerCase()) {
     case "73bktv":
+      _adapter.log.debug(
+        `[onReady] Creating deviceModel HUB 1200 ${_productKey}`
+      );
       return new import_SfHub1200.SfHub1200(
         _adapter,
         _productKey,
@@ -40,6 +43,9 @@ const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetail
         _zenHaDeviceDetails
       );
     case "a8yh63":
+      _adapter.log.debug(
+        `[onReady] Creating deviceModel HUB 2000 ${_productKey}`
+      );
       return new import_SfHub2000.SfHub2000(
         _adapter,
         _productKey,
@@ -49,6 +55,9 @@ const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetail
         _zenHaDeviceDetails
       );
     case "ywf7hv":
+      _adapter.log.debug(
+        `[onReady] Creating deviceModel AIO 2400 ${_productKey}`
+      );
       return new import_Aio2400.Aio2400(
         _adapter,
         _productKey,
@@ -58,6 +67,9 @@ const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetail
         _zenHaDeviceDetails
       );
     case "ja72u0ha":
+      _adapter.log.debug(
+        `[onReady] Creating deviceModel Hyper 2000 ${_productKey}`
+      );
       return new import_Hyper2000.Hyper2000(
         _adapter,
         _productKey,
@@ -67,6 +79,9 @@ const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetail
         _zenHaDeviceDetails
       );
     case "gda3tb":
+      _adapter.log.debug(
+        `[onReady] Creating deviceModel Hyper 2000 ${_productKey}`
+      );
       return new import_Hyper2000.Hyper2000(
         _adapter,
         _productKey,
@@ -76,6 +91,9 @@ const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetail
         _zenHaDeviceDetails
       );
     case "b3dxda":
+      _adapter.log.debug(
+        `[onReady] Creating deviceModel Hyper 2000 ${_productKey}`
+      );
       return new import_Hyper2000.Hyper2000(
         _adapter,
         _productKey,
@@ -85,6 +103,9 @@ const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetail
         _zenHaDeviceDetails
       );
     case "8bm93h":
+      _adapter.log.debug(
+        `[onReady] Creating deviceModel ACE 1500 ${_productKey}`
+      );
       return new import_Ace1500.Ace1500(
         _adapter,
         _productKey,
@@ -94,6 +115,9 @@ const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetail
         _zenHaDeviceDetails
       );
     case "bc8b7f":
+      _adapter.log.debug(
+        `[onReady] Creating deviceModel SF 2400 AC ${_productKey}`
+      );
       return new import_Sf2400Ac.Sf2400Ac(
         _adapter,
         _productKey,
@@ -103,6 +127,9 @@ const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetail
         _zenHaDeviceDetails
       );
     case "a4ss5P":
+      _adapter.log.debug(
+        `[onReady] Creating deviceModel SF 800 ${_productKey}`
+      );
       return new import_Sf800.Sf800(
         _adapter,
         _productKey,
@@ -112,6 +139,9 @@ const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetail
         _zenHaDeviceDetails
       );
     case "b1nhmc":
+      _adapter.log.debug(
+        `[onReady] Creating deviceModel SF 800 ${_productKey}`
+      );
       return new import_Sf800.Sf800(
         _adapter,
         _productKey,
@@ -121,6 +151,9 @@ const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetail
         _zenHaDeviceDetails
       );
     case "R3mn8U":
+      _adapter.log.debug(
+        `[onReady] Creating deviceModel SF 800 ${_productKey}`
+      );
       return new import_Sf800.Sf800(
         _adapter,
         _productKey,

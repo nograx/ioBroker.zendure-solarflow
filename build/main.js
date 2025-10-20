@@ -130,6 +130,10 @@ class ZendureSolarflow extends utils.Adapter {
             );
             if (deviceModel) {
               this.zenHaDeviceList.push(deviceModel);
+            } else {
+              this.log.error(
+                `[onReady] Error creating device with productKey '${device.productKey}' / deviceKey '${device.deviceKey} / productModel ${device.productModel}'`
+              );
             }
           });
         }
