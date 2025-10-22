@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "3.0.7",
+    "version": "3.0.8",
     "news": {
+      "3.0.8": {
+        "en": "Fix missing smartMode state for SF 800 Pro",
+        "de": "Fehlerbehebung Smart Modezustand für SF 800 Pro",
+        "ru": "Исправить недостающие умные Режим работы для SF 800 Pro",
+        "pt": "Corrigir a falta de inteligência Estado do modo para SF 800 Pro",
+        "nl": "Smart herstellen Modusstatus voor SF 800 Pro",
+        "fr": "Correction manquante smart État du mode pour SF 800 Pro",
+        "it": "Risolvere intelligente mancante Stato di modalità per SF 800 Pro",
+        "es": "Arreglar perdido inteligente Mode state for SF 800 Pro",
+        "pl": "Popraw brakujące inteligentne Stan trybu dla SF 800 Pro",
+        "uk": "Виправлення відсутній смарт Статус на сервери",
+        "zh-cn": "修复丢失的智能 SF800 Pro 模式状态"
+      },
       "3.0.7": {
         "en": "Fix creation of SF 800 Pro device",
         "de": "Feste Erstellung von SF 800 Pro Gerät",
@@ -80,19 +93,6 @@
         "pl": "Aktualizuj 'lastUpdate', gdy zmienia się wartość baterii\nDodaj deviceKey 'R3mn8U' dla Solarflow 800 Pro",
         "uk": "Оновлення \"lastUpdate\" при зміні значення батареї\nДодати пристрійKey 'R3mn8U' для Solarflow 800 Pro",
         "zh-cn": "当电池值改变时更新“ last Update ”\n为 Solarflow 800 Pro 添加设备Key “ R3mn8U ”"
-      },
-      "3.0.0": {
-        "en": "Breaking Change: Change authentication to \"authentication cloud key\". You can generate a key in the official zendure app\nRemoved fallback server\nAdd deviceKey 'a4ss5P' for Solarflow 800\nRefactor a lot of code",
-        "de": "Veränderung: Ändern Sie die Authentifizierung auf \"Authentifizierungs-Cloud-Taste\". Sie können einen Schlüssel in der offiziellen Zendure-App generieren\nEntfernen von Fallback-Server\nGerät hinzufügenKey 'a4ss5P' für Solarflow 800\nRefactor eine Menge Code",
-        "ru": "Переломные изменения: Измените аутентификацию на «облачный ключ аутентификации». Вы можете создать ключ в официальном приложении zendure\nУдаленный сервер Fallback\nДобавить устройствоKey ‘a4ss5P для Solarflow 800\nРефактор много кода",
-        "pt": "Quebrar a Mudança: Alterar autenticação para \"chave de nuvem de autenticação\". Você pode gerar uma chave no aplicativo oficial zendure\nServidor de reserva removido\nAdicionar dispositivoKey 'a4ss5P' para Solarflow 800\nRefactorar um monte de código",
-        "nl": "Verandering doorbreken: Authenticatie wijzigen naar \"authentication cloud key.\" U kunt een sleutel genereren in de officiële zindure app\nTerugvalserver verwijderd\nApparaat toevoegenKey 'a4ss5P' voor Solarflow 800\nRefactor veel code",
-        "fr": "Briser le changement : Changez l'authentification en \"clé de nuage d'authentification\". Vous pouvez générer une clé dans l'application officielle zendure\nServeur de repli supprimé\nAjouter la clé 'a4ss5P' pour Solarflow 800\nRefactor beaucoup de code",
-        "it": "Cambiamento di rottura: Modificare l'autenticazione a \"chiave cloud di autenticazione\". È possibile generare una chiave nell'app ufficiale zendure\nServer di failback rimosso\nAggiungi dispositivoKey 'a4ss5P' per Solarflow 800\nRefactor un sacco di codice",
-        "es": "Cambio de ruptura: Cambiar la autenticación a \"la clave de nube de autenticación\". Usted puede generar una clave en la aplicación oficial de zendure\nServidor de retroceso eliminado\nAñadir dispositivoKey 'a4s5P' para el flujo solar 800\nRefactor mucho código",
-        "pl": "Łamanie zmian: Zmień uwierzytelnianie na \"klucz do uwierzytelniania w chmurze\". Możesz wygenerować klucz w oficjalnej aplikacji Zabb\nUsunięto serwer awaryjny\nDodaj deviceKey 'a4ss5P' dla Solarflow 800\nZmień dużo kodu",
-        "uk": "Зміна несправностей: Зміна автентифікації на \"автентифікаційний ключ хмари\". Ви можете генерувати ключ в офіційному додатку zendure\nВидалити резервний сервер\nДодати пристрійKey 'a4ss5P' для Solarflow 800\nРефактор багато коду",
-        "zh-cn": "中断更改 : 认证改为\"认证云密钥\". 您可以在正式 Zendure app 中生成密钥\n删除后退服务器\n为 Solarflow 800 添加设备Key 'a4ss5P'\n重构很多代码"
       }
     },
     "titleLang": {
