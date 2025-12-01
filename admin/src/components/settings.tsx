@@ -1,54 +1,20 @@
 /* eslint-disable @typescript-eslint/indent */
 import React, { useEffect, useState } from "react";
-
-// Import material UI
-import { withStyles } from "@material-ui/core/styles";
-import { CreateCSSProperties } from "@material-ui/core/styles/withStyles";
-import TextField from "@material-ui/core/TextField";
-import Input from "@material-ui/core/Input";
-import FormControl from "@material-ui/core/FormControl";
-import Select from "@material-ui/core/Select";
-import MenuItem from "@material-ui/core/MenuItem";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Checkbox from "@material-ui/core/Checkbox";
+import {
+  Box,
+  TextField,
+  Input,
+  FormControl,
+  Select,
+  MenuItem,
+  FormControlLabel,
+  Checkbox,
+  FormLabel,
+} from "@mui/material";
 
 // Import I18n
 import I18n from "@iobroker/adapter-react/i18n";
 import GenericApp from "@iobroker/adapter-react/GenericApp";
-import { FormLabel } from "@material-ui/core";
-
-const styles = (): Record<string, CreateCSSProperties> => ({
-  input: {
-    marginTop: 0,
-    minWidth: 400,
-  },
-  button: {
-    marginRight: 20,
-  },
-  card: {
-    maxWidth: 345,
-    textAlign: "center",
-  },
-  media: {
-    height: 180,
-  },
-  column: {
-    display: "inline-block",
-    verticalAlign: "top",
-    marginRight: 20,
-  },
-  columnLogo: {
-    width: 350,
-    marginRight: 0,
-  },
-  columnSettings: {
-    width: "calc(100% - 370px)",
-  },
-  controlElement: {
-    //background: "#d2d2d2",
-    marginBottom: 5,
-  },
-});
 
 const productKeys: { value; title }[] = [
   { value: "73bkTV", title: "HUB 1200 (73bkTV)" },
@@ -65,7 +31,6 @@ const productKeys: { value; title }[] = [
 
 interface SettingsProps {
   app: GenericApp;
-  classes: Record<string, string>;
   native: Record<string, any>;
   onChange: (attr: string, value: any) => void;
 }
@@ -85,11 +50,20 @@ function Settings(props: SettingsProps) {
     props.onChange("password", password);
   }, [password]);
 
+  const inputSx = {
+    marginTop: 0,
+    minWidth: 400,
+  };
+
+  const controlElementSx = {
+    marginBottom: 1,
+  };
+
   function renderInput(attr: string, type: string, placeholder?: string) {
     return (
       <TextField
         autoComplete="off"
-        className={`${props.classes.input} ${props.classes.controlElement}`}
+        sx={{ ...inputSx, ...controlElementSx }}
         value={props.native[attr]}
         type={type || "text"}
         onChange={(e) => props.onChange(attr, e.target.value)}
@@ -101,17 +75,10 @@ function Settings(props: SettingsProps) {
 
   function renderSelect(
     attr: string,
-    options: { value: string; title: AdminWord }[],
-    style?: React.CSSProperties
+    options: { value: string; title: AdminWord }[]
   ) {
     return (
-      <FormControl
-        className={`${props.classes.input} ${props.classes.controlElement}`}
-        style={{
-          paddingTop: 5,
-          ...style,
-        }}
-      >
+      <FormControl sx={{ ...inputSx, ...controlElementSx, pt: 0.625 }}>
         <Select
           value={props.native[attr] || "_"}
           onChange={(e) =>
@@ -129,19 +96,11 @@ function Settings(props: SettingsProps) {
     );
   }
 
-  function renderCheckbox(
-    title: AdminWord,
-    attr: string,
-    style?: React.CSSProperties
-  ) {
+  function renderCheckbox(title: AdminWord, attr: string) {
     return (
       <FormControlLabel
         key={attr}
-        style={{
-          paddingTop: 5,
-          ...style,
-        }}
-        className={props.classes.controlElement}
+        sx={{ ...controlElementSx, pt: 0.625 }}
         control={
           <Checkbox
             checked={props.native[attr]}
@@ -155,15 +114,15 @@ function Settings(props: SettingsProps) {
   }
 
   return (
-    <div style={{ margin: 20 }}>
+    <Box sx={{ margin: 2.5 }}>
       <h3>{I18n.t("donateHeader")}</h3>
-      <div style={{ marginTop: 20 }}>
+      <Box sx={{ marginTop: 2.5 }}>
         {I18n.t("donate1")}
 
         <br />
         {I18n.t("donate2")}
-      </div>
-      <div style={{ marginTop: 20 }}>
+      </Box>
+      <Box sx={{ marginTop: 2.5 }}>
         <a
           href="https://www.paypal.com/paypalme/PeterFrommert"
           target="_blank"
@@ -177,135 +136,131 @@ function Settings(props: SettingsProps) {
             }
           ></img>
         </a>
-      </div>
+      </Box>
 
-      <form autoComplete="off" className={props.classes.tab}>
-        <div style={{ marginBottom: 20 }}>
+      <form autoComplete="off">
+        <Box sx={{ marginBottom: 2.5 }}>
           <h3>{I18n.t("settings")}</h3>
-        </div>
-        <div>{I18n.t("settingsDesc")}</div>
+        </Box>
+        <Box>{I18n.t("settingsDesc")}</Box>
 
         {/* Connection mode Selection */}
-        <div style={{ marginTop: 30 }}>
+        <Box sx={{ marginTop: 3.75 }}>
           <FormLabel>{I18n.t("connectionMode")}:</FormLabel>
-          <div>
+          <Box>
             {renderSelect("connectionMode", [
               { value: "authKey", title: "authKey" },
               { value: "local", title: "local" },
             ])}
-          </div>
-        </div>
+          </Box>
+        </Box>
 
         {/* Auth Key */}
         {props.native["connectionMode"] == "authKey" && (
-          <div style={{ marginTop: 10 }}>
-            <div>
+          <Box sx={{ marginTop: 1.25 }}>
+            <Box>
               <FormLabel>{I18n.t("authKey")}:</FormLabel>
-            </div>
-            <div>{renderInput("authorizationCloudKey", "text")}</div>
-          </div>
+            </Box>
+            <Box>{renderInput("authorizationCloudKey", "text")}</Box>
+          </Box>
         )}
 
         {props.native["connectionMode"] == "local" && (
-          <div style={{ marginTop: 10 }}>
-            <div>
+          <Box sx={{ marginTop: 1.25 }}>
+            <Box>
               <FormLabel>{I18n.t("localMqttUrl")}:</FormLabel>
-            </div>
-            <div>{renderInput("localMqttUrl", "text")}</div>
-          </div>
+            </Box>
+            <Box>{renderInput("localMqttUrl", "text")}</Box>
+          </Box>
         )}
 
-        <div>{renderCheckbox("useRestart", "useRestart")}</div>
+        <Box>{renderCheckbox("useRestart", "useRestart")}</Box>
 
         {props.native["connectionMode"] == "local" && (
-          <div style={{ marginTop: 10 }}>
+          <Box sx={{ marginTop: 1.25 }}>
             {/* Device 1 Settings  */}
             <FormLabel>Device 1:</FormLabel>
-            <div
-              style={{
+            <Box
+              sx={{
                 display: "flex",
                 alignItems: "center",
-                verticalAlign: "middle",
               }}
             >
               {renderSelect("localDevice1ProductKey", productKeys)}
 
-              <div style={{ marginLeft: 10 }}>
+              <Box sx={{ marginLeft: 1.25 }}>
                 {renderInput("localDevice1DeviceKey", "text", "Device Key")}
-              </div>
-            </div>
-          </div>
+              </Box>
+            </Box>
+          </Box>
         )}
 
         {props.native["connectionMode"] == "local" &&
           props.native["localDevice1DeviceKey"] && (
-            <div style={{ marginTop: 10 }}>
-              {/* Device 1 Settings  */}
+            <Box sx={{ marginTop: 1.25 }}>
+              {/* Device 2 Settings  */}
               <FormLabel>Device 2:</FormLabel>
-              <div
-                style={{
+              <Box
+                sx={{
                   display: "flex",
                   alignItems: "center",
-                  verticalAlign: "middle",
                 }}
               >
                 {renderSelect("localDevice2ProductKey", productKeys)}
 
-                <div style={{ marginLeft: 10 }}>
+                <Box sx={{ marginLeft: 1.25 }}>
                   {renderInput("localDevice2DeviceKey", "text", "Device Key")}
-                </div>
-              </div>
-            </div>
+                </Box>
+              </Box>
+            </Box>
           )}
 
         {props.native["connectionMode"] == "local" &&
           props.native["localDevice2DeviceKey"] && (
-            <div style={{ marginTop: 10 }}>
-              {/* Device 1 Settings  */}
+            <Box sx={{ marginTop: 1.25 }}>
+              {/* Device 3 Settings  */}
               <FormLabel>Device 3:</FormLabel>
-              <div
-                style={{
+              <Box
+                sx={{
                   display: "flex",
                   alignItems: "center",
-                  verticalAlign: "middle",
                 }}
               >
                 {renderSelect("localDevice3ProductKey", productKeys)}
 
-                <div style={{ marginLeft: 10 }}>
+                <Box sx={{ marginLeft: 1.25 }}>
                   {renderInput("localDevice3DeviceKey", "text", "Device Key")}
-                </div>
-              </div>
-            </div>
+                </Box>
+              </Box>
+            </Box>
           )}
 
         {props.native["connectionMode"] == "local" &&
           props.native["localDevice3DeviceKey"] && (
-            <div style={{ marginTop: 10 }}>
-              {/* Device 1 Settings  */}
+            <Box sx={{ marginTop: 1.25 }}>
+              {/* Device 4 Settings  */}
               <FormLabel>Device 4:</FormLabel>
-              <div
-                style={{
+              <Box
+                sx={{
                   display: "flex",
                   alignItems: "center",
-                  verticalAlign: "middle",
                 }}
               >
                 {renderSelect("localDevice4ProductKey", productKeys)}
 
-                <div style={{ marginLeft: 10 }}>
+                <Box sx={{ marginLeft: 1.25 }}>
                   {renderInput("localDevice4DeviceKey", "text", "Device Key")}
-                </div>
-              </div>
-            </div>
+                </Box>
+              </Box>
+            </Box>
           )}
 
-        <div>{renderCheckbox("useCalculation", "useCalculation")}</div>
-        <div>{renderCheckbox("useLowVoltageBlock", "useLowVoltageBlock")}</div>
+        <Box>{renderCheckbox("useCalculation", "useCalculation")}</Box>
+        <Box>{renderCheckbox("useLowVoltageBlock", "useLowVoltageBlock")}</Box>
 
         {props.native["useLowVoltageBlock"] != undefined &&
           props.native["useLowVoltageBlock"] == true && (
-            <div>
+            <Box>
               {renderCheckbox(
                 "forceShutdownOnLowVoltage",
                 "forceShutdownOnLowVoltage"
@@ -313,20 +268,20 @@ function Settings(props: SettingsProps) {
 
               {props.native["forceShutdownOnLowVoltage"] != undefined &&
                 props.native["forceShutdownOnLowVoltage"] == true && (
-                  <div style={{ marginTop: 10 }}>
+                  <Box sx={{ marginTop: 1.25 }}>
                     <FormLabel>{I18n.t("dischargeLimit")}:</FormLabel>
-                    <div>{renderInput("dischargeLimit", "number")}</div>
-                  </div>
+                    <Box>{renderInput("dischargeLimit", "number")}</Box>
+                  </Box>
                 )}
 
               {props.native["forceShutdownOnLowVoltage"] != undefined &&
                 props.native["forceShutdownOnLowVoltage"] == true &&
                 renderCheckbox("fullChargeIfNeeded", "fullChargeIfNeeded")}
-            </div>
+            </Box>
           )}
       </form>
-    </div>
+    </Box>
   );
 }
 
-export default withStyles(styles)(Settings);
+export default Settings;

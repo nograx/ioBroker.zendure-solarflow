@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/indent */
 import React from "react";
-import { Theme, withStyles } from "@material-ui/core/styles";
+import { Box } from "@mui/material";
 
 import GenericApp from "@iobroker/adapter-react/GenericApp";
 import Settings from "./components/settings";
@@ -8,7 +8,6 @@ import {
   GenericAppProps,
   GenericAppSettings,
 } from "@iobroker/adapter-react/types";
-import { StyleRules } from "@material-ui/core/styles";
 import de from "./i18n/de.json";
 import en from "./i18n/en.json";
 import es from "./i18n/es.json";
@@ -19,10 +18,6 @@ import pl from "./i18n/pl.json";
 import pt from "./i18n/pt.json";
 import ru from "./i18n/ru.json";
 import zhCn from "./i18n/zh-cn.json";
-
-const styles = (_theme: Theme): StyleRules => ({
-  root: {},
-});
 
 class App extends GenericApp {
   constructor(props: GenericAppProps) {
@@ -55,7 +50,7 @@ class App extends GenericApp {
     }
 
     return (
-      <div className="App">
+      <Box className="App">
         <Settings
           app={this}
           native={this.state.native}
@@ -64,9 +59,9 @@ class App extends GenericApp {
         {this.renderError()}
         {this.renderToast()}
         {this.renderSaveCloseButtons()}
-      </div>
+      </Box>
     );
   }
 }
 
-export default withStyles(styles)(App);
+export default App;

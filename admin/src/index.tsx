@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { MuiThemeProvider } from "@material-ui/core/styles";
+import { ThemeProvider } from "@mui/material/styles";
 import theme from "@iobroker/adapter-react/Theme";
 import Utils from "@iobroker/adapter-react/Components/Utils";
 import App from "./app";
@@ -9,7 +9,7 @@ let themeName = Utils.getThemeName();
 
 function build(): void {
 	ReactDOM.render(
-		<MuiThemeProvider theme={theme(themeName)}>
+		<ThemeProvider theme={theme(themeName)}>
 			<App
 				adapterName="zendure-solarflow"
 				onThemeChange={(_theme) => {
@@ -17,7 +17,7 @@ function build(): void {
 					build();
 				}}
 			/>
-		</MuiThemeProvider>,
+		</ThemeProvider>,
 		document.getElementById("root"),
 	);
 }
