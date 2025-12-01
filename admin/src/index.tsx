@@ -8,18 +8,18 @@ import App from "./app";
 let themeName = Utils.getThemeName();
 
 function build(): void {
-	ReactDOM.render(
-		<ThemeProvider theme={theme(themeName)}>
-			<App
-				adapterName="zendure-solarflow"
-				onThemeChange={(_theme) => {
-					themeName = _theme;
-					build();
-				}}
-			/>
-		</ThemeProvider>,
-		document.getElementById("root"),
-	);
+  ReactDOM.render(
+    <ThemeProvider theme={theme(themeName)}>
+      <App
+        adapterName="zendure-solarflow"
+        onThemeChange={(_theme) => {
+          themeName = _theme;
+          build();
+        }}
+      />
+    </ThemeProvider>,
+    document.getElementById("root")
+  );
 }
 
 build();
