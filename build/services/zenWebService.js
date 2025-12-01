@@ -39,7 +39,6 @@ const zenLogin = async (adapter) => {
     adapter.config.authorizationCloudKey,
     "base64"
   ).toString("utf-8");
-  console.log("Decoded Key:" + decodedAuthCloudKey);
   const lastDot = decodedAuthCloudKey.lastIndexOf(".");
   if (lastDot === -1) {
   }
@@ -73,8 +72,19 @@ const zenLogin = async (adapter) => {
   };
   return import_axios.default.post(`${apiUrl}/api/ha/deviceList`, JSON.stringify(body), config).then(async function(response) {
     const data = await response.data;
-    console.log(data);
+    adapter.log.error(data);
     return data.data;
+  }).catch(async function(error) {
+    if (error.response) {
+      adapter.log.error(error.response.data);
+      adapter.log.error(error.response.status);
+      adapter.log.error(error.response.headers);
+    } else if (error.request) {
+      adapter.log.error(error.request);
+    } else {
+      adapter.log.error("Error" + error.message);
+    }
+    adapter.log.error(error.config);
   });
 };
 // Annotate the CommonJS export names for ESM import in node:

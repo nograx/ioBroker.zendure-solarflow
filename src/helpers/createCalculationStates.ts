@@ -169,6 +169,86 @@ export const createCalculationStates = async (
     }
   );
 
+  await adapter?.extendObject(
+    `${productKey}.${deviceKey}.calculations.solarInputPv2EnergyTodayWh`,
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Heutiger Solarertrag PV2 (Wh)",
+          en: "Todays solar input PV2 (Wh)",
+        },
+        type: "number",
+        desc: "solarInputEnergyTodayWh",
+        role: "value.energy",
+        read: true,
+        write: false,
+        unit: "Wh",
+      },
+      native: {},
+    }
+  );
+
+  await adapter?.extendObject(
+    `${productKey}.${deviceKey}.calculations.solarInputPv2EnergyTodaykWh`,
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Heutiger Solarertrag PV2 (kWh)",
+          en: "Todays solar input PV2 (kWh)",
+        },
+        type: "number",
+        desc: "solarInputEnergyTodaykWh",
+        role: "value.energy",
+        read: true,
+        write: false,
+        unit: "kWh",
+      },
+      native: {},
+    }
+  );
+
+  await adapter?.extendObject(
+    `${productKey}.${deviceKey}.calculations.solarInputPv3EnergyTodayWh`,
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Heutiger Solarertrag PV3 (Wh)",
+          en: "Todays solar input PV3 (Wh)",
+        },
+        type: "number",
+        desc: "solarInputEnergyTodayWh",
+        role: "value.energy",
+        read: true,
+        write: false,
+        unit: "Wh",
+      },
+      native: {},
+    }
+  );
+
+  await adapter?.extendObject(
+    `${productKey}.${deviceKey}.calculations.solarInputPv4EnergyTodaykWh`,
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Heutiger Solarertrag PV4 (kWh)",
+          en: "Todays solar input PV4 (kWh)",
+        },
+        type: "number",
+        desc: "solarInputEnergyTodaykWh",
+        role: "value.energy",
+        read: true,
+        write: false,
+        unit: "kWh",
+      },
+      native: {},
+    }
+  );
+
   /*
     Start output pack Energy states
     */

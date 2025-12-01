@@ -9,4 +9,6 @@ export const calculationStateKeys = [
   "gridInput",
   "pvPower1",
   "pvPower2",
+  "pvPower3",
+  "pvPower4",
 ];

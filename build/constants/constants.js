@@ -31,7 +31,9 @@ const calculationStateKeys = [
   "solarInput",
   "gridInput",
   "pvPower1",
-  "pvPower2"
+  "pvPower2",
+  "pvPower3",
+  "pvPower4"
 ];
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

@@ -13,8 +13,6 @@ export const zenLogin = async (
     "base64"
   ).toString("utf-8");
 
-  console.log("Decoded Key:" + decodedAuthCloudKey);
-
   const lastDot = decodedAuthCloudKey.lastIndexOf(".");
   if (lastDot === -1) {
     // Invalid
@@ -71,8 +69,26 @@ export const zenLogin = async (
     .then(async function (response) {
       const data = await response.data;
 
-      console.log(data);
+      adapter.log.error(data);
 
       return data.data;
+    })
+    .catch(async function (error) {
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        adapter.log.error(error.response.data);
+        adapter.log.error(error.response.status);
+        adapter.log.error(error.response.headers);
+      } else if (error.request) {
+        // The request was made but no response was received
+        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+        // http.ClientRequest in node.js
+        adapter.log.error(error.request);
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        adapter.log.error("Error" + error.message);
+      }
+      adapter.log.error(error.config);
     });
 };

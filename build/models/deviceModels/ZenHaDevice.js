@@ -371,7 +371,10 @@ class ZenHaDevice {
       const currentMaxValue = Number(
         currentEnergyMaxState ? currentEnergyMaxState.val : 0
       );
-      const currentEnergyWh = (currentEnergyState == null ? void 0 : currentEnergyState.val) ? Number(currentEnergyState == null ? void 0 : currentEnergyState.val) : 0;
+      let currentEnergyWh = (currentEnergyState == null ? void 0 : currentEnergyState.val) ? Number(currentEnergyState == null ? void 0 : currentEnergyState.val) : 0;
+      if (currentEnergyWh == null || currentEnergyWh == void 0 || currentEnergyWh <= 0) {
+        currentEnergyWh = 0;
+      }
       if (this.productKey == "yWF7hV") {
         energyWhMax = 2400;
       } else {
@@ -870,6 +873,7 @@ class ZenHaDevice {
   setInputLimit(limit) {
     var _a;
     if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
+      limit = Math.abs(limit);
       if (limit) {
         limit = Math.round(limit);
       } else {
@@ -1095,7 +1099,7 @@ class ZenHaDevice {
             ));
           }
         }
-      } else {
+      } else if (currentPowerState && currentEnergyState) {
         await ((_h = this.adapter) == null ? void 0 : _h.setState(stateNameEnergyWh, 0, true));
         await ((_i = this.adapter) == null ? void 0 : _i.setState(stateNameEnergykWh, 0, true));
       }

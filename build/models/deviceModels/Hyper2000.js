@@ -49,14 +49,6 @@ class Hyper2000 extends import_ZenHaDevice.ZenHaDevice {
           this.iotTopic,
           JSON.stringify(setAcMode)
         );
-        const smartMode = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.smartMode"
-        );
-        if (smartMode && !smartMode.val) {
-          this.adapter.log.warn(
-            `[setAcMode] AC mode was switched and smartMode is false - changes will be written to flash memory. In the worst case, the device may break or changes may no longer be saved!`
-          );
-        }
       } else {
         this.adapter.log.error(
           `[setAcMode] AC mode must be a value between 0 and 3!`

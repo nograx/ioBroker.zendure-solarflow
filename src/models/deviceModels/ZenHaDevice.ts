@@ -497,6 +497,9 @@ export class ZenHaDevice {
 
   public setInputLimit(limit: number): void {
     if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
+      // Limit has always to be positive!
+      limit = Math.abs(limit);
+
       if (limit) {
         limit = Math.round(limit);
       } else {
@@ -1126,6 +1129,7 @@ export class ZenHaDevice {
 
       const currentPowerState =
         await this.adapter?.getStateAsync(stateNamePower);
+
       const currentEnergyState =
         await this.adapter?.getStateAsync(stateNameEnergyWh);
 
@@ -1147,18 +1151,18 @@ export class ZenHaDevice {
           (Number(currentPowerState.val) * timeFrame) / 3600000; // Wh
 
         /*       // Use efficiency factor (used the one from Youtube Channel VoltAmpereLux - thanks!)
-      const chargingFactor = 0.96; // Efficiency 96%
-      const dischargingFactor = 1.08 - addEnergyValue / 10000; // Efficiency 92% - 98% (92% + Energy / 10000 = 600W -> +6%)
+        const chargingFactor = 0.96; // Efficiency 96%
+        const dischargingFactor = 1.08 - addEnergyValue / 10000; // Efficiency 92% - 98% (92% + Energy / 10000 = 600W -> +6%)
 
-      // Calculate energy from efficiency factor if value for charging or discharging
-      addEnergyValue =
-        stateKey == "outputPack" && addEnergyValue > 0
-          ? addEnergyValue * chargingFactor
-          : addEnergyValue;
-      addEnergyValue =
-        stateKey == "packInput" && addEnergyValue > 0
-          ? addEnergyValue * dischargingFactor
-          : addEnergyValue; */
+        // Calculate energy from efficiency factor if value for charging or discharging
+        addEnergyValue =
+          stateKey == "outputPack" && addEnergyValue > 0
+            ? addEnergyValue * chargingFactor
+            : addEnergyValue;
+        addEnergyValue =
+          stateKey == "packInput" && addEnergyValue > 0
+            ? addEnergyValue * dischargingFactor
+            : addEnergyValue; */
 
         let newEnergyValue = Number(currentEnergyState.val) + addEnergyValue;
 
@@ -1195,7 +1199,7 @@ export class ZenHaDevice {
             );
           }
         }
-      } else {
+      } else if (currentPowerState && currentEnergyState) {
         await this.adapter?.setState(stateNameEnergyWh, 0, true);
         await this.adapter?.setState(stateNameEnergykWh, 0, true);
       }
@@ -1248,9 +1252,17 @@ export class ZenHaDevice {
       currentEnergyMaxState ? currentEnergyMaxState.val : 0
     );
 
-    const currentEnergyWh = currentEnergyState?.val
+    let currentEnergyWh = currentEnergyState?.val
       ? Number(currentEnergyState?.val)
       : 0;
+
+    if (
+      currentEnergyWh == null ||
+      currentEnergyWh == undefined ||
+      currentEnergyWh <= 0
+    ) {
+      currentEnergyWh = 0;
+    }
 
     if (this.productKey == "yWF7hV") {
       // The device is an AIO 2400, so set maximum Wh to 2400!
