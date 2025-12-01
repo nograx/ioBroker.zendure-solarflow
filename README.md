@@ -59,11 +59,15 @@ On a HUB 1200 / HUB 2000 / ACE 1500 combination you have to use '**setDeviceAuto
 This adapter will now use the Cloud Authorization Code for authentication on the official mqtt servers, which you can generate in the Zendure app!
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Fix Uppercase 'a4ss5p' in helpers.ts
+
 ### 3.1.0 (2025-12-01)
 
 - Fix setInputLimit (always use positive value!)
 - Add calculation states for PV3 & PV4 (used by SF 800 Pro)
-- Fix Uppercase 'a4ss5p' in helpers.ts
 
 ### 3.0.8 (2025-10-22)
 

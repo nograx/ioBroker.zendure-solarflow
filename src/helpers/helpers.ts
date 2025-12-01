@@ -126,7 +126,7 @@ export const createDeviceModel = (
           : "Solarflow 2400 AC",
         _zenHaDeviceDetails
       );
-    case "a4ss5P":
+    case "a4ss5p":
       _adapter.log.debug(
         `[onReady] Creating deviceModel SF 800 ${_productKey}`
       );
