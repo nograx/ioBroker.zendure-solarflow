@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "3.1.0",
+    "version": "3.1.1",
     "news": {
+      "3.1.1": {
+        "en": "Fix Uppercase 'a4ss5p' in helpers.ts",
+        "de": "Großbuchstaben 'a4ss5p' in helpers.ts",
+        "ru": "Исправьте Uppercase 'a4ss5p' в helpers.ts",
+        "pt": "Corrigir 'a4ss5p' em helpers.ts",
+        "nl": "Fix Uppercase 'a4ss5p' in helpers.ts",
+        "fr": "Correction de la case supérieure 'a4ss5p' dans aideurs.ts",
+        "it": "Fissare Uppercase 'a4ss5p' in helpers.ts",
+        "es": "Fijar maleta superior 'a4s5p' en helpers.ts",
+        "pl": "Fix Uppercase 'a4ss5p' in helpers.ts",
+        "uk": "Фіксація Верхній регістр 'a4ss5p' в помічниках.ts",
+        "zh-cn": "在助手.ts中修正大写“ a4ss5p ”"
+      },
       "3.1.0": {
         "en": "Fix setInputLimit (always use positive value!)\nAdd calculation states for PV3 & PV4 (used by SF 800 Pro)\nFix Uppercase 'a4ss5p' in helpers.ts",
         "de": "Fix setInputLimit (verwendet immer positiven Wert!)\nBerechnungszustände für PV3 & PV4 (verwendet durch SF 800 Pro) hinzufügen\nGroßbuchstaben 'a4ss5p' in helpers.ts",
@@ -80,19 +93,6 @@
         "pl": "Optymalizacja ustawień WifiMode w trybie lokalnym\nOptymalizacja opcji debugowania",
         "uk": "Оптимізуйте налаштування wifiMode в локальному режимі\nОптимізуйте опцію Debug",
         "zh-cn": "优化本地模式的 wifiMode 设置\n优化调试选项"
-      },
-      "3.0.2": {
-        "en": "Ignore 'wifiState' for last update value",
-        "de": "'wifiState' für den letzten Updatewert ignorieren",
-        "ru": "Игнорируйте значение «wifiState» для последнего обновления",
-        "pt": "Ignorar 'wifiState' para o valor da última atualização",
-        "nl": "'wifiState' negeren voor laatste updatewaarde",
-        "fr": "Ignorer 'wifiState' pour la dernière valeur de mise à jour",
-        "it": "Ignora 'wifiState' per l'ultimo valore di aggiornamento",
-        "es": "Ignora 'wifiState' por último valor de actualización",
-        "pl": "Ignoruj 'wifiState' dla ostatniej wartości aktualizacji",
-        "uk": "Ignore 'wifiState' для останнього оновлення значення",
-        "zh-cn": "忽略上次更新值的“ wifi State ”"
       }
     },
     "titleLang": {
