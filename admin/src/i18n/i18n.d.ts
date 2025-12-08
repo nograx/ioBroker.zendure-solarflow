@@ -17,10 +17,10 @@
 declare type AdminWord = keyof typeof import("./en.json");
 
 declare module "@iobroker/adapter-react/i18n" {
-	/**
-	 * Translate the given string to the selected language.
-	 * @param word The (key) word to look up the string. Has to be defined at least in `i18n/en.json`.
-	 * @param args Optional arguments which will replace the first (second, third, ...) occurence of %s
-	 */
-	function t(word: AdminWord, ...args: string[]): string;
+  /**
+   * Translate the given string to the selected language.
+   * @param word The (key) word to look up the string. Has to be defined at least in `i18n/en.json`.
+   * @param args Optional arguments which will replace the first (second, third, ...) occurence of %s
+   */
+  function t(word: AdminWord, ...args: string[]): string;
 }

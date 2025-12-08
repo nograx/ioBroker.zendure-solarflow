@@ -1,25 +1,20 @@
 import React from "react";
-import ReactDOM from "react-dom";
-import { ThemeProvider } from "@mui/material/styles";
-import theme from "@iobroker/adapter-react/Theme";
-import Utils from "@iobroker/adapter-react/Components/Utils";
-import App from "./app";
+import { createRoot } from "react-dom/client";
+import "../style.css";
+import App from "./App";
 
-let themeName = Utils.getThemeName();
-
-function build(): void {
-  ReactDOM.render(
-    <ThemeProvider theme={theme(themeName)}>
-      <App
-        adapterName="zendure-solarflow"
-        onThemeChange={(_theme) => {
-          themeName = _theme;
-          build();
-        }}
-      />
-    </ThemeProvider>,
-    document.getElementById("root")
-  );
+declare global {
+  interface Window {
+    sentryDSN: string;
+    adapterName: string | undefined;
+  }
 }
 
-build();
+window.adapterName = "zendure-solarflow";
+
+const container = window.document.getElementById("root");
+
+if (container) {
+  const root = createRoot(container);
+  root.render(<App />);
+}

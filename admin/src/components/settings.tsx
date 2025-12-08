@@ -11,10 +11,7 @@ import {
   Checkbox,
   FormLabel,
 } from "@mui/material";
-
-// Import I18n
-import I18n from "@iobroker/adapter-react/i18n";
-import GenericApp from "@iobroker/adapter-react/GenericApp";
+import { GenericApp, I18n } from "@iobroker/adapter-react-v5";
 
 const productKeys: { value; title }[] = [
   { value: "73bkTV", title: "HUB 1200 (73bkTV)" },
@@ -52,7 +49,7 @@ function Settings(props: SettingsProps) {
 
   const inputSx = {
     marginTop: 0,
-    minWidth: 400,
+    minWidth: 200,
   };
 
   const controlElementSx = {
@@ -62,6 +59,7 @@ function Settings(props: SettingsProps) {
   function renderInput(attr: string, type: string, placeholder?: string) {
     return (
       <TextField
+        variant="standard"
         autoComplete="off"
         sx={{ ...inputSx, ...controlElementSx }}
         value={props.native[attr]}
@@ -78,8 +76,12 @@ function Settings(props: SettingsProps) {
     options: { value: string; title: AdminWord }[]
   ) {
     return (
-      <FormControl sx={{ ...inputSx, ...controlElementSx, pt: 0.625 }}>
+      <FormControl
+        sx={{ ...inputSx, ...controlElementSx, pt: 0.625 }}
+        variant="standard"
+      >
         <Select
+          variant="standard"
           value={props.native[attr] || "_"}
           onChange={(e) =>
             props.onChange(attr, e.target.value === "_" ? "" : e.target.value)

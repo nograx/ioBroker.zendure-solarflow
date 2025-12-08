@@ -69,8 +69,6 @@ export const zenLogin = async (
     .then(async function (response) {
       const data = await response.data;
 
-      adapter.log.error(data);
-
       return data.data;
     })
     .catch(async function (error) {

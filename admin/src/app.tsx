@@ -1,13 +1,15 @@
 /* eslint-disable @typescript-eslint/indent */
 import React from "react";
-import { Box } from "@mui/material";
+import { StyledEngineProvider, ThemeProvider } from "@mui/material";
 
-import GenericApp from "@iobroker/adapter-react/GenericApp";
-import Settings from "./components/settings";
 import {
-  GenericAppProps,
+  GenericApp,
+  type IobTheme,
+  type GenericAppProps,
+  type GenericAppState,
   GenericAppSettings,
-} from "@iobroker/adapter-react/types";
+} from "@iobroker/adapter-react-v5";
+import Settings from "./components/settings";
 import de from "./i18n/de.json";
 import en from "./i18n/en.json";
 import es from "./i18n/es.json";
@@ -19,8 +21,37 @@ import pt from "./i18n/pt.json";
 import ru from "./i18n/ru.json";
 import zhCn from "./i18n/zh-cn.json";
 
-class App extends GenericApp {
-  constructor(props: GenericAppProps) {
+const styles: Record<string, any> = {
+  tabContent: {
+    padding: 10,
+    height: "calc(100% - 56px)",
+    overflow: "auto",
+  },
+  tabContentIFrame: {
+    padding: 10,
+    height: "calc(100% - 56px)",
+    overflow: "auto",
+  },
+  selected: (theme: IobTheme): React.CSSProperties => ({
+    color: theme.palette.mode === "dark" ? undefined : "#FFF !important",
+  }),
+  indicator: (theme: IobTheme): React.CSSProperties => ({
+    backgroundColor:
+      theme.palette.mode === "dark" ? theme.palette.secondary.main : "#FFF",
+  }),
+};
+
+interface AppState extends GenericAppState {
+  showAckTempPasswordDialog: boolean;
+  theme: IobTheme;
+  themeType: "light" | "dark";
+  native: Record<string, any>;
+  loaded: boolean;
+  changed: boolean;
+}
+
+export default class App extends GenericApp<GenericAppProps, AppState> {
+  constructor(props: any) {
     const extendedProps: GenericAppSettings = {
       ...props,
       encryptedFields: ["password"],
@@ -50,18 +81,32 @@ class App extends GenericApp {
     }
 
     return (
-      <Box className="App">
-        <Settings
-          app={this}
-          native={this.state.native}
-          onChange={(attr, value) => this.updateNativeValue(attr, value)}
-        />
-        {this.renderError()}
-        {this.renderToast()}
-        {this.renderSaveCloseButtons()}
-      </Box>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={this.state.theme}>
+          <div
+            className="App"
+            style={{
+              background: this.state.theme.palette.background.default,
+              color: this.state.theme.palette.text.primary,
+            }}
+          >
+            <div
+              style={
+                this.isIFrame ? styles.tabContentIFrame : styles.tabContent
+              }
+            >
+              <Settings
+                app={this}
+                native={this.state.native}
+                onChange={(attr, value) => this.updateNativeValue(attr, value)}
+              />
+              {this.renderError()}
+              {this.renderToast()}
+              {this.renderSaveCloseButtons()}
+            </div>
+          </div>
+        </ThemeProvider>
+      </StyledEngineProvider>
     );
   }
 }
-
-export default App;
