@@ -24,7 +24,7 @@
     "@iobroker/adapter-core": "^3.2.3",
     "@mui/styles": "^5.10.9",
     "@types/node-schedule": "^2.1.6",
-    "axios": "^1.9.0",
+    "axios": "^1.13.2",
     "babel-eslint": "^10.1.0",
     "mqtt": "^5.14.1"
   },
