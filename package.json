@@ -40,7 +40,7 @@
     "@iobroker/adapter-react-v5": "^8.0.13",
     "@iobroker/testing": "^5.0.4",
     "@mui/material": "^5.14.11",
-    "@tsconfig/node16": "^16.1.1",
+    "@tsconfig/node16": "^16.1.8",
     "@types/chai": "^4.3.6",
     "@types/chai-as-promised": "^8.0.2",
     "@types/mocha": "^10.0.6",
