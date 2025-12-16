@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["../../src/models/ISolarflowState.ts"],
-  "sourcesContent": ["/* eslint-disable @typescript-eslint/indent */\r\nexport interface ISolarflowState {\r\n  title: string;\r\n  nameDe: string;\r\n  nameEn: string;\r\n  role: string;\r\n  min?: number; // Minimalwert\r\n  max?: number; // Maximalwert\r\n  step?: number; // Schrittweite\r\n  read?: boolean; // Lesezugriff\r\n  write?: boolean; // Schreibzugriff\r\n  type: ioBroker.CommonType; // Datentyp\r\n  unit?: string;\r\n  states?: string | string[] | Record<string, string> | undefined;\r\n}\r\n"],
+  "sourcesContent": ["/* eslint-disable @typescript-eslint/indent */\nexport interface ISolarflowState {\n  title: string;\n  nameDe: string;\n  nameEn: string;\n  role: string;\n  min?: number; // Minimalwert\n  max?: number; // Maximalwert\n  step?: number; // Schrittweite\n  read?: boolean; // Lesezugriff\n  write?: boolean; // Schreibzugriff\n  type: ioBroker.CommonType; // Datentyp\n  unit?: string;\n  states?: string | string[] | Record<string, string> | undefined;\n}\n"],
   "mappings": ";;;;;;;;;;;;;;AAAA;AAAA;",
   "names": []
 }

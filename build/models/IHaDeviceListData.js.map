@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["../../src/models/IHaDeviceListData.ts"],
-  "sourcesContent": ["import { IZenHaDeviceDetails } from \"./IZenHaDeviceDetails\";\r\nimport { IZenHaMqttData } from \"./IZenHaMqttData\";\r\n\r\n/* eslint-disable @typescript-eslint/indent */\r\nexport interface IHaDeviceListData {\r\n  deviceList: IZenHaDeviceDetails[];\r\n  mqtt: IZenHaMqttData;\r\n}\r\n"],
+  "sourcesContent": ["import { IZenHaDeviceDetails } from \"./IZenHaDeviceDetails\";\nimport { IZenHaMqttData } from \"./IZenHaMqttData\";\n\n/* eslint-disable @typescript-eslint/indent */\nexport interface IHaDeviceListData {\n  deviceList: IZenHaDeviceDetails[];\n  mqtt: IZenHaMqttData;\n}\n"],
   "mappings": ";;;;;;;;;;;;;;AAAA;AAAA;",
   "names": []
 }

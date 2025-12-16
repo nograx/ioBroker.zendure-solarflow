@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["../../src/models/IZenHaMqttData.ts"],
-  "sourcesContent": ["/* eslint-disable @typescript-eslint/indent */\r\nexport interface IZenHaMqttData {\r\n  clientId: string;\r\n  password: string;\r\n  url: string;\r\n  username: string;\r\n}\r\n"],
+  "sourcesContent": ["/* eslint-disable @typescript-eslint/indent */\nexport interface IZenHaMqttData {\n  clientId: string;\n  password: string;\n  url: string;\n  username: string;\n}\n"],
   "mappings": ";;;;;;;;;;;;;;AAAA;AAAA;",
   "names": []
 }
