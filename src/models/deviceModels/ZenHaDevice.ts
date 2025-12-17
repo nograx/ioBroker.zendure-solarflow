@@ -1,3 +1,4 @@
+import { createHash } from "crypto";
 import { calculationStateKeys } from "../../constants/constants";
 import { createCalculationStates } from "../../helpers/createCalculationStates";
 import { toHoursAndMinutes } from "../../helpers/timeHelper";
@@ -24,6 +25,7 @@ export class ZenHaDevice {
 
   public iotTopic: string = "";
   public functionTopic = "";
+  public password: string = "";
 
   public maxInputLimit: number = 0;
   public maxOutputLimit: number = 0;
@@ -49,6 +51,13 @@ export class ZenHaDevice {
 
     this.iotTopic = `iot/${_productKey}/${_deviceKey}/properties/write`;
     this.functionTopic = `iot/${_productKey}/${_deviceKey}/function/invoke`;
+
+    // Calculate device password
+    this.password = createHash("md5")
+      .update(_deviceKey, "utf8")
+      .digest("hex")
+      .toUpperCase()
+      .substring(8, 24);
 
     // Create or update states
     this.createSolarFlowStates();
@@ -498,7 +507,12 @@ export class ZenHaDevice {
   public setInputLimit(limit: number): void {
     if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
       // Limit has always to be positive!
-      limit = Math.abs(limit);
+      if (limit < 0) {
+        this.adapter.log.debug(
+          `[setInputLimit] limit ${limit} is negative, converting to positive!`
+        );
+        limit = Math.abs(limit);
+      }
 
       if (limit) {
         limit = Math.round(limit);
@@ -1113,18 +1127,32 @@ export class ZenHaDevice {
       let stateNameEnergykWh = "";
       let stateNamePower = "";
 
-      if (stateKey == "pvPower1") {
-        stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv1EnergyTodayWh`;
-        stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv1EnergyTodaykWh`;
-        stateNamePower = `${this.productKey}.${this.deviceKey}.pvPower1`;
-      } else if (stateKey == "pvPower2") {
-        stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv2EnergyTodayWh`;
-        stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv2EnergyTodaykWh`;
-        stateNamePower = `${this.productKey}.${this.deviceKey}.pvPower2`;
-      } else {
-        stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.${stateKey}EnergyTodayWh`;
-        stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.${stateKey}EnergyTodaykWh`;
-        stateNamePower = `${this.productKey}.${this.deviceKey}.${stateKey}Power`;
+      switch (stateKey) {
+        case "pvPower1":
+          stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv1EnergyTodayWh`;
+          stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv1EnergyTodaykWh`;
+          stateNamePower = `${this.productKey}.${this.deviceKey}.pvPower1`;
+          break;
+        case "pvPower2":
+          stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv2EnergyTodayWh`;
+          stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv2EnergyTodaykWh`;
+          stateNamePower = `${this.productKey}.${this.deviceKey}.pvPower2`;
+          break;
+        case "pvPower3":
+          stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv3EnergyTodayWh`;
+          stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv3EnergyTodaykWh`;
+          stateNamePower = `${this.productKey}.${this.deviceKey}.pvPower3`;
+          break;
+        case "pvPower4":
+          stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv4EnergyTodayWh`;
+          stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv4EnergyTodaykWh`;
+          stateNamePower = `${this.productKey}.${this.deviceKey}.pvPower4`;
+          break;
+        default:
+          stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.${stateKey}EnergyTodayWh`;
+          stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.${stateKey}EnergyTodaykWh`;
+          stateNamePower = `${this.productKey}.${this.deviceKey}.${stateKey}Power`;
+          break;
       }
 
       const currentPowerState =

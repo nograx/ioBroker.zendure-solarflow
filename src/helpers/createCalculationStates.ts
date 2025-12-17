@@ -230,6 +230,46 @@ export const createCalculationStates = async (
   );
 
   await adapter?.extendObject(
+    `${productKey}.${deviceKey}.calculations.solarInputPv3EnergyTodaykWh`,
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Heutiger Solarertrag PV3 (kWh)",
+          en: "Todays solar input PV3 (kWh)",
+        },
+        type: "number",
+        desc: "solarInputEnergyTodaykWh",
+        role: "value.energy",
+        read: true,
+        write: false,
+        unit: "kWh",
+      },
+      native: {},
+    }
+  );
+
+  await adapter?.extendObject(
+    `${productKey}.${deviceKey}.calculations.solarInputPv4EnergyTodayWh`,
+    {
+      type: "state",
+      common: {
+        name: {
+          de: "Heutiger Solarertrag PV4 (Wh)",
+          en: "Todays solar input PV4 (Wh)",
+        },
+        type: "number",
+        desc: "solarInputEnergyTodayWh",
+        role: "value.energy",
+        read: true,
+        write: false,
+        unit: "Wh",
+      },
+      native: {},
+    }
+  );
+
+  await adapter?.extendObject(
     `${productKey}.${deviceKey}.calculations.solarInputPv4EnergyTodaykWh`,
     {
       type: "state",
@@ -248,7 +288,6 @@ export const createCalculationStates = async (
       native: {},
     }
   );
-
   /*
     Start output pack Energy states
     */

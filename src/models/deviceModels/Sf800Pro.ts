@@ -113,15 +113,17 @@ export class Sf800Pro extends ZenHaDevice {
         }
       }
 
-      if (limit < 0) {
-        // Get input limit, make number positive and the new value negative
-        if (limit < this.maxInputLimit) {
-          limit = this.maxInputLimit;
-        }
-      } else {
-        if (limit > this.maxOutputLimit) {
-          limit = this.maxOutputLimit;
-        }
+      // Convert maxInputLimit to negative value and compare to limit
+      if (limit < 0 && limit < -this.maxInputLimit) {
+        this.adapter.log.debug(
+          `[setDeviceAutomationInOutLimit] limit ${limit} is below the maximum input limit of ${this.maxInputLimit}, setting to ${-this.maxInputLimit}!`
+        );
+        limit = -this.maxInputLimit;
+      } else if (limit > this.maxOutputLimit) {
+        this.adapter.log.debug(
+          `[setDeviceAutomationInOutLimit] limit ${limit} is higher the maximum output limit of ${this.maxOutputLimit}, setting to ${this.maxOutputLimit}!`
+        );
+        limit = this.maxOutputLimit;
       }
 
       this.adapter.msgCounter += 1;
@@ -138,7 +140,7 @@ export class Sf800Pro extends ZenHaDevice {
       const _arguments: IHemsEpPayload = {
         outputPower: limit > 0 ? limit : 0,
         chargeState: limit > 0 ? 0 : 1,
-        chargePower: limit > 0 ? 0 : -limit,
+        chargePower: limit > 0 ? 0 : limit,
         mode: 9,
       };
 

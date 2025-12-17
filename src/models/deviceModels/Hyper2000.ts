@@ -6,7 +6,7 @@ import { IZenHaDeviceDetails } from "../IZenHaDeviceDetails";
 import { ZenHaDevice } from "./ZenHaDevice";
 
 export class Hyper2000 extends ZenHaDevice {
-  maxInputLimit = -1200;
+  maxInputLimit = 1200;
   maxOutputLimit = 1200;
 
   states = hyperStates;
@@ -103,15 +103,17 @@ export class Hyper2000 extends ZenHaDevice {
         }
       }
 
-      if (limit < 0) {
-        // Get input limit, make number positive and the new value negative
-        if (limit < this.maxInputLimit) {
-          limit = this.maxInputLimit;
-        }
-      } else {
-        if (limit > this.maxOutputLimit) {
-          limit = this.maxOutputLimit;
-        }
+      // Convert maxInputLimit to negative value and compare to limit
+      if (limit < 0 && limit < -this.maxInputLimit) {
+        this.adapter.log.debug(
+          `[setDeviceAutomationInOutLimit] limit ${limit} is below the maximum input limit of ${this.maxInputLimit}, setting to ${-this.maxInputLimit}!`
+        );
+        limit = -this.maxInputLimit;
+      } else if (limit > this.maxOutputLimit) {
+        this.adapter.log.debug(
+          `[setDeviceAutomationInOutLimit] limit ${limit} is higher the maximum output limit of ${this.maxOutputLimit}, setting to ${this.maxOutputLimit}!`
+        );
+        limit = this.maxOutputLimit;
       }
 
       this.adapter.msgCounter += 1;
@@ -132,7 +134,7 @@ export class Hyper2000 extends ZenHaDevice {
             autoModelValue: {
               chargingType: 1,
               price: 2,
-              chargingPower: -limit,
+              chargingPower: limit,
               prices: [
                 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                 1, 1, 1,

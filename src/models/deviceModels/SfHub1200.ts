@@ -116,18 +116,21 @@ export class SfHub1200 extends ZenHaDevice {
         }
       }
 
-      if (limit < 0) {
-        // Get input limit, make number positive and the new value negative
-        if (limit < this.maxInputLimit) {
-          limit = this.maxInputLimit;
-        }
-      } else {
-        if (limit > this.maxOutputLimit) {
-          limit = this.maxOutputLimit;
-        }
+      // Convert maxInputLimit to negative value and compare to limit
+      if (limit < 0 && limit < -this.maxInputLimit) {
+        this.adapter.log.debug(
+          `[setDeviceAutomationInOutLimit] limit ${limit} is below the maximum input limit of ${this.maxInputLimit}, setting to ${-this.maxInputLimit}!`
+        );
+        limit = -this.maxInputLimit;
+      } else if (limit > this.maxOutputLimit) {
+        this.adapter.log.debug(
+          `[setDeviceAutomationInOutLimit] limit ${limit} is higher the maximum output limit of ${this.maxOutputLimit}, setting to ${this.maxOutputLimit}!`
+        );
+        limit = this.maxOutputLimit;
       }
 
       if (
+        limit > 0 &&
         limit < 100 &&
         limit != 90 &&
         limit != 60 &&
@@ -162,7 +165,7 @@ export class SfHub1200 extends ZenHaDevice {
             autoModelProgram: 2,
             autoModelValue: {
               chargingType: 1,
-              chargingPower: -limit,
+              chargingPower: limit,
               freq: 0,
               outPower: 0,
             },
