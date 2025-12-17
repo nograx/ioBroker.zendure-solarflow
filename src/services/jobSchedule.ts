@@ -52,6 +52,10 @@ export const startCheckStatesAndConnectionJob = async (
     "gridInputPower",
     "packInputPower",
     "solarInputPower",
+    "pvPower1",
+    "pvPower2",
+    "pvPower3",
+    "pvPower4",
     "packPower",
   ];
 
@@ -85,16 +89,16 @@ export const startCheckStatesAndConnectionJob = async (
         wifiState?.val == "Connected" &&
         adapter.config.connectionMode == "authKey"
       ) {
-        adapter.log.warn(
+        adapter.log.debug(
           `[checkStatesJob] Last update for deviceKey ${
             device.deviceKey
           } was at ${new Date(
             Number(lastUpdate.val)
-          )}, device seems to be online - so maybe connection is broken - restart adapter in 20 seconds!`
+          )}, device seems to be online - so maybe connection is broken!`
         );
 
-        await adapter.delay(20 * 1000);
-        adapter.restart();
+        //await adapter.delay(20 * 1000);
+        //adapter.restart();
 
         // set marker, so we discontinue the forEach Loop because of reconnect!
         refreshAccessTokenNeeded = true;
@@ -129,7 +133,7 @@ export const startCheckStatesAndConnectionJob = async (
             Number(lastUpdate.val)
           )}, checking for pseudo power values!`
         );
-        // State was not updated in the last 10 minutes... set states to 0
+        // State was not updated in the last 5 minutes... set states to 0
         await statesToReset.forEach(async (stateName: string) => {
           await adapter?.setState(
             device.productKey + "." + device.deviceKey + "." + stateName,

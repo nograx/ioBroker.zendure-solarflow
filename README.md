@@ -66,6 +66,7 @@ This adapter will now use the Cloud Authorization Code for authentication on the
 - Fix calculation of PV3 & 4 again (hopefully now 100%)
 - Add some more specific debug messages
 - Remove misleading error message on adapter start
+- Replace restart on checkStatesJob with a debug message (I think Zendure cloud is stable now)
 - Update adapter to adapter-react-v5 (MUI v5)
 - Fix commandbar in settings
 
