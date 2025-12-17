@@ -137,7 +137,7 @@ class SfHub2000 extends import_ZenHaDevice.ZenHaDevice {
             autoModelProgram: 2,
             autoModelValue: {
               chargingType: 1,
-              chargingPower: limit,
+              chargingPower: Math.abs(limit),
               freq: 0,
               outPower: 0
             },

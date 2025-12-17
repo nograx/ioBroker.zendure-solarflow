@@ -132,14 +132,14 @@ class SfHub1200 extends import_ZenHaDevice.ZenHaDevice {
       let _arguments = [];
       if (limit < 0) {
         this.adapter.log.debug(
-          `[setDeviceAutomationInOutLimit] Using CHARGE variant of HUB device automation, as device '${this.productKey}' detected and limit is negative!`
+          `[setDeviceAutomationInOutLimit] Using CHARGE variant of HUB device automation, as device '${this.productKey}' detected and limit (${limit}) is negative!`
         );
         _arguments = [
           {
             autoModelProgram: 2,
             autoModelValue: {
               chargingType: 1,
-              chargingPower: limit,
+              chargingPower: Math.abs(limit),
               freq: 0,
               outPower: 0
             },
@@ -149,7 +149,7 @@ class SfHub1200 extends import_ZenHaDevice.ZenHaDevice {
         ];
       } else {
         this.adapter.log.debug(
-          `[setDeviceAutomationInOutLimit] Using FEED IN variant of Hub device automation, as device '${this.productKey}' detected and limit is positive!`
+          `[setDeviceAutomationInOutLimit] Using FEED IN variant of Hub device automation, as device '${this.productKey}' detected and limit (${limit}) is positive!`
         );
         _arguments = [
           {

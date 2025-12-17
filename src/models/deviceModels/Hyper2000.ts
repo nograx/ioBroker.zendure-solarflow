@@ -125,7 +125,7 @@ export class Hyper2000 extends ZenHaDevice {
 
       if (limit < 0) {
         this.adapter.log.debug(
-          `[setDeviceAutomationInOutLimit] Using CHARGE variant of HYPER device automation, as device '${this.deviceKey}' detected and limit is negative!`
+          `[setDeviceAutomationInOutLimit] Using CHARGE variant of HYPER device automation, as device '${this.deviceKey}' detected and limit (${limit}) is negative!`
         );
         // Input / Charge
         _arguments = [
@@ -134,7 +134,7 @@ export class Hyper2000 extends ZenHaDevice {
             autoModelValue: {
               chargingType: 1,
               price: 2,
-              chargingPower: limit,
+              chargingPower: Math.abs(limit),
               prices: [
                 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                 1, 1, 1,
@@ -148,7 +148,7 @@ export class Hyper2000 extends ZenHaDevice {
         ];
       } else {
         this.adapter.log.debug(
-          `[setDeviceAutomationInOutLimit] Using FEED IN variant of HYPER device automation, as device '${this.productName}' detected and limit is positive!`
+          `[setDeviceAutomationInOutLimit] Using FEED IN variant of HYPER device automation, as device '${this.productName}' detected and limit (${limit}) is positive!`
         );
         // Output
         _arguments = [
