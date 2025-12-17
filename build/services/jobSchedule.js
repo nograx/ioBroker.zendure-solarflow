@@ -60,6 +60,10 @@ const startCheckStatesAndConnectionJob = async (adapter) => {
     "gridInputPower",
     "packInputPower",
     "solarInputPower",
+    "pvPower1",
+    "pvPower2",
+    "pvPower3",
+    "pvPower4",
     "packPower"
   ];
   let refreshAccessTokenNeeded = false;
@@ -80,13 +84,11 @@ const startCheckStatesAndConnectionJob = async (adapter) => {
       const fiveMinutesAgo = (Date.now() / 1e3 - 5 * 60) * 1e3;
       const tenMinutesAgo = (Date.now() / 1e3 - 10 * 60) * 1e3;
       if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < tenMinutesAgo && (wifiState == null ? void 0 : wifiState.val) == "Connected" && adapter.config.connectionMode == "authKey") {
-        adapter.log.warn(
+        adapter.log.debug(
           `[checkStatesJob] Last update for deviceKey ${device.deviceKey} was at ${new Date(
             Number(lastUpdate.val)
-          )}, device seems to be online - so maybe connection is broken - restart adapter in 20 seconds!`
+          )}, device seems to be online - so maybe connection is broken!`
         );
-        await adapter.delay(20 * 1e3);
-        adapter.restart();
         refreshAccessTokenNeeded = true;
       } else if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < tenMinutesAgo && (wifiState == null ? void 0 : wifiState.val) == "Connected" && adapter.config.connectionMode == "local") {
         adapter.log.warn(
