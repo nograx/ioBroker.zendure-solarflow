@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "3.2.0",
+    "version": "3.2.1",
     "news": {
+      "3.2.1": {
+        "en": "Fix setDeviceAutomation charging mode",
+        "de": "Fix setDeviceAutomatisieren Lademodus",
+        "ru": "Режим зарядки DeviceAutomation",
+        "pt": "Corrigir o setDispositivoModo de carregamento automático",
+        "nl": "Fix setDeviceAutomation laadmodus",
+        "fr": "Correction du mode de chargement setDeviceAutomation",
+        "it": "Fix setModalità di ricarica dell'automazione",
+        "es": "Configuración fijaDeviceModo de carga de automatización",
+        "pl": "Napraw tryb ładowania setDeviceAutomation",
+        "uk": "Виправлення setDeviceAutomation режим зарядки",
+        "zh-cn": "修复设置Device自动充电模式"
+      },
       "3.2.0": {
         "en": "Fix inputLimit on certain devices\nFix calculation of PV3 & 4 again (hopefully now 100%)\nAdd some more specific debug messages\nRemove misleading error message on adapter start\nReplace restart on checkStatesJob with a debug message (I think Zendure cloud is stable now)\nUpdate adapter to adapter-react-v5 (MUI v5)\nFix commandbar in settings",
         "de": "EingabeLimit auf bestimmte Geräte fixieren\nFixe Berechnung von PV3 & 4 wieder (hoffentlich jetzt 100%)\nFügen Sie einige spezifische Debug-Nachrichten hinzu\nEntfernen irreführende Fehlermeldung auf Adapterstart\nWiederstart ersetzen StatesJob mit einer Debug-Nachricht (ich glaube, Zendure Cloud ist jetzt stabil)\nUpdate-Adapter auf Adapter-React-v5 (MUI v5)\nBefehlsleiste in Einstellungen festlegen",
@@ -80,19 +93,6 @@
         "pl": "Dodaj więcej informacji o tworzeniu urządzenia",
         "uk": "Додайте ще інформацію про пристрій",
         "zh-cn": "添加更多关于设备创建的日志信息"
-      },
-      "3.0.4": {
-        "en": "Fix inputLimit issue\nFix Wifi status not updating when packData changes",
-        "de": "InputLimit Problem beheben\nWifi-Status nicht aktualisieren, wenn packData Änderungen",
-        "ru": "Исправить ошибку inputLimit issue\nСтатус Wi-Fi не обновляется при изменении пакетных данных",
-        "pt": "Corrigir a entradaLimit issue\nCorrigir o estado do Wifi não actualizado quando o pacote de dados mudar",
-        "nl": "Fix inputLimit probleem\nFix Wifi-status niet bijwerken wanneer packData wijzigingen",
-        "fr": "Correction du problème d'entréeLimit\nCorrection de l'état Wifi non mis à jour lorsque le paquetLes données changent",
-        "it": "Risolvere il numero di inputLimit\nFissare lo stato Wifi non aggiornando quando PackData cambia",
-        "es": "Corrección de entrada\nFijar el estado de Wifi no actualizar cuando el paqueteLos cambios de datos",
-        "pl": "Fix inputLimit wydania\nNaprawianie stanu Wifi nie aktualizuje się przy zmianie PackData",
-        "uk": "Виправлення вхідного номера\nВиправлення стану Wifi не оновлення при зміні пакетаData",
-        "zh-cn": "修正输入范围\nBackData 更改时不更新 Wifi 状态"
       }
     },
     "titleLang": {
