@@ -34,7 +34,7 @@ class Hyper2000 extends import_ZenHaDevice.ZenHaDevice {
       _deviceName,
       _zenHaDeviceDetails
     );
-    this.maxInputLimit = -1200;
+    this.maxInputLimit = 1200;
     this.maxOutputLimit = 1200;
     this.states = import_hyperStates.hyperStates;
     this.controlStates = import_hyperControlStates.hyperControlStates;
@@ -96,14 +96,16 @@ class Hyper2000 extends import_ZenHaDevice.ZenHaDevice {
           limit = 0;
         }
       }
-      if (limit < 0) {
-        if (limit < this.maxInputLimit) {
-          limit = this.maxInputLimit;
-        }
-      } else {
-        if (limit > this.maxOutputLimit) {
-          limit = this.maxOutputLimit;
-        }
+      if (limit < 0 && limit < -this.maxInputLimit) {
+        this.adapter.log.debug(
+          `[setDeviceAutomationInOutLimit] limit ${limit} is below the maximum input limit of ${this.maxInputLimit}, setting to ${-this.maxInputLimit}!`
+        );
+        limit = -this.maxInputLimit;
+      } else if (limit > this.maxOutputLimit) {
+        this.adapter.log.debug(
+          `[setDeviceAutomationInOutLimit] limit ${limit} is higher the maximum output limit of ${this.maxOutputLimit}, setting to ${this.maxOutputLimit}!`
+        );
+        limit = this.maxOutputLimit;
       }
       this.adapter.msgCounter += 1;
       const timestamp = /* @__PURE__ */ new Date();
@@ -119,7 +121,7 @@ class Hyper2000 extends import_ZenHaDevice.ZenHaDevice {
             autoModelValue: {
               chargingType: 1,
               price: 2,
-              chargingPower: -limit,
+              chargingPower: limit,
               prices: [
                 1,
                 1,

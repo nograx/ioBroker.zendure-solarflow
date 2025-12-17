@@ -21,6 +21,7 @@ __export(ZenHaDevice_exports, {
   ZenHaDevice: () => ZenHaDevice
 });
 module.exports = __toCommonJS(ZenHaDevice_exports);
+var import_crypto = require("crypto");
 var import_constants = require("../../constants/constants");
 var import_createCalculationStates = require("../../helpers/createCalculationStates");
 var import_timeHelper = require("../../helpers/timeHelper");
@@ -30,6 +31,7 @@ class ZenHaDevice {
     this.batteries = [];
     this.iotTopic = "";
     this.functionTopic = "";
+    this.password = "";
     this.maxInputLimit = 0;
     this.maxOutputLimit = 0;
     this.states = [];
@@ -492,6 +494,7 @@ class ZenHaDevice {
     this.productName = _productName;
     this.iotTopic = `iot/${_productKey}/${_deviceKey}/properties/write`;
     this.functionTopic = `iot/${_productKey}/${_deviceKey}/function/invoke`;
+    this.password = (0, import_crypto.createHash)("md5").update(_deviceKey, "utf8").digest("hex").toUpperCase().substring(8, 24);
     this.createSolarFlowStates();
     this.subscribeReportTopic();
     this.subscribeIotTopic();
@@ -873,7 +876,12 @@ class ZenHaDevice {
   setInputLimit(limit) {
     var _a;
     if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
-      limit = Math.abs(limit);
+      if (limit < 0) {
+        this.adapter.log.debug(
+          `[setInputLimit] limit ${limit} is negative, converting to positive!`
+        );
+        limit = Math.abs(limit);
+      }
       if (limit) {
         limit = Math.round(limit);
       } else {
@@ -1052,22 +1060,36 @@ class ZenHaDevice {
       let stateNameEnergyWh = "";
       let stateNameEnergykWh = "";
       let stateNamePower = "";
-      if (stateKey == "pvPower1") {
-        stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv1EnergyTodayWh`;
-        stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv1EnergyTodaykWh`;
-        stateNamePower = `${this.productKey}.${this.deviceKey}.pvPower1`;
-      } else if (stateKey == "pvPower2") {
-        stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv2EnergyTodayWh`;
-        stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv2EnergyTodaykWh`;
-        stateNamePower = `${this.productKey}.${this.deviceKey}.pvPower2`;
-      } else {
-        stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.${stateKey}EnergyTodayWh`;
-        stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.${stateKey}EnergyTodaykWh`;
-        stateNamePower = `${this.productKey}.${this.deviceKey}.${stateKey}Power`;
+      switch (stateKey) {
+        case "pvPower1":
+          stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv1EnergyTodayWh`;
+          stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv1EnergyTodaykWh`;
+          stateNamePower = `${this.productKey}.${this.deviceKey}.pvPower1`;
+          break;
+        case "pvPower2":
+          stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv2EnergyTodayWh`;
+          stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv2EnergyTodaykWh`;
+          stateNamePower = `${this.productKey}.${this.deviceKey}.pvPower2`;
+          break;
+        case "pvPower3":
+          stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv3EnergyTodayWh`;
+          stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv3EnergyTodaykWh`;
+          stateNamePower = `${this.productKey}.${this.deviceKey}.pvPower3`;
+          break;
+        case "pvPower4":
+          stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv4EnergyTodayWh`;
+          stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv4EnergyTodaykWh`;
+          stateNamePower = `${this.productKey}.${this.deviceKey}.pvPower4`;
+          break;
+        default:
+          stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.${stateKey}EnergyTodayWh`;
+          stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.${stateKey}EnergyTodaykWh`;
+          stateNamePower = `${this.productKey}.${this.deviceKey}.${stateKey}Power`;
+          break;
       }
       const currentPowerState = await ((_a = this.adapter) == null ? void 0 : _a.getStateAsync(stateNamePower));
       const currentEnergyState = await ((_b = this.adapter) == null ? void 0 : _b.getStateAsync(stateNameEnergyWh));
-      if ((currentEnergyState == null ? void 0 : currentEnergyState.val) == 0) {
+      if (!(currentEnergyState == null ? void 0 : currentEnergyState.val) || (currentEnergyState == null ? void 0 : currentEnergyState.val) == 0) {
         await ((_c = this.adapter) == null ? void 0 : _c.setState(stateNameEnergyWh, 1e-6, true));
       } else if (currentEnergyState && currentEnergyState.lc && currentPowerState && currentPowerState.val != void 0 && currentPowerState.val != null) {
         const timeFrame = 3e4;

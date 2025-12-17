@@ -104,16 +104,18 @@ class SfHub1200 extends import_ZenHaDevice.ZenHaDevice {
           limit = 0;
         }
       }
-      if (limit < 0) {
-        if (limit < this.maxInputLimit) {
-          limit = this.maxInputLimit;
-        }
-      } else {
-        if (limit > this.maxOutputLimit) {
-          limit = this.maxOutputLimit;
-        }
+      if (limit < 0 && limit < -this.maxInputLimit) {
+        this.adapter.log.debug(
+          `[setDeviceAutomationInOutLimit] limit ${limit} is below the maximum input limit of ${this.maxInputLimit}, setting to ${-this.maxInputLimit}!`
+        );
+        limit = -this.maxInputLimit;
+      } else if (limit > this.maxOutputLimit) {
+        this.adapter.log.debug(
+          `[setDeviceAutomationInOutLimit] limit ${limit} is higher the maximum output limit of ${this.maxOutputLimit}, setting to ${this.maxOutputLimit}!`
+        );
+        limit = this.maxOutputLimit;
       }
-      if (limit < 100 && limit != 90 && limit != 60 && limit != 30 && limit != 0) {
+      if (limit > 0 && limit < 100 && limit != 90 && limit != 60 && limit != 30 && limit != 0) {
         if (limit < 100 && limit > 90) {
           limit = 90;
         } else if (limit > 60 && limit < 90) {
@@ -137,7 +139,7 @@ class SfHub1200 extends import_ZenHaDevice.ZenHaDevice {
             autoModelProgram: 2,
             autoModelValue: {
               chargingType: 1,
-              chargingPower: -limit,
+              chargingPower: limit,
               freq: 0,
               outPower: 0
             },

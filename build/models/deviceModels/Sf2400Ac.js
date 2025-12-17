@@ -104,14 +104,16 @@ class Sf2400Ac extends import_ZenHaDevice.ZenHaDevice {
           limit = 0;
         }
       }
-      if (limit < 0) {
-        if (limit < this.maxInputLimit) {
-          limit = this.maxInputLimit;
-        }
-      } else {
-        if (limit > this.maxOutputLimit) {
-          limit = this.maxOutputLimit;
-        }
+      if (limit < 0 && limit < -this.maxInputLimit) {
+        this.adapter.log.debug(
+          `[setDeviceAutomationInOutLimit] limit ${limit} is below the maximum input limit of ${this.maxInputLimit}, setting to ${-this.maxInputLimit}!`
+        );
+        limit = -this.maxInputLimit;
+      } else if (limit > this.maxOutputLimit) {
+        this.adapter.log.debug(
+          `[setDeviceAutomationInOutLimit] limit ${limit} is higher the maximum output limit of ${this.maxOutputLimit}, setting to ${this.maxOutputLimit}!`
+        );
+        limit = this.maxOutputLimit;
       }
       this.adapter.msgCounter += 1;
       const timestamp = /* @__PURE__ */ new Date();
@@ -122,7 +124,7 @@ class Sf2400Ac extends import_ZenHaDevice.ZenHaDevice {
       const _arguments = {
         outputPower: limit > 0 ? limit : 0,
         chargeState: limit > 0 ? 0 : 1,
-        chargePower: limit > 0 ? 0 : -limit,
+        chargePower: limit > 0 ? 0 : limit,
         mode: 9
       };
       const hemsEP = {
