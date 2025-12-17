@@ -62,6 +62,9 @@ This adapter will now use the Cloud Authorization Code for authentication on the
 
 ### **WORK IN PROGRESS**
 
+- Fix inputLimit on certain devices
+- Fix calculation of PV3 & 4 again (hopefully now 100%)
+- Add some more specific debug messages
 - Remove misleading error message on adapter start
 - Update adapter to adapter-react-v5 (MUI v5)
 - Fix commandbar in settings

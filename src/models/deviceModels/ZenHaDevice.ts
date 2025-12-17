@@ -1161,7 +1161,7 @@ export class ZenHaDevice {
       const currentEnergyState =
         await this.adapter?.getStateAsync(stateNameEnergyWh);
 
-      if (currentEnergyState?.val == 0) {
+      if (!currentEnergyState?.val || currentEnergyState?.val == 0) {
         // Workaround, set Val to very low value to avoid Jump in data...
         await this.adapter?.setState(stateNameEnergyWh, 0.000001, true);
       } else if (
