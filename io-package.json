@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "3.2.1",
+    "version": "3.2.2",
     "news": {
+      "3.2.2": {
+        "en": "Fix reset of calculation states if PV3+4 (SF 800 Pro)",
+        "de": "Reset von Berechnungszuständen, wenn PV3+4 (SF 800 Pro)",
+        "ru": "Исправьте сброс расчётных состояний, если PV3+4 (SF 800 Pro)",
+        "pt": "Corrigir a redefinição dos estados de cálculo se PV3+4 (SF 800 Pro)",
+        "nl": "Fix reset van berekening staat als PV3+4 (SF 800 Pro)",
+        "fr": "Correction de la remise des états de calcul si PV3+4 (SF 800 Pro)",
+        "it": "Ripristino degli stati di calcolo se PV3+4 (SF 800 Pro)",
+        "es": "Fijar el reajuste de los estados de cálculo si PV3+4 (SF 800 Pro)",
+        "pl": "Napraw reset stanów obliczeniowych, jeśli PV3 + 4 (SF 800 Pro)",
+        "uk": "Кріплення розрахунків станів, якщо PV3 +4 (SF 800 Pro)",
+        "zh-cn": "如果PV3+4(SF 800 Pro),则固定重置计算"
+      },
       "3.2.1": {
         "en": "Fix setDeviceAutomation charging mode",
         "de": "Fix setDeviceAutomatisieren Lademodus",
@@ -80,19 +93,6 @@
         "pl": "Popraw tworzenie SF 800 Urządzenie Pro",
         "uk": "Фіксація створення SF 800 Про пристрій",
         "zh-cn": "固定创建 SF 800 Pro 设备"
-      },
-      "3.0.5": {
-        "en": "Add some more log information on device creation",
-        "de": "Fügen Sie weitere Log-Informationen zur Geräteerstellung hinzu",
-        "ru": "Добавьте больше информации о журналах для создания устройств",
-        "pt": "Adicionar mais informações de log na criação do dispositivo",
-        "nl": "Voeg wat meer loginformatie toe over het aanmaken van een apparaat",
-        "fr": "Ajoutez d'autres informations de journal sur la création de l'appareil",
-        "it": "Aggiungi altre informazioni di log sulla creazione del dispositivo",
-        "es": "Añadir más información de registro en la creación del dispositivo",
-        "pl": "Dodaj więcej informacji o tworzeniu urządzenia",
-        "uk": "Додайте ще інформацію про пристрій",
-        "zh-cn": "添加更多关于设备创建的日志信息"
       }
     },
     "titleLang": {
