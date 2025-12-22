@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "3.2.2",
+    "version": "3.3.0-alpha.0",
     "news": {
+      "3.3.0-alpha.0": {
+        "en": "Test deviceAutomation for ACE1500",
+        "de": "TestgerätAutomation für ACE1500",
+        "ru": "Испытательное устройство Автоматизация для ACE1500",
+        "pt": "Dispositivo de testeAutomação para ACE1500",
+        "nl": "TestapparaatAutomatie voor ACE1500",
+        "fr": "Dispositif d'essaiAutomation pour ACE1500",
+        "it": "Dispositivo di provaAutomazione per ACE1500",
+        "es": "Equipo de pruebaAutomatización para ACE1500",
+        "pl": "Automatyzacja urządzenia testowego dla ACE1500",
+        "uk": "Тестовий пристрійАвтоматика для ACE1500",
+        "zh-cn": "ACE1500的测试设备自动化"
+      },
       "3.2.2": {
         "en": "Fix reset of calculation states if PV3+4 (SF 800 Pro)",
         "de": "Reset von Berechnungszuständen, wenn PV3+4 (SF 800 Pro)",
@@ -80,19 +93,6 @@
         "pl": "Popraw brakujące inteligentne Stan trybu dla SF 800 Pro",
         "uk": "Виправлення відсутній смарт Статус на сервери",
         "zh-cn": "修复丢失的智能 SF800 Pro 模式状态"
-      },
-      "3.0.7": {
-        "en": "Fix creation of SF 800 Pro device",
-        "de": "Feste Erstellung von SF 800 Pro Gerät",
-        "ru": "Создание SF 800 Устройство Pro",
-        "pt": "Fixar a criação de SF 800 Dispositivo Pro",
-        "nl": "Fix creatie van SF 800 Pro apparaat",
-        "fr": "Correction de la création de SF 800 Appareil pro",
-        "it": "Creazione fissa di SF 800 Dispositivo Pro",
-        "es": "Creación fija de SF 800 Dispositivo Pro",
-        "pl": "Popraw tworzenie SF 800 Urządzenie Pro",
-        "uk": "Фіксація створення SF 800 Про пристрій",
-        "zh-cn": "固定创建 SF 800 Pro 设备"
       }
     },
     "titleLang": {
