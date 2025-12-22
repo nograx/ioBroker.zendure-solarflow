@@ -85,7 +85,7 @@ class Aio2400 extends import_ZenHaDevice.ZenHaDevice {
           limit = 30;
         }
       }
-      this.adapter.msgCounter += 1;
+      this.messageId += 1;
       const timestamp = /* @__PURE__ */ new Date();
       timestamp.setMilliseconds(0);
       let _arguments = [];
@@ -103,7 +103,7 @@ class Aio2400 extends import_ZenHaDevice.ZenHaDevice {
       const deviceAutomation = {
         arguments: _arguments,
         function: "deviceAutomation",
-        messageId: this.adapter.msgCounter,
+        messageId: this.messageId,
         deviceKey: this.deviceKey,
         timestamp: timestamp.getTime() / 1e3
       };

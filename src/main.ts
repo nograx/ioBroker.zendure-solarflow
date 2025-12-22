@@ -32,7 +32,6 @@ export class ZendureSolarflow extends utils.Adapter {
   public zenHaDeviceList: ZenHaDevice[] = []; // All found devices for this instance will be in this array
   public mqttSettings: IZenHaMqttData | undefined = undefined;
 
-  public msgCounter: number = 700000;
   public lastLogin: Date | undefined = undefined;
 
   public mqttClient: MqttClient | undefined = undefined;

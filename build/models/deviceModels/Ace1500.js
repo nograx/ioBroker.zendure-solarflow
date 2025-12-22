@@ -69,6 +69,63 @@ class Ace1500 extends import_ZenHaDevice.ZenHaDevice {
       );
     }
   }
+  async setDeviceAutomationInOutLimit(limit) {
+    var _a;
+    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
+      this.adapter.log.debug(
+        `[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`
+      );
+      if (limit) {
+        limit = Math.round(limit);
+      } else {
+        limit = 0;
+      }
+      if (limit > 0) {
+        this.adapter.log.error(
+          `[setDeviceAutomationInOutLimit] ACE 1500 can not feed in!`
+        );
+      }
+      if (limit < 0 && limit < -this.maxInputLimit) {
+        this.adapter.log.debug(
+          `[setDeviceAutomationInOutLimit] limit ${limit} is below the maximum input limit of ${this.maxInputLimit}, setting to ${-this.maxInputLimit}!`
+        );
+        limit = -this.maxInputLimit;
+      }
+      this.messageId += 1;
+      const timestamp = /* @__PURE__ */ new Date();
+      timestamp.setMilliseconds(0);
+      let _arguments = [];
+      if (limit < 0) {
+        this.adapter.log.debug(
+          `[setDeviceAutomationInOutLimit] Using CHARGE variant of ACE 1500 device automation, as device '${this.productKey}' detected and limit (${limit}) is negative!`
+        );
+        _arguments = [
+          {
+            autoModelProgram: 2,
+            autoModelValue: {
+              chargingType: 1,
+              chargingPower: Math.abs(limit),
+              freq: 0,
+              outPower: 0
+            },
+            msgType: 1,
+            autoModel: 8
+          }
+        ];
+      }
+      const deviceAutomation = {
+        arguments: _arguments,
+        function: "deviceAutomation",
+        messageId: this.messageId,
+        deviceKey: this.deviceKey,
+        timestamp: timestamp.getTime() / 1e3
+      };
+      (_a = this.adapter.mqttClient) == null ? void 0 : _a.publish(
+        this.functionTopic,
+        JSON.stringify(deviceAutomation)
+      );
+    }
+  }
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

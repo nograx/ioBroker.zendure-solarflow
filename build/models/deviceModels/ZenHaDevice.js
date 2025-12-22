@@ -28,6 +28,7 @@ var import_timeHelper = require("../../helpers/timeHelper");
 var import_mqttSharedService = require("../../services/mqttSharedService");
 class ZenHaDevice {
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {
+    this.messageId = 0;
     this.batteries = [];
     this.iotTopic = "";
     this.functionTopic = "";
@@ -862,7 +863,7 @@ class ZenHaDevice {
       if (currentLimit != null && currentLimit != void 0) {
         if (currentLimit != limit) {
           const outputlimit = { properties: { outputLimit: limit } };
-          this.adapter.msgCounter += 1;
+          this.messageId += 1;
           const timestamp = /* @__PURE__ */ new Date();
           timestamp.setMilliseconds(0);
           (_c = this.adapter.mqttClient) == null ? void 0 : _c.publish(

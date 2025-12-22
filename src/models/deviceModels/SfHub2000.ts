@@ -148,7 +148,7 @@ export class SfHub2000 extends ZenHaDevice {
         }
       }
 
-      this.adapter.msgCounter += 1;
+      this.messageId += 1;
 
       const timestamp = new Date();
       timestamp.setMilliseconds(0);
@@ -190,7 +190,7 @@ export class SfHub2000 extends ZenHaDevice {
       const deviceAutomation = {
         arguments: _arguments,
         function: "deviceAutomation",
-        messageId: this.adapter.msgCounter,
+        messageId: this.messageId,
         deviceKey: this.deviceKey,
         timestamp: timestamp.getTime() / 1000,
       };

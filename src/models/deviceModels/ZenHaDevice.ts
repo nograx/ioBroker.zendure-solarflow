@@ -21,6 +21,7 @@ export class ZenHaDevice {
   public deviceKey: string;
   public productName: string;
   public deviceName: string;
+  public messageId: number = 0;
   public batteries: IDevicePack[] = [];
 
   public iotTopic: string = "";
@@ -490,7 +491,7 @@ export class ZenHaDevice {
         if (currentLimit != limit) {
           const outputlimit = { properties: { outputLimit: limit } };
 
-          this.adapter.msgCounter += 1;
+          this.messageId += 1;
 
           const timestamp = new Date();
           timestamp.setMilliseconds(0);

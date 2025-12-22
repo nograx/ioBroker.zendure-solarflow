@@ -113,7 +113,7 @@ class Sf800Pro extends import_ZenHaDevice.ZenHaDevice {
         );
         limit = this.maxOutputLimit;
       }
-      this.adapter.msgCounter += 1;
+      this.messageId += 1;
       const timestamp = /* @__PURE__ */ new Date();
       timestamp.setMilliseconds(0);
       this.adapter.log.debug(
@@ -128,7 +128,7 @@ class Sf800Pro extends import_ZenHaDevice.ZenHaDevice {
       const hemsEP = {
         arguments: _arguments,
         function: "hemsEP",
-        messageId: this.adapter.msgCounter,
+        messageId: this.messageId,
         deviceKey: this.deviceKey,
         timestamp: timestamp.getTime() / 1e3
       };

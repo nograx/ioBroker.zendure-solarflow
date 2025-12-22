@@ -46,7 +46,6 @@ class ZendureSolarflow extends utils.Adapter {
     this.zenHaDeviceList = [];
     // All found devices for this instance will be in this array
     this.mqttSettings = void 0;
-    this.msgCounter = 7e5;
     this.lastLogin = void 0;
     this.mqttClient = void 0;
     this.resetValuesJob = void 0;

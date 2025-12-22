@@ -126,7 +126,7 @@ export class Sf800 extends ZenHaDevice {
         limit = this.maxOutputLimit;
       }
 
-      this.adapter.msgCounter += 1;
+      this.messageId += 1;
 
       const timestamp = new Date();
       timestamp.setMilliseconds(0);
@@ -147,7 +147,7 @@ export class Sf800 extends ZenHaDevice {
       const hemsEP = {
         arguments: _arguments,
         function: "hemsEP",
-        messageId: this.adapter.msgCounter,
+        messageId: this.messageId,
         deviceKey: this.deviceKey,
         timestamp: timestamp.getTime() / 1000,
       };
