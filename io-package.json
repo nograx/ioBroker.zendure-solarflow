@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "3.3.0",
+    "version": "3.3.1",
     "news": {
+      "3.3.1": {
+        "en": "Fix caluclation issue",
+        "de": "Problem der Calucation behoben",
+        "ru": "Исправьте проблему калькуляции",
+        "pt": "Corrigir a questão da calulação",
+        "nl": "Repareer het probleem van de kalibratie",
+        "fr": "Correction du problème de caluclation",
+        "it": "Risolvere la questione del calcolo",
+        "es": "Cuestión de la calusión fija",
+        "pl": "Napraw problem kalkulacji",
+        "uk": "Фіксований випуск калорій",
+        "zh-cn": "修正计算问题"
+      },
       "3.3.0": {
         "en": "Fix 'has no existing object' messages on pvPower3 + 4\nFix AC input limit of SF 800 Pro",
         "de": "Fix 'has no existing object'-Nachrichten auf pvPower3 + 4\nFix AC Eingangsgrenze von SF 800 Pro",
@@ -80,19 +93,6 @@
         "pl": "Fix Uppercase 'a4ss5p' in helpers.ts",
         "uk": "Фіксація Верхній регістр 'a4ss5p' в помічниках.ts",
         "zh-cn": "在助手.ts中修正大写“ a4ss5p ”"
-      },
-      "3.1.0": {
-        "en": "Fix setInputLimit (always use positive value!)\nAdd calculation states for PV3 & PV4 (used by SF 800 Pro)\nFix Uppercase 'a4ss5p' in helpers.ts",
-        "de": "Fix setInputLimit (verwendet immer positiven Wert!)\nBerechnungszustände für PV3 & PV4 (verwendet durch SF 800 Pro) hinzufügen\nGroßbuchstaben 'a4ss5p' in helpers.ts",
-        "ru": "Исправьте набор InputLimit (всегда используйте положительное значение!)\nДобавить расчетные состояния для PV3 и PV4 (используется SF 800 Pro)\nИсправьте Uppercase 'a4ss5p' в helpers.ts",
-        "pt": "Corrigir setInputLimit (sempre use valor positivo!)\nAdicionar estados de cálculo para PV3 & PV4 (utilizado pelo SF 800 Pro)\nCorrigir 'a4ss5p' em helpers.ts",
-        "nl": "Fix setInputLimit (gebruik altijd positieve waarde!)\nBerekeningstoestanden toevoegen voor PV3 & PV4 (gebruikt door SF 800 Pro)\nFix Uppercase 'a4ss5p' in helpers.ts",
-        "fr": "Correction setInputLimit (utilisez toujours une valeur positive!)\nAjouter les états de calcul pour PV3 et PV4 (utilisés par SF 800 Pro)\nCorrection de la case supérieure 'a4ss5p' dans aideurs.ts",
-        "it": "Fix setInputLimit (sempre utilizzare il valore positivo!)\nAggiungi stati di calcolo per PV3 & PV4 (usati da SF 800 Pro)\nFissare Uppercase 'a4ss5p' in helpers.ts",
-        "es": "Fijar setInputLimit (siempre usa valor positivo!)\nAñadir estados de cálculo para PV3 & PV4 (utilizado por SF 800 Pro)\nFijar maleta superior 'a4s5p' en helpers.ts",
-        "pl": "Fix settInputLimit (zawsze używaj wartości dodatniej!)\nDodaj stany obliczeniowe dla PV3 i PV4 (używane przez SF 800 Pro)\nFix Uppercase 'a4ss5p' in helpers.ts",
-        "uk": "Виправлення setInputLimit (посередини використовують позитивне значення!)\nДодайте розрахункові стани для PV3 та PV4 (використані SF 800 Pro)\nФіксація Верхній регістр 'a4ss5p' в помічниках.ts",
-        "zh-cn": "修复设置 InputLimit( 总是使用正值 !)\n添加PV3 & PV4的计算状态(由SF 800 Pro使用)\n在助手.ts中修正大写“ a4ss5p ”"
       }
     },
     "titleLang": {

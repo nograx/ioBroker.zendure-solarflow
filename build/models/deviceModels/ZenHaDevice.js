@@ -1098,43 +1098,48 @@ class ZenHaDevice {
           stateNamePower = `${this.productKey}.${this.deviceKey}.${stateKey}Power`;
           break;
       }
-      const currentPowerState = await ((_a = this.adapter) == null ? void 0 : _a.getStateAsync(stateNamePower));
-      const currentEnergyState = await ((_b = this.adapter) == null ? void 0 : _b.getStateAsync(stateNameEnergyWh));
-      if (!(currentEnergyState == null ? void 0 : currentEnergyState.val) || (currentEnergyState == null ? void 0 : currentEnergyState.val) == 0) {
-        await ((_c = this.adapter) == null ? void 0 : _c.setState(stateNameEnergyWh, 1e-6, true));
-      } else if (currentEnergyState && currentEnergyState.lc && currentPowerState && currentPowerState.val != void 0 && currentPowerState.val != null) {
-        const timeFrame = 3e4;
-        const addEnergyValue = Number(currentPowerState.val) * timeFrame / 36e5;
-        let newEnergyValue = Number(currentEnergyState.val) + addEnergyValue;
-        if (newEnergyValue < 0) {
-          newEnergyValue = 0;
-        }
-        await ((_d = this.adapter) == null ? void 0 : _d.setState(stateNameEnergyWh, newEnergyValue, true));
-        await ((_e = this.adapter) == null ? void 0 : _e.setState(
-          stateNameEnergykWh,
-          Number((newEnergyValue / 1e3).toFixed(2)),
-          true
-        ));
-        if ((stateKey == "outputPack" || stateKey == "packInput") && addEnergyValue > 0) {
-          await this.calculateSocAndEnergy(stateKey, addEnergyValue);
-        } else {
-          if (stateKey == "outputPack") {
-            await ((_f = this.adapter) == null ? void 0 : _f.setState(
-              `${this.productKey}.${this.deviceKey}.calculations.remainInputTime`,
-              "",
-              true
-            ));
-          } else if (stateKey == "packInput") {
-            await ((_g = this.adapter) == null ? void 0 : _g.setState(
-              `${this.productKey}.${this.deviceKey}.calculations.remainOutTime`,
-              "",
-              true
-            ));
+      if (stateNamePower != "") {
+        this.adapter.log.debug(
+          `[calculateEnergy] No stateNamePower found for ${stateKey}!`
+        );
+        const currentPowerState = await ((_a = this.adapter) == null ? void 0 : _a.getStateAsync(stateNamePower));
+        const currentEnergyState = await ((_b = this.adapter) == null ? void 0 : _b.getStateAsync(stateNameEnergyWh));
+        if (!(currentEnergyState == null ? void 0 : currentEnergyState.val) || (currentEnergyState == null ? void 0 : currentEnergyState.val) == 0) {
+          await ((_c = this.adapter) == null ? void 0 : _c.setState(stateNameEnergyWh, 1e-6, true));
+        } else if (currentEnergyState && currentEnergyState.lc && currentPowerState && currentPowerState.val != void 0 && currentPowerState.val != null) {
+          const timeFrame = 3e4;
+          const addEnergyValue = Number(currentPowerState.val) * timeFrame / 36e5;
+          let newEnergyValue = Number(currentEnergyState.val) + addEnergyValue;
+          if (newEnergyValue < 0) {
+            newEnergyValue = 0;
           }
+          await ((_d = this.adapter) == null ? void 0 : _d.setState(stateNameEnergyWh, newEnergyValue, true));
+          await ((_e = this.adapter) == null ? void 0 : _e.setState(
+            stateNameEnergykWh,
+            Number((newEnergyValue / 1e3).toFixed(2)),
+            true
+          ));
+          if ((stateKey == "outputPack" || stateKey == "packInput") && addEnergyValue > 0) {
+            await this.calculateSocAndEnergy(stateKey, addEnergyValue);
+          } else {
+            if (stateKey == "outputPack") {
+              await ((_f = this.adapter) == null ? void 0 : _f.setState(
+                `${this.productKey}.${this.deviceKey}.calculations.remainInputTime`,
+                "",
+                true
+              ));
+            } else if (stateKey == "packInput") {
+              await ((_g = this.adapter) == null ? void 0 : _g.setState(
+                `${this.productKey}.${this.deviceKey}.calculations.remainOutTime`,
+                "",
+                true
+              ));
+            }
+          }
+        } else if (currentPowerState && currentEnergyState) {
+          await ((_h = this.adapter) == null ? void 0 : _h.setState(stateNameEnergyWh, 0, true));
+          await ((_i = this.adapter) == null ? void 0 : _i.setState(stateNameEnergykWh, 0, true));
         }
-      } else if (currentPowerState && currentEnergyState) {
-        await ((_h = this.adapter) == null ? void 0 : _h.setState(stateNameEnergyWh, 0, true));
-        await ((_i = this.adapter) == null ? void 0 : _i.setState(stateNameEnergykWh, 0, true));
       }
     });
   }
