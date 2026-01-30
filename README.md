@@ -59,9 +59,10 @@ On a HUB 1200 / HUB 2000 / ACE 1500 combination you have to use '**setDeviceAuto
 This adapter will now use the Cloud Authorization Code for authentication on the official mqtt servers, which you can generate in the Zendure app!
 
 ## Changelog
+
 ### 3.3.1 (2026-01-30)
 
-- Fix caluclation issue
+- Fix calculation issue
 
 ### 3.3.0 (2026-01-30)
 
