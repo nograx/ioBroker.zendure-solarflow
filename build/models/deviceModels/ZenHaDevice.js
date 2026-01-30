@@ -1073,14 +1073,20 @@ class ZenHaDevice {
           stateNamePower = `${this.productKey}.${this.deviceKey}.pvPower2`;
           break;
         case "pvPower3":
-          if (this.states.find((x) => x.title == "pvPower3")) {
+          const pvPower3StateDef = this.states.find(
+            (x) => x.title == "pvPower3"
+          );
+          if (pvPower3StateDef) {
             stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv3EnergyTodayWh`;
             stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv3EnergyTodaykWh`;
             stateNamePower = `${this.productKey}.${this.deviceKey}.pvPower3`;
           }
           break;
         case "pvPower4":
-          if (this.states.find((x) => x.title == "pvPower4")) {
+          const pvPower4StateDef = this.states.find(
+            (x) => x.title == "pvPower4"
+          );
+          if (pvPower4StateDef) {
             stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv4EnergyTodayWh`;
             stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv4EnergyTodaykWh`;
             stateNamePower = `${this.productKey}.${this.deviceKey}.pvPower4`;
