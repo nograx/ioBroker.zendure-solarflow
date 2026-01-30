@@ -1073,14 +1073,18 @@ class ZenHaDevice {
           stateNamePower = `${this.productKey}.${this.deviceKey}.pvPower2`;
           break;
         case "pvPower3":
-          stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv3EnergyTodayWh`;
-          stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv3EnergyTodaykWh`;
-          stateNamePower = `${this.productKey}.${this.deviceKey}.pvPower3`;
+          if (this.states.find((x) => x.title == "pvPower3")) {
+            stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv3EnergyTodayWh`;
+            stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv3EnergyTodaykWh`;
+            stateNamePower = `${this.productKey}.${this.deviceKey}.pvPower3`;
+          }
           break;
         case "pvPower4":
-          stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv4EnergyTodayWh`;
-          stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv4EnergyTodaykWh`;
-          stateNamePower = `${this.productKey}.${this.deviceKey}.pvPower4`;
+          if (this.states.find((x) => x.title == "pvPower4")) {
+            stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv4EnergyTodayWh`;
+            stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv4EnergyTodaykWh`;
+            stateNamePower = `${this.productKey}.${this.deviceKey}.pvPower4`;
+          }
           break;
         default:
           stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.${stateKey}EnergyTodayWh`;
@@ -1181,12 +1185,16 @@ class ZenHaDevice {
           stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv2EnergyTodaykWh`;
           break;
         case "pvPower3":
-          stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv3EnergyTodayWh`;
-          stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv3EnergyTodaykWh`;
+          if (this.states.find((x) => x.title == "pvPower3")) {
+            stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv3EnergyTodayWh`;
+            stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv3EnergyTodaykWh`;
+          }
           break;
         case "pvPower4":
-          stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv4EnergyTodayWh`;
-          stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv4EnergyTodaykWh`;
+          if (this.states.find((x) => x.title == "pvPower4")) {
+            stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv4EnergyTodayWh`;
+            stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv4EnergyTodaykWh`;
+          }
           break;
         default:
           stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.${stateKey}EnergyTodayWh`;

@@ -34,7 +34,7 @@ class Sf800Pro extends import_ZenHaDevice.ZenHaDevice {
       _deviceName,
       _zenHaDeviceDetails
     );
-    this.maxInputLimit = 800;
+    this.maxInputLimit = 1e3;
     this.maxOutputLimit = 800;
     this.states = import_solarflow800ProStates.solarflow800ProStates;
     this.controlStates = import_solarflow800ProControlStates.solarflow800ProControlStates;

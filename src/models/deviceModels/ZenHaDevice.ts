@@ -40,7 +40,7 @@ export class ZenHaDevice {
     _deviceKey: string,
     _productName: string,
     _deviceName: string,
-    _zenHaDeviceDetails?: IZenHaDeviceDetails
+    _zenHaDeviceDetails?: IZenHaDeviceDetails,
   ) {
     this.zenHaDeviceDetails = _zenHaDeviceDetails;
     this.adapter = _adapter;
@@ -84,12 +84,12 @@ export class ZenHaDevice {
   private async createSolarFlowStates(): Promise<void> {
     const productKey = this.productKey.replace(
       this.adapter.FORBIDDEN_CHARS,
-      ""
+      "",
     );
     const deviceKey = this.deviceKey.replace(this.adapter.FORBIDDEN_CHARS, "");
 
     this.adapter.log.debug(
-      `[createSolarFlowStates] Creating or updating SolarFlow states for ${this.productName} (${productKey}/${deviceKey}) and name '${this.deviceName}'.`
+      `[createSolarFlowStates] Creating or updating SolarFlow states for ${this.productName} (${productKey}/${deviceKey}) and name '${this.deviceName}'.`,
     );
 
     // Create device (e.g. the product type -> SolarFlow)
@@ -148,7 +148,7 @@ export class ZenHaDevice {
             states: state.states,
           },
           native: {},
-        }
+        },
       );
     });
 
@@ -183,12 +183,12 @@ export class ZenHaDevice {
             states: state.states,
           },
           native: {},
-        }
+        },
       );
 
       // Subscribe to states to respond to changes
       this.adapter?.subscribeStates(
-        `${productKey}.${deviceKey}.control.${state.title}`
+        `${productKey}.${deviceKey}.control.${state.title}`,
       );
     });
 
@@ -205,7 +205,7 @@ export class ZenHaDevice {
             },
           },
           native: {},
-        }
+        },
       );
 
       await createCalculationStates(this.adapter, productKey, deviceKey);
@@ -217,7 +217,7 @@ export class ZenHaDevice {
 
     if (this.adapter) {
       this.adapter.log.debug(
-        `[subscribeReportTopic] Subscribing to MQTT Topic: ${reportTopic}`
+        `[subscribeReportTopic] Subscribing to MQTT Topic: ${reportTopic}`,
       );
       this.adapter.mqttClient?.subscribe(reportTopic, onSubscribeReportTopic);
     }
@@ -227,7 +227,7 @@ export class ZenHaDevice {
     const iotTopic = `iot/${this.productKey}/${this.deviceKey}/#`;
 
     this.adapter?.log.debug(
-      `[subscribeIotTopic] Subscribing to MQTT Topic: ${iotTopic}`
+      `[subscribeIotTopic] Subscribing to MQTT Topic: ${iotTopic}`,
     );
     this.adapter?.mqttClient?.subscribe(iotTopic, (error) => {
       onSubscribeIotTopic(error, this.productKey, this.deviceKey);
@@ -236,28 +236,28 @@ export class ZenHaDevice {
 
   public setDeviceAutomationInOutLimit(limit: number): void {
     this.adapter?.log.error(
-      `[setAcMode] Method setDeviceAutomationInOutLimit (set to ${limit}) not defined in base class!`
+      `[setAcMode] Method setDeviceAutomationInOutLimit (set to ${limit}) not defined in base class!`,
     );
     return;
   }
 
   public setAcMode(acMode: number): void {
     this.adapter?.log.error(
-      `[setAcMode] Method setAcMode (set to ${acMode}) not defined in base class!`
+      `[setAcMode] Method setAcMode (set to ${acMode}) not defined in base class!`,
     );
     return;
   }
 
   public setDcSwitch(dcSwitch: boolean): void {
     this.adapter?.log.error(
-      `[setAcMode] Method setDcSwitch (set to ${dcSwitch}) not defined in base class!`
+      `[setAcMode] Method setDcSwitch (set to ${dcSwitch}) not defined in base class!`,
     );
     return;
   }
 
   public setAcSwitch(acSwitch: boolean): void {
     this.adapter?.log.error(
-      `[setAcMode] Method setAcSwitch (set to ${acSwitch}) not defined in base class!`
+      `[setAcMode] Method setAcSwitch (set to ${acSwitch}) not defined in base class!`,
     );
     return;
   }
@@ -269,7 +269,7 @@ export class ZenHaDevice {
 
         const socSetLimit = { properties: { hubState: hubState } };
         this.adapter.log.debug(
-          `[setHubState] Setting Hub State for deviceKey ${this.deviceKey} to ${hubState}!`
+          `[setHubState] Setting Hub State for deviceKey ${this.deviceKey} to ${hubState}!`,
         );
         this.adapter.mqttClient?.publish(topic, JSON.stringify(socSetLimit));
       } else {
@@ -284,11 +284,11 @@ export class ZenHaDevice {
 
       const setPassModeContent = { properties: { passMode: passMode } };
       this.adapter.log.debug(
-        `[setPassMode] Set passMode for deviceKey ${this.deviceKey} to ${passMode}!`
+        `[setPassMode] Set passMode for deviceKey ${this.deviceKey} to ${passMode}!`,
       );
       this.adapter.mqttClient?.publish(
         topic,
-        JSON.stringify(setPassModeContent)
+        JSON.stringify(setPassModeContent),
       );
     }
   }
@@ -301,11 +301,11 @@ export class ZenHaDevice {
         properties: { autoRecover: autoRecover ? 1 : 0 },
       };
       this.adapter.log.debug(
-        `[setAutoRecover] Set autoRecover for deviceKey ${this.deviceKey} to ${autoRecover}!`
+        `[setAutoRecover] Set autoRecover for deviceKey ${this.deviceKey} to ${autoRecover}!`,
       );
       this.adapter.mqttClient?.publish(
         topic,
-        JSON.stringify(setAutoRecoverContent)
+        JSON.stringify(setAutoRecoverContent),
       );
     }
   }
@@ -322,12 +322,12 @@ export class ZenHaDevice {
 
         const socSetLimit = { properties: { minSoc: minSoc * 10 } };
         this.adapter.log.debug(
-          `[setDischargeLimit] Setting Discharge Limit for device key ${this.deviceKey} to ${minSoc}!`
+          `[setDischargeLimit] Setting Discharge Limit for device key ${this.deviceKey} to ${minSoc}!`,
         );
         this.adapter.mqttClient?.publish(topic, JSON.stringify(socSetLimit));
       } else {
         this.adapter.log.debug(
-          `[setDischargeLimit] Discharge limit is not in range 0<>50!`
+          `[setDischargeLimit] Discharge limit is not in range 0<>50!`,
         );
       }
     }
@@ -343,15 +343,15 @@ export class ZenHaDevice {
       if (socSet >= 40 && socSet <= 100) {
         const socSetLimit = { properties: { socSet: socSet * 10 } };
         this.adapter.log.debug(
-          `[setChargeLimit] Setting ChargeLimit for device key ${this.deviceKey} to ${socSet}!`
+          `[setChargeLimit] Setting ChargeLimit for device key ${this.deviceKey} to ${socSet}!`,
         );
         this.adapter.mqttClient?.publish(
           this.iotTopic,
-          JSON.stringify(socSetLimit)
+          JSON.stringify(socSetLimit),
         );
       } else {
         this.adapter.log.debug(
-          `[setChargeLimit] Charge limit is not in range 40<>100!`
+          `[setChargeLimit] Charge limit is not in range 40<>100!`,
         );
       }
     }
@@ -400,11 +400,11 @@ export class ZenHaDevice {
       }
 
       this.adapter.log.debug(
-        `[setAutoModel] Setting autoModel for device key ${this.deviceKey} to ${autoModel}!`
+        `[setAutoModel] Setting autoModel for device key ${this.deviceKey} to ${autoModel}!`,
       );
       this.adapter.mqttClient?.publish(
         this.iotTopic,
-        JSON.stringify(setAutoModelContent)
+        JSON.stringify(setAutoModelContent),
       );
     }
   }
@@ -414,13 +414,13 @@ export class ZenHaDevice {
       // Check if autoModel is set to 0 (Nothing) or 8 (Smart Matching)
       const autoModel = (
         await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".autoModel"
+          this.productKey + "." + this.deviceKey + ".autoModel",
         )
       )?.val;
 
       if (autoModel != 0) {
         this.adapter.log.warn(
-          "Operation mode (autoModel) is not set to '0', we can't set the output limit!"
+          "Operation mode (autoModel) is not set to '0', we can't set the output limit!",
         );
         return;
       }
@@ -458,7 +458,7 @@ export class ZenHaDevice {
 
       if (this.adapter.config.useLowVoltageBlock) {
         const lowVoltageBlockState = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.lowVoltageBlock"
+          this.productKey + "." + this.deviceKey + ".control.lowVoltageBlock",
         );
         if (
           lowVoltageBlockState &&
@@ -469,7 +469,7 @@ export class ZenHaDevice {
         }
 
         const fullChargeNeeded = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.fullChargeNeeded"
+          this.productKey + "." + this.deviceKey + ".control.fullChargeNeeded",
         );
 
         if (
@@ -483,7 +483,7 @@ export class ZenHaDevice {
 
       const currentLimit = (
         await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".outputLimit"
+          this.productKey + "." + this.deviceKey + ".outputLimit",
         )
       )?.val;
 
@@ -498,7 +498,7 @@ export class ZenHaDevice {
 
           this.adapter.mqttClient?.publish(
             this.iotTopic,
-            JSON.stringify(outputlimit)
+            JSON.stringify(outputlimit),
           );
         }
       }
@@ -510,7 +510,7 @@ export class ZenHaDevice {
       // Limit has always to be positive!
       if (limit < 0) {
         this.adapter.log.debug(
-          `[setInputLimit] limit ${limit} is negative, converting to positive!`
+          `[setInputLimit] limit ${limit} is negative, converting to positive!`,
         );
         limit = Math.abs(limit);
       }
@@ -537,7 +537,7 @@ export class ZenHaDevice {
       const inputLimitContent = { properties: { inputLimit: limit } };
       this.adapter.mqttClient?.publish(
         this.iotTopic,
-        JSON.stringify(inputLimitContent)
+        JSON.stringify(inputLimitContent),
       );
     }
   }
@@ -549,11 +549,11 @@ export class ZenHaDevice {
       };
 
       this.adapter.log.debug(
-        `[setBuzzer] Setting Smart Mode for device key ${this.deviceKey} to ${smartModeOn}!`
+        `[setBuzzer] Setting Smart Mode for device key ${this.deviceKey} to ${smartModeOn}!`,
       );
       this.adapter.mqttClient?.publish(
         this.iotTopic,
-        JSON.stringify(setSmartModeContent)
+        JSON.stringify(setSmartModeContent),
       );
     }
   }
@@ -564,11 +564,11 @@ export class ZenHaDevice {
         properties: { buzzerSwitch: buzzerOn ? 1 : 0 },
       };
       this.adapter.log.debug(
-        `[setBuzzer] Setting Buzzer for device key ${this.deviceKey} to ${buzzerOn}!`
+        `[setBuzzer] Setting Buzzer for device key ${this.deviceKey} to ${buzzerOn}!`,
       );
       this.adapter.mqttClient?.publish(
         this.iotTopic,
-        JSON.stringify(setBuzzerSwitchContent)
+        JSON.stringify(setBuzzerSwitchContent),
       );
     }
   }
@@ -579,7 +579,7 @@ export class ZenHaDevice {
 
       const getAllContent = { properties: ["getAll"] };
       this.adapter.log.debug(
-        `[triggerFullTelemetryUpdate] Triggering full telemetry update for device key ${this.deviceKey}!`
+        `[triggerFullTelemetryUpdate] Triggering full telemetry update for device key ${this.deviceKey}!`,
       );
       this.adapter.mqttClient?.publish(topic, JSON.stringify(getAllContent));
     }
@@ -587,16 +587,16 @@ export class ZenHaDevice {
 
   public async updateSolarFlowState(
     state: string,
-    val: number | string | boolean
+    val: number | string | boolean,
   ): Promise<void> {
     const currentValue = await this.adapter.getStateAsync(
-      `${this.productKey}.${this.deviceKey}.${state}`
+      `${this.productKey}.${this.deviceKey}.${state}`,
     );
 
     await this.adapter?.setState(
       `${this.productKey}.${this.deviceKey}.${state}`,
       val,
-      true
+      true,
     );
 
     if (currentValue?.val != val && state != "wifiState") {
@@ -604,12 +604,12 @@ export class ZenHaDevice {
       await this.adapter?.setState(
         `${this.productKey}.${this.deviceKey}.lastUpdate`,
         new Date().getTime(),
-        true
+        true,
       );
 
       // Check current wifiState, if Disconnected set it to Connected!
       const currentWifiState = await this.adapter.getStateAsync(
-        `${this.productKey}.${this.deviceKey}.wifiState`
+        `${this.productKey}.${this.deviceKey}.wifiState`,
       );
 
       if (currentWifiState && currentWifiState.val == "Disconnected") {
@@ -620,11 +620,11 @@ export class ZenHaDevice {
 
   public async updateSolarFlowControlState(
     state: string,
-    val: number | string | boolean
+    val: number | string | boolean,
   ): Promise<void> {
     // First check if state exist
     const stateExist = await this.adapter?.objectExists(
-      `${this.productKey}.${this.deviceKey}.control.${state}`
+      `${this.productKey}.${this.deviceKey}.control.${state}`,
     );
 
     // Update the control state
@@ -632,14 +632,14 @@ export class ZenHaDevice {
       await this.adapter?.setState(
         `${this.productKey}.${this.deviceKey}.control.${state}`,
         val,
-        true
+        true,
       );
     }
   }
 
   addOrUpdatePackData = async (
     packData: IPackData[],
-    isSolarFlow: boolean
+    isSolarFlow: boolean,
   ): Promise<void> => {
     if (this.adapter && this.productKey && this.deviceKey) {
       await packData.forEach(async (x) => {
@@ -672,7 +672,7 @@ export class ZenHaDevice {
             });
 
             this.adapter.log.debug(
-              `[addOrUpdatePackData] Added battery ${batType} with SN ${x.sn} on deviceKey ${this.deviceKey} to batteries array!`
+              `[addOrUpdatePackData] Added battery ${batType} with SN ${x.sn} on deviceKey ${this.deviceKey} to batteries array!`,
             );
           }
 
@@ -757,7 +757,7 @@ export class ZenHaDevice {
           if (x.maxTemp) {
             const maxTempCelsius = x.maxTemp / 10 - 273.15;
             const maxTempState = await this.adapter?.getStateAsync(
-              key + ".maxTemp"
+              key + ".maxTemp",
             );
 
             // Check if Value exist and changed, if so update lastUpdate!
@@ -770,12 +770,12 @@ export class ZenHaDevice {
               await this.adapter?.setState(
                 `${this.productKey}.${this.deviceKey}.lastUpdate`,
                 new Date().getTime(),
-                true
+                true,
               );
 
               // Check current wifiState, if Disconnected set it to Connected!
               const currentWifiState = await this.adapter.getStateAsync(
-                `${this.productKey}.${this.deviceKey}.wifiState`
+                `${this.productKey}.${this.deviceKey}.wifiState`,
               );
 
               if (currentWifiState && currentWifiState.val == "Disconnected") {
@@ -805,14 +805,14 @@ export class ZenHaDevice {
             await this.adapter?.setState(
               key + ".maxTemp",
               maxTempCelsius,
-              true
+              true,
             );
           }
 
           if (x.minVol) {
             const minVol = x.minVol / 100;
             const minVolState = await this.adapter?.getStateAsync(
-              key + ".minVol"
+              key + ".minVol",
             );
 
             // Check if Value exist and changed, if so update lastUpdate!
@@ -821,12 +821,12 @@ export class ZenHaDevice {
               await this.adapter?.setState(
                 `${this.productKey}.${this.deviceKey}.lastUpdate`,
                 new Date().getTime(),
-                true
+                true,
               );
 
               // Check current wifiState, if Disconnected set it to Connected!
               const currentWifiState = await this.adapter.getStateAsync(
-                `${this.productKey}.${this.deviceKey}.wifiState`
+                `${this.productKey}.${this.deviceKey}.wifiState`,
               );
 
               if (currentWifiState && currentWifiState.val == "Disconnected") {
@@ -873,7 +873,7 @@ export class ZenHaDevice {
           if (x.maxVol) {
             const maxVol = x.maxVol / 100;
             const maxVolState = await this.adapter?.getStateAsync(
-              key + ".maxVol"
+              key + ".maxVol",
             );
 
             if (maxVolState && maxVolState.val && maxVol != maxVolState.val) {
@@ -881,12 +881,12 @@ export class ZenHaDevice {
               await this.adapter?.setState(
                 `${this.productKey}.${this.deviceKey}.lastUpdate`,
                 new Date().getTime(),
-                true
+                true,
               );
 
               // Check current wifiState, if Disconnected set it to Connected!
               const currentWifiState = await this.adapter.getStateAsync(
-                `${this.productKey}.${this.deviceKey}.wifiState`
+                `${this.productKey}.${this.deviceKey}.wifiState`,
               );
 
               if (currentWifiState && currentWifiState.val == "Disconnected") {
@@ -916,7 +916,7 @@ export class ZenHaDevice {
             const totalVol = x.totalVol / 100;
 
             const totalVolState = await this.adapter?.getStateAsync(
-              key + ".totalVol"
+              key + ".totalVol",
             );
 
             if (
@@ -928,12 +928,12 @@ export class ZenHaDevice {
               await this.adapter?.setState(
                 `${this.productKey}.${this.deviceKey}.lastUpdate`,
                 new Date().getTime(),
-                true
+                true,
               );
 
               // Check current wifiState, if Disconnected set it to Connected!
               const currentWifiState = await this.adapter.getStateAsync(
-                `${this.productKey}.${this.deviceKey}.wifiState`
+                `${this.productKey}.${this.deviceKey}.wifiState`,
               );
 
               if (currentWifiState && currentWifiState.val == "Disconnected") {
@@ -1021,7 +1021,7 @@ export class ZenHaDevice {
               //);
             } else {
               this.adapter?.log.debug(
-                `[addOrUpdatePackData] ${key} with value ${value} is a UNKNOWN PackData Mqtt Property!`
+                `[addOrUpdatePackData] ${key} with value ${value} is a UNKNOWN PackData Mqtt Property!`,
               );
             }
           });
@@ -1041,13 +1041,13 @@ export class ZenHaDevice {
         await this.adapter?.setState(
           `${this.productKey}.${this.deviceKey}.control.lowVoltageBlock`,
           true,
-          true
+          true,
         );
 
         // Low Voltage Block activated, stop power input immediately
         const autoModel = (
           await this.adapter.getStateAsync(
-            this.productKey + "." + this.deviceKey + ".autoModel"
+            this.productKey + "." + this.deviceKey + ".autoModel",
           )
         )?.val;
         if (autoModel == 8) {
@@ -1058,7 +1058,7 @@ export class ZenHaDevice {
 
         if (this.adapter.config.forceShutdownOnLowVoltage) {
           const currentSoc = await this.adapter.getStateAsync(
-            `${this.productKey}.${this.deviceKey}.electricLevel`
+            `${this.productKey}.${this.deviceKey}.electricLevel`,
           );
 
           if (currentSoc && Number(currentSoc.val) > 50) {
@@ -1067,7 +1067,7 @@ export class ZenHaDevice {
               await this.adapter?.setState(
                 `${this.productKey}.${this.deviceKey}.control.fullChargeNeeded`,
                 true,
-                true
+                true,
               );
             }
           } else {
@@ -1077,12 +1077,12 @@ export class ZenHaDevice {
 
             // Check if device setting is correct
             const hubState = await this.adapter.getStateAsync(
-              `${this.productKey}.${this.deviceKey}.hubState`
+              `${this.productKey}.${this.deviceKey}.hubState`,
             );
 
             if (!hubState || Number(hubState.val) != 1) {
               this.adapter.log.warn(
-                `[checkVoltage] hubState is not set to 'Stop output and shut down', device will NOT go offline!`
+                `[checkVoltage] hubState is not set to 'Stop output and shut down', device will NOT go offline!`,
               );
             }
           }
@@ -1091,14 +1091,14 @@ export class ZenHaDevice {
     } else if (voltage >= 47.5) {
       // Deactivate Low Voltage Block
       const lowVoltageBlock = await this.adapter.getStateAsync(
-        `${this.productKey}.${this.deviceKey}.control.lowVoltageBlock`
+        `${this.productKey}.${this.deviceKey}.control.lowVoltageBlock`,
       );
 
       if (lowVoltageBlock && lowVoltageBlock.val == true) {
         await this.adapter?.setState(
           `${this.productKey}.${this.deviceKey}.control.lowVoltageBlock`,
           false,
-          true
+          true,
         );
 
         if (
@@ -1108,7 +1108,7 @@ export class ZenHaDevice {
           this.setDischargeLimit(
             this.adapter.config.dischargeLimit
               ? this.adapter.config.dischargeLimit
-              : 5
+              : 5,
           );
         }
       }
@@ -1140,14 +1140,18 @@ export class ZenHaDevice {
           stateNamePower = `${this.productKey}.${this.deviceKey}.pvPower2`;
           break;
         case "pvPower3":
-          stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv3EnergyTodayWh`;
-          stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv3EnergyTodaykWh`;
-          stateNamePower = `${this.productKey}.${this.deviceKey}.pvPower3`;
+          if (this.states.find((x) => x.title == "pvPower3")) {
+            stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv3EnergyTodayWh`;
+            stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv3EnergyTodaykWh`;
+            stateNamePower = `${this.productKey}.${this.deviceKey}.pvPower3`;
+          }
           break;
         case "pvPower4":
-          stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv4EnergyTodayWh`;
-          stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv4EnergyTodaykWh`;
-          stateNamePower = `${this.productKey}.${this.deviceKey}.pvPower4`;
+          if (this.states.find((x) => x.title == "pvPower4")) {
+            stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv4EnergyTodayWh`;
+            stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv4EnergyTodaykWh`;
+            stateNamePower = `${this.productKey}.${this.deviceKey}.pvPower4`;
+          }
           break;
         default:
           stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.${stateKey}EnergyTodayWh`;
@@ -1204,7 +1208,7 @@ export class ZenHaDevice {
         await this.adapter?.setState(
           stateNameEnergykWh,
           Number((newEnergyValue / 1000).toFixed(2)),
-          true
+          true,
         );
 
         // SOC and energy in batteries
@@ -1218,13 +1222,13 @@ export class ZenHaDevice {
             await this.adapter?.setState(
               `${this.productKey}.${this.deviceKey}.calculations.remainInputTime`,
               "",
-              true
+              true,
             );
           } else if (stateKey == "packInput") {
             await this.adapter?.setState(
               `${this.productKey}.${this.deviceKey}.calculations.remainOutTime`,
               "",
-              true
+              true,
             );
           }
         }
@@ -1237,48 +1241,48 @@ export class ZenHaDevice {
 
   public calculateSocAndEnergy = async (
     stateKey: string,
-    value: number
+    value: number,
   ): Promise<void> => {
     this.adapter.log.debug(
-      `[calculateSocAndEnergy] Calculating for: ${this.productKey}.${this.deviceKey} and stateKey ${stateKey}!`
+      `[calculateSocAndEnergy] Calculating for: ${this.productKey}.${this.deviceKey} and stateKey ${stateKey}!`,
     );
 
     let energyWhMax: number | undefined = undefined;
 
     const minSoc = (
       await this.adapter.getStateAsync(
-        `${this.productKey}.${this.deviceKey}.minSoc`
+        `${this.productKey}.${this.deviceKey}.minSoc`,
       )
     )?.val;
     const currentSoc = (
       await this.adapter.getStateAsync(
-        `${this.productKey}.${this.deviceKey}.electricLevel`
+        `${this.productKey}.${this.deviceKey}.electricLevel`,
       )
     )?.val;
 
     if (currentSoc && minSoc && Number(currentSoc) < Number(minSoc)) {
       // Don't calculate if current SOC is lower then minimum
       this.adapter.log.debug(
-        `[calculateSocAndEnergy] Don't calculate, currentSoc (${Number(currentSoc)}) is lower than minSoc (${Number(minSoc)})!`
+        `[calculateSocAndEnergy] Don't calculate, currentSoc (${Number(currentSoc)}) is lower than minSoc (${Number(minSoc)})!`,
       );
 
       return;
     }
 
     const currentEnergyState = await this.adapter?.getStateAsync(
-      this.productKey + "." + this.deviceKey + ".calculations.energyWh"
+      this.productKey + "." + this.deviceKey + ".calculations.energyWh",
     );
 
     const currentEnergyMaxState = await this.adapter?.getStateAsync(
-      this.productKey + "." + this.deviceKey + ".calculations.energyWhMax"
+      this.productKey + "." + this.deviceKey + ".calculations.energyWhMax",
     );
 
     const lowVoltageBlock = await this.adapter?.getStateAsync(
-      this.productKey + "." + this.deviceKey + ".control.lowVoltageBlock"
+      this.productKey + "." + this.deviceKey + ".control.lowVoltageBlock",
     );
 
     const currentMaxValue = Number(
-      currentEnergyMaxState ? currentEnergyMaxState.val : 0
+      currentEnergyMaxState ? currentEnergyMaxState.val : 0,
     );
 
     let currentEnergyWh = currentEnergyState?.val
@@ -1322,7 +1326,7 @@ export class ZenHaDevice {
       newEnergyWh = energyWhMax;
 
       this.adapter.log.debug(
-        `[calculateSocAndEnergy] newEnergyWh (${newEnergyWh}) is greater than energyWhMax (${energyWhMax}), don't extend value!`
+        `[calculateSocAndEnergy] newEnergyWh (${newEnergyWh}) is greater than energyWhMax (${energyWhMax}), don't extend value!`,
       );
     }
 
@@ -1330,11 +1334,11 @@ export class ZenHaDevice {
       this.adapter?.setState(
         `${this.productKey}.${this.deviceKey}.calculations.energyWh`,
         newEnergyWh,
-        true
+        true,
       );
 
       this.adapter.log.debug(
-        `[calculateSocAndEnergy] set '${this.productKey}.${this.deviceKey}.calculations.energyWh' to ${newEnergyWh}!`
+        `[calculateSocAndEnergy] set '${this.productKey}.${this.deviceKey}.calculations.energyWh' to ${newEnergyWh}!`,
       );
 
       if (currentEnergyMaxState) {
@@ -1343,7 +1347,7 @@ export class ZenHaDevice {
         await this.adapter?.setState(
           `${this.productKey}.${this.deviceKey}.calculations.soc`,
           soc > 100.0 ? 100 : soc,
-          true
+          true,
         );
 
         if (newEnergyWh > currentMaxValue && !lowVoltageBlock?.val) {
@@ -1351,16 +1355,16 @@ export class ZenHaDevice {
           await this.adapter?.setState(
             `${this.productKey}.${this.deviceKey}.calculations.energyWhMax`,
             newEnergyWh,
-            true
+            true,
           );
         }
 
         const currentOutputPackPower = await this.adapter?.getStateAsync(
-          `${this.productKey}.${this.deviceKey}.outputPackPower`
+          `${this.productKey}.${this.deviceKey}.outputPackPower`,
         );
 
         const currentPackInputPower = await this.adapter?.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".packInputPower"
+          this.productKey + "." + this.deviceKey + ".packInputPower",
         );
 
         if (
@@ -1376,19 +1380,19 @@ export class ZenHaDevice {
 
           if (remainHoursAsDecimal < 48.0) {
             const remainFormatted = toHoursAndMinutes(
-              Math.round(remainHoursAsDecimal * 60)
+              Math.round(remainHoursAsDecimal * 60),
             );
 
             await this.adapter?.setState(
               `${this.productKey}.${this.deviceKey}.calculations.remainInputTime`,
               remainFormatted,
-              true
+              true,
             );
           } else {
             await this.adapter?.setState(
               `${this.productKey}.${this.deviceKey}.calculations.remainInputTime`,
               "",
-              true
+              true,
             );
           }
         } else if (
@@ -1400,20 +1404,20 @@ export class ZenHaDevice {
           const remainHoursAsDecimal =
             newEnergyWh / Number(currentPackInputPower.val);
           const remainFormatted = toHoursAndMinutes(
-            Math.round(remainHoursAsDecimal * 60)
+            Math.round(remainHoursAsDecimal * 60),
           );
 
           if (remainHoursAsDecimal < 48.0) {
             await this.adapter?.setState(
               `${this.productKey}.${this.deviceKey}.calculations.remainOutTime`,
               remainFormatted,
-              true
+              true,
             );
           } else {
             await this.adapter?.setState(
               `${this.productKey}.${this.deviceKey}.calculations.remainOutTime`,
               "",
-              true
+              true,
             );
           }
         }
@@ -1422,13 +1426,13 @@ export class ZenHaDevice {
       await this.adapter?.setState(
         `${this.productKey}.${this.deviceKey}.calculations.remainInputTime`,
         "",
-        true
+        true,
       );
     } else if (newEnergyWh <= 0 && stateKey == "packInput") {
       await this.adapter?.setState(
         `${this.productKey}.${this.deviceKey}.calculations.remainOutTime`,
         "",
-        true
+        true,
       );
 
       // TEST: if SOC == 0, add newValue as positive to energyWhMax
@@ -1438,7 +1442,7 @@ export class ZenHaDevice {
         await this.adapter?.setState(
           `${this.productKey}.${this.deviceKey}.calculations.energyWhMax`,
           currentMaxValue + newEnergyWhPositive,
-          true
+          true,
         );
       }
     }
@@ -1449,15 +1453,15 @@ export class ZenHaDevice {
     await this.adapter?.setState(
       `${this.productKey}.${this.deviceKey}.calculations.soc`,
       0,
-      true
+      true,
     );
 
     // Calculate new Wh Max Value
     const energyWhState = await this.adapter.getStateAsync(
-      `${this.productKey}.${this.deviceKey}.calculations.energyWh`
+      `${this.productKey}.${this.deviceKey}.calculations.energyWh`,
     );
     const energyWhMaxState = await this.adapter.getStateAsync(
-      `${this.productKey}.${this.deviceKey}.calculations.energyWhMax`
+      `${this.productKey}.${this.deviceKey}.calculations.energyWhMax`,
     );
 
     const newMax = Number(energyWhMaxState?.val) - Number(energyWhState?.val);
@@ -1466,27 +1470,27 @@ export class ZenHaDevice {
     await this.adapter?.setState(
       `${this.productKey}.${this.deviceKey}.calculations.energyWhMax`,
       newMax,
-      true
+      true,
     );
 
     // Set Energy in Battery to 0
     await this.adapter?.setState(
       `${this.productKey}.${this.deviceKey}.calculations.energyWh`,
       0,
-      true
+      true,
     );
   }
 
   public async setEnergyWhMax(): Promise<void> {
     const currentEnergyState = await this.adapter?.getStateAsync(
-      this.productKey + "." + this.deviceKey + ".calculations.energyWh"
+      this.productKey + "." + this.deviceKey + ".calculations.energyWh",
     );
 
     if (currentEnergyState) {
       await this.adapter?.setState(
         `${this.productKey}.${this.deviceKey}.calculations.energyWhMax`,
         currentEnergyState?.val,
-        true
+        true,
       );
     }
   }
@@ -1506,12 +1510,16 @@ export class ZenHaDevice {
           stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv2EnergyTodaykWh`;
           break;
         case "pvPower3":
-          stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv3EnergyTodayWh`;
-          stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv3EnergyTodaykWh`;
+          if (this.states.find((x) => x.title == "pvPower3")) {
+            stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv3EnergyTodayWh`;
+            stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv3EnergyTodaykWh`;
+          }
           break;
         case "pvPower4":
-          stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv4EnergyTodayWh`;
-          stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv4EnergyTodaykWh`;
+          if (this.states.find((x) => x.title == "pvPower4")) {
+            stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv4EnergyTodayWh`;
+            stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv4EnergyTodaykWh`;
+          }
           break;
         default:
           stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.${stateKey}EnergyTodayWh`;
