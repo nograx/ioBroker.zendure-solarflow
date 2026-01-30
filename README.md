@@ -59,8 +59,7 @@ On a HUB 1200 / HUB 2000 / ACE 1500 combination you have to use '**setDeviceAuto
 This adapter will now use the Cloud Authorization Code for authentication on the official mqtt servers, which you can generate in the Zendure app!
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 3.3.0 (2026-01-30)
 
 - Fix 'has no existing object' messages on pvPower3 + 4
 - Fix AC input limit of SF 800 Pro
