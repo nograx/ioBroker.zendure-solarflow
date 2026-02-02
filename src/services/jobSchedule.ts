@@ -3,27 +3,27 @@ import { scheduleJob } from "node-schedule";
 import { ZendureSolarflow } from "../main";
 
 export const startRefreshAccessTokenTimerJob = async (
-  adapter: ZendureSolarflow
+  adapter: ZendureSolarflow,
 ): Promise<void> => {
   // Restart adapter every 3 hours
   adapter.refreshAccessTokenInterval = adapter.setInterval(
     async () => {
       adapter.log.info(
-        `Refresh Access Token - Adapter will restart in 20 seconds!`
+        `Refresh Access Token - Adapter will restart in 20 seconds!`,
       );
 
       await adapter.delay(20 * 1000);
       adapter.restart();
     },
-    3 * 60 * 60 * 1000
+    3 * 60 * 60 * 1000,
   );
 };
 
 export const startResetValuesJob = async (
-  adapter: ZendureSolarflow
+  adapter: ZendureSolarflow,
 ): Promise<void> => {
   adapter.resetValuesJob = scheduleJob("5 0 0 * * *", () => {
-    // Reset Values
+    // Reset Values on midnight
     adapter.zenHaDeviceList.forEach((device) => {
       device.resetValuesForDevice();
     });
@@ -31,7 +31,7 @@ export const startResetValuesJob = async (
 };
 
 export const startCalculationJob = async (
-  adapter: ZendureSolarflow
+  adapter: ZendureSolarflow,
 ): Promise<void> => {
   adapter.calculationJob = scheduleJob("*/30 * * * * *", () => {
     adapter.zenHaDeviceList.forEach((device) => {
@@ -43,7 +43,7 @@ export const startCalculationJob = async (
 };
 
 export const startCheckStatesAndConnectionJob = async (
-  adapter: ZendureSolarflow
+  adapter: ZendureSolarflow,
 ): Promise<void> => {
   // Check for states that has no updates in the last 5 minutes and set them to 0
   const statesToReset: string[] = [
@@ -62,7 +62,7 @@ export const startCheckStatesAndConnectionJob = async (
   let refreshAccessTokenNeeded = false;
 
   adapter.log.debug(
-    `[checkStatesJob] Starting check of states and connection!`
+    `[checkStatesJob] Starting check of states and connection!`,
   );
 
   adapter.checkStatesJob = scheduleJob("*/5 * * * *", async () => {
@@ -72,11 +72,11 @@ export const startCheckStatesAndConnectionJob = async (
       }
 
       const lastUpdate = await adapter?.getStateAsync(
-        device.productKey + "." + device.deviceKey + ".lastUpdate"
+        device.productKey + "." + device.deviceKey + ".lastUpdate",
       );
 
       const wifiState = await adapter?.getStateAsync(
-        device.productKey + "." + device.deviceKey + ".wifiState"
+        device.productKey + "." + device.deviceKey + ".wifiState",
       );
 
       const fiveMinutesAgo = (Date.now() / 1000 - 5 * 60) * 1000; // Five minutes ago
@@ -93,8 +93,8 @@ export const startCheckStatesAndConnectionJob = async (
           `[checkStatesJob] Last update for deviceKey ${
             device.deviceKey
           } was at ${new Date(
-            Number(lastUpdate.val)
-          )}, device seems to be online - so maybe connection is broken!`
+            Number(lastUpdate.val),
+          )}, device seems to be online - so maybe connection is broken!`,
         );
 
         //await adapter.delay(20 * 1000);
@@ -113,8 +113,8 @@ export const startCheckStatesAndConnectionJob = async (
           `[checkStatesJob] Last update for deviceKey ${
             device.deviceKey
           } was at ${new Date(
-            Number(lastUpdate.val)
-          )}, set Wifi state to Disconnected!`
+            Number(lastUpdate.val),
+          )}, set Wifi state to Disconnected!`,
         );
 
         device?.updateSolarFlowState("wifiState", "Disconnected");
@@ -130,15 +130,25 @@ export const startCheckStatesAndConnectionJob = async (
           `[checkStatesJob] Last update for deviceKey ${
             device.deviceKey
           } was at ${new Date(
-            Number(lastUpdate.val)
-          )}, checking for pseudo power values!`
+            Number(lastUpdate.val),
+          )}, checking for pseudo power values!`,
         );
         // State was not updated in the last 5 minutes... set states to 0
         await statesToReset.forEach(async (stateName: string) => {
+          // First check if state exist
+          const exist = device.states.find((x) => x.title === stateName);
+
+          if (!exist) {
+            adapter.log.debug(
+              `[checkStatesJob] State ${stateName} does not exist for deviceKey ${device.deviceKey}!`,
+            );
+            return;
+          }
+
           await adapter?.setState(
             device.productKey + "." + device.deviceKey + "." + stateName,
             0,
-            true
+            true,
           );
         });
       }

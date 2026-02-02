@@ -60,6 +60,10 @@ This adapter will now use the Cloud Authorization Code for authentication on the
 
 ## Changelog
 
+### **WORK IN PROGRESS**
+
+- Fix another 'has no existing object' message bug on pvPower3 + 4
+
 ### 3.3.1 (2026-01-30)
 
 - Fix calculation issue

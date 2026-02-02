@@ -1199,12 +1199,16 @@ class ZenHaDevice {
           if (this.states.find((x) => x.title == "pvPower3")) {
             stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv3EnergyTodayWh`;
             stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv3EnergyTodaykWh`;
+          } else {
+            return;
           }
           break;
         case "pvPower4":
           if (this.states.find((x) => x.title == "pvPower4")) {
             stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv4EnergyTodayWh`;
             stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv4EnergyTodaykWh`;
+          } else {
+            return;
           }
           break;
         default:
@@ -1212,8 +1216,10 @@ class ZenHaDevice {
           stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.${stateKey}EnergyTodaykWh`;
           break;
       }
-      await ((_a = this.adapter) == null ? void 0 : _a.setState(stateNameEnergyWh, 0, true));
-      await ((_b = this.adapter) == null ? void 0 : _b.setState(stateNameEnergykWh, 0, true));
+      if (stateNameEnergyWh != "" && stateNameEnergykWh != "") {
+        await ((_a = this.adapter) == null ? void 0 : _a.setState(stateNameEnergyWh, 0, true));
+        await ((_b = this.adapter) == null ? void 0 : _b.setState(stateNameEnergykWh, 0, true));
+      }
     });
   }
 }
