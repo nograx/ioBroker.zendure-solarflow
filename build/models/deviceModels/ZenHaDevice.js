@@ -52,6 +52,8 @@ class ZenHaDevice {
             } else if (x.sn.startsWith("C")) {
               if (x.sn[3] == "F") {
                 batType = "AB2000S";
+              } else if (x.sn[3] == "E") {
+                batType = "AB2000X";
               } else {
                 batType = "AB2000";
               }
@@ -382,10 +384,12 @@ class ZenHaDevice {
         energyWhMax = 2400;
       } else {
         for (let i = 0; i < this.batteries.length; i++) {
-          if (this.batteries[i].type == "AB1000") {
+          if (this.batteries[i].type.includes("AB1000")) {
             energyWhMax = (energyWhMax ? energyWhMax : 0) + 960;
-          } else if (this.batteries[i].type == "AB2000") {
+          } else if (this.batteries[i].type.includes("AB2000")) {
             energyWhMax = (energyWhMax ? energyWhMax : 0) + 1920;
+          } else if (this.batteries[i].type.includes("AB3000")) {
+            energyWhMax = (energyWhMax ? energyWhMax : 0) + 2880;
           }
         }
       }
