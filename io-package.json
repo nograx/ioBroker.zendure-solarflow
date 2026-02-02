@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "3.3.1",
+    "version": "3.3.2",
     "news": {
+      "3.3.2": {
+        "en": "Fix another 'has no existing object' message bug on pvPower3 + 4\nFix Battery identification of AB2000X and calculation of 'energyWhMax'\nFix Battery identification of AB3000 and calculation of 'energyWhMax'",
+        "de": "Behebt einen anderen 'hat no existing object' Nachrichtenfehler auf pvPower3 + 4\nBatteriekennung von AB2000X und Berechnung von 'energyWhMax'\nBatteriekennung von AB3000 und Berechnung von 'energyWhMax'",
+        "ru": "Исправьте ошибку сообщения «нет существующего объекта» на pvPower3 + 4\nИдентификация батареи AB2000X и расчет «энергетического WhMax»\nИдентификация батареи AB3000 и расчет «энергетического WhMax»",
+        "pt": "Corrigir outro erro de mensagem 'não tem objeto existente' no pvPower3 + 4\nCorrigir a identificação da bateria de AB2000X e o cálculo de 'energyWhMax'\nCorrigir a identificação da bateria de AB3000 e o cálculo de 'energyWhMax'",
+        "nl": "Fix another 'has no existing object' message bug on pvPower3 + 4\nFix Batterij identificatie van AB2000X en berekening van 'energyWhMax'\nFix Batterij identificatie van AB3000 en berekening van 'energyWhMax'",
+        "fr": "Correction d'un autre bug de message 'n'a aucun objet existant' sur pvPower3 + 4\nCorrection de l'identification de la batterie AB2000X et calcul de 'energyWhMax'\nCorrection de l'identification de la batterie AB3000 et calcul de 'energyWhMax'",
+        "it": "Fissare un altro 'ha nessun oggetto esistente' messaggio bug su pvPower3 + 4\nFissa l'identificazione della batteria di AB2000X e il calcolo di 'energyWhMax'\nFissa l'identificazione della batteria di AB3000 e il calcolo di 'energyWhMax'",
+        "es": "Fijar otro 'no tiene ningún objeto existente' error de mensaje en pvPower3 + 4\nIdentificación de batería de AB2000X y cálculo de 'energíaWhMax'\nIdentificación de batería de AB3000 y cálculo de 'energíaWhMax'",
+        "pl": "Napraw kolejny błąd 'nie ma istniejącego obiektu' na pvPower3 + 4\nFix Identyfikacja baterii AB2000X i obliczenia 'energyWhMax'\nNapraw identyfikację baterii AB3000 i obliczanie 'energyWhMax'",
+        "uk": "Виправлено інший \"не існуючий об'єкт\" повідомлення про помилку на pvPower3 + 4\nФіксація акумулятора AB2000X та розрахунок \"енергетикиWhMax\"\nФіксація акумулятора AB3000 та розрахунок \"енергетикиWhMax\"",
+        "zh-cn": "在 pvPower3 + 4 上修正另一个“ 没有存在对象” 消息错误\n修复电池对AB2000X的识别和“能量WhMax”的计算\n修复电池对AB3000的识别和“能量WhMax”的计算"
+      },
       "3.3.1": {
         "en": "Fix caluclation issue",
         "de": "Problem der Calucation behoben",
@@ -80,19 +93,6 @@
         "pl": "Fix inputLimit na niektórych urządzeniach\nPopraw obliczenia PV3 & 4 ponownie (miejmy nadzieję, że teraz 100%)\nDodaj kilka bardziej szczegółowych wiadomości debugowania\nUsuń mylący komunikat błędu przy uruchomieniu adaptera\nZastąp ponowne uruchomienie podczas kontroli States Job z komunikatem o debugowaniu (myślę, że chmura Zabb jest teraz stabilna)\nAktualizuj adapter do adaptacji- react- v5 (MUI v5)\nNapraw pasek poleceń w ustawieniach",
         "uk": "Фіксувати вхідОблік на певних пристроях\nФіксований розрахунок ПВ3 та 4 знову (повно зараз 100%)\nДодати більше специфічних повідомлень\nВидаліть повідомлення про помилку в оману на адаптері\nЗамініть перезапуск на перевірку USAJob з повідомленням debug (Я думаю, що хмара Zendure стабільний зараз)\nОновлення адаптера до адаптера-реакт-v5 (MUI v5)\nВиправлення командного рядка в налаштуваннях",
         "zh-cn": "在某些设备上固定输入范围\n再次修复光电3 & 4 的计算( 希望现在100%)\n添加一些更具体的调试消息\n删除适配器启动时的错误消息\n检查时替换重新启动 有调试消息的国家Job(我认为Zendure云已经稳定了)\n更新适配器到适配器-反应-v5(MUI v5)\n在设置中修正命令栏"
-      },
-      "3.1.1": {
-        "en": "Fix Uppercase 'a4ss5p' in helpers.ts",
-        "de": "Großbuchstaben 'a4ss5p' in helpers.ts",
-        "ru": "Исправьте Uppercase 'a4ss5p' в helpers.ts",
-        "pt": "Corrigir 'a4ss5p' em helpers.ts",
-        "nl": "Fix Uppercase 'a4ss5p' in helpers.ts",
-        "fr": "Correction de la case supérieure 'a4ss5p' dans aideurs.ts",
-        "it": "Fissare Uppercase 'a4ss5p' in helpers.ts",
-        "es": "Fijar maleta superior 'a4s5p' en helpers.ts",
-        "pl": "Fix Uppercase 'a4ss5p' in helpers.ts",
-        "uk": "Фіксація Верхній регістр 'a4ss5p' в помічниках.ts",
-        "zh-cn": "在助手.ts中修正大写“ a4ss5p ”"
       }
     },
     "titleLang": {
