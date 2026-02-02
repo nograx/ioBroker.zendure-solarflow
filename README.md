@@ -64,6 +64,7 @@ This adapter will now use the Cloud Authorization Code for authentication on the
 
 - Fix another 'has no existing object' message bug on pvPower3 + 4
 - Fix Battery identification of AB2000X and calculation of 'energyWhMax'
+- Fix Battery identification of AB3000 and calculation of 'energyWhMax'
 
 ### 3.3.1 (2026-01-30)
 
