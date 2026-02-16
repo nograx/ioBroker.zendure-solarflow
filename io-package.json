@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "3.3.2",
+    "version": "3.4.0",
     "news": {
+      "3.4.0": {
+        "en": "Add productKey '8n77V3' for Solarflow 800 Plus\nRemove passMode, pass and buzzerSwitch from Hyper 2000",
+        "de": "Produkt hinzufügenKey '8n77V3' für Solarflow 800 Plus\nZurück zur Übersicht Modus, Pass und Summer Schalter von Hyper 2000",
+        "ru": "Добавить продуктKey '8n77V3 для Solarflow 800 Plus\nУдалить пропуск Режим, пропуск и зуммер Переключение с Hyper 2000",
+        "pt": "Adicionar produtoKey '8n77V3' para Solarflow 800 Plus\nRemover passagem Modo, passe e campainha Mudar de Hyper 2000",
+        "nl": "Product toevoegenKey '8n77V3' voor Solarflow 800 Plus\nPass verwijderen Modus, pas en zoemer Overstap van Hyper 2000",
+        "fr": "Ajouter le produitKey '8n77V3' pour Solarflow 800 Plus\nSupprimer le passage Mode, passe et buzzer Changer de Hyper 2000",
+        "it": "Aggiungi prodottoKey '8n77V3' per Solarflow 800 Plus\nRimuovi il pass Modalità, passaggio e buzzer Passare da Hyper 2000",
+        "es": "Añadir productoKey '8n77V3' para Solarflow 800 Plus\nQuitar paso Modo, paso y timbre Interruptor de Hyper 2000",
+        "pl": "Dodaj productKey '8n77V3' dla Solarflow 800 Plus\nUsuń przejście Tryb, pass i brzęczyk Przełącznik z Hyper 2000",
+        "uk": "Додати товарKey '8n77V3' для Solarflow 800 Plus\nВидалити прохід Режим, прохід і буфер Перемикач від Hyper 2000",
+        "zh-cn": "为 Solarflow 800 Plus 添加产品 Key '8n77V3'\n删除通过 模式、通过和铃声 从 Hyper 2000 切换"
+      },
       "3.3.2": {
         "en": "Fix another 'has no existing object' message bug on pvPower3 + 4\nFix Battery identification of AB2000X and calculation of 'energyWhMax'\nFix Battery identification of AB3000 and calculation of 'energyWhMax'",
         "de": "Behebt einen anderen 'hat no existing object' Nachrichtenfehler auf pvPower3 + 4\nBatteriekennung von AB2000X und Berechnung von 'energyWhMax'\nBatteriekennung von AB3000 und Berechnung von 'energyWhMax'",
@@ -80,19 +93,6 @@
         "pl": "Napraw tryb ładowania setDeviceAutomation",
         "uk": "Виправлення setDeviceAutomation режим зарядки",
         "zh-cn": "修复设置Device自动充电模式"
-      },
-      "3.2.0": {
-        "en": "Fix inputLimit on certain devices\nFix calculation of PV3 & 4 again (hopefully now 100%)\nAdd some more specific debug messages\nRemove misleading error message on adapter start\nReplace restart on checkStatesJob with a debug message (I think Zendure cloud is stable now)\nUpdate adapter to adapter-react-v5 (MUI v5)\nFix commandbar in settings",
-        "de": "EingabeLimit auf bestimmte Geräte fixieren\nFixe Berechnung von PV3 & 4 wieder (hoffentlich jetzt 100%)\nFügen Sie einige spezifische Debug-Nachrichten hinzu\nEntfernen irreführende Fehlermeldung auf Adapterstart\nWiederstart ersetzen StatesJob mit einer Debug-Nachricht (ich glaube, Zendure Cloud ist jetzt stabil)\nUpdate-Adapter auf Adapter-React-v5 (MUI v5)\nBefehlsleiste in Einstellungen festlegen",
-        "ru": "Исправьте входное ограничение на определенных устройствах\nИсправьте расчет PV3 и 4 снова (надеюсь, теперь 100%)\nДобавьте более конкретные сообщения отладки\nУдалить вводящее в заблуждение сообщение об ошибке при запуске адаптера\nЗаменить перезапуск на проверку StatesJob с сообщением отладки (я думаю, что облако Zendure теперь стабильно)\nАдаптер обновления для адаптера-реакции-v5 (MUI v5)\nFix Commandbar в настройках",
-        "pt": "Corrigir a entradaLimit em certos dispositivos\nCorrigir o cálculo de PV3 & 4 novamente (esperançosamente agora 100%)\nAdicionar algumas mensagens de depuração mais específicas\nRemover a mensagem de erro enganosa no início do adaptador\nSubstituir reiniciar na verificação StatesJob com uma mensagem de depuração (Eu acho que a nuvem Zendure está estável agora)\nAtualizar adaptador para adaptador-react-v5 (MUI v5)\nCorrigir a barra de comandos nas configurações",
-        "nl": "Repareren inputLimit op bepaalde apparaten\nFix berekening van PV3 & 4 weer (hopelijk nu 100%)\nMeer specifieke debug-berichten toevoegen\nVerwijder misleidende foutmelding bij het starten van de adapter\nHerstart vervangen bij controle StatesJob met een debug bericht (Ik denk dat Zendure cloud nu stabiel is)\nUpdate adapter naar adapter-react-v5 (MUI v5)\nCommandbar in instellingen herstellen",
-        "fr": "Correction de l'entréeLimit sur certains appareils\nFixer à nouveau le calcul de PV3 & 4 (avec espoir maintenant 100%)\nAjouter des messages de débogage plus spécifiques\nSupprimer le message d'erreur trompeuse lors du démarrage de l'adaptateur\nRemplacer le redémarrage lors de la vérification StatesJob avec un message de débogage (je pense que le nuage Zendure est stable maintenant)\nMettre à jour l'adaptateur pour adapter-réaction-v5 (MUI v5)\nCorrection de la barre de commande dans les paramètres",
-        "it": "Fissare inputLimit su determinati dispositivi\nFissare il calcolo di PV3 & 4 di nuovo (si spera ora 100%)\nAggiungi alcuni messaggi di debug più specifici\nRimuovere il messaggio di errore fuorviante sull'avvio dell'adattatore\nSostituisci il riavvio al controllo StateJob con un messaggio debug (Penso che il cloud Zendure sia stabile ora)\nAdattatore di aggiornamento per adattatore-react-v5 (MUI v5)\nFissare la barra di comando nelle impostazioni",
-        "es": "Fijar entradaLimitar en ciertos dispositivos\nFijar el cálculo de PV3 & 4 de nuevo (esperadamente ahora 100%)\nAgregar algunos mensajes de depuración más específicos\nEliminar el mensaje de error engañoso en el comienzo del adaptador\nReemplace reiniciar el cheque StatesJob con un mensaje de depuración (creo que la nube Zendure está estable ahora)\nAdaptador de actualización para adaptador-react-v5 (MUI v5)\nFijar barra de comandos en los ajustes",
-        "pl": "Fix inputLimit na niektórych urządzeniach\nPopraw obliczenia PV3 & 4 ponownie (miejmy nadzieję, że teraz 100%)\nDodaj kilka bardziej szczegółowych wiadomości debugowania\nUsuń mylący komunikat błędu przy uruchomieniu adaptera\nZastąp ponowne uruchomienie podczas kontroli States Job z komunikatem o debugowaniu (myślę, że chmura Zabb jest teraz stabilna)\nAktualizuj adapter do adaptacji- react- v5 (MUI v5)\nNapraw pasek poleceń w ustawieniach",
-        "uk": "Фіксувати вхідОблік на певних пристроях\nФіксований розрахунок ПВ3 та 4 знову (повно зараз 100%)\nДодати більше специфічних повідомлень\nВидаліть повідомлення про помилку в оману на адаптері\nЗамініть перезапуск на перевірку USAJob з повідомленням debug (Я думаю, що хмара Zendure стабільний зараз)\nОновлення адаптера до адаптера-реакт-v5 (MUI v5)\nВиправлення командного рядка в налаштуваннях",
-        "zh-cn": "在某些设备上固定输入范围\n再次修复光电3 & 4 的计算( 希望现在100%)\n添加一些更具体的调试消息\n删除适配器启动时的错误消息\n检查时替换重新启动 有调试消息的国家Job(我认为Zendure云已经稳定了)\n更新适配器到适配器-反应-v5(MUI v5)\n在设置中修正命令栏"
       }
     },
     "titleLang": {
