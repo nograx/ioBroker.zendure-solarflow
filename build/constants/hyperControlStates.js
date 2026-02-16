@@ -64,15 +64,6 @@ const hyperControlStates = [
     unit: "%"
   },
   {
-    nameDe: "Sounds am HUB aktivieren",
-    nameEn: "Enable buzzer on HUB",
-    type: "boolean",
-    title: "buzzerSwitch",
-    role: "switch",
-    read: true,
-    write: true
-  },
-  {
     nameDe: "Einzustellende Ausgangsleistung",
     nameEn: "Control of the output limit",
     type: "number",
@@ -82,29 +73,6 @@ const hyperControlStates = [
     write: true,
     min: 0,
     unit: "W"
-  },
-  {
-    nameDe: "Einstellung des Bypass Modus",
-    nameEn: "Setting of bypass mode",
-    type: "number",
-    title: "passMode",
-    role: "switch",
-    read: true,
-    write: true,
-    states: {
-      0: "Automatic",
-      1: "Always off",
-      2: "Always on"
-    }
-  },
-  {
-    nameDe: "Am n\xE4chsten Tag Bypass auf Automatik",
-    nameEn: "Automatic recovery of bypass",
-    type: "boolean",
-    title: "autoRecover",
-    role: "switch",
-    read: true,
-    write: true
   },
   {
     nameDe: "Verhalten wenn minimale reservierte Ladung erreicht",

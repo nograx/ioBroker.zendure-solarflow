@@ -59,6 +59,12 @@ On a HUB 1200 / HUB 2000 / ACE 1500 combination you have to use '**setDeviceAuto
 This adapter will now use the Cloud Authorization Code for authentication on the official mqtt servers, which you can generate in the Zendure app!
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Add productKey '8n77V3' for Solarflow 800 Plus
+- Remove passMode, pass and buzzerSwitch from Hyper 2000
+
 ### 3.3.2 (2026-02-02)
 
 - Fix another 'has no existing object' message bug on pvPower3 + 4

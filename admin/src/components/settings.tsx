@@ -24,6 +24,7 @@ const productKeys: { value; title }[] = [
   { value: "BC8B7F", title: "SolarFlow 2400 AC (BC8B7F)" },
   { value: "B1NHMC", title: "SolarFlow 800 (B1NHMC)" },
   { value: "R3mn8U", title: "SolarFlow 800 Pro (R3mn8U)" },
+  { value: "8n77V3", title: "SolarFlow 800 Plus (8n77V3)" },
 ];
 
 interface SettingsProps {
@@ -73,7 +74,7 @@ function Settings(props: SettingsProps) {
 
   function renderSelect(
     attr: string,
-    options: { value: string; title: AdminWord }[]
+    options: { value: string; title: AdminWord }[],
   ) {
     return (
       <FormControl
@@ -265,7 +266,7 @@ function Settings(props: SettingsProps) {
             <Box>
               {renderCheckbox(
                 "forceShutdownOnLowVoltage",
-                "forceShutdownOnLowVoltage"
+                "forceShutdownOnLowVoltage",
               )}
 
               {props.native["forceShutdownOnLowVoltage"] != undefined &&
