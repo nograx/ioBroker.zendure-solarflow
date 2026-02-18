@@ -28,7 +28,7 @@ export const initAdapter = (_adapter: ZendureSolarflow): boolean => {
 
 export const onMessage = async (
   topic: string,
-  message: Buffer
+  message: Buffer,
 ): Promise<void> => {
   if (adapter) {
     if (topic.toLowerCase().includes("loginOut/force")) {
@@ -52,18 +52,18 @@ export const onMessage = async (
     let isSolarFlow = false;
 
     const _device = adapter?.zenHaDeviceList.find(
-      (x) => x.deviceKey == deviceKey
+      (x) => x.deviceKey == deviceKey,
     );
 
     if (!_device) {
       adapter.log.error(
-        `[onMessage] DeviceKey '${deviceKey} not found in device list!'}`
+        `[onMessage] DeviceKey '${deviceKey} not found in device list!'}`,
       );
     }
 
     if (adapter.log.level == "debug") {
       adapter.log.debug(
-        `[onMessage] MQTT message on topic '${topic}': ${message.toString()}`
+        `[onMessage] MQTT message on topic '${topic}': ${message.toString()}`,
       );
     }
 
@@ -89,16 +89,16 @@ export const onMessage = async (
     if (obj.function == "deviceAutomation" && obj.success == 1) {
       // setDeviceAutomationInOutLimit ack = true setzen;
       const currentValue = await adapter.getStateAsync(
-        productKey + "." + deviceKey + ".control.setDeviceAutomationInOutLimit"
+        productKey + "." + deviceKey + ".control.setDeviceAutomationInOutLimit",
       );
 
       _device?.updateSolarFlowControlState(
         "setDeviceAutomationInOutLimit",
-        currentValue?.val ? currentValue.val : 0
+        currentValue?.val ? currentValue.val : 0,
       );
     } else if (obj.function == "deviceAutomation" && obj.success == 0) {
       adapter?.log.warn(
-        `[onMessage] device automation failed for ${_device?.productName}: ${productKey}/${deviceKey}!`
+        `[onMessage] device automation failed for ${_device?.productName}: ${productKey}/${deviceKey}!`,
       );
     }
 
@@ -110,7 +110,7 @@ export const onMessage = async (
 
       _device?.updateSolarFlowControlState(
         "autoModel",
-        obj.properties.autoModel
+        obj.properties.autoModel,
       );
     }
 
@@ -129,7 +129,7 @@ export const onMessage = async (
     ) {
       _device?.updateSolarFlowState(
         "electricLevel",
-        obj.properties.electricLevel
+        obj.properties.electricLevel,
       );
 
       if (
@@ -142,7 +142,7 @@ export const onMessage = async (
 
       if (obj.properties.electricLevel == 100) {
         const fullChargeNeeded = await adapter.getStateAsync(
-          productKey + "." + deviceKey + ".control.fullChargeNeeded"
+          productKey + "." + deviceKey + ".control.fullChargeNeeded",
         );
 
         if (
@@ -153,14 +153,14 @@ export const onMessage = async (
           await adapter?.setState(
             `${productKey}.${deviceKey}.control.fullChargeNeeded`,
             false,
-            true
+            true,
           );
         }
       }
 
       // if minSoc is reached, set the calculated soc to 0
       const minSoc = await adapter?.getStateAsync(
-        `${productKey}.${deviceKey}.minSoc`
+        `${productKey}.${deviceKey}.minSoc`,
       );
       if (
         adapter?.config.useCalculation &&
@@ -214,7 +214,7 @@ export const onMessage = async (
 
       _device?.updateSolarFlowControlState(
         "passMode",
-        obj.properties?.passMode
+        obj.properties?.passMode,
       );
     }
 
@@ -241,7 +241,7 @@ export const onMessage = async (
     ) {
       _device?.updateSolarFlowState(
         "outputHomePower",
-        obj.properties.outputHomePower
+        obj.properties.outputHomePower,
       );
     }
 
@@ -260,7 +260,7 @@ export const onMessage = async (
 
       _device?.updateSolarFlowControlState(
         "setOutputLimit",
-        obj.properties.outputLimit
+        obj.properties.outputLimit,
       );
     }
 
@@ -292,26 +292,26 @@ export const onMessage = async (
     ) {
       _device?.updateSolarFlowState(
         "outputPackPower",
-        obj.properties.outputPackPower
+        obj.properties.outputPackPower,
       );
 
       if (obj.properties?.outputPackPower > 0) {
         // Update combined data point
         _device?.updateSolarFlowState(
           "packPower",
-          obj.properties.outputPackPower
+          obj.properties.outputPackPower,
         );
       } else if (obj.properties?.outputPackPower == 0) {
         // Check if packInputPower is 0
         const packInputPower = await adapter?.getStateAsync(
-          productKey + "." + deviceKey + ".packInputPower"
+          productKey + "." + deviceKey + ".packInputPower",
         );
 
         if (packInputPower?.val == 0) {
           // Update combined data point to 0 as both are 0
           _device?.updateSolarFlowState(
             "packPower",
-            -Math.abs(obj.properties.outputPackPower)
+            -Math.abs(obj.properties.outputPackPower),
           );
         }
       }
@@ -326,26 +326,26 @@ export const onMessage = async (
     ) {
       _device?.updateSolarFlowState(
         "packInputPower",
-        obj.properties.packInputPower
+        obj.properties.packInputPower,
       );
 
       if (obj.properties?.packInputPower > 0) {
         // Update combined data point
         _device?.updateSolarFlowState(
           "packPower",
-          -Math.abs(obj.properties.packInputPower)
+          -Math.abs(obj.properties.packInputPower),
         );
       } else if (obj.properties?.packInputPower == 0) {
         // Check if outputPackPower is 0
         const outputPackPower = await adapter?.getStateAsync(
-          productKey + "." + deviceKey + ".outputPackPower"
+          productKey + "." + deviceKey + ".outputPackPower",
         );
 
         if (outputPackPower?.val == 0) {
           // Update combined data point to 0 as both are 0
           _device?.updateSolarFlowState(
             "packPower",
-            -Math.abs(obj.properties.packInputPower)
+            -Math.abs(obj.properties.packInputPower),
           );
         }
       }
@@ -360,7 +360,7 @@ export const onMessage = async (
     ) {
       _device?.updateSolarFlowState(
         "solarInputPower",
-        obj.properties.solarInputPower
+        obj.properties.solarInputPower,
       );
     }
 
@@ -370,7 +370,7 @@ export const onMessage = async (
     ) {
       _device?.updateSolarFlowState(
         "pvPower2", // Reversed to adjust like offical app
-        obj.properties.pvPower1
+        obj.properties.pvPower1,
       );
     }
 
@@ -380,7 +380,7 @@ export const onMessage = async (
     ) {
       _device?.updateSolarFlowState(
         "pvPower1", // Reversed to adjust like offical app
-        obj.properties.pvPower2
+        obj.properties.pvPower2,
       );
     }
 
@@ -418,7 +418,7 @@ export const onMessage = async (
     ) {
       _device?.updateSolarFlowState(
         "remainOutTime",
-        obj.properties.remainOutTime
+        obj.properties.remainOutTime,
       );
     }
 
@@ -428,31 +428,31 @@ export const onMessage = async (
     ) {
       _device?.updateSolarFlowState(
         "remainInputTime",
-        obj.properties.remainInputTime
+        obj.properties.remainInputTime,
       );
     }
 
     if (obj.properties?.socSet != null && obj.properties?.socSet != undefined) {
       _device?.updateSolarFlowState(
         "socSet",
-        Number(obj.properties.socSet) / 10
+        Number(obj.properties.socSet) / 10,
       );
 
       _device?.updateSolarFlowControlState(
         "chargeLimit",
-        Number(obj.properties.socSet) / 10
+        Number(obj.properties.socSet) / 10,
       );
     }
 
     if (obj.properties?.minSoc != null && obj.properties?.minSoc != undefined) {
       _device?.updateSolarFlowState(
         "minSoc",
-        Number(obj.properties.minSoc) / 10
+        Number(obj.properties.minSoc) / 10,
       );
 
       _device?.updateSolarFlowControlState(
         "dischargeLimit",
-        Number(obj.properties.minSoc) / 10
+        Number(obj.properties.minSoc) / 10,
       );
     }
 
@@ -464,7 +464,7 @@ export const onMessage = async (
 
       _device?.updateSolarFlowControlState(
         "setInputLimit",
-        obj.properties.inputLimit
+        obj.properties.inputLimit,
       );
     }
 
@@ -474,7 +474,7 @@ export const onMessage = async (
     ) {
       _device?.updateSolarFlowState(
         "gridInputPower",
-        obj.properties.gridInputPower
+        obj.properties.gridInputPower,
       );
     }
 
@@ -490,7 +490,7 @@ export const onMessage = async (
     ) {
       _device?.updateSolarFlowState(
         "hyperTmp",
-        obj.properties.hyperTmp / 10 - 273.15
+        obj.properties.hyperTmp / 10 - 273.15,
       );
     }
 
@@ -500,7 +500,7 @@ export const onMessage = async (
     ) {
       _device?.updateSolarFlowState(
         "acOutputPower",
-        obj.properties.acOutputPower
+        obj.properties.acOutputPower,
       );
     }
 
@@ -539,7 +539,7 @@ export const onMessage = async (
     ) {
       _device?.updateSolarFlowState(
         "dcOutputPower",
-        obj.properties.dcOutputPower
+        obj.properties.dcOutputPower,
       );
     }
 
@@ -572,7 +572,7 @@ export const onMessage = async (
     ) {
       _device?.updateSolarFlowState(
         "inverseMaxPower",
-        obj.properties.inverseMaxPower
+        obj.properties.inverseMaxPower,
       );
     }
 
@@ -582,7 +582,7 @@ export const onMessage = async (
     ) {
       _device?.updateSolarFlowState(
         "wifiState",
-        obj.properties.wifiState == 1 ? "Connected" : "Disconnected"
+        obj.properties.wifiState == 1 ? "Connected" : "Disconnected",
       );
     }
 
@@ -622,7 +622,7 @@ export const onMessage = async (
           //);
         } else {
           adapter?.log.debug(
-            `[onMessage] ${_device?.deviceKey}: ${key} with value ${JSON.stringify(value)} is a UNKNOWN Mqtt Property!`
+            `[onMessage] ${_device?.deviceKey}: ${key} with value ${JSON.stringify(value)} is a UNKNOWN Mqtt Property!`,
           );
         }
       });
@@ -635,6 +635,14 @@ export const onConnected = (): void => {
     adapter.lastLogin = new Date();
     adapter.setState("info.connection", true, true);
     adapter.log.info("[onConnected] Connected with MQTT!");
+  }
+};
+
+export const onDisconnected = (): void => {
+  if (adapter) {
+    adapter.lastLogin = new Date();
+    adapter.setState("info.connection", false, true);
+    adapter.log.info("[onDisconnected] Disconnected from MQTT!");
   }
 };
 
@@ -656,7 +664,7 @@ export const onSubscribeReportTopic: any = (error: Error | null) => {
 export const onSubscribeIotTopic: any = (
   error: Error | null,
   productKey: string,
-  deviceKey: string
+  deviceKey: string,
 ) => {
   if (error) {
     adapter?.log.error("Subscription to MQTT failed! Error: " + error);
@@ -664,7 +672,7 @@ export const onSubscribeIotTopic: any = (
     adapter?.log.debug("Subscription of IOT Topic successful!");
 
     const _device = adapter.zenHaDeviceList.find(
-      (x) => x.productKey == productKey && x.deviceKey == deviceKey
+      (x) => x.productKey == productKey && x.deviceKey == deviceKey,
     );
 
     if (_device) {

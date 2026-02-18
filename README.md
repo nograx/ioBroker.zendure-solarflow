@@ -44,21 +44,21 @@ You can still do firmware updates with the official Zendure app via bluetooth an
 
 ## Important
 
-If you plan to control the charging and feed in of your device with a script/blockly, I recommend using the control parameter '**setDeviceAutomationInOutLimit**', as this controls the device without writing to the flash memory of the device. It is also a good idea to set the control state '**smartMode**' to true if you own a HUB 1200/2000 with ACE 1500, as it will also force the device to write 'acMode' changes to the ram instead of flash memory.
+If you plan to control the charging and feed in of your device with a script/blockly, I recommend using the control parameter '**setDeviceAutomationInOutLimit**', as this controls the device without writing to the flash memory of the device. You can use negative values to trigger charging from grid.
 
-### Hyper 2000, SF 2400 AC oder SF 800 (pro)
-
-On devices like the Hyper 2000, SF 2400 AC oder SF 800 (pro) you can use negative values to trigger charging from grid. SF 2400 AC oder SF 800 (pro) is currently **untested**!
-
-### HUB 1200 / HUB 2000 / ACE 1500 Combo
-
-On a HUB 1200 / HUB 2000 / ACE 1500 combination you have to use '**setDeviceAutomationInOutLimit**' for feed in and manualy switch acMode and the '**setInputLimit**' if you want to charge from the grid. Setting the '**smartMode**' to true is highly recommended in this scenario!
+As I only own Hyper 2000 devices, other devices are untestet from me and the funcionality rely on feedback from the community!
 
 ## Notes
 
 This adapter will now use the Cloud Authorization Code for authentication on the official mqtt servers, which you can generate in the Zendure app!
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Add productKey '2Qe7C9' for Solarflow 2400 Pro
+- Add event handler (log message) for MQTT disconnect
+
 ### 3.4.0 (2026-02-16)
 
 - Add productKey '8n77V3' for Solarflow 800 Plus

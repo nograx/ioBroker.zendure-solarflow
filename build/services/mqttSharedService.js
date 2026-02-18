@@ -22,6 +22,7 @@ __export(mqttSharedService_exports, {
   initAdapter: () => initAdapter,
   knownPackDataProperties: () => knownPackDataProperties,
   onConnected: () => onConnected,
+  onDisconnected: () => onDisconnected,
   onError: () => onError,
   onMessage: () => onMessage,
   onSubscribeIotTopic: () => onSubscribeIotTopic,
@@ -392,6 +393,13 @@ const onConnected = () => {
     adapter.log.info("[onConnected] Connected with MQTT!");
   }
 };
+const onDisconnected = () => {
+  if (adapter) {
+    adapter.lastLogin = /* @__PURE__ */ new Date();
+    adapter.setState("info.connection", false, true);
+    adapter.log.info("[onDisconnected] Disconnected from MQTT!");
+  }
+};
 const onError = (error) => {
   if (adapter) {
     adapter.setState("info.connection", false, true);
@@ -424,6 +432,7 @@ const onSubscribeIotTopic = (error, productKey, deviceKey) => {
   initAdapter,
   knownPackDataProperties,
   onConnected,
+  onDisconnected,
   onError,
   onMessage,
   onSubscribeIotTopic,
