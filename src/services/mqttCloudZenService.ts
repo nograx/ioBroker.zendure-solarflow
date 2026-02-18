@@ -6,8 +6,10 @@ import {
   adapter,
   initAdapter,
   onConnected,
+  onDisconnected,
   onError,
   onMessage,
+  onReconnected,
 } from "./mqttSharedService";
 import {
   startCalculationJob,
@@ -16,7 +18,7 @@ import {
 } from "./jobSchedule";
 
 export const connectCloudZenMqttClient = (
-  _adapter: ZendureSolarflow
+  _adapter: ZendureSolarflow,
 ): boolean => {
   if (!_adapter) {
     return false;
@@ -41,15 +43,17 @@ export const connectCloudZenMqttClient = (
     adapter.log.debug(
       `[connectCloudMqttClient] Connecting to MQTT broker ${
         adapter.mqttSettings.url + ":1883"
-      }...`
+      }...`,
     );
     adapter.mqttClient = mqtt.connect(
       "mqtt://" + adapter.mqttSettings.url + ":1883",
-      options
+      options,
     ); // create a client
 
     if (adapter && adapter.mqttClient) {
       adapter.mqttClient.on("connect", onConnected);
+      adapter.mqttClient.on("reconnect", onReconnected);
+      adapter.mqttClient.on("disconnect", onDisconnected);
       adapter.mqttClient.on("error", onError);
 
       adapter.mqttClient.on("message", onMessage);

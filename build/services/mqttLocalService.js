@@ -52,6 +52,8 @@ const connectLocalMqttClient = (_adapter) => {
     );
     if (import_mqttSharedService.adapter && import_mqttSharedService.adapter.mqttClient) {
       import_mqttSharedService.adapter.mqttClient.on("connect", import_mqttSharedService.onConnected);
+      import_mqttSharedService.adapter.mqttClient.on("disconnect", import_mqttSharedService.onDisconnected);
+      import_mqttSharedService.adapter.mqttClient.on("reconnect", import_mqttSharedService.onReconnected);
       import_mqttSharedService.adapter.mqttClient.on("error", import_mqttSharedService.onError);
       import_mqttSharedService.adapter.setState("info.connection", true, true);
       import_mqttSharedService.adapter.mqttClient.on("message", import_mqttSharedService.onMessage);

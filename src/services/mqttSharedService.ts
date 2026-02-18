@@ -638,6 +638,14 @@ export const onConnected = (): void => {
   }
 };
 
+export const onReconnected = (): void => {
+  if (adapter) {
+    adapter.lastLogin = new Date();
+    adapter.setState("info.connection", true, true);
+    adapter.log.info("[onReconnected] Reconnected to MQTT!");
+  }
+};
+
 export const onDisconnected = (): void => {
   if (adapter) {
     adapter.lastLogin = new Date();
