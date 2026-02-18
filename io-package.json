@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "3.4.0",
+    "version": "3.5.0",
     "news": {
+      "3.5.0": {
+        "en": "Add productKey '2Qe7C9' for Solarflow 2400 Pro\nAdd event handler (log message) for MQTT disconnect",
+        "de": "Produkt hinzufügenKey '2Qe7C9' für Solarflow 2400 Pro\nEvent-Handler (Log-Nachricht) für MQTT-Abschaltung hinzufügen",
+        "ru": "Добавить продуктKey 2Qe7C9 для Solarflow 2400 Pro\nДобавить обработчик событий (log message) для отключения MQTT",
+        "pt": "Adicionar produtoKey '2Qe7C9' para Solarflow 2400 Pro\nAdicionar o manipulador de eventos (mensagem de registo) para a desconexão do MQTT",
+        "nl": "Voeg product toeKey '2Qe7C9' voor Solarflow 2400 Pro\nToevoegen gebeurtenisafhandeling (logbericht) voor MQTT loskoppelen",
+        "fr": "Ajouter le produitKey '2Qe7C9' pour Solarflow 2400 Pro\nAjouter le gestionnaire d'événements (message de journal) pour la déconnexion MQTT",
+        "it": "Aggiungi productKey '2Qe7C9' per Solarflow 2400 Pro\nAggiungi maniglione eventi (messaggio di registro) per disconnessione MQTT",
+        "es": "Añadir productoKey '2Qe7C9' para Solarflow 2400 Pro\nAñadir controlador de evento (mensaje de registro) para desconexión MQTT",
+        "pl": "Dodaj productKey '2Qe7C9' dla Solarflow 2400 Pro\nDodaj obsługę zdarzeń (wiadomość dziennika) dla rozłączenia MQTT",
+        "uk": "Додати товарKey '2Qe7C9' для Solarflow 2400 Pro\nДодати обробник подій (логове повідомлення) для підключення MQTT",
+        "zh-cn": "添加“ 2Qe7C9” 产品“ 2400 Pro ”\n添加 MQTT 断开事件处理器( log message)"
+      },
       "3.4.0": {
         "en": "Add productKey '8n77V3' for Solarflow 800 Plus\nRemove passMode, pass and buzzerSwitch from Hyper 2000",
         "de": "Produkt hinzufügenKey '8n77V3' für Solarflow 800 Plus\nZurück zur Übersicht Modus, Pass und Summer Schalter von Hyper 2000",
@@ -80,19 +93,6 @@
         "pl": "Napraw reset stanów obliczeniowych, jeśli PV3 + 4 (SF 800 Pro)",
         "uk": "Кріплення розрахунків станів, якщо PV3 +4 (SF 800 Pro)",
         "zh-cn": "如果PV3+4(SF 800 Pro),则固定重置计算"
-      },
-      "3.2.1": {
-        "en": "Fix setDeviceAutomation charging mode",
-        "de": "Fix setDeviceAutomatisieren Lademodus",
-        "ru": "Режим зарядки DeviceAutomation",
-        "pt": "Corrigir o setDispositivoModo de carregamento automático",
-        "nl": "Fix setDeviceAutomation laadmodus",
-        "fr": "Correction du mode de chargement setDeviceAutomation",
-        "it": "Fix setModalità di ricarica dell'automazione",
-        "es": "Configuración fijaDeviceModo de carga de automatización",
-        "pl": "Napraw tryb ładowania setDeviceAutomation",
-        "uk": "Виправлення setDeviceAutomation режим зарядки",
-        "zh-cn": "修复设置Device自动充电模式"
       }
     },
     "titleLang": {
