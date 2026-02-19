@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "3.5.0",
+    "version": "3.5.1",
     "news": {
+      "3.5.1": {
+        "en": "Try to update state only if state exist for this device\nImproved error handling",
+        "de": "Versuchen Sie, Zustand nur zu aktualisieren, wenn Zustand für dieses Gerät existiert\nVerbesserte Fehlerbehandlung",
+        "ru": "Попробуйте обновить состояние только в том случае, если для этого устройства существует состояние\nУлучшенная обработка ошибок",
+        "pt": "Tente atualizar o estado somente se o estado existir para este dispositivo\nMelhor manipulação de erros",
+        "nl": "Probeer de status alleen bij te werken als de status voor dit apparaat bestaat\nVerbeterde foutafhandeling",
+        "fr": "Essayez de mettre à jour l'état seulement si l'état existe pour ce périphérique\nAmélioration du traitement des erreurs",
+        "it": "Cerca di aggiornare lo stato solo se esistono stati per questo dispositivo\nMiglioramento della gestione degli errori",
+        "es": "Trate de actualizar estado sólo si el estado existe para este dispositivo\nMejor manejo de errores",
+        "pl": "Spróbuj zaktualizować stan tylko jeśli istnieje stan dla tego urządzenia\nUlepszona obsługa błędów",
+        "uk": "Спробуйте оновити стан тільки якщо держава існує для цього пристрою\nПоліпшення обробки помилок",
+        "zh-cn": "仅在此设备存在状态时尝试更新状态\n改进错误处理"
+      },
       "3.5.0": {
         "en": "Add productKey '2Qe7C9' for Solarflow 2400 Pro\nAdd event handler (log message) for MQTT disconnect",
         "de": "Produkt hinzufügenKey '2Qe7C9' für Solarflow 2400 Pro\nEvent-Handler (Log-Nachricht) für MQTT-Abschaltung hinzufügen",
@@ -80,19 +93,6 @@
         "pl": "Automatyzacja urządzenia testowego dla ACE1500",
         "uk": "Тестовий пристрійАвтоматика для ACE1500",
         "zh-cn": "ACE1500的测试设备自动化"
-      },
-      "3.2.2": {
-        "en": "Fix reset of calculation states if PV3+4 (SF 800 Pro)",
-        "de": "Reset von Berechnungszuständen, wenn PV3+4 (SF 800 Pro)",
-        "ru": "Исправьте сброс расчётных состояний, если PV3+4 (SF 800 Pro)",
-        "pt": "Corrigir a redefinição dos estados de cálculo se PV3+4 (SF 800 Pro)",
-        "nl": "Fix reset van berekening staat als PV3+4 (SF 800 Pro)",
-        "fr": "Correction de la remise des états de calcul si PV3+4 (SF 800 Pro)",
-        "it": "Ripristino degli stati di calcolo se PV3+4 (SF 800 Pro)",
-        "es": "Fijar el reajuste de los estados de cálculo si PV3+4 (SF 800 Pro)",
-        "pl": "Napraw reset stanów obliczeniowych, jeśli PV3 + 4 (SF 800 Pro)",
-        "uk": "Кріплення розрахунків станів, якщо PV3 +4 (SF 800 Pro)",
-        "zh-cn": "如果PV3+4(SF 800 Pro),则固定重置计算"
       }
     },
     "titleLang": {

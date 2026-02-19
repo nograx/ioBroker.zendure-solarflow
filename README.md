@@ -53,8 +53,7 @@ As I only own Hyper 2000 devices, other devices are untestet from me and the fun
 This adapter will now use the Cloud Authorization Code for authentication on the official mqtt servers, which you can generate in the Zendure app!
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 3.5.1 (2026-02-19)
 
 - Try to update state only if state exist for this device
 - Improved error handling
