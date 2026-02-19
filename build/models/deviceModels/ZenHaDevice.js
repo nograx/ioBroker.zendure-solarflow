@@ -951,17 +951,19 @@ class ZenHaDevice {
     }
   }
   async updateSolarFlowState(state, val) {
-    var _a, _b;
-    const currentValue = await this.adapter.getStateAsync(
-      `${this.productKey}.${this.deviceKey}.${state}`
-    );
-    await ((_a = this.adapter) == null ? void 0 : _a.setState(
-      `${this.productKey}.${this.deviceKey}.${state}`,
-      val,
-      true
-    ));
+    var _a, _b, _c;
+    const stateId = `${this.productKey}.${this.deviceKey}.${state}`;
+    const obj = await ((_a = this.adapter) == null ? void 0 : _a.getObjectAsync(stateId));
+    if (!obj) {
+      this.adapter.log.debug(
+        `[updateSolarFlowState] state ${stateId} not found, skipping update`
+      );
+      return;
+    }
+    const currentValue = await this.adapter.getStateAsync(stateId);
+    await ((_b = this.adapter) == null ? void 0 : _b.setState(stateId, val, true));
     if ((currentValue == null ? void 0 : currentValue.val) != val && state != "wifiState") {
-      await ((_b = this.adapter) == null ? void 0 : _b.setState(
+      await ((_c = this.adapter) == null ? void 0 : _c.setState(
         `${this.productKey}.${this.deviceKey}.lastUpdate`,
         (/* @__PURE__ */ new Date()).getTime(),
         true

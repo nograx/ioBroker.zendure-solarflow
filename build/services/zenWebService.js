@@ -75,15 +75,21 @@ const zenLogin = async (adapter) => {
     return data.data;
   }).catch(async function(error) {
     if (error.response) {
-      adapter.log.error(error.response.data);
-      adapter.log.error(error.response.status);
-      adapter.log.error(error.response.headers);
+      adapter.log.error(
+        `[zenLogin] Response data: ${JSON.stringify(error.response.data, null, 2)}`
+      );
+      adapter.log.error(`[zenLogin] status: ${error.response.status}`);
+      adapter.log.error(
+        `[zenLogin] headers: ${JSON.stringify(error.response.headers, null, 2)}`
+      );
     } else if (error.request) {
-      adapter.log.error(error.request);
+      adapter.log.error(
+        `[zenLogin] Request data: ${JSON.stringify(error.request, null, 2)}`
+      );
     } else {
-      adapter.log.error("Error" + error.message);
+      adapter.log.error(`[zenLogin] Error: ${error.message}`);
     }
-    adapter.log.error(error.config);
+    adapter.log.error(JSON.stringify(error.config, null, 2));
   });
 };
 // Annotate the CommonJS export names for ESM import in node:

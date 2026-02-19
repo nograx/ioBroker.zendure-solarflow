@@ -53,6 +53,12 @@ As I only own Hyper 2000 devices, other devices are untestet from me and the fun
 This adapter will now use the Cloud Authorization Code for authentication on the official mqtt servers, which you can generate in the Zendure app!
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Try to update state only if state exist for this device
+- Improved error handling
+
 ### 3.5.0 (2026-02-18)
 
 - Add productKey '2Qe7C9' for Solarflow 2400 Pro

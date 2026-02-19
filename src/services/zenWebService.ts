@@ -6,11 +6,11 @@ import * as crypto from "crypto";
 import { IHaDeviceListData } from "../models/IHaDeviceListData";
 
 export const zenLogin = async (
-  adapter: ZendureSolarflow
+  adapter: ZendureSolarflow,
 ): Promise<string | IHaDeviceListData | undefined> => {
   const decodedAuthCloudKey = Buffer.from(
     adapter.config.authorizationCloudKey,
-    "base64"
+    "base64",
   ).toString("utf-8");
 
   const lastDot = decodedAuthCloudKey.lastIndexOf(".");
@@ -75,18 +75,24 @@ export const zenLogin = async (
       if (error.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
-        adapter.log.error(error.response.data);
-        adapter.log.error(error.response.status);
-        adapter.log.error(error.response.headers);
+        adapter.log.error(
+          `[zenLogin] Response data: ${JSON.stringify(error.response.data, null, 2)}`,
+        );
+        adapter.log.error(`[zenLogin] status: ${error.response.status}`);
+        adapter.log.error(
+          `[zenLogin] headers: ${JSON.stringify(error.response.headers, null, 2)}`,
+        );
       } else if (error.request) {
         // The request was made but no response was received
         // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
         // http.ClientRequest in node.js
-        adapter.log.error(error.request);
+        adapter.log.error(
+          `[zenLogin] Request data: ${JSON.stringify(error.request, null, 2)}`,
+        );
       } else {
         // Something happened in setting up the request that triggered an Error
-        adapter.log.error("Error" + error.message);
+        adapter.log.error(`[zenLogin] Error: ${error.message}`);
       }
-      adapter.log.error(error.config);
+      adapter.log.error(JSON.stringify(error.config, null, 2));
     });
 };

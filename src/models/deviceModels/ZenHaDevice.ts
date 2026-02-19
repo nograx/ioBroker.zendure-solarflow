@@ -589,15 +589,20 @@ export class ZenHaDevice {
     state: string,
     val: number | string | boolean,
   ): Promise<void> {
-    const currentValue = await this.adapter.getStateAsync(
-      `${this.productKey}.${this.deviceKey}.${state}`,
-    );
+    const stateId = `${this.productKey}.${this.deviceKey}.${state}`;
 
-    await this.adapter?.setState(
-      `${this.productKey}.${this.deviceKey}.${state}`,
-      val,
-      true,
-    );
+    // skip if state does not exist
+    const obj = await this.adapter?.getObjectAsync(stateId);
+    if (!obj) {
+      this.adapter.log.debug(
+        `[updateSolarFlowState] state ${stateId} not found, skipping update`,
+      );
+      return;
+    }
+
+    const currentValue = await this.adapter.getStateAsync(stateId);
+
+    await this.adapter?.setState(stateId, val, true);
 
     if (currentValue?.val != val && state != "wifiState") {
       // Set lastUpdate for deviceKey if a value was changed!
