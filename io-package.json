@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "3.5.1",
+    "version": "3.5.2",
     "news": {
+      "3.5.2": {
+        "en": "Add productKey '5fG27j' for Solarflow 2400 AC+",
+        "de": "Produkt hinzufügenKey '5fG27j' für Solarflow 2400 AC+",
+        "ru": "Добавить продуктKey '5fG27j для Solarflow 2400 AC+",
+        "pt": "Adicionar produtoKey '5fG27j' para Solarflow 2400 AC+",
+        "nl": "Product toevoegenKey '5fG27j' voor Solarflow 2400 AC+",
+        "fr": "Ajouter le produitKey '5fG27j' pour Solarflow 2400 AC+",
+        "it": "Aggiungi prodottoKey '5fG27j' per Solarflow 2400 AC+",
+        "es": "Añadir productoKey '5fG27j' para el flujo solar 2400 AC+",
+        "pl": "Dodaj productKey '5fG27j' dla Solarflow 2400 AC +",
+        "uk": "Додати продуктKey '5fG27j' для Solarflow 2400 AC+",
+        "zh-cn": "添加“ 5fG27j” 产品, 用于太阳能流 2400 AC+"
+      },
       "3.5.1": {
         "en": "Try to update state only if state exist for this device\nImproved error handling",
         "de": "Versuchen Sie, Zustand nur zu aktualisieren, wenn Zustand für dieses Gerät existiert\nVerbesserte Fehlerbehandlung",
@@ -80,19 +93,6 @@
         "pl": "Fix 'nie ma istniejących komunikatów obiektu' na pvPower3 + 4\nPopraw wartość graniczną wejścia AC SF 800 Pro",
         "uk": "Виправлення 'has не існуючих повідомлень об'єкта' на pvPower3 + 4\nФіксований ліміт введення змінного струму SF 800 Pro",
         "zh-cn": "修复 pvPower3 + 4 上的“ 没有现有对象” 消息\n确定 SF 800 的 AC 输入限制"
-      },
-      "3.3.0-alpha.0": {
-        "en": "Test deviceAutomation for ACE1500",
-        "de": "TestgerätAutomation für ACE1500",
-        "ru": "Испытательное устройство Автоматизация для ACE1500",
-        "pt": "Dispositivo de testeAutomação para ACE1500",
-        "nl": "TestapparaatAutomatie voor ACE1500",
-        "fr": "Dispositif d'essaiAutomation pour ACE1500",
-        "it": "Dispositivo di provaAutomazione per ACE1500",
-        "es": "Equipo de pruebaAutomatización para ACE1500",
-        "pl": "Automatyzacja urządzenia testowego dla ACE1500",
-        "uk": "Тестовий пристрійАвтоматика для ACE1500",
-        "zh-cn": "ACE1500的测试设备自动化"
       }
     },
     "titleLang": {
