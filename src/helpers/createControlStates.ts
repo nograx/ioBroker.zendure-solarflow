@@ -11,7 +11,7 @@ import { ZendureSolarflow } from "../main";
 import { ISolarflowState } from "../models/ISolarflowState";
 
 export const getControlStateDefinition = (
-  productName: string
+  productName: string,
 ): ISolarflowState[] => {
   switch (productName.toLocaleLowerCase()) {
     case "hyper 2000":
@@ -39,7 +39,7 @@ export const createControlStates = async (
   adapter: ZendureSolarflow,
   productKey: string,
   deviceKey: string,
-  productName: string
+  productName: string,
 ): Promise<void> => {
   // Create control folder
   await adapter?.extendObject(`${productKey}.${deviceKey}.control`, {
@@ -74,12 +74,12 @@ export const createControlStates = async (
           states: state.states,
         },
         native: {},
-      }
+      },
     );
 
     // Subscribe to state
     adapter?.subscribeStates(
-      `${productKey}.${deviceKey}.control.${state.title}`
+      `${productKey}.${deviceKey}.control.${state.title}`,
     );
   });
 };

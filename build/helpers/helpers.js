@@ -25,6 +25,7 @@ var import_Ace1500 = require("../models/deviceModels/Ace1500");
 var import_Aio2400 = require("../models/deviceModels/Aio2400");
 var import_Hyper2000 = require("../models/deviceModels/Hyper2000");
 var import_Sf2400Ac = require("../models/deviceModels/Sf2400Ac");
+var import_Sf2400AcPlus = require("../models/deviceModels/Sf2400AcPlus");
 var import_Sf2400Pro = require("../models/deviceModels/Sf2400Pro");
 var import_Sf800 = require("../models/deviceModels/Sf800");
 var import_Sf800Plus = require("../models/deviceModels/Sf800Plus");
@@ -115,6 +116,18 @@ const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetail
         _deviceKey,
         _zenHaDeviceDetails ? _zenHaDeviceDetails.productModel : "Ace 1500",
         _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "Ace 1500",
+        _zenHaDeviceDetails
+      );
+    case "5fg27j":
+      _adapter.log.debug(
+        `[onReady] Creating deviceModel SF 2400 AC+ ${_productKey}`
+      );
+      return new import_Sf2400AcPlus.Sf2400AcPlus(
+        _adapter,
+        _productKey,
+        _deviceKey,
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.productModel : "Solarflow 2400 AC+",
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "Solarflow 2400 AC+",
         _zenHaDeviceDetails
       );
     case "bc8b7f":

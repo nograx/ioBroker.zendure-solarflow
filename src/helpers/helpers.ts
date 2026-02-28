@@ -5,6 +5,7 @@ import { Ace1500 } from "../models/deviceModels/Ace1500";
 import { Aio2400 } from "../models/deviceModels/Aio2400";
 import { Hyper2000 } from "../models/deviceModels/Hyper2000";
 import { Sf2400Ac } from "../models/deviceModels/Sf2400Ac";
+import { Sf2400AcPlus } from "../models/deviceModels/Sf2400AcPlus";
 import { Sf2400Pro } from "../models/deviceModels/Sf2400Pro";
 import { Sf800 } from "../models/deviceModels/Sf800";
 import { Sf800Plus } from "../models/deviceModels/Sf800Plus";
@@ -26,6 +27,10 @@ export const createDeviceModel = (
   | Hyper2000
   | Sf2400Ac
   | Sf800
+  | Sf800Pro
+  | Sf800Plus
+  | Sf2400AcPlus
+  | Sf2400Pro
   | undefined => {
   switch (_productKey.toLowerCase()) {
     case "73bktv":
@@ -110,6 +115,22 @@ export const createDeviceModel = (
         _deviceKey,
         _zenHaDeviceDetails ? _zenHaDeviceDetails.productModel : "Ace 1500",
         _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "Ace 1500",
+        _zenHaDeviceDetails,
+      );
+    case "5fg27j":
+      _adapter.log.debug(
+        `[onReady] Creating deviceModel SF 2400 AC+ ${_productKey}`,
+      );
+      return new Sf2400AcPlus(
+        _adapter,
+        _productKey,
+        _deviceKey,
+        _zenHaDeviceDetails
+          ? _zenHaDeviceDetails.productModel
+          : "Solarflow 2400 AC+",
+        _zenHaDeviceDetails
+          ? _zenHaDeviceDetails.deviceName
+          : "Solarflow 2400 AC+",
         _zenHaDeviceDetails,
       );
     case "bc8b7f":

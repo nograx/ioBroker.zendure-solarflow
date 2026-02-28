@@ -18,7 +18,7 @@ export class Sf2400Ac extends ZenHaDevice {
     _deviceKey: string,
     _productName: string,
     _deviceName: string,
-    _zenHaDeviceDetails?: IZenHaDeviceDetails
+    _zenHaDeviceDetails?: IZenHaDeviceDetails,
   ) {
     super(
       _adapter,
@@ -26,7 +26,7 @@ export class Sf2400Ac extends ZenHaDevice {
       _deviceKey,
       _productName,
       _deviceName,
-      _zenHaDeviceDetails
+      _zenHaDeviceDetails,
     );
   }
 
@@ -37,22 +37,22 @@ export class Sf2400Ac extends ZenHaDevice {
         this.adapter.log.debug(`[setAcMode] Set AC mode to ${acMode}!`);
         this.adapter.mqttClient?.publish(
           this.iotTopic,
-          JSON.stringify(setAcMode)
+          JSON.stringify(setAcMode),
         );
 
         // Check if device is HUB, then check if smartMode is false - if so send a warning to log!
         const smartMode = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.smartMode"
+          this.productKey + "." + this.deviceKey + ".control.smartMode",
         );
 
         if (smartMode && !smartMode.val) {
           this.adapter.log.warn(
-            `[setAcMode] AC mode was switched and smartMode is false - changes will be written to flash memory. In the worst case, the device may break or changes may no longer be saved!`
+            `[setAcMode] AC mode was switched and smartMode is false - changes will be written to flash memory. In the worst case, the device may break or changes may no longer be saved!`,
           );
         }
       } else {
         this.adapter.log.error(
-          `[setAcMode] AC mode must be a value between 0 and 3!`
+          `[setAcMode] AC mode must be a value between 0 and 3!`,
         );
       }
     }
@@ -64,21 +64,21 @@ export class Sf2400Ac extends ZenHaDevice {
         properties: { acSwitch: acSwitch ? 1 : 0 },
       };
       this.adapter.log.debug(
-        `[setAcSwitch] Set AC Switch for device ${this.deviceKey} to ${acSwitch}!`
+        `[setAcSwitch] Set AC Switch for device ${this.deviceKey} to ${acSwitch}!`,
       );
       this.adapter.mqttClient?.publish(
         this.iotTopic,
-        JSON.stringify(setAcSwitchContent)
+        JSON.stringify(setAcSwitchContent),
       );
     }
   }
 
   public async setDeviceAutomationInOutLimit(
-    limit: number // can be negative, negative will trigger charging mode
+    limit: number, // can be negative, negative will trigger charging mode
   ): Promise<void> {
     if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
       this.adapter.log.debug(
-        `[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`
+        `[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`,
       );
 
       if (limit) {
@@ -89,7 +89,7 @@ export class Sf2400Ac extends ZenHaDevice {
 
       if (this.adapter.config.useLowVoltageBlock) {
         const lowVoltageBlockState = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.lowVoltageBlock"
+          this.productKey + "." + this.deviceKey + ".control.lowVoltageBlock",
         );
         if (
           lowVoltageBlockState &&
@@ -101,7 +101,7 @@ export class Sf2400Ac extends ZenHaDevice {
         }
 
         const fullChargeNeeded = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.fullChargeNeeded"
+          this.productKey + "." + this.deviceKey + ".control.fullChargeNeeded",
         );
 
         if (
@@ -117,12 +117,12 @@ export class Sf2400Ac extends ZenHaDevice {
       // Convert maxInputLimit to negative value and compare to limit
       if (limit < 0 && limit < -this.maxInputLimit) {
         this.adapter.log.debug(
-          `[setDeviceAutomationInOutLimit] limit ${limit} is below the maximum input limit of ${this.maxInputLimit}, setting to ${-this.maxInputLimit}!`
+          `[setDeviceAutomationInOutLimit] limit ${limit} is below the maximum input limit of ${this.maxInputLimit}, setting to ${-this.maxInputLimit}!`,
         );
         limit = -this.maxInputLimit;
       } else if (limit > this.maxOutputLimit) {
         this.adapter.log.debug(
-          `[setDeviceAutomationInOutLimit] limit ${limit} is higher the maximum output limit of ${this.maxOutputLimit}, setting to ${this.maxOutputLimit}!`
+          `[setDeviceAutomationInOutLimit] limit ${limit} is higher the maximum output limit of ${this.maxOutputLimit}, setting to ${this.maxOutputLimit}!`,
         );
         limit = this.maxOutputLimit;
       }
@@ -134,7 +134,7 @@ export class Sf2400Ac extends ZenHaDevice {
 
       // Device Automation for Solarflow 2400 AC and Solarflow 800
       this.adapter.log.debug(
-        `[setDeviceAutomationInOutLimit] Using HEMS Variant of device automation, as deviceKey '${this.deviceKey}' detected!`
+        `[setDeviceAutomationInOutLimit] Using HEMS Variant of device automation, as deviceKey '${this.deviceKey}' detected!`,
       );
 
       // HEMS Variante
@@ -154,7 +154,7 @@ export class Sf2400Ac extends ZenHaDevice {
       };
       this.adapter.mqttClient?.publish(
         this.functionTopic,
-        JSON.stringify(hemsEP)
+        JSON.stringify(hemsEP),
       );
     }
   }
