@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "3.5.2",
+    "version": "3.5.3",
     "news": {
+      "3.5.3": {
+        "en": "Fix setDeviceAutomationInOutLimit on certain HEMS devices like 2400 AC(+)",
+        "de": "Fix setDeviceAutomationInOutLimit auf bestimmte HEMS-Geräte wie 2400 AC(+)",
+        "ru": "Исправьте наборDeviceAutomationInOutLimit на определенных устройствах HEMS, таких как 2400 AC(+)",
+        "pt": "Fix setDeviceAutomationInOutLimit em certos dispositivos HEMS como 2400 AC(+)",
+        "nl": "Fix setDeviceAutomationInOutLimit op bepaalde HEMS apparaten zoals 2400 AC(+)",
+        "fr": "Correction setDeviceAutomationInOutLimit sur certains appareils HEMS comme 2400 AC(+)",
+        "it": "Fix setDeviceAutomationInOutLimit su alcuni dispositivi HEMS come 2400 AC(+)",
+        "es": "Set de fijaciónDeviceAutomationInOutLimit on certain HEMS devices like 2400 AC(+)",
+        "pl": "Napraw setDeviceAutomationInOutLimit na niektórych urządzeniach HEMS takich jak 2400 AC (+)",
+        "uk": "Виправлення setDeviceAutomationInOutLimit на певних пристроях HEMS, таких як 2400 AC(+)",
+        "zh-cn": "某些HEMS设备,如2400 AC(+)上的DeviceAutomation InOutLimit"
+      },
       "3.5.2": {
         "en": "Add productKey '5fG27j' for Solarflow 2400 AC+",
         "de": "Produkt hinzufügenKey '5fG27j' für Solarflow 2400 AC+",
@@ -80,19 +93,6 @@
         "pl": "Napraw problem kalkulacji",
         "uk": "Фіксований випуск калорій",
         "zh-cn": "修正计算问题"
-      },
-      "3.3.0": {
-        "en": "Fix 'has no existing object' messages on pvPower3 + 4\nFix AC input limit of SF 800 Pro",
-        "de": "Fix 'has no existing object'-Nachrichten auf pvPower3 + 4\nFix AC Eingangsgrenze von SF 800 Pro",
-        "ru": "Исправление сообщений «нет существующего объекта» на pvPower3 + 4\nОграничение ввода переменного тока SF 800 Pro",
-        "pt": "Corrigir mensagens 'não tem objeto existente' no pvPower3 + 4\nFixar o limite de entrada AC de SF 800 Pro",
-        "nl": "Fix 'heeft geen bestaand object' berichten op pvPower3 + 4\nFix AC ingangslimiet van SF 800 Pro",
-        "fr": "Correction des messages 'n'a aucun objet existant' sur pvPower3 + 4\nFixer la limite d'entrée AC de SF 800 Pro",
-        "it": "Fissare 'non ha nessun oggetto esistente' messaggi su pvPower3 + 4\nLimite di ingresso AC fisso di SF 800 Pro",
-        "es": "Fijar 'no tiene ningún objeto existente' mensajes en pvPower3 + 4\nFijar límite de entrada AC de SF 800 Pro",
-        "pl": "Fix 'nie ma istniejących komunikatów obiektu' na pvPower3 + 4\nPopraw wartość graniczną wejścia AC SF 800 Pro",
-        "uk": "Виправлення 'has не існуючих повідомлень об'єкта' на pvPower3 + 4\nФіксований ліміт введення змінного струму SF 800 Pro",
-        "zh-cn": "修复 pvPower3 + 4 上的“ 没有现有对象” 消息\n确定 SF 800 的 AC 输入限制"
       }
     },
     "titleLang": {
