@@ -140,7 +140,7 @@ export class Sf800Plus extends ZenHaDevice {
       const _arguments: IHemsEpPayload = {
         outputPower: limit > 0 ? limit : 0,
         chargeState: limit > 0 ? 0 : 1,
-        chargePower: limit > 0 ? 0 : limit,
+        chargePower: limit > 0 ? 0 : -limit,
         mode: 9,
       };
 

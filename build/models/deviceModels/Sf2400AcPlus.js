@@ -124,7 +124,7 @@ class Sf2400AcPlus extends import_ZenHaDevice.ZenHaDevice {
       const _arguments = {
         outputPower: limit > 0 ? limit : 0,
         chargeState: limit > 0 ? 0 : 1,
-        chargePower: limit > 0 ? 0 : limit,
+        chargePower: limit > 0 ? 0 : -limit,
         mode: 9
       };
       const hemsEP = {
