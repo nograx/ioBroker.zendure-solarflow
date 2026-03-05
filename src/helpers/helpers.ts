@@ -4,6 +4,7 @@ import { ZendureSolarflow } from "../main";
 import { Ace1500 } from "../models/deviceModels/Ace1500";
 import { Aio2400 } from "../models/deviceModels/Aio2400";
 import { Hyper2000 } from "../models/deviceModels/Hyper2000";
+import { Sf1600AcPlus } from "../models/deviceModels/Sf1600AcPlus";
 import { Sf2400Ac } from "../models/deviceModels/Sf2400Ac";
 import { Sf2400AcPlus } from "../models/deviceModels/Sf2400AcPlus";
 import { Sf2400Pro } from "../models/deviceModels/Sf2400Pro";
@@ -29,6 +30,7 @@ export const createDeviceModel = (
   | Sf800
   | Sf800Pro
   | Sf800Plus
+  | Sf1600AcPlus
   | Sf2400AcPlus
   | Sf2400Pro
   | undefined => {
@@ -115,6 +117,22 @@ export const createDeviceModel = (
         _deviceKey,
         _zenHaDeviceDetails ? _zenHaDeviceDetails.productModel : "Ace 1500",
         _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "Ace 1500",
+        _zenHaDeviceDetails,
+      );
+    case "65174u":
+      _adapter.log.debug(
+        `[onReady] Creating deviceModel Solarflow 1600 AC+ ${_productKey}`,
+      );
+      return new Sf1600AcPlus(
+        _adapter,
+        _productKey,
+        _deviceKey,
+        _zenHaDeviceDetails
+          ? _zenHaDeviceDetails.productModel
+          : "Solarflow 1600 AC+",
+        _zenHaDeviceDetails
+          ? _zenHaDeviceDetails.deviceName
+          : "Solarflow 1600 AC+",
         _zenHaDeviceDetails,
       );
     case "5fg27j":

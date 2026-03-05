@@ -1,63 +1,36 @@
 /* eslint-disable @typescript-eslint/indent */
 import mqtt from "mqtt";
 import { ZendureSolarflow } from "../main";
-import {
-  adapter,
-  initAdapter,
-  onConnected,
-  onDisconnected,
-  onError,
-  onMessage,
-  onReconnected,
-} from "./mqttSharedService";
-import {
-  startCalculationJob,
-  startCheckStatesAndConnectionJob,
-  startResetValuesJob,
-} from "./jobSchedule";
+import { MqttService } from "./mqttService";
 
-export const connectLocalMqttClient = (_adapter: ZendureSolarflow): void => {
-  initAdapter(_adapter);
-
-  if (!adapter) {
-    return;
+export class LocalMqttService extends MqttService {
+  constructor(adapter: ZendureSolarflow) {
+    super(adapter);
   }
 
-  const options: mqtt.IClientOptions = {
-    clientId: "ioBroker.zendure-solarflow." + adapter.instance,
-  };
-
-  if (mqtt && adapter && adapter.config && adapter.config.localMqttUrl) {
-    adapter.log.debug(
-      `[connectLocalMqttClient] Connecting to MQTT broker ${
-        adapter.config.localMqttUrl + ":" + 1883
-      }...`,
-    );
-    adapter.mqttClient = mqtt.connect(
-      "mqtt://" + adapter.config.localMqttUrl + ":" + 1883,
-      options,
-    ); // create a client
-
-    if (adapter && adapter.mqttClient) {
-      adapter.mqttClient.on("connect", onConnected);
-      adapter.mqttClient.on("disconnect", onDisconnected);
-      adapter.mqttClient.on("reconnect", onReconnected);
-      adapter.mqttClient.on("error", onError);
-
-      adapter.setState("info.connection", true, true);
-
-      adapter.mqttClient.on("message", onMessage);
-
-      // Job starten die states in der Nacht zu resetten
-      startResetValuesJob(adapter);
-
-      // Job starten die States zu checken
-      startCheckStatesAndConnectionJob(adapter);
-
-      // Calculation Job starten sofern aktiviert
-      if (adapter.config.useCalculation) {
-        startCalculationJob(adapter);
-      }
+  connect(): boolean {
+    if (!this.adapter.config || !this.adapter.config.localMqttUrl) {
+      this.adapter.log.error("[LocalMqttService] local MQTT url missing!");
+      return false;
     }
+
+    const opts: mqtt.IClientOptions = {
+      clientId: "ioBroker.zendure-solarflow." + this.adapter.instance,
+    };
+
+    const url = `mqtt://${this.adapter.config.localMqttUrl}:1883`;
+    const ok = this.connectWithOptions(opts, url);
+
+    if (ok) {
+      // we previously set the flag immediately for local mode
+      this.adapter.setState("info.connection", true, true);
+    }
+
+    return ok;
   }
+}
+
+export const connectLocalMqttClient = (_adapter: ZendureSolarflow): boolean => {
+  const svc = new LocalMqttService(_adapter);
+  return svc.connect();
 };

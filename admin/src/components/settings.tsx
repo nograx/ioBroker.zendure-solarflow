@@ -21,6 +21,7 @@ const productKeys: { value; title }[] = [
   { value: "gDa3tb", title: "Hyper 2000 (gDa3tb)" },
   { value: "B3Dxda", title: "Hyper 2000 (B3Dxda)" },
   { value: "8bM93H", title: "Ace 1500 (8bM93H)" },
+  { value: "65174u", title: "SolarFlow 1600 AC+ (65174u)" },
   { value: "BC8B7F", title: "SolarFlow 2400 AC (BC8B7F)" },
   { value: "5fG27j", title: "SolarFlow 2400 AC+ (5fG27j)" },
   { value: "2Qe7C9", title: "SolarFlow 2400 Pro (2Qe7C9)" },
