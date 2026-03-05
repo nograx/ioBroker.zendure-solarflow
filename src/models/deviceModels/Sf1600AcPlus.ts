@@ -132,7 +132,7 @@ export class Sf1600AcPlus extends ZenHaDevice {
       const timestamp = new Date();
       timestamp.setMilliseconds(0);
 
-      // Device Automation for Solarflow 2400 AC and Solarflow 800
+      // Device Automation for HEMS devices
       this.adapter.log.debug(
         `[setDeviceAutomationInOutLimit] Using HEMS Variant of device automation, as deviceKey '${this.deviceKey}' detected!`,
       );
@@ -141,7 +141,7 @@ export class Sf1600AcPlus extends ZenHaDevice {
       const _arguments: IHemsEpPayload = {
         outputPower: limit > 0 ? limit : 0,
         chargeState: limit > 0 ? 0 : 1,
-        chargePower: limit > 0 ? 0 : limit,
+        chargePower: limit > 0 ? 0 : -limit,
         mode: 9,
       };
 
