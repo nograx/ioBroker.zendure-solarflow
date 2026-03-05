@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "3.5.3",
+    "version": "3.5.4",
     "news": {
+      "3.5.4": {
+        "en": "Add device key '65174u' for Solarflow 1600 AC+",
+        "de": "Geräteschlüssel '65174u' für Solarflow 1600 AC+ hinzufügen",
+        "ru": "Добавить клавишу «65174u» для Solarflow 1600 AC+",
+        "pt": "Adicionar a chave do dispositivo '65174u' para Solarflow 1600 AC+",
+        "nl": "Toevoegen apparaatsleutel '65174u' voor Solarflow 1600 AC+",
+        "fr": "Ajouter la touche '65174u' pour Solarflow 1600 AC+",
+        "it": "Aggiungi la chiave del dispositivo '65174u' per Solarflow 1600 AC+",
+        "es": "Añadir la llave del dispositivo '65174u' para el flujo solar 1600 AC+",
+        "pl": "Dodaj klucz urządzenia '65174u' dla Solarflow 1600 AC +",
+        "uk": "Додати ключ пристрою '65174u' для Solarflow 1600 AC+",
+        "zh-cn": "为 Solarflow 1600 AC+ 添加设备密钥“ 65174u ”"
+      },
       "3.5.3": {
         "en": "Fix setDeviceAutomationInOutLimit on certain HEMS devices like 2400 AC(+)",
         "de": "Fix setDeviceAutomationInOutLimit auf bestimmte HEMS-Geräte wie 2400 AC(+)",
@@ -80,19 +93,6 @@
         "pl": "Napraw kolejny błąd 'nie ma istniejącego obiektu' na pvPower3 + 4\nFix Identyfikacja baterii AB2000X i obliczenia 'energyWhMax'\nNapraw identyfikację baterii AB3000 i obliczanie 'energyWhMax'",
         "uk": "Виправлено інший \"не існуючий об'єкт\" повідомлення про помилку на pvPower3 + 4\nФіксація акумулятора AB2000X та розрахунок \"енергетикиWhMax\"\nФіксація акумулятора AB3000 та розрахунок \"енергетикиWhMax\"",
         "zh-cn": "在 pvPower3 + 4 上修正另一个“ 没有存在对象” 消息错误\n修复电池对AB2000X的识别和“能量WhMax”的计算\n修复电池对AB3000的识别和“能量WhMax”的计算"
-      },
-      "3.3.1": {
-        "en": "Fix caluclation issue",
-        "de": "Problem der Calucation behoben",
-        "ru": "Исправьте проблему калькуляции",
-        "pt": "Corrigir a questão da calulação",
-        "nl": "Repareer het probleem van de kalibratie",
-        "fr": "Correction du problème de caluclation",
-        "it": "Risolvere la questione del calcolo",
-        "es": "Cuestión de la calusión fija",
-        "pl": "Napraw problem kalkulacji",
-        "uk": "Фіксований випуск калорій",
-        "zh-cn": "修正计算问题"
       }
     },
     "titleLang": {
