@@ -74,10 +74,66 @@ export class ZenIobDevice {
       this.triggerFullTelemetryUpdate();
     }, 5000);
 
-    if (this.zenIobDeviceDetails?.online) {
+    this.updateSolarFlowStatesFromDeviceDetails(_zenIobDeviceDetails!);
+  }
+
+  private async updateSolarFlowStatesFromDeviceDetails(
+    zenIobDeviceDetails: IZenIobDeviceDetails,
+  ): Promise<void> {
+    if (zenIobDeviceDetails?.online) {
       this.updateSolarFlowState("wifiState", "Connected");
-    } else if (this.zenIobDeviceDetails?.online == false) {
+    } else if (zenIobDeviceDetails?.online == false) {
       this.updateSolarFlowState("wifiState", "Disconnected");
+    }
+
+    if (zenIobDeviceDetails.productModel) {
+      this.updateSolarFlowState(
+        "productName",
+        zenIobDeviceDetails.productModel,
+      );
+    }
+
+    if (zenIobDeviceDetails.ip) {
+      this.updateSolarFlowState("ip", zenIobDeviceDetails.ip);
+    }
+
+    if (zenIobDeviceDetails.snNumber) {
+      this.updateSolarFlowState("snNumber", zenIobDeviceDetails.snNumber);
+    }
+
+    if (zenIobDeviceDetails.deviceName) {
+      this.updateSolarFlowState("name", zenIobDeviceDetails.deviceName);
+    }
+
+    if (
+      zenIobDeviceDetails.protocol == "mqtt" &&
+      zenIobDeviceDetails.server &&
+      zenIobDeviceDetails.port
+    ) {
+      await this.adapter?.extendObject(
+        `${this.productKey}.${this.deviceKey}.mqttServer`,
+        {
+          type: "state",
+          common: {
+            name: {
+              de: "MQTT Server",
+              en: "MQTT Server",
+            },
+            type: "string",
+            desc: "MQTT Server",
+            role: "value",
+            read: true,
+            write: false,
+            unit: "",
+            states: {},
+          },
+          native: {},
+        },
+      );
+      this.updateSolarFlowState(
+        "mqttServer",
+        zenIobDeviceDetails.server + ":" + zenIobDeviceDetails.port,
+      );
     }
   }
 

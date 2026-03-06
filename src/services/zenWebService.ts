@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/indent */
 import axios, { AxiosRequestConfig } from "axios";
-import { haKey } from "../constants/constants";
+import { iobKey } from "../constants/constants";
 import { ZendureSolarflow } from "../main";
 import * as crypto from "crypto";
-import { IIobDeviceListData } from "../models/IHaDeviceListData";
+import { IIobDeviceListData } from "../models/IIobDeviceListData";
 
 export const zenLogin = async (
   adapter: ZendureSolarflow,
@@ -42,7 +42,7 @@ export const zenLogin = async (
     .map((k) => `${k}${signParams[k]}`)
     .join("");
 
-  const signStr = `${haKey}${bodyStr}${haKey}`;
+  const signStr = `${iobKey}${bodyStr}${iobKey}`;
 
   // SHA1-Hash berechnen
   const sha1 = crypto.createHash("sha1");
