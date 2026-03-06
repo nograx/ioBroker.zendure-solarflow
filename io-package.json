@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "3.5.4",
+    "version": "3.5.5",
     "news": {
+      "3.5.5": {
+        "en": "Fix setDeviceAutomationInOutLimit for Solarflow 1600 AC+",
+        "de": "Fix setDeviceAutomationInOutLimit für Solarflow 1600 AC+",
+        "ru": "Ремонтный наборDeviceAutomationInOutLimit для Solarflow 1600 AC+",
+        "pt": "Fix setDeviceAutomationInOutLimit para Solarflow 1600 AC+",
+        "nl": "Fix setDeviceAutomationInOutLimit voor Solarflow 1600 AC+",
+        "fr": "Correction setDeviceAutomationInOutLimit pour Solarflow 1600 AC+",
+        "it": "Fix setDeviceAutomationInOutLimit per Solarflow 1600 AC+",
+        "es": "Set de fijaciónDeviceAutomationInOutLimit for Solarflow 1600 AC+",
+        "pl": "Napraw setDeviceAutomationInOutLimit dla Solarflow 1600 AC +",
+        "uk": "Фіксований комплектDeviceAutomationInOutLimit для Solarflow 1600 AC+",
+        "zh-cn": "日光流 1600 AC+ 的自动调试"
+      },
       "3.5.4": {
         "en": "Add device key '65174u' for Solarflow 1600 AC+",
         "de": "Geräteschlüssel '65174u' für Solarflow 1600 AC+ hinzufügen",
@@ -80,19 +93,6 @@
         "pl": "Dodaj productKey '8n77V3' dla Solarflow 800 Plus\nUsuń przejście Tryb, pass i brzęczyk Przełącznik z Hyper 2000",
         "uk": "Додати товарKey '8n77V3' для Solarflow 800 Plus\nВидалити прохід Режим, прохід і буфер Перемикач від Hyper 2000",
         "zh-cn": "为 Solarflow 800 Plus 添加产品 Key '8n77V3'\n删除通过 模式、通过和铃声 从 Hyper 2000 切换"
-      },
-      "3.3.2": {
-        "en": "Fix another 'has no existing object' message bug on pvPower3 + 4\nFix Battery identification of AB2000X and calculation of 'energyWhMax'\nFix Battery identification of AB3000 and calculation of 'energyWhMax'",
-        "de": "Behebt einen anderen 'hat no existing object' Nachrichtenfehler auf pvPower3 + 4\nBatteriekennung von AB2000X und Berechnung von 'energyWhMax'\nBatteriekennung von AB3000 und Berechnung von 'energyWhMax'",
-        "ru": "Исправьте ошибку сообщения «нет существующего объекта» на pvPower3 + 4\nИдентификация батареи AB2000X и расчет «энергетического WhMax»\nИдентификация батареи AB3000 и расчет «энергетического WhMax»",
-        "pt": "Corrigir outro erro de mensagem 'não tem objeto existente' no pvPower3 + 4\nCorrigir a identificação da bateria de AB2000X e o cálculo de 'energyWhMax'\nCorrigir a identificação da bateria de AB3000 e o cálculo de 'energyWhMax'",
-        "nl": "Fix another 'has no existing object' message bug on pvPower3 + 4\nFix Batterij identificatie van AB2000X en berekening van 'energyWhMax'\nFix Batterij identificatie van AB3000 en berekening van 'energyWhMax'",
-        "fr": "Correction d'un autre bug de message 'n'a aucun objet existant' sur pvPower3 + 4\nCorrection de l'identification de la batterie AB2000X et calcul de 'energyWhMax'\nCorrection de l'identification de la batterie AB3000 et calcul de 'energyWhMax'",
-        "it": "Fissare un altro 'ha nessun oggetto esistente' messaggio bug su pvPower3 + 4\nFissa l'identificazione della batteria di AB2000X e il calcolo di 'energyWhMax'\nFissa l'identificazione della batteria di AB3000 e il calcolo di 'energyWhMax'",
-        "es": "Fijar otro 'no tiene ningún objeto existente' error de mensaje en pvPower3 + 4\nIdentificación de batería de AB2000X y cálculo de 'energíaWhMax'\nIdentificación de batería de AB3000 y cálculo de 'energíaWhMax'",
-        "pl": "Napraw kolejny błąd 'nie ma istniejącego obiektu' na pvPower3 + 4\nFix Identyfikacja baterii AB2000X i obliczenia 'energyWhMax'\nNapraw identyfikację baterii AB3000 i obliczanie 'energyWhMax'",
-        "uk": "Виправлено інший \"не існуючий об'єкт\" повідомлення про помилку на pvPower3 + 4\nФіксація акумулятора AB2000X та розрахунок \"енергетикиWhMax\"\nФіксація акумулятора AB3000 та розрахунок \"енергетикиWhMax\"",
-        "zh-cn": "在 pvPower3 + 4 上修正另一个“ 没有存在对象” 消息错误\n修复电池对AB2000X的识别和“能量WhMax”的计算\n修复电池对AB3000的识别和“能量WhMax”的计算"
       }
     },
     "titleLang": {

@@ -11,7 +11,7 @@ import {
 import { IDevicePack } from "../IDevicePack";
 import { IPackData } from "../IPackData";
 import { ISolarflowState } from "../ISolarflowState";
-import { IZenIobDeviceDetails as IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
+import { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
 
 export class ZenIobDevice {
   public zenIobDeviceDetails?: IZenIobDeviceDetails;
