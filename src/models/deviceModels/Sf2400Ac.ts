@@ -1,5 +1,5 @@
-import { ac2400ControlStates } from "../../constants/ac2400ControlStates";
-import { ac2400States } from "../../constants/ac2400States";
+import { ac2400ControlStates } from "../../constants/controlStates/ac2400ControlStates";
+import { ac2400States } from "../../constants/sensorStates/ac2400States";
 import { ZendureSolarflow } from "../../main";
 import { IHemsEpPayload } from "../IDeviceAutomationPayload";
 import { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";

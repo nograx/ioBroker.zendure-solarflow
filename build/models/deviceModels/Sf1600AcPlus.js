@@ -21,8 +21,8 @@ __export(Sf1600AcPlus_exports, {
   Sf1600AcPlus: () => Sf1600AcPlus
 });
 module.exports = __toCommonJS(Sf1600AcPlus_exports);
-var import_solarflow1600AcPlusControlStates = require("../../constants/solarflow1600AcPlusControlStates");
-var import_solarflow1600ProStates = require("../../constants/solarflow1600ProStates");
+var import_solarflow1600AcPlusControlStates = require("../../constants/controlStates/solarflow1600AcPlusControlStates");
+var import_solarflow1600ProStates = require("../../constants/sensorStates/solarflow1600ProStates");
 var import_ZenIobDevice = require("./ZenIobDevice");
 class Sf1600AcPlus extends import_ZenIobDevice.ZenIobDevice {
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {

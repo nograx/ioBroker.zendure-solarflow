@@ -1,5 +1,5 @@
-import { aioControlStates } from "../../constants/aioControlStates";
-import { aioStates } from "../../constants/aioStates";
+import { aioControlStates } from "../../constants/controlStates/aioControlStates";
+import { aioStates } from "../../constants/sensorStates/aioStates";
 import { ZendureSolarflow } from "../../main";
 import { IDeviceAutomationPayload } from "../IDeviceAutomationPayload";
 import { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";

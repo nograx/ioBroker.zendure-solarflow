@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/indent */
 import axios, { AxiosRequestConfig } from "axios";
-import { iobKey } from "../constants/constants";
+import { iobKey } from "../constants/sensorStates/constants";
 import { ZendureSolarflow } from "../main";
 import * as crypto from "crypto";
 import { IIobDeviceListData } from "../models/IIobDeviceListData";

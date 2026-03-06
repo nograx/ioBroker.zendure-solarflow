@@ -21,8 +21,8 @@ __export(Hyper2000_exports, {
   Hyper2000: () => Hyper2000
 });
 module.exports = __toCommonJS(Hyper2000_exports);
-var import_hyperControlStates = require("../../constants/hyperControlStates");
-var import_hyperStates = require("../../constants/hyperStates");
+var import_hyperControlStates = require("../../constants/controlStates/hyperControlStates");
+var import_hyperStates = require("../../constants/sensorStates/hyperStates");
 var import_ZenIobDevice = require("./ZenIobDevice");
 class Hyper2000 extends import_ZenIobDevice.ZenIobDevice {
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {

@@ -1,5 +1,5 @@
-import { hubControlStates } from "../../constants/hubControlStates";
-import { hubStates } from "../../constants/hubStates";
+import { hubControlStates } from "../../constants/controlStates/hubControlStates";
+import { hubStates } from "../../constants/sensorStates/hubStates";
 import { ZendureSolarflow } from "../../main";
 import { IDeviceAutomationPayload } from "../IDeviceAutomationPayload";
 import { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";

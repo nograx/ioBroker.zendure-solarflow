@@ -1,5 +1,5 @@
-import { solarflow800PlusControlStates } from "../../constants/solarflow800PlusControlStates";
-import { solarflow800PlusStates } from "../../constants/solarflow800PlusStates";
+import { solarflow800PlusControlStates } from "../../constants/controlStates/solarflow800PlusControlStates";
+import { solarflow800PlusStates } from "../../constants/sensorStates/solarflow800PlusStates";
 import { ZendureSolarflow } from "../../main";
 import { IHemsEpPayload } from "../IDeviceAutomationPayload";
 import { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";

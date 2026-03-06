@@ -21,8 +21,8 @@ __export(Sf800_exports, {
   Sf800: () => Sf800
 });
 module.exports = __toCommonJS(Sf800_exports);
-var import_solarflow800ControlStates = require("../../constants/solarflow800ControlStates");
-var import_solarflow800States = require("../../constants/solarflow800States");
+var import_solarflow800ControlStates = require("../../constants/controlStates/solarflow800ControlStates");
+var import_solarflow800States = require("../../constants/sensorStates/solarflow800States");
 var import_ZenIobDevice = require("./ZenIobDevice");
 class Sf800 extends import_ZenIobDevice.ZenIobDevice {
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {

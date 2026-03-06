@@ -21,8 +21,8 @@ __export(Aio2400_exports, {
   Aio2400: () => Aio2400
 });
 module.exports = __toCommonJS(Aio2400_exports);
-var import_aioControlStates = require("../../constants/aioControlStates");
-var import_aioStates = require("../../constants/aioStates");
+var import_aioControlStates = require("../../constants/controlStates/aioControlStates");
+var import_aioStates = require("../../constants/sensorStates/aioStates");
 var import_ZenIobDevice = require("./ZenIobDevice");
 class Aio2400 extends import_ZenIobDevice.ZenIobDevice {
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {

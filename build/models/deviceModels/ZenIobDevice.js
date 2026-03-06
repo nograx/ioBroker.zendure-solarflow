@@ -22,7 +22,7 @@ __export(ZenIobDevice_exports, {
 });
 module.exports = __toCommonJS(ZenIobDevice_exports);
 var import_crypto = require("crypto");
-var import_constants = require("../../constants/constants");
+var import_constants = require("../../constants/sensorStates/constants");
 var import_createCalculationStates = require("../../helpers/createCalculationStates");
 var import_timeHelper = require("../../helpers/timeHelper");
 var import_mqttSharedService = require("../../services/mqttSharedService");

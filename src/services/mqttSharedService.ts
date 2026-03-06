@@ -295,29 +295,10 @@ export const onMessage = async (
         obj.properties.outputPackPower,
       );
 
-      if (obj.properties?.outputPackPower > 0) {
-        // Update combined data point
-        _device?.updateSolarFlowState(
-          "packPower",
-          obj.properties.outputPackPower,
-        );
-      } else if (obj.properties?.outputPackPower == 0) {
-        // Check if packInputPower is 0
-        const packInputPower = await adapter?.getStateAsync(
-          productKey + "." + deviceKey + ".packInputPower",
-        );
-
-        if (packInputPower?.val == 0) {
-          // Update combined data point to 0 as both are 0
-          _device?.updateSolarFlowState(
-            "packPower",
-            -Math.abs(obj.properties.outputPackPower),
-          );
-        }
+      // if outPutPackPower is not 0 set packInputPower to 0
+      if (obj.properties.outputPackPower > 0) {
+        _device?.updateSolarFlowState("packInputPower", 0);
       }
-
-      // if outPutPackPower set packInputPower to 0
-      _device?.updateSolarFlowState("packInputPower", 0);
     }
 
     if (
@@ -329,29 +310,10 @@ export const onMessage = async (
         obj.properties.packInputPower,
       );
 
-      if (obj.properties?.packInputPower > 0) {
-        // Update combined data point
-        _device?.updateSolarFlowState(
-          "packPower",
-          -Math.abs(obj.properties.packInputPower),
-        );
-      } else if (obj.properties?.packInputPower == 0) {
-        // Check if outputPackPower is 0
-        const outputPackPower = await adapter?.getStateAsync(
-          productKey + "." + deviceKey + ".outputPackPower",
-        );
-
-        if (outputPackPower?.val == 0) {
-          // Update combined data point to 0 as both are 0
-          _device?.updateSolarFlowState(
-            "packPower",
-            -Math.abs(obj.properties.packInputPower),
-          );
-        }
+      // if packInputPower is not 0 set outputPackPower to 0
+      if (obj.properties.packInputPower > 0) {
+        _device?.updateSolarFlowState("outputPackPower", 0);
       }
-
-      // if packInputPower set outputPackPower to 0
-      _device?.updateSolarFlowState("outputPackPower", 0);
     }
 
     if (
@@ -600,6 +562,30 @@ export const onMessage = async (
       _device?.updateSolarFlowState("hubState", obj.properties.hubState);
 
       _device?.updateSolarFlowControlState("hubState", obj.properties.hubState);
+    }
+
+    // Calculate packPower based on current outputPackPower and packInputPower values
+    if (
+      (obj.properties?.outputPackPower != null &&
+        obj.properties?.outputPackPower != undefined) ||
+      (obj.properties?.packInputPower != null &&
+        obj.properties?.packInputPower != undefined)
+    ) {
+      // Get current values
+      const outputPackPower = await adapter?.getStateAsync(
+        productKey + "." + deviceKey + ".outputPackPower",
+      );
+      const packInputPower = await adapter?.getStateAsync(
+        productKey + "." + deviceKey + ".packInputPower",
+      );
+
+      const outputPower = (outputPackPower?.val as number) || 0;
+      const inputPower = (packInputPower?.val as number) || 0;
+
+      // Calculate net power: positive for discharge, negative for charge
+      const netPower = outputPower - inputPower;
+
+      _device?.updateSolarFlowState("packPower", netPower);
     }
 
     if (obj.packData) {

@@ -190,92 +190,64 @@ const onMessage = async (topic, message) => {
         "outputPackPower",
         obj.properties.outputPackPower
       );
-      if (((_N = obj.properties) == null ? void 0 : _N.outputPackPower) > 0) {
-        _device == null ? void 0 : _device.updateSolarFlowState(
-          "packPower",
-          obj.properties.outputPackPower
-        );
-      } else if (((_O = obj.properties) == null ? void 0 : _O.outputPackPower) == 0) {
-        const packInputPower = await (adapter == null ? void 0 : adapter.getStateAsync(
-          productKey + "." + deviceKey + ".packInputPower"
-        ));
-        if ((packInputPower == null ? void 0 : packInputPower.val) == 0) {
-          _device == null ? void 0 : _device.updateSolarFlowState(
-            "packPower",
-            -Math.abs(obj.properties.outputPackPower)
-          );
-        }
+      if (obj.properties.outputPackPower > 0) {
+        _device == null ? void 0 : _device.updateSolarFlowState("packInputPower", 0);
       }
-      _device == null ? void 0 : _device.updateSolarFlowState("packInputPower", 0);
     }
-    if (((_P = obj.properties) == null ? void 0 : _P.packInputPower) != null && ((_Q = obj.properties) == null ? void 0 : _Q.packInputPower) != void 0) {
+    if (((_N = obj.properties) == null ? void 0 : _N.packInputPower) != null && ((_O = obj.properties) == null ? void 0 : _O.packInputPower) != void 0) {
       _device == null ? void 0 : _device.updateSolarFlowState(
         "packInputPower",
         obj.properties.packInputPower
       );
-      if (((_R = obj.properties) == null ? void 0 : _R.packInputPower) > 0) {
-        _device == null ? void 0 : _device.updateSolarFlowState(
-          "packPower",
-          -Math.abs(obj.properties.packInputPower)
-        );
-      } else if (((_S = obj.properties) == null ? void 0 : _S.packInputPower) == 0) {
-        const outputPackPower = await (adapter == null ? void 0 : adapter.getStateAsync(
-          productKey + "." + deviceKey + ".outputPackPower"
-        ));
-        if ((outputPackPower == null ? void 0 : outputPackPower.val) == 0) {
-          _device == null ? void 0 : _device.updateSolarFlowState(
-            "packPower",
-            -Math.abs(obj.properties.packInputPower)
-          );
-        }
+      if (obj.properties.packInputPower > 0) {
+        _device == null ? void 0 : _device.updateSolarFlowState("outputPackPower", 0);
       }
-      _device == null ? void 0 : _device.updateSolarFlowState("outputPackPower", 0);
     }
-    if (((_T = obj.properties) == null ? void 0 : _T.solarInputPower) != null && ((_U = obj.properties) == null ? void 0 : _U.solarInputPower) != void 0) {
+    if (((_P = obj.properties) == null ? void 0 : _P.solarInputPower) != null && ((_Q = obj.properties) == null ? void 0 : _Q.solarInputPower) != void 0) {
       _device == null ? void 0 : _device.updateSolarFlowState(
         "solarInputPower",
         obj.properties.solarInputPower
       );
     }
-    if (((_V = obj.properties) == null ? void 0 : _V.pvPower1) != null && ((_W = obj.properties) == null ? void 0 : _W.pvPower1) != void 0) {
+    if (((_R = obj.properties) == null ? void 0 : _R.pvPower1) != null && ((_S = obj.properties) == null ? void 0 : _S.pvPower1) != void 0) {
       _device == null ? void 0 : _device.updateSolarFlowState(
         "pvPower2",
         // Reversed to adjust like offical app
         obj.properties.pvPower1
       );
     }
-    if (((_X = obj.properties) == null ? void 0 : _X.pvPower2) != null && ((_Y = obj.properties) == null ? void 0 : _Y.pvPower2) != void 0) {
+    if (((_T = obj.properties) == null ? void 0 : _T.pvPower2) != null && ((_U = obj.properties) == null ? void 0 : _U.pvPower2) != void 0) {
       _device == null ? void 0 : _device.updateSolarFlowState(
         "pvPower1",
         // Reversed to adjust like offical app
         obj.properties.pvPower2
       );
     }
-    if (((_Z = obj.properties) == null ? void 0 : _Z.solarPower1) != null && ((__ = obj.properties) == null ? void 0 : __.solarPower1) != void 0) {
+    if (((_V = obj.properties) == null ? void 0 : _V.solarPower1) != null && ((_W = obj.properties) == null ? void 0 : _W.solarPower1) != void 0) {
       _device == null ? void 0 : _device.updateSolarFlowState("pvPower1", obj.properties.solarPower1);
     }
-    if (((_$ = obj.properties) == null ? void 0 : _$.solarPower2) != null && ((_aa = obj.properties) == null ? void 0 : _aa.solarPower2) != void 0) {
+    if (((_X = obj.properties) == null ? void 0 : _X.solarPower2) != null && ((_Y = obj.properties) == null ? void 0 : _Y.solarPower2) != void 0) {
       _device == null ? void 0 : _device.updateSolarFlowState("pvPower2", obj.properties.solarPower2);
     }
-    if (((_ba = obj.properties) == null ? void 0 : _ba.solarPower3) != null && ((_ca = obj.properties) == null ? void 0 : _ca.solarPower3) != void 0) {
+    if (((_Z = obj.properties) == null ? void 0 : _Z.solarPower3) != null && ((__ = obj.properties) == null ? void 0 : __.solarPower3) != void 0) {
       _device == null ? void 0 : _device.updateSolarFlowState("pvPower3", obj.properties.solarPower3);
     }
-    if (((_da = obj.properties) == null ? void 0 : _da.solarPower4) != null && ((_ea = obj.properties) == null ? void 0 : _ea.solarPower4) != void 0) {
+    if (((_$ = obj.properties) == null ? void 0 : _$.solarPower4) != null && ((_aa = obj.properties) == null ? void 0 : _aa.solarPower4) != void 0) {
       _device == null ? void 0 : _device.updateSolarFlowState("pvPower4", obj.properties.solarPower4);
     }
-    if (((_fa = obj.properties) == null ? void 0 : _fa.remainOutTime) != null && ((_ga = obj.properties) == null ? void 0 : _ga.remainOutTime) != void 0) {
+    if (((_ba = obj.properties) == null ? void 0 : _ba.remainOutTime) != null && ((_ca = obj.properties) == null ? void 0 : _ca.remainOutTime) != void 0) {
       _device == null ? void 0 : _device.updateSolarFlowState(
         "remainOutTime",
         obj.properties.remainOutTime
       );
     }
-    if (((_ha = obj.properties) == null ? void 0 : _ha.remainInputTime) != null && ((_ia = obj.properties) == null ? void 0 : _ia.remainInputTime) != void 0) {
+    if (((_da = obj.properties) == null ? void 0 : _da.remainInputTime) != null && ((_ea = obj.properties) == null ? void 0 : _ea.remainInputTime) != void 0) {
       _device == null ? void 0 : _device.updateSolarFlowState(
         "remainInputTime",
         obj.properties.remainInputTime
       );
     }
-    if (((_ja = obj.properties) == null ? void 0 : _ja.socSet) != null && ((_ka = obj.properties) == null ? void 0 : _ka.socSet) != void 0) {
+    if (((_fa = obj.properties) == null ? void 0 : _fa.socSet) != null && ((_ga = obj.properties) == null ? void 0 : _ga.socSet) != void 0) {
       _device == null ? void 0 : _device.updateSolarFlowState(
         "socSet",
         Number(obj.properties.socSet) / 10
@@ -285,7 +257,7 @@ const onMessage = async (topic, message) => {
         Number(obj.properties.socSet) / 10
       );
     }
-    if (((_la = obj.properties) == null ? void 0 : _la.minSoc) != null && ((_ma = obj.properties) == null ? void 0 : _ma.minSoc) != void 0) {
+    if (((_ha = obj.properties) == null ? void 0 : _ha.minSoc) != null && ((_ia = obj.properties) == null ? void 0 : _ia.minSoc) != void 0) {
       _device == null ? void 0 : _device.updateSolarFlowState(
         "minSoc",
         Number(obj.properties.minSoc) / 10
@@ -295,76 +267,88 @@ const onMessage = async (topic, message) => {
         Number(obj.properties.minSoc) / 10
       );
     }
-    if (((_na = obj.properties) == null ? void 0 : _na.inputLimit) != null && ((_oa = obj.properties) == null ? void 0 : _oa.inputLimit) != void 0) {
+    if (((_ja = obj.properties) == null ? void 0 : _ja.inputLimit) != null && ((_ka = obj.properties) == null ? void 0 : _ka.inputLimit) != void 0) {
       _device == null ? void 0 : _device.updateSolarFlowState("inputLimit", obj.properties.inputLimit);
       _device == null ? void 0 : _device.updateSolarFlowControlState(
         "setInputLimit",
         obj.properties.inputLimit
       );
     }
-    if (((_pa = obj.properties) == null ? void 0 : _pa.gridInputPower) != null && ((_qa = obj.properties) == null ? void 0 : _qa.gridInputPower) != void 0) {
+    if (((_la = obj.properties) == null ? void 0 : _la.gridInputPower) != null && ((_ma = obj.properties) == null ? void 0 : _ma.gridInputPower) != void 0) {
       _device == null ? void 0 : _device.updateSolarFlowState(
         "gridInputPower",
         obj.properties.gridInputPower
       );
     }
-    if (((_ra = obj.properties) == null ? void 0 : _ra.acMode) != null && ((_sa = obj.properties) == null ? void 0 : _sa.acMode) != void 0) {
+    if (((_na = obj.properties) == null ? void 0 : _na.acMode) != null && ((_oa = obj.properties) == null ? void 0 : _oa.acMode) != void 0) {
       _device == null ? void 0 : _device.updateSolarFlowState("acMode", obj.properties.acMode);
       _device == null ? void 0 : _device.updateSolarFlowControlState("acMode", obj.properties.acMode);
     }
-    if (((_ta = obj.properties) == null ? void 0 : _ta.hyperTmp) != null && ((_ua = obj.properties) == null ? void 0 : _ua.hyperTmp) != void 0) {
+    if (((_pa = obj.properties) == null ? void 0 : _pa.hyperTmp) != null && ((_qa = obj.properties) == null ? void 0 : _qa.hyperTmp) != void 0) {
       _device == null ? void 0 : _device.updateSolarFlowState(
         "hyperTmp",
         obj.properties.hyperTmp / 10 - 273.15
       );
     }
-    if (((_va = obj.properties) == null ? void 0 : _va.acOutputPower) != null && ((_wa = obj.properties) == null ? void 0 : _wa.acOutputPower) != void 0) {
+    if (((_ra = obj.properties) == null ? void 0 : _ra.acOutputPower) != null && ((_sa = obj.properties) == null ? void 0 : _sa.acOutputPower) != void 0) {
       _device == null ? void 0 : _device.updateSolarFlowState(
         "acOutputPower",
         obj.properties.acOutputPower
       );
     }
-    if (((_xa = obj.properties) == null ? void 0 : _xa.gridPower) != null && ((_ya = obj.properties) == null ? void 0 : _ya.gridPower) != void 0) {
+    if (((_ta = obj.properties) == null ? void 0 : _ta.gridPower) != null && ((_ua = obj.properties) == null ? void 0 : _ua.gridPower) != void 0) {
       _device == null ? void 0 : _device.updateSolarFlowState("gridInputPower", obj.properties.gridPower);
     }
-    if (((_za = obj.properties) == null ? void 0 : _za.acSwitch) != null && ((_Aa = obj.properties) == null ? void 0 : _Aa.acSwitch) != void 0) {
-      const value = ((_Ba = obj.properties) == null ? void 0 : _Ba.acSwitch) == 0 ? false : true;
+    if (((_va = obj.properties) == null ? void 0 : _va.acSwitch) != null && ((_wa = obj.properties) == null ? void 0 : _wa.acSwitch) != void 0) {
+      const value = ((_xa = obj.properties) == null ? void 0 : _xa.acSwitch) == 0 ? false : true;
       _device == null ? void 0 : _device.updateSolarFlowState("acSwitch", value);
       _device == null ? void 0 : _device.updateSolarFlowControlState("acSwitch", value);
     }
-    if (((_Ca = obj.properties) == null ? void 0 : _Ca.dcSwitch) != null && ((_Da = obj.properties) == null ? void 0 : _Da.dcSwitch) != void 0) {
-      const value = ((_Ea = obj.properties) == null ? void 0 : _Ea.dcSwitch) == 0 ? false : true;
+    if (((_ya = obj.properties) == null ? void 0 : _ya.dcSwitch) != null && ((_za = obj.properties) == null ? void 0 : _za.dcSwitch) != void 0) {
+      const value = ((_Aa = obj.properties) == null ? void 0 : _Aa.dcSwitch) == 0 ? false : true;
       _device == null ? void 0 : _device.updateSolarFlowState("dcSwitch", value);
       _device == null ? void 0 : _device.updateSolarFlowControlState("dcSwitch", value);
     }
-    if (((_Fa = obj.properties) == null ? void 0 : _Fa.dcOutputPower) != null && ((_Ga = obj.properties) == null ? void 0 : _Ga.dcOutputPower) != void 0) {
+    if (((_Ba = obj.properties) == null ? void 0 : _Ba.dcOutputPower) != null && ((_Ca = obj.properties) == null ? void 0 : _Ca.dcOutputPower) != void 0) {
       _device == null ? void 0 : _device.updateSolarFlowState(
         "dcOutputPower",
         obj.properties.dcOutputPower
       );
     }
-    if (((_Ha = obj.properties) == null ? void 0 : _Ha.pvBrand) != null && ((_Ia = obj.properties) == null ? void 0 : _Ia.pvBrand) != void 0) {
-      const value = ((_Ja = obj.properties) == null ? void 0 : _Ja.pvBrand) == 0 ? "Others" : ((_Ka = obj.properties) == null ? void 0 : _Ka.pvBrand) == 1 ? "Hoymiles" : ((_La = obj.properties) == null ? void 0 : _La.pvBrand) == 2 ? "Enphase" : ((_Ma = obj.properties) == null ? void 0 : _Ma.pvBrand) == 3 ? "APSystems" : ((_Na = obj.properties) == null ? void 0 : _Na.pvBrand) == 4 ? "Anker" : ((_Oa = obj.properties) == null ? void 0 : _Oa.pvBrand) == 5 ? "Deye" : ((_Pa = obj.properties) == null ? void 0 : _Pa.pvBrand) == 6 ? "Bosswerk" : "Unknown";
+    if (((_Da = obj.properties) == null ? void 0 : _Da.pvBrand) != null && ((_Ea = obj.properties) == null ? void 0 : _Ea.pvBrand) != void 0) {
+      const value = ((_Fa = obj.properties) == null ? void 0 : _Fa.pvBrand) == 0 ? "Others" : ((_Ga = obj.properties) == null ? void 0 : _Ga.pvBrand) == 1 ? "Hoymiles" : ((_Ha = obj.properties) == null ? void 0 : _Ha.pvBrand) == 2 ? "Enphase" : ((_Ia = obj.properties) == null ? void 0 : _Ia.pvBrand) == 3 ? "APSystems" : ((_Ja = obj.properties) == null ? void 0 : _Ja.pvBrand) == 4 ? "Anker" : ((_Ka = obj.properties) == null ? void 0 : _Ka.pvBrand) == 5 ? "Deye" : ((_La = obj.properties) == null ? void 0 : _La.pvBrand) == 6 ? "Bosswerk" : "Unknown";
       _device == null ? void 0 : _device.updateSolarFlowState("pvBrand", value);
     }
-    if (((_Qa = obj.properties) == null ? void 0 : _Qa.inverseMaxPower) != null && ((_Ra = obj.properties) == null ? void 0 : _Ra.inverseMaxPower) != void 0) {
+    if (((_Ma = obj.properties) == null ? void 0 : _Ma.inverseMaxPower) != null && ((_Na = obj.properties) == null ? void 0 : _Na.inverseMaxPower) != void 0) {
       _device == null ? void 0 : _device.updateSolarFlowState(
         "inverseMaxPower",
         obj.properties.inverseMaxPower
       );
     }
-    if (((_Sa = obj.properties) == null ? void 0 : _Sa.wifiState) != null && ((_Ta = obj.properties) == null ? void 0 : _Ta.wifiState) != void 0) {
+    if (((_Oa = obj.properties) == null ? void 0 : _Oa.wifiState) != null && ((_Pa = obj.properties) == null ? void 0 : _Pa.wifiState) != void 0) {
       _device == null ? void 0 : _device.updateSolarFlowState(
         "wifiState",
         obj.properties.wifiState == 1 ? "Connected" : "Disconnected"
       );
     }
-    if (((_Ua = obj.properties) == null ? void 0 : _Ua.packNum) != null && ((_Va = obj.properties) == null ? void 0 : _Va.packNum) != void 0) {
+    if (((_Qa = obj.properties) == null ? void 0 : _Qa.packNum) != null && ((_Ra = obj.properties) == null ? void 0 : _Ra.packNum) != void 0) {
       _device == null ? void 0 : _device.updateSolarFlowState("packNum", obj.properties.packNum);
     }
-    if (((_Wa = obj.properties) == null ? void 0 : _Wa.hubState) != null && ((_Xa = obj.properties) == null ? void 0 : _Xa.hubState) != void 0) {
+    if (((_Sa = obj.properties) == null ? void 0 : _Sa.hubState) != null && ((_Ta = obj.properties) == null ? void 0 : _Ta.hubState) != void 0) {
       _device == null ? void 0 : _device.updateSolarFlowState("hubState", obj.properties.hubState);
       _device == null ? void 0 : _device.updateSolarFlowControlState("hubState", obj.properties.hubState);
+    }
+    if (((_Ua = obj.properties) == null ? void 0 : _Ua.outputPackPower) != null && ((_Va = obj.properties) == null ? void 0 : _Va.outputPackPower) != void 0 || ((_Wa = obj.properties) == null ? void 0 : _Wa.packInputPower) != null && ((_Xa = obj.properties) == null ? void 0 : _Xa.packInputPower) != void 0) {
+      const outputPackPower = await (adapter == null ? void 0 : adapter.getStateAsync(
+        productKey + "." + deviceKey + ".outputPackPower"
+      ));
+      const packInputPower = await (adapter == null ? void 0 : adapter.getStateAsync(
+        productKey + "." + deviceKey + ".packInputPower"
+      ));
+      const outputPower = (outputPackPower == null ? void 0 : outputPackPower.val) || 0;
+      const inputPower = (packInputPower == null ? void 0 : packInputPower.val) || 0;
+      const netPower = outputPower - inputPower;
+      _device == null ? void 0 : _device.updateSolarFlowState("packPower", netPower);
     }
     if (obj.packData) {
       _device == null ? void 0 : _device.addOrUpdatePackData(obj.packData, isSolarFlow);

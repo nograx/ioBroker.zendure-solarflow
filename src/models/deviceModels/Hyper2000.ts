@@ -1,5 +1,5 @@
-import { hyperControlStates } from "../../constants/hyperControlStates";
-import { hyperStates } from "../../constants/hyperStates";
+import { hyperControlStates } from "../../constants/controlStates/hyperControlStates";
+import { hyperStates } from "../../constants/sensorStates/hyperStates";
 import { ZendureSolarflow } from "../../main";
 import { IDeviceAutomationPayload } from "../IDeviceAutomationPayload";
 import { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";

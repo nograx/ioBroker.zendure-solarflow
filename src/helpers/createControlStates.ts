@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/indent */
 
-import { ac2400ControlStates } from "../constants/ac2400ControlStates";
-import { aceControlStates } from "../constants/aceControlStates";
-import { aioControlStates } from "../constants/aioControlStates";
-import { hubControlStates } from "../constants/hubControlStates";
-import { hyperControlStates } from "../constants/hyperControlStates";
-import { solarflow800ControlStates } from "../constants/solarflow800ControlStates";
-import { solarflow800ProControlStates } from "../constants/solarflow800ProControlStates";
+import { ac2400ControlStates } from "../constants/controlStates/ac2400ControlStates";
+import { aceControlStates } from "../constants/controlStates/aceControlStates";
+import { aioControlStates } from "../constants/controlStates/aioControlStates";
+import { hubControlStates } from "../constants/controlStates/hubControlStates";
+import { hyperControlStates } from "../constants/controlStates/hyperControlStates";
+import { solarflow800ControlStates } from "../constants/controlStates/solarflow800ControlStates";
+import { solarflow800ProControlStates } from "../constants/controlStates/solarflow800ProControlStates";
 import { ZendureSolarflow } from "../main";
 import { ISolarflowState } from "../models/ISolarflowState";
 

@@ -21,8 +21,8 @@ __export(Sf2400AcPlus_exports, {
   Sf2400AcPlus: () => Sf2400AcPlus
 });
 module.exports = __toCommonJS(Sf2400AcPlus_exports);
-var import_ac2400PlusControlStates = require("../../constants/ac2400PlusControlStates");
-var import_ac2400PlusStates = require("../../constants/ac2400PlusStates");
+var import_ac2400PlusControlStates = require("../../constants/controlStates/ac2400PlusControlStates");
+var import_ac2400PlusStates = require("../../constants/sensorStates/ac2400PlusStates");
 var import_ZenIobDevice = require("./ZenIobDevice");
 class Sf2400AcPlus extends import_ZenIobDevice.ZenIobDevice {
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {

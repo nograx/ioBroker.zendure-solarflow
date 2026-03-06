@@ -21,8 +21,8 @@ __export(Ace1500_exports, {
   Ace1500: () => Ace1500
 });
 module.exports = __toCommonJS(Ace1500_exports);
-var import_aceControlStates = require("../../constants/aceControlStates");
-var import_aceStates = require("../../constants/aceStates");
+var import_aceControlStates = require("../../constants/controlStates/aceControlStates");
+var import_aceStates = require("../../constants/sensorStates/aceStates");
 var import_ZenIobDevice = require("./ZenIobDevice");
 class Ace1500 extends import_ZenIobDevice.ZenIobDevice {
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {

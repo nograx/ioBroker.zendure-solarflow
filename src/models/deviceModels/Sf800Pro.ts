@@ -1,5 +1,5 @@
-import { solarflow800ProControlStates } from "../../constants/solarflow800ProControlStates";
-import { solarflow800ProStates } from "../../constants/solarflow800ProStates";
+import { solarflow800ProControlStates } from "../../constants/controlStates/solarflow800ProControlStates";
+import { solarflow800ProStates } from "../../constants/sensorStates/solarflow800ProStates";
 import { ZendureSolarflow } from "../../main";
 import { IHemsEpPayload } from "../IDeviceAutomationPayload";
 import { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";

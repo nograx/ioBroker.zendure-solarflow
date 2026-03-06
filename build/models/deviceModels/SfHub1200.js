@@ -21,8 +21,8 @@ __export(SfHub1200_exports, {
   SfHub1200: () => SfHub1200
 });
 module.exports = __toCommonJS(SfHub1200_exports);
-var import_hubControlStates = require("../../constants/hubControlStates");
-var import_hubStates = require("../../constants/hubStates");
+var import_hubControlStates = require("../../constants/controlStates/hubControlStates");
+var import_hubStates = require("../../constants/sensorStates/hubStates");
 var import_ZenIobDevice = require("./ZenIobDevice");
 class SfHub1200 extends import_ZenIobDevice.ZenIobDevice {
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {

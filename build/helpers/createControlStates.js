@@ -22,13 +22,13 @@ __export(createControlStates_exports, {
   getControlStateDefinition: () => getControlStateDefinition
 });
 module.exports = __toCommonJS(createControlStates_exports);
-var import_ac2400ControlStates = require("../constants/ac2400ControlStates");
-var import_aceControlStates = require("../constants/aceControlStates");
-var import_aioControlStates = require("../constants/aioControlStates");
-var import_hubControlStates = require("../constants/hubControlStates");
-var import_hyperControlStates = require("../constants/hyperControlStates");
-var import_solarflow800ControlStates = require("../constants/solarflow800ControlStates");
-var import_solarflow800ProControlStates = require("../constants/solarflow800ProControlStates");
+var import_ac2400ControlStates = require("../constants/controlStates/ac2400ControlStates");
+var import_aceControlStates = require("../constants/controlStates/aceControlStates");
+var import_aioControlStates = require("../constants/controlStates/aioControlStates");
+var import_hubControlStates = require("../constants/controlStates/hubControlStates");
+var import_hyperControlStates = require("../constants/controlStates/hyperControlStates");
+var import_solarflow800ControlStates = require("../constants/controlStates/solarflow800ControlStates");
+var import_solarflow800ProControlStates = require("../constants/controlStates/solarflow800ProControlStates");
 const getControlStateDefinition = (productName) => {
   switch (productName.toLocaleLowerCase()) {
     case "hyper 2000":

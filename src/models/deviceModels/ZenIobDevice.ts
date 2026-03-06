@@ -1,5 +1,5 @@
 import { createHash } from "crypto";
-import { calculationStateKeys } from "../../constants/constants";
+import { calculationStateKeys } from "../../constants/sensorStates/constants";
 import { createCalculationStates } from "../../helpers/createCalculationStates";
 import { toHoursAndMinutes } from "../../helpers/timeHelper";
 import { ZendureSolarflow } from "../../main";
