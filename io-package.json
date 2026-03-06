@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "3.5.7",
+    "version": "3.6.0",
     "news": {
+      "3.6.0": {
+        "en": "Fix packInputPower & outputPackPower on new Solarflow devices\nFix device constructor in local mode\nFix setDeviceAutomationInOutLimit for Solarflow 1600 AC+\nRead more data from Zendure WebService\nSet ACK flag correctly for hemsEP function\nRefactor some files",
+        "de": "Fix packInputPower & OutputPackPower auf neue Solarflow-Geräte\nGerätekonstruktor im lokalen Modus reparieren\nFix setDeviceAutomationInOutLimit für Solarflow 1600 AC+\nLesen Sie mehr Daten von Zendure WebService\nSetzen Sie ACK-Flag richtig für hemsEP-Funktion\nRefactor einige Dateien",
+        "ru": "Исправьте пакет InputPower и outputPackPower на новых устройствах Solarflow\nИсправьте конструктор устройств в локальном режиме\nРемонтный наборDeviceAutomationInOutLimit для Solarflow 1600 AC+\nЧитать далее Zendure WebService\nУстановите ACK флаг правильно для функции HemsEP\nРефактор некоторых файлов",
+        "pt": "Fix packInputPower & outputPackPower em novos dispositivos Solarflow\nCorrigir o construtor do dispositivo no modo local\nFix setDeviceAutomationInOutLimit para Solarflow 1600 AC+\nLeia mais dados do Zendure WebService\nDefinir a bandeira ACK corretamente para a função hemsEP\nRefatorizar alguns arquivos",
+        "nl": "Fix packInputPower & outputPackPower op nieuwe Solarflow apparaten\nFix apparaat constructor in lokale modus\nFix setDeviceAutomationInOutLimit voor Solarflow 1600 AC+\nLees meer gegevens van Zendure WebService\nACK vlag correct instellen voor hemsEP functie\nRefactor sommige bestanden",
+        "fr": "Fix packInputPower & outputPackPower sur les nouveaux appareils Solarflow\nCorrection du constructeur de périphérique en mode local\nCorrection setDeviceAutomationInOutLimit pour Solarflow 1600 AC+\nLire plus de données de Zendure WebService\nDéfinir le drapeau ACK correctement pour la fonction hemsEP\nRefactorer certains fichiers",
+        "it": "Fix packInputPower & outputPackPower su nuovi dispositivi Solarflow\nFissare il costruttore del dispositivo in modalità locale\nFix setDeviceAutomationInOutLimit per Solarflow 1600 AC+\nLeggi altri dati da Zendure WebService\nImpostare correttamente la bandiera ACK per la funzione hemsEP\nRefactor alcuni file",
+        "es": "Pack de fijaciónInputPower & outputPackPower en nuevos dispositivos de flujo solar\nConstructor de dispositivo fijo en modo local\nSet de fijaciónDeviceAutomationInOutLimit for Solarflow 1600 AC+\nLeer más datos de Zendure WebService\nEstablecer la bandera ACK correctamente para la función hemsEP\nRefactor algunos archivos",
+        "pl": "Fix packInputPower & outputPackPower na nowych urządzeniach Solarflow\nKonstruktor urządzenia w trybie lokalnym\nNapraw setDeviceAutomationInOutLimit dla Solarflow 1600 AC +\nCzytaj więcej danych z serwisu internetowego Zabb\nUstaw flagę ACK poprawnie dla funkcji hemsEP\nZmień wartość niektórych plików",
+        "uk": "Fix packInputPower & виведенняPackPower на нові пристрої Solarflow\nКонструктор пристроїв у локальному режимі\nФіксований комплектDeviceAutomationInOutLimit для Solarflow 1600 AC+\nЧитати більше даних від Zendure WebService\nВстановіть прапорець ACK правильно для функції HemsEP\nРефактор деяких файлів",
+        "zh-cn": "在新太阳能流设备上修复装包输入器和输出PackPower\n局部模式的固定设备构造器\n日光流 1600 AC+ 的自动调试\n从 Zendure WebService 读取更多数据\n为 hemsEP 函数正确设置 AK 旗\n重构一些文件"
+      },
       "3.5.4": {
         "en": "Add device key '65174u' for Solarflow 1600 AC+",
         "de": "Geräteschlüssel '65174u' für Solarflow 1600 AC+ hinzufügen",
