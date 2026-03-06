@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "3.5.6",
+    "version": "3.5.7",
     "news": {
+      "3.5.7": {
+        "en": "Fix device constructor in local mode",
+        "de": "Gerätekonstruktor im lokalen Modus reparieren",
+        "ru": "Исправьте конструктор устройств в локальном режиме",
+        "pt": "Corrigir o construtor do dispositivo no modo local",
+        "nl": "Fix apparaat constructor in lokale modus",
+        "fr": "Correction du constructeur de périphérique en mode local",
+        "it": "Fissare il costruttore del dispositivo in modalità locale",
+        "es": "Constructor de dispositivo fijo en modo local",
+        "pl": "Konstruktor urządzenia w trybie lokalnym",
+        "uk": "Конструктор пристроїв у локальному режимі",
+        "zh-cn": "局部模式的固定设备构造器"
+      },
       "3.5.6": {
         "en": "Fix setDeviceAutomationInOutLimit for Solarflow 1600 AC+\nRead more data from Zendure WebService\nRefactor some files",
         "de": "Fix setDeviceAutomationInOutLimit für Solarflow 1600 AC+\nLesen Sie mehr Daten von Zendure WebService\nRefactor einige Dateien",
@@ -80,19 +93,6 @@
         "pl": "Spróbuj zaktualizować stan tylko jeśli istnieje stan dla tego urządzenia\nUlepszona obsługa błędów",
         "uk": "Спробуйте оновити стан тільки якщо держава існує для цього пристрою\nПоліпшення обробки помилок",
         "zh-cn": "仅在此设备存在状态时尝试更新状态\n改进错误处理"
-      },
-      "3.5.0": {
-        "en": "Add productKey '2Qe7C9' for Solarflow 2400 Pro\nAdd event handler (log message) for MQTT disconnect",
-        "de": "Produkt hinzufügenKey '2Qe7C9' für Solarflow 2400 Pro\nEvent-Handler (Log-Nachricht) für MQTT-Abschaltung hinzufügen",
-        "ru": "Добавить продуктKey 2Qe7C9 для Solarflow 2400 Pro\nДобавить обработчик событий (log message) для отключения MQTT",
-        "pt": "Adicionar produtoKey '2Qe7C9' para Solarflow 2400 Pro\nAdicionar o manipulador de eventos (mensagem de registo) para a desconexão do MQTT",
-        "nl": "Voeg product toeKey '2Qe7C9' voor Solarflow 2400 Pro\nToevoegen gebeurtenisafhandeling (logbericht) voor MQTT loskoppelen",
-        "fr": "Ajouter le produitKey '2Qe7C9' pour Solarflow 2400 Pro\nAjouter le gestionnaire d'événements (message de journal) pour la déconnexion MQTT",
-        "it": "Aggiungi productKey '2Qe7C9' per Solarflow 2400 Pro\nAggiungi maniglione eventi (messaggio di registro) per disconnessione MQTT",
-        "es": "Añadir productoKey '2Qe7C9' para Solarflow 2400 Pro\nAñadir controlador de evento (mensaje de registro) para desconexión MQTT",
-        "pl": "Dodaj productKey '2Qe7C9' dla Solarflow 2400 Pro\nDodaj obsługę zdarzeń (wiadomość dziennika) dla rozłączenia MQTT",
-        "uk": "Додати товарKey '2Qe7C9' для Solarflow 2400 Pro\nДодати обробник подій (логове повідомлення) для підключення MQTT",
-        "zh-cn": "添加“ 2Qe7C9” 产品“ 2400 Pro ”\n添加 MQTT 断开事件处理器( log message)"
       }
     },
     "titleLang": {
