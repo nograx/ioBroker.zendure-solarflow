@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/indent */
-export interface IZenHaMqttData {
+export interface IZenIobMqttData {
   clientId: string;
   password: string;
   url: string;

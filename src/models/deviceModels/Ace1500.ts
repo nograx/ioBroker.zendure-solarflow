@@ -2,10 +2,10 @@ import { aceControlStates } from "../../constants/aceControlStates";
 import { aceStates } from "../../constants/aceStates";
 import { ZendureSolarflow } from "../../main";
 import { IDeviceAutomationPayload } from "../IDeviceAutomationPayload";
-import { IZenHaDeviceDetails } from "../IZenHaDeviceDetails";
-import { ZenHaDevice } from "./ZenHaDevice";
+import { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
+import { ZenIobDevice } from "./ZenIobDevice";
 
-export class Ace1500 extends ZenHaDevice {
+export class Ace1500 extends ZenIobDevice {
   maxInputLimit = 900;
   maxOutputLimit = 900;
 
@@ -18,7 +18,7 @@ export class Ace1500 extends ZenHaDevice {
     _deviceKey: string,
     _productName: string,
     _deviceName: string,
-    _zenHaDeviceDetails?: IZenHaDeviceDetails
+    _zenHaDeviceDetails?: IZenIobDeviceDetails,
   ) {
     super(
       _adapter,
@@ -26,7 +26,7 @@ export class Ace1500 extends ZenHaDevice {
       _deviceKey,
       _productName,
       _deviceName,
-      _zenHaDeviceDetails
+      _zenHaDeviceDetails,
     );
   }
 
@@ -36,11 +36,11 @@ export class Ace1500 extends ZenHaDevice {
         properties: { dcSwitch: dcSwitch ? 1 : 0 },
       };
       this.adapter.log.debug(
-        `[setDcSwitch] Set DC Switch for device ${this.deviceKey} to ${dcSwitch}!`
+        `[setDcSwitch] Set DC Switch for device ${this.deviceKey} to ${dcSwitch}!`,
       );
       this.adapter.mqttClient?.publish(
         this.iotTopic,
-        JSON.stringify(setDcSwitchContent)
+        JSON.stringify(setDcSwitchContent),
       );
     }
   }
@@ -51,21 +51,21 @@ export class Ace1500 extends ZenHaDevice {
         properties: { acSwitch: acSwitch ? 1 : 0 },
       };
       this.adapter.log.debug(
-        `[setAcSwitch] Set AC Switch for device ${this.deviceKey} to ${acSwitch}!`
+        `[setAcSwitch] Set AC Switch for device ${this.deviceKey} to ${acSwitch}!`,
       );
       this.adapter.mqttClient?.publish(
         this.iotTopic,
-        JSON.stringify(setAcSwitchContent)
+        JSON.stringify(setAcSwitchContent),
       );
     }
   }
 
   public async setDeviceAutomationInOutLimit(
-    limit: number // can be negative, negative will trigger charging mode
+    limit: number, // can be negative, negative will trigger charging mode
   ): Promise<void> {
     if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
       this.adapter.log.debug(
-        `[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`
+        `[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`,
       );
 
       if (limit) {
@@ -76,14 +76,14 @@ export class Ace1500 extends ZenHaDevice {
 
       if (limit > 0) {
         this.adapter.log.error(
-          `[setDeviceAutomationInOutLimit] ACE 1500 can not feed in!`
+          `[setDeviceAutomationInOutLimit] ACE 1500 can not feed in!`,
         );
       }
 
       // Convert maxInputLimit to negative value and compare to limit
       if (limit < 0 && limit < -this.maxInputLimit) {
         this.adapter.log.debug(
-          `[setDeviceAutomationInOutLimit] limit ${limit} is below the maximum input limit of ${this.maxInputLimit}, setting to ${-this.maxInputLimit}!`
+          `[setDeviceAutomationInOutLimit] limit ${limit} is below the maximum input limit of ${this.maxInputLimit}, setting to ${-this.maxInputLimit}!`,
         );
         limit = -this.maxInputLimit;
       }
@@ -97,7 +97,7 @@ export class Ace1500 extends ZenHaDevice {
 
       if (limit < 0) {
         this.adapter.log.debug(
-          `[setDeviceAutomationInOutLimit] Using CHARGE variant of ACE 1500 device automation, as device '${this.productKey}' detected and limit (${limit}) is negative!`
+          `[setDeviceAutomationInOutLimit] Using CHARGE variant of ACE 1500 device automation, as device '${this.productKey}' detected and limit (${limit}) is negative!`,
         );
         _arguments = [
           {
@@ -123,7 +123,7 @@ export class Ace1500 extends ZenHaDevice {
       };
       this.adapter.mqttClient?.publish(
         this.functionTopic,
-        JSON.stringify(deviceAutomation)
+        JSON.stringify(deviceAutomation),
       );
     }
   }

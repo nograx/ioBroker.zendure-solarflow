@@ -2,10 +2,10 @@ import { ac2400ControlStates } from "../../constants/ac2400ControlStates";
 import { ac2400States } from "../../constants/ac2400States";
 import { ZendureSolarflow } from "../../main";
 import { IHemsEpPayload } from "../IDeviceAutomationPayload";
-import { IZenHaDeviceDetails } from "../IZenHaDeviceDetails";
-import { ZenHaDevice } from "./ZenHaDevice";
+import { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
+import { ZenIobDevice } from "./ZenIobDevice";
 
-export class Sf2400Ac extends ZenHaDevice {
+export class Sf2400Ac extends ZenIobDevice {
   maxInputLimit = 2400;
   maxOutputLimit = 2400;
 
@@ -18,7 +18,7 @@ export class Sf2400Ac extends ZenHaDevice {
     _deviceKey: string,
     _productName: string,
     _deviceName: string,
-    _zenHaDeviceDetails?: IZenHaDeviceDetails,
+    _zenHaDeviceDetails?: IZenIobDeviceDetails,
   ) {
     super(
       _adapter,

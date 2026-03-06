@@ -14,13 +14,13 @@ import { Sf800Pro } from "../models/deviceModels/Sf800Pro";
 import { SfHub1200 } from "../models/deviceModels/SfHub1200";
 import { SfHub2000 } from "../models/deviceModels/SfHub2000";
 
-import { IZenHaDeviceDetails } from "../models/IZenHaDeviceDetails";
+import { IZenIobDeviceDetails } from "../models/IZenIobDeviceDetails";
 
 export const createDeviceModel = (
   _adapter: ZendureSolarflow,
   _productKey: string,
   _deviceKey: string,
-  _zenHaDeviceDetails?: IZenHaDeviceDetails,
+  _zenHaDeviceDetails?: IZenIobDeviceDetails,
 ):
   | SfHub1200
   | SfHub2000

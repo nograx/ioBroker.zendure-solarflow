@@ -11,10 +11,10 @@ import {
 import { IDevicePack } from "../IDevicePack";
 import { IPackData } from "../IPackData";
 import { ISolarflowState } from "../ISolarflowState";
-import { IZenHaDeviceDetails } from "../IZenHaDeviceDetails";
+import { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
 
-export class ZenHaDevice {
-  public zenHaDeviceDetails?: IZenHaDeviceDetails;
+export class ZenIobDevice {
+  public zenIobDeviceDetails?: IZenIobDeviceDetails;
   public adapter: ZendureSolarflow;
 
   public productKey: string;
@@ -40,9 +40,9 @@ export class ZenHaDevice {
     _deviceKey: string,
     _productName: string,
     _deviceName: string,
-    _zenHaDeviceDetails?: IZenHaDeviceDetails,
+    _zenIobDeviceDetails?: IZenIobDeviceDetails,
   ) {
-    this.zenHaDeviceDetails = _zenHaDeviceDetails;
+    this.zenIobDeviceDetails = _zenIobDeviceDetails;
     this.adapter = _adapter;
     this.productKey = _productKey;
     this.deviceKey = _deviceKey;
@@ -74,9 +74,9 @@ export class ZenHaDevice {
       this.triggerFullTelemetryUpdate();
     }, 5000);
 
-    if (this.zenHaDeviceDetails?.online) {
+    if (this.zenIobDeviceDetails?.online) {
       this.updateSolarFlowState("wifiState", "Connected");
-    } else if (this.zenHaDeviceDetails?.online == false) {
+    } else if (this.zenIobDeviceDetails?.online == false) {
       this.updateSolarFlowState("wifiState", "Disconnected");
     }
   }

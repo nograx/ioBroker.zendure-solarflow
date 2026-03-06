@@ -2,10 +2,10 @@ import { aioControlStates } from "../../constants/aioControlStates";
 import { aioStates } from "../../constants/aioStates";
 import { ZendureSolarflow } from "../../main";
 import { IDeviceAutomationPayload } from "../IDeviceAutomationPayload";
-import { IZenHaDeviceDetails } from "../IZenHaDeviceDetails";
-import { ZenHaDevice } from "./ZenHaDevice";
+import { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
+import { ZenIobDevice } from "./ZenIobDevice";
 
-export class Aio2400 extends ZenHaDevice {
+export class Aio2400 extends ZenIobDevice {
   maxInputLimit = 0;
   maxOutputLimit = 1200;
 
@@ -18,7 +18,7 @@ export class Aio2400 extends ZenHaDevice {
     _deviceKey: string,
     _productName: string,
     _deviceName: string,
-    _zenHaDeviceDetails?: IZenHaDeviceDetails
+    _zenHaDeviceDetails?: IZenIobDeviceDetails,
   ) {
     super(
       _adapter,
@@ -26,16 +26,16 @@ export class Aio2400 extends ZenHaDevice {
       _deviceKey,
       _productName,
       _deviceName,
-      _zenHaDeviceDetails
+      _zenHaDeviceDetails,
     );
   }
 
   public async setDeviceAutomationInOutLimit(
-    limit: number // can be negative, negative will trigger charging mode
+    limit: number, // can be negative, negative will trigger charging mode
   ): Promise<void> {
     if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
       this.adapter.log.debug(
-        `[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`
+        `[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`,
       );
 
       if (limit) {
@@ -46,7 +46,7 @@ export class Aio2400 extends ZenHaDevice {
 
       if (this.adapter.config.useLowVoltageBlock) {
         const lowVoltageBlockState = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.lowVoltageBlock"
+          this.productKey + "." + this.deviceKey + ".control.lowVoltageBlock",
         );
         if (
           lowVoltageBlockState &&
@@ -58,7 +58,7 @@ export class Aio2400 extends ZenHaDevice {
         }
 
         const fullChargeNeeded = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.fullChargeNeeded"
+          this.productKey + "." + this.deviceKey + ".control.fullChargeNeeded",
         );
 
         if (
@@ -73,7 +73,7 @@ export class Aio2400 extends ZenHaDevice {
 
       if (limit < 0) {
         this.adapter.log.debug(
-          `[setDeviceAutomationInOutLimit] AIO 2400 can not charge by AC!`
+          `[setDeviceAutomationInOutLimit] AIO 2400 can not charge by AC!`,
         );
         return;
       } else {
@@ -110,7 +110,7 @@ export class Aio2400 extends ZenHaDevice {
 
       // Output
       this.adapter.log.debug(
-        `[setDeviceAutomationInOutLimit] Using FEED IN variant of AIO device automation, as device '${this.productKey}' detected and limit is positive!`
+        `[setDeviceAutomationInOutLimit] Using FEED IN variant of AIO device automation, as device '${this.productKey}' detected and limit is positive!`,
       );
       _arguments = [
         {
@@ -130,7 +130,7 @@ export class Aio2400 extends ZenHaDevice {
       };
       this.adapter.mqttClient?.publish(
         this.functionTopic,
-        JSON.stringify(deviceAutomation)
+        JSON.stringify(deviceAutomation),
       );
     }
   }

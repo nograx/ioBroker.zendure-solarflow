@@ -3,11 +3,11 @@ import axios, { AxiosRequestConfig } from "axios";
 import { haKey } from "../constants/constants";
 import { ZendureSolarflow } from "../main";
 import * as crypto from "crypto";
-import { IHaDeviceListData } from "../models/IHaDeviceListData";
+import { IIobDeviceListData } from "../models/IHaDeviceListData";
 
 export const zenLogin = async (
   adapter: ZendureSolarflow,
-): Promise<string | IHaDeviceListData | undefined> => {
+): Promise<string | IIobDeviceListData | undefined> => {
   const decodedAuthCloudKey = Buffer.from(
     adapter.config.authorizationCloudKey,
     "base64",

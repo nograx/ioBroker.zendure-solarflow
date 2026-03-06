@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/indent */
-export interface IZenHaDeviceDetails {
+export interface IZenIobDeviceDetails {
   deviceKey: string;
   deviceName: string;
   enable: boolean;
