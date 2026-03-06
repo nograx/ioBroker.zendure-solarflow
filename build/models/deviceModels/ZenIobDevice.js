@@ -505,7 +505,9 @@ class ZenIobDevice {
     this.adapter.setTimeout(() => {
       this.triggerFullTelemetryUpdate();
     }, 5e3);
-    this.updateSolarFlowStatesFromDeviceDetails(_zenIobDeviceDetails);
+    if (_zenIobDeviceDetails) {
+      this.updateSolarFlowStatesFromDeviceDetails(_zenIobDeviceDetails);
+    }
   }
   async updateSolarFlowStatesFromDeviceDetails(zenIobDeviceDetails) {
     var _a;

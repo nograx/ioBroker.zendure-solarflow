@@ -74,7 +74,9 @@ export class ZenIobDevice {
       this.triggerFullTelemetryUpdate();
     }, 5000);
 
-    this.updateSolarFlowStatesFromDeviceDetails(_zenIobDeviceDetails!);
+    if (_zenIobDeviceDetails) {
+      this.updateSolarFlowStatesFromDeviceDetails(_zenIobDeviceDetails);
+    }
   }
 
   private async updateSolarFlowStatesFromDeviceDetails(
