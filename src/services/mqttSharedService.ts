@@ -86,20 +86,31 @@ export const onMessage = async (
     }
 
     //
-    if (obj.function == "deviceAutomation" && obj.success == 1) {
-      // setDeviceAutomationInOutLimit ack = true setzen;
-      const currentValue = await adapter.getStateAsync(
-        productKey + "." + deviceKey + ".control.setDeviceAutomationInOutLimit",
-      );
+    if (obj.function && obj.success != null && obj.success != undefined) {
+      if (
+        (obj.function == "deviceAutomation" || obj.function == "hemsEP") &&
+        obj.success == 1
+      ) {
+        // setDeviceAutomationInOutLimit ack = true setzen;
+        const currentValue = await adapter.getStateAsync(
+          productKey +
+            "." +
+            deviceKey +
+            ".control.setDeviceAutomationInOutLimit",
+        );
 
-      _device?.updateSolarFlowControlState(
-        "setDeviceAutomationInOutLimit",
-        currentValue?.val ? currentValue.val : 0,
-      );
-    } else if (obj.function == "deviceAutomation" && obj.success == 0) {
-      adapter?.log.warn(
-        `[onMessage] device automation failed for ${_device?.productName}: ${productKey}/${deviceKey}!`,
-      );
+        _device?.updateSolarFlowControlState(
+          "setDeviceAutomationInOutLimit",
+          currentValue?.val ? currentValue.val : 0,
+        );
+      } else if (
+        (obj.function == "deviceAutomation" || obj.function == "hemsEP") &&
+        obj.success == 0
+      ) {
+        adapter?.log.warn(
+          `[onMessage] device automation failed for ${_device?.productName}: ${productKey}/${deviceKey}!`,
+        );
+      }
     }
 
     if (

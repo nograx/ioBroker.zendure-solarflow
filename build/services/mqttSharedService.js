@@ -80,18 +80,20 @@ const onMessage = async (topic, message) => {
     if (productKey != "8bM93H") {
       isSolarFlow = true;
     }
-    if (obj.function == "deviceAutomation" && obj.success == 1) {
-      const currentValue = await adapter.getStateAsync(
-        productKey + "." + deviceKey + ".control.setDeviceAutomationInOutLimit"
-      );
-      _device == null ? void 0 : _device.updateSolarFlowControlState(
-        "setDeviceAutomationInOutLimit",
-        (currentValue == null ? void 0 : currentValue.val) ? currentValue.val : 0
-      );
-    } else if (obj.function == "deviceAutomation" && obj.success == 0) {
-      adapter == null ? void 0 : adapter.log.warn(
-        `[onMessage] device automation failed for ${_device == null ? void 0 : _device.productName}: ${productKey}/${deviceKey}!`
-      );
+    if (obj.function && obj.success != null && obj.success != void 0) {
+      if ((obj.function == "deviceAutomation" || obj.function == "hemsEP") && obj.success == 1) {
+        const currentValue = await adapter.getStateAsync(
+          productKey + "." + deviceKey + ".control.setDeviceAutomationInOutLimit"
+        );
+        _device == null ? void 0 : _device.updateSolarFlowControlState(
+          "setDeviceAutomationInOutLimit",
+          (currentValue == null ? void 0 : currentValue.val) ? currentValue.val : 0
+        );
+      } else if ((obj.function == "deviceAutomation" || obj.function == "hemsEP") && obj.success == 0) {
+        adapter == null ? void 0 : adapter.log.warn(
+          `[onMessage] device automation failed for ${_device == null ? void 0 : _device.productName}: ${productKey}/${deviceKey}!`
+        );
+      }
     }
     if (((_a = obj.properties) == null ? void 0 : _a.autoModel) != null && ((_b = obj.properties) == null ? void 0 : _b.autoModel) != void 0) {
       _device == null ? void 0 : _device.updateSolarFlowState("autoModel", obj.properties.autoModel);
