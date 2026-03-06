@@ -2,10 +2,10 @@ import { hyperControlStates } from "../../constants/hyperControlStates";
 import { hyperStates } from "../../constants/hyperStates";
 import { ZendureSolarflow } from "../../main";
 import { IDeviceAutomationPayload } from "../IDeviceAutomationPayload";
-import { IZenHaDeviceDetails } from "../IZenHaDeviceDetails";
-import { ZenHaDevice } from "./ZenHaDevice";
+import { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
+import { ZenIobDevice } from "./ZenIobDevice";
 
-export class Hyper2000 extends ZenHaDevice {
+export class Hyper2000 extends ZenIobDevice {
   maxInputLimit = 1200;
   maxOutputLimit = 1200;
 
@@ -18,7 +18,7 @@ export class Hyper2000 extends ZenHaDevice {
     _deviceKey: string,
     _productName: string,
     _deviceName: string,
-    _zenHaDeviceDetails?: IZenHaDeviceDetails
+    _zenHaDeviceDetails?: IZenIobDeviceDetails,
   ) {
     super(
       _adapter,
@@ -26,7 +26,7 @@ export class Hyper2000 extends ZenHaDevice {
       _deviceKey,
       _productName,
       _deviceName,
-      _zenHaDeviceDetails
+      _zenHaDeviceDetails,
     );
   }
 
@@ -37,11 +37,11 @@ export class Hyper2000 extends ZenHaDevice {
         this.adapter.log.debug(`[setAcMode] Set AC mode to ${acMode}!`);
         this.adapter.mqttClient?.publish(
           this.iotTopic,
-          JSON.stringify(setAcMode)
+          JSON.stringify(setAcMode),
         );
       } else {
         this.adapter.log.error(
-          `[setAcMode] AC mode must be a value between 0 and 3!`
+          `[setAcMode] AC mode must be a value between 0 and 3!`,
         );
       }
     }
@@ -53,21 +53,21 @@ export class Hyper2000 extends ZenHaDevice {
         properties: { acSwitch: acSwitch ? 1 : 0 },
       };
       this.adapter.log.debug(
-        `[setAcSwitch] Set AC Switch for device ${this.deviceKey} to ${acSwitch}!`
+        `[setAcSwitch] Set AC Switch for device ${this.deviceKey} to ${acSwitch}!`,
       );
       this.adapter.mqttClient?.publish(
         this.iotTopic,
-        JSON.stringify(setAcSwitchContent)
+        JSON.stringify(setAcSwitchContent),
       );
     }
   }
 
   public async setDeviceAutomationInOutLimit(
-    limit: number // can be negative, negative will trigger charging mode
+    limit: number, // can be negative, negative will trigger charging mode
   ): Promise<void> {
     if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
       this.adapter.log.debug(
-        `[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`
+        `[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`,
       );
 
       if (limit) {
@@ -78,7 +78,7 @@ export class Hyper2000 extends ZenHaDevice {
 
       if (this.adapter.config.useLowVoltageBlock) {
         const lowVoltageBlockState = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.lowVoltageBlock"
+          this.productKey + "." + this.deviceKey + ".control.lowVoltageBlock",
         );
         if (
           lowVoltageBlockState &&
@@ -90,7 +90,7 @@ export class Hyper2000 extends ZenHaDevice {
         }
 
         const fullChargeNeeded = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.fullChargeNeeded"
+          this.productKey + "." + this.deviceKey + ".control.fullChargeNeeded",
         );
 
         if (
@@ -106,12 +106,12 @@ export class Hyper2000 extends ZenHaDevice {
       // Convert maxInputLimit to negative value and compare to limit
       if (limit < 0 && limit < -this.maxInputLimit) {
         this.adapter.log.debug(
-          `[setDeviceAutomationInOutLimit] limit ${limit} is below the maximum input limit of ${this.maxInputLimit}, setting to ${-this.maxInputLimit}!`
+          `[setDeviceAutomationInOutLimit] limit ${limit} is below the maximum input limit of ${this.maxInputLimit}, setting to ${-this.maxInputLimit}!`,
         );
         limit = -this.maxInputLimit;
       } else if (limit > this.maxOutputLimit) {
         this.adapter.log.debug(
-          `[setDeviceAutomationInOutLimit] limit ${limit} is higher the maximum output limit of ${this.maxOutputLimit}, setting to ${this.maxOutputLimit}!`
+          `[setDeviceAutomationInOutLimit] limit ${limit} is higher the maximum output limit of ${this.maxOutputLimit}, setting to ${this.maxOutputLimit}!`,
         );
         limit = this.maxOutputLimit;
       }
@@ -125,7 +125,7 @@ export class Hyper2000 extends ZenHaDevice {
 
       if (limit < 0) {
         this.adapter.log.debug(
-          `[setDeviceAutomationInOutLimit] Using CHARGE variant of HYPER device automation, as device '${this.deviceKey}' detected and limit (${limit}) is negative!`
+          `[setDeviceAutomationInOutLimit] Using CHARGE variant of HYPER device automation, as device '${this.deviceKey}' detected and limit (${limit}) is negative!`,
         );
         // Input / Charge
         _arguments = [
@@ -148,7 +148,7 @@ export class Hyper2000 extends ZenHaDevice {
         ];
       } else {
         this.adapter.log.debug(
-          `[setDeviceAutomationInOutLimit] Using FEED IN variant of HYPER device automation, as device '${this.productName}' detected and limit (${limit}) is positive!`
+          `[setDeviceAutomationInOutLimit] Using FEED IN variant of HYPER device automation, as device '${this.productName}' detected and limit (${limit}) is positive!`,
         );
         // Output
         _arguments = [
@@ -175,7 +175,7 @@ export class Hyper2000 extends ZenHaDevice {
       };
       this.adapter.mqttClient?.publish(
         this.functionTopic,
-        JSON.stringify(deviceAutomation)
+        JSON.stringify(deviceAutomation),
       );
     }
   }

@@ -57,6 +57,8 @@ This adapter will now use the Cloud Authorization Code for authentication on the
 ### **WORK IN PROGRESS**
 
 - Fix setDeviceAutomationInOutLimit for Solarflow 1600 AC+
+- Read more data from Zendure WebService
+- Refactor some files
 
 ### 3.5.4 (2026-03-05)
 

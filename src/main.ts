@@ -12,10 +12,10 @@ import { Job } from "node-schedule";
 import { MqttClient } from "mqtt";
 import { startRefreshAccessTokenTimerJob } from "./services/jobSchedule";
 import { connectLocalMqttClient } from "./services/mqttLocalService";
-import { IZenHaDeviceDetails } from "./models/IZenHaDeviceDetails";
+import { IZenIobDeviceDetails } from "./models/IZenIobDeviceDetails";
 import { connectCloudZenMqttClient } from "./services/mqttCloudZenService";
-import { IZenHaMqttData } from "./models/IZenHaMqttData";
-import { ZenHaDevice } from "./models/deviceModels/ZenHaDevice";
+import { IZenIobMqttData } from "./models/IZenIobMqttData";
+import { ZenIobDevice } from "./models/deviceModels/ZenIobDevice";
 import { createDeviceModel } from "./helpers/helpers";
 
 export class ZendureSolarflow extends utils.Adapter {
@@ -29,8 +29,8 @@ export class ZendureSolarflow extends utils.Adapter {
     this.on("unload", this.onUnload.bind(this));
   }
 
-  public zenHaDeviceList: ZenHaDevice[] = []; // All found devices for this instance will be in this array
-  public mqttSettings: IZenHaMqttData | undefined = undefined;
+  public zenHaDeviceList: ZenIobDevice[] = []; // All found devices for this instance will be in this array
+  public mqttSettings: IZenIobMqttData | undefined = undefined;
 
   public lastLogin: Date | undefined = undefined;
 
@@ -95,7 +95,7 @@ export class ZendureSolarflow extends utils.Adapter {
 
         if (!this.config.authorizationCloudKey) {
           this.log.error(
-            "[zenWebService.login] authorization cloud key is missing!"
+            "[zenWebService.login] authorization cloud key is missing!",
           );
           break;
         }
@@ -113,26 +113,28 @@ export class ZendureSolarflow extends utils.Adapter {
           }
 
           this.log.debug(
-            `[onReady] Creating ${data.deviceList.length} devices...`
+            `[onReady] Creating ${data.deviceList.length} devices...`,
           );
 
-          await data.deviceList.forEach(async (device: IZenHaDeviceDetails) => {
-            // States erstellen
-            const deviceModel = createDeviceModel(
-              this,
-              device.productKey,
-              device.deviceKey,
-              device
-            );
-
-            if (deviceModel) {
-              this.zenHaDeviceList.push(deviceModel);
-            } else {
-              this.log.error(
-                `[onReady] Error creating device with productKey '${device.productKey}' / deviceKey '${device.deviceKey} / productModel ${device.productModel}'`
+          await data.deviceList.forEach(
+            async (device: IZenIobDeviceDetails) => {
+              // States erstellen
+              const deviceModel = createDeviceModel(
+                this,
+                device.productKey,
+                device.deviceKey,
+                device,
               );
-            }
-          });
+
+              if (deviceModel) {
+                this.zenHaDeviceList.push(deviceModel);
+              } else {
+                this.log.error(
+                  `[onReady] Error creating device with productKey '${device.productKey}' / deviceKey '${device.deviceKey} / productModel ${device.productModel}'`,
+                );
+              }
+            },
+          );
         }
         break;
       case "local": {
@@ -149,7 +151,7 @@ export class ZendureSolarflow extends utils.Adapter {
           const deviceModel = createDeviceModel(
             this,
             this.config.localDevice1ProductKey,
-            this.config.localDevice1DeviceKey
+            this.config.localDevice1DeviceKey,
           );
 
           if (deviceModel) {
@@ -166,7 +168,7 @@ export class ZendureSolarflow extends utils.Adapter {
           const deviceModel = createDeviceModel(
             this,
             this.config.localDevice2ProductKey,
-            this.config.localDevice2DeviceKey
+            this.config.localDevice2DeviceKey,
           );
 
           if (deviceModel) {
@@ -183,7 +185,7 @@ export class ZendureSolarflow extends utils.Adapter {
           const deviceModel = createDeviceModel(
             this,
             this.config.localDevice3ProductKey,
-            this.config.localDevice3DeviceKey
+            this.config.localDevice3DeviceKey,
           );
 
           if (deviceModel) {
@@ -200,7 +202,7 @@ export class ZendureSolarflow extends utils.Adapter {
           const deviceModel = createDeviceModel(
             this,
             this.config.localDevice4ProductKey,
-            this.config.localDevice4DeviceKey
+            this.config.localDevice4DeviceKey,
           );
 
           if (deviceModel) {
@@ -271,7 +273,7 @@ export class ZendureSolarflow extends utils.Adapter {
    */
   private onStateChange(
     id: string,
-    state: ioBroker.State | null | undefined
+    state: ioBroker.State | null | undefined,
   ): void {
     if (state) {
       // The state was changed
@@ -284,12 +286,12 @@ export class ZendureSolarflow extends utils.Adapter {
       const stateName2 = splitted[5]; // State Name, like 'setOutputLimit'
 
       const _device = this.zenHaDeviceList.find(
-        (x) => x.productKey == productKey && x.deviceKey == deviceKey
+        (x) => x.productKey == productKey && x.deviceKey == deviceKey,
       );
 
       if (!_device) {
         this.log.error(
-          `[onStateChange] Device '${deviceKey}' not found in zenHaDeviceList!`
+          `[onStateChange] Device '${deviceKey}' not found in zenHaDeviceList!`,
         );
         return;
       }
@@ -299,7 +301,7 @@ export class ZendureSolarflow extends utils.Adapter {
         switch (stateName1) {
           case "control":
             this.log.debug(
-              `[onStateChange] Control state '${stateName2}' changed, new value is ${state.val}, ack = ${state.ack}!`
+              `[onStateChange] Control state '${stateName2}' changed, new value is ${state.val}, ack = ${state.ack}!`,
             );
             switch (stateName2) {
               case "setOutputLimit":

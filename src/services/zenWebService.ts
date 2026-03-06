@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/indent */
 import axios, { AxiosRequestConfig } from "axios";
-import { haKey } from "../constants/constants";
+import { iobKey } from "../constants/constants";
 import { ZendureSolarflow } from "../main";
 import * as crypto from "crypto";
-import { IHaDeviceListData } from "../models/IHaDeviceListData";
+import { IIobDeviceListData } from "../models/IIobDeviceListData";
 
 export const zenLogin = async (
   adapter: ZendureSolarflow,
-): Promise<string | IHaDeviceListData | undefined> => {
+): Promise<string | IIobDeviceListData | undefined> => {
   const decodedAuthCloudKey = Buffer.from(
     adapter.config.authorizationCloudKey,
     "base64",
@@ -42,7 +42,7 @@ export const zenLogin = async (
     .map((k) => `${k}${signParams[k]}`)
     .join("");
 
-  const signStr = `${haKey}${bodyStr}${haKey}`;
+  const signStr = `${iobKey}${bodyStr}${iobKey}`;
 
   // SHA1-Hash berechnen
   const sha1 = crypto.createHash("sha1");
