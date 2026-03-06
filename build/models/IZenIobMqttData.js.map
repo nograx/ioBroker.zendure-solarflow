@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/models/IZenIobMqttData.ts"],
+  "sourcesContent": ["/* eslint-disable @typescript-eslint/indent */\nexport interface IZenIobMqttData {\n  clientId: string;\n  password: string;\n  url: string;\n  username: string;\n}\n"],
+  "mappings": ";;;;;;;;;;;;;;AAAA;AAAA;",
+  "names": []
+}

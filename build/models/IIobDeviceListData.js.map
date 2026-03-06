@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/models/IIobDeviceListData.ts"],
+  "sourcesContent": ["import { IZenIobDeviceDetails } from \"./IZenIobDeviceDetails\";\nimport { IZenIobMqttData } from \"./IZenIobMqttData\";\n\n/* eslint-disable @typescript-eslint/indent */\nexport interface IIobDeviceListData {\n  deviceList: IZenIobDeviceDetails[];\n  mqtt: IZenIobMqttData;\n}\n"],
+  "mappings": ";;;;;;;;;;;;;;AAAA;AAAA;",
+  "names": []
+}

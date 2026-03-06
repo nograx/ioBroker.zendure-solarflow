@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/models/IZenIobDeviceDetails.ts"],
+  "sourcesContent": ["/* eslint-disable @typescript-eslint/indent */\nexport interface IZenIobDeviceDetails {\n  deviceKey: string;\n  deviceName: string;\n  enable: boolean;\n  ip: string;\n  lcnSupport: number;\n  online: boolean;\n  password: string;\n  port: number;\n  productKey: string;\n  productModel: string;\n  protocol: string;\n  server: string;\n  snNumber: string;\n  username: string;\n}\n"],
+  "mappings": ";;;;;;;;;;;;;;AAAA;AAAA;",
+  "names": []
+}

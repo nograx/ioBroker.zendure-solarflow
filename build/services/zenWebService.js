@@ -55,7 +55,7 @@ const zenLogin = async (adapter) => {
     nonce
   };
   const bodyStr = Object.keys(signParams).sort().map((k) => `${k}${signParams[k]}`).join("");
-  const signStr = `${import_constants.haKey}${bodyStr}${import_constants.haKey}`;
+  const signStr = `${import_constants.iobKey}${bodyStr}${import_constants.iobKey}`;
   const sha1 = crypto.createHash("sha1");
   sha1.update(signStr, "utf8");
   const sign = sha1.digest("hex").toUpperCase();

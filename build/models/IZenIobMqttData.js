@@ -12,6 +12,6 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-var IZenHaMqttData_exports = {};
-module.exports = __toCommonJS(IZenHaMqttData_exports);
-//# sourceMappingURL=IZenHaMqttData.js.map
+var IZenIobMqttData_exports = {};
+module.exports = __toCommonJS(IZenIobMqttData_exports);
+//# sourceMappingURL=IZenIobMqttData.js.map

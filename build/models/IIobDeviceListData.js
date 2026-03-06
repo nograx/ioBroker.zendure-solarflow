@@ -12,6 +12,6 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-var IHaDeviceListData_exports = {};
-module.exports = __toCommonJS(IHaDeviceListData_exports);
-//# sourceMappingURL=IHaDeviceListData.js.map
+var IIobDeviceListData_exports = {};
+module.exports = __toCommonJS(IIobDeviceListData_exports);
+//# sourceMappingURL=IIobDeviceListData.js.map

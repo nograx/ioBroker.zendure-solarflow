@@ -16,18 +16,18 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-var ZenHaDevice_exports = {};
-__export(ZenHaDevice_exports, {
-  ZenHaDevice: () => ZenHaDevice
+var ZenIobDevice_exports = {};
+__export(ZenIobDevice_exports, {
+  ZenIobDevice: () => ZenIobDevice
 });
-module.exports = __toCommonJS(ZenHaDevice_exports);
+module.exports = __toCommonJS(ZenIobDevice_exports);
 var import_crypto = require("crypto");
 var import_constants = require("../../constants/constants");
 var import_createCalculationStates = require("../../helpers/createCalculationStates");
 var import_timeHelper = require("../../helpers/timeHelper");
 var import_mqttSharedService = require("../../services/mqttSharedService");
-class ZenHaDevice {
-  constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {
+class ZenIobDevice {
+  constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenIobDeviceDetails) {
     this.messageId = 0;
     this.batteries = [];
     this.iotTopic = "";
@@ -490,8 +490,7 @@ class ZenHaDevice {
         }
       }
     };
-    var _a, _b;
-    this.zenHaDeviceDetails = _zenHaDeviceDetails;
+    this.zenIobDeviceDetails = _zenIobDeviceDetails;
     this.adapter = _adapter;
     this.productKey = _productKey;
     this.deviceKey = _deviceKey;
@@ -506,10 +505,55 @@ class ZenHaDevice {
     this.adapter.setTimeout(() => {
       this.triggerFullTelemetryUpdate();
     }, 5e3);
-    if ((_a = this.zenHaDeviceDetails) == null ? void 0 : _a.online) {
+    this.updateSolarFlowStatesFromDeviceDetails(_zenIobDeviceDetails);
+  }
+  async updateSolarFlowStatesFromDeviceDetails(zenIobDeviceDetails) {
+    var _a;
+    if (zenIobDeviceDetails == null ? void 0 : zenIobDeviceDetails.online) {
       this.updateSolarFlowState("wifiState", "Connected");
-    } else if (((_b = this.zenHaDeviceDetails) == null ? void 0 : _b.online) == false) {
+    } else if ((zenIobDeviceDetails == null ? void 0 : zenIobDeviceDetails.online) == false) {
       this.updateSolarFlowState("wifiState", "Disconnected");
+    }
+    if (zenIobDeviceDetails.productModel) {
+      this.updateSolarFlowState(
+        "productName",
+        zenIobDeviceDetails.productModel
+      );
+    }
+    if (zenIobDeviceDetails.ip) {
+      this.updateSolarFlowState("ip", zenIobDeviceDetails.ip);
+    }
+    if (zenIobDeviceDetails.snNumber) {
+      this.updateSolarFlowState("snNumber", zenIobDeviceDetails.snNumber);
+    }
+    if (zenIobDeviceDetails.deviceName) {
+      this.updateSolarFlowState("name", zenIobDeviceDetails.deviceName);
+    }
+    if (zenIobDeviceDetails.protocol == "mqtt" && zenIobDeviceDetails.server && zenIobDeviceDetails.port) {
+      await ((_a = this.adapter) == null ? void 0 : _a.extendObject(
+        `${this.productKey}.${this.deviceKey}.mqttServer`,
+        {
+          type: "state",
+          common: {
+            name: {
+              de: "MQTT Server",
+              en: "MQTT Server"
+            },
+            type: "string",
+            desc: "MQTT Server",
+            role: "value",
+            read: true,
+            write: false,
+            unit: "",
+            states: {}
+          },
+          native: {}
+        }
+      ));
+      this.updateSolarFlowState(
+        "mqttServer",
+        zenIobDeviceDetails.server + ":" + zenIobDeviceDetails.port
+      );
     }
   }
   async createSolarFlowStates() {
@@ -1231,6 +1275,6 @@ class ZenHaDevice {
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  ZenHaDevice
+  ZenIobDevice
 });
-//# sourceMappingURL=ZenHaDevice.js.map
+//# sourceMappingURL=ZenIobDevice.js.map

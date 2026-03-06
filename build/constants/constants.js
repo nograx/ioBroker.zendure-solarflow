@@ -19,10 +19,10 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 var constants_exports = {};
 __export(constants_exports, {
   calculationStateKeys: () => calculationStateKeys,
-  haKey: () => haKey
+  iobKey: () => iobKey
 });
 module.exports = __toCommonJS(constants_exports);
-const haKey = "C*dafwArEOXK";
+const iobKey = "C*dafwArEOXK";
 const calculationStateKeys = [
   "packInput",
   "outputHome",
@@ -38,6 +38,6 @@ const calculationStateKeys = [
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   calculationStateKeys,
-  haKey
+  iobKey
 });
 //# sourceMappingURL=constants.js.map

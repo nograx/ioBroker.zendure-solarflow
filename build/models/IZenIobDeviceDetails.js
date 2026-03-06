@@ -12,6 +12,6 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-var IZenHaDeviceDetails_exports = {};
-module.exports = __toCommonJS(IZenHaDeviceDetails_exports);
-//# sourceMappingURL=IZenHaDeviceDetails.js.map
+var IZenIobDeviceDetails_exports = {};
+module.exports = __toCommonJS(IZenIobDeviceDetails_exports);
+//# sourceMappingURL=IZenIobDeviceDetails.js.map

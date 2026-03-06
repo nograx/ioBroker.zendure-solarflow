@@ -23,8 +23,8 @@ __export(Sf2400Ac_exports, {
 module.exports = __toCommonJS(Sf2400Ac_exports);
 var import_ac2400ControlStates = require("../../constants/ac2400ControlStates");
 var import_ac2400States = require("../../constants/ac2400States");
-var import_ZenHaDevice = require("./ZenHaDevice");
-class Sf2400Ac extends import_ZenHaDevice.ZenHaDevice {
+var import_ZenIobDevice = require("./ZenIobDevice");
+class Sf2400Ac extends import_ZenIobDevice.ZenIobDevice {
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {
     super(
       _adapter,

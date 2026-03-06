@@ -120,21 +120,23 @@ class ZendureSolarflow extends utils.Adapter {
           this.log.debug(
             `[onReady] Creating ${data.deviceList.length} devices...`
           );
-          await data.deviceList.forEach(async (device) => {
-            const deviceModel = (0, import_helpers.createDeviceModel)(
-              this,
-              device.productKey,
-              device.deviceKey,
-              device
-            );
-            if (deviceModel) {
-              this.zenHaDeviceList.push(deviceModel);
-            } else {
-              this.log.error(
-                `[onReady] Error creating device with productKey '${device.productKey}' / deviceKey '${device.deviceKey} / productModel ${device.productModel}'`
+          await data.deviceList.forEach(
+            async (device) => {
+              const deviceModel = (0, import_helpers.createDeviceModel)(
+                this,
+                device.productKey,
+                device.deviceKey,
+                device
               );
+              if (deviceModel) {
+                this.zenHaDeviceList.push(deviceModel);
+              } else {
+                this.log.error(
+                  `[onReady] Error creating device with productKey '${device.productKey}' / deviceKey '${device.deviceKey} / productModel ${device.productModel}'`
+                );
+              }
             }
-          });
+          );
         }
         break;
       case "local": {

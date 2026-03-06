@@ -23,8 +23,8 @@ __export(Sf2400Pro_exports, {
 module.exports = __toCommonJS(Sf2400Pro_exports);
 var import_solarflow2400ProControlStates = require("../../constants/solarflow2400ProControlStates");
 var import_solarflow2400ProStates = require("../../constants/solarflow2400ProStates");
-var import_ZenHaDevice = require("./ZenHaDevice");
-class Sf2400Pro extends import_ZenHaDevice.ZenHaDevice {
+var import_ZenIobDevice = require("./ZenIobDevice");
+class Sf2400Pro extends import_ZenIobDevice.ZenIobDevice {
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {
     super(
       _adapter,

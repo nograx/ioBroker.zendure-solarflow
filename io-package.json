@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "3.5.5",
+    "version": "3.5.6",
     "news": {
+      "3.5.6": {
+        "en": "Fix setDeviceAutomationInOutLimit for Solarflow 1600 AC+\nRead more data from Zendure WebService\nRefactor some files",
+        "de": "Fix setDeviceAutomationInOutLimit für Solarflow 1600 AC+\nLesen Sie mehr Daten von Zendure WebService\nRefactor einige Dateien",
+        "ru": "Ремонтный наборDeviceAutomationInOutLimit для Solarflow 1600 AC+\nЧитать далее Zendure WebService\nРефактор некоторых файлов",
+        "pt": "Fix setDeviceAutomationInOutLimit para Solarflow 1600 AC+\nLeia mais dados do Zendure WebService\nRefatorizar alguns arquivos",
+        "nl": "Fix setDeviceAutomationInOutLimit voor Solarflow 1600 AC+\nLees meer gegevens van Zendure WebService\nRefactor sommige bestanden",
+        "fr": "Correction setDeviceAutomationInOutLimit pour Solarflow 1600 AC+\nLire plus de données de Zendure WebService\nRefactorer certains fichiers",
+        "it": "Fix setDeviceAutomationInOutLimit per Solarflow 1600 AC+\nLeggi altri dati da Zendure WebService\nRefactor alcuni file",
+        "es": "Set de fijaciónDeviceAutomationInOutLimit for Solarflow 1600 AC+\nLeer más datos de Zendure WebService\nRefactor algunos archivos",
+        "pl": "Napraw setDeviceAutomationInOutLimit dla Solarflow 1600 AC +\nCzytaj więcej danych z serwisu internetowego Zabb\nZmień wartość niektórych plików",
+        "uk": "Фіксований комплектDeviceAutomationInOutLimit для Solarflow 1600 AC+\nЧитати більше даних від Zendure WebService\nРефактор деяких файлів",
+        "zh-cn": "日光流 1600 AC+ 的自动调试\n从 Zendure WebService 读取更多数据\n重构一些文件"
+      },
       "3.5.5": {
         "en": "Fix setDeviceAutomationInOutLimit for Solarflow 1600 AC+",
         "de": "Fix setDeviceAutomationInOutLimit für Solarflow 1600 AC+",
@@ -80,19 +93,6 @@
         "pl": "Dodaj productKey '2Qe7C9' dla Solarflow 2400 Pro\nDodaj obsługę zdarzeń (wiadomość dziennika) dla rozłączenia MQTT",
         "uk": "Додати товарKey '2Qe7C9' для Solarflow 2400 Pro\nДодати обробник подій (логове повідомлення) для підключення MQTT",
         "zh-cn": "添加“ 2Qe7C9” 产品“ 2400 Pro ”\n添加 MQTT 断开事件处理器( log message)"
-      },
-      "3.4.0": {
-        "en": "Add productKey '8n77V3' for Solarflow 800 Plus\nRemove passMode, pass and buzzerSwitch from Hyper 2000",
-        "de": "Produkt hinzufügenKey '8n77V3' für Solarflow 800 Plus\nZurück zur Übersicht Modus, Pass und Summer Schalter von Hyper 2000",
-        "ru": "Добавить продуктKey '8n77V3 для Solarflow 800 Plus\nУдалить пропуск Режим, пропуск и зуммер Переключение с Hyper 2000",
-        "pt": "Adicionar produtoKey '8n77V3' para Solarflow 800 Plus\nRemover passagem Modo, passe e campainha Mudar de Hyper 2000",
-        "nl": "Product toevoegenKey '8n77V3' voor Solarflow 800 Plus\nPass verwijderen Modus, pas en zoemer Overstap van Hyper 2000",
-        "fr": "Ajouter le produitKey '8n77V3' pour Solarflow 800 Plus\nSupprimer le passage Mode, passe et buzzer Changer de Hyper 2000",
-        "it": "Aggiungi prodottoKey '8n77V3' per Solarflow 800 Plus\nRimuovi il pass Modalità, passaggio e buzzer Passare da Hyper 2000",
-        "es": "Añadir productoKey '8n77V3' para Solarflow 800 Plus\nQuitar paso Modo, paso y timbre Interruptor de Hyper 2000",
-        "pl": "Dodaj productKey '8n77V3' dla Solarflow 800 Plus\nUsuń przejście Tryb, pass i brzęczyk Przełącznik z Hyper 2000",
-        "uk": "Додати товарKey '8n77V3' для Solarflow 800 Plus\nВидалити прохід Режим, прохід і буфер Перемикач від Hyper 2000",
-        "zh-cn": "为 Solarflow 800 Plus 添加产品 Key '8n77V3'\n删除通过 模式、通过和铃声 从 Hyper 2000 切换"
       }
     },
     "titleLang": {

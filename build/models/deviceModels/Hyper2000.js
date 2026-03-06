@@ -23,8 +23,8 @@ __export(Hyper2000_exports, {
 module.exports = __toCommonJS(Hyper2000_exports);
 var import_hyperControlStates = require("../../constants/hyperControlStates");
 var import_hyperStates = require("../../constants/hyperStates");
-var import_ZenHaDevice = require("./ZenHaDevice");
-class Hyper2000 extends import_ZenHaDevice.ZenHaDevice {
+var import_ZenIobDevice = require("./ZenIobDevice");
+class Hyper2000 extends import_ZenIobDevice.ZenIobDevice {
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {
     super(
       _adapter,

@@ -183,6 +183,13 @@ const sharedStates = [
     unit: "%"
   },
   {
+    title: "ip",
+    nameDe: "IP Adresse",
+    nameEn: "IP Address",
+    type: "string",
+    role: "value"
+  },
+  {
     title: "wifiState",
     nameDe: "WiFi Status",
     nameEn: "WiFi Status",
