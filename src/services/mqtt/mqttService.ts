@@ -47,10 +47,10 @@ export abstract class MqttService {
 
     if (this.mqttClient) {
       // keep the old public field in sync for existing code
-      this.mqttClient.on("connect", onConnected);
-      this.mqttClient.on("reconnect", onReconnected);
-      this.mqttClient.on("disconnect", onDisconnected);
-      this.mqttClient.on("error", onError);
+      this.mqttClient.on("connect", () => onConnected(url, opts));
+      this.mqttClient.on("reconnect", () => onReconnected(url));
+      this.mqttClient.on("disconnect", () => onDisconnected(url));
+      this.mqttClient.on("error", (error) => onError(error, url));
       this.mqttClient.on("message", isLocal ? onMessageLocal : onMessageCloud);
 
       this.startJobs();

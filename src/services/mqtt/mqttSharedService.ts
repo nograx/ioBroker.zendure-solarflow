@@ -1,3 +1,4 @@
+import mqtt from "mqtt";
 import { processDeviceProperties } from "../../helpers/processDeviceProperties";
 import { ZendureSolarflow } from "../../main";
 
@@ -179,34 +180,38 @@ export const onMessageCloud = async (
   }
 };
 
-export const onConnected = (): void => {
+export const onConnected = (url: string, opts: mqtt.IClientOptions): void => {
   if (adapter) {
     adapter.lastLogin = new Date();
     adapter.setState("info.connection", true, true);
-    adapter.log.info("[onConnected] Connected with MQTT!");
+    adapter.log.info(
+      `[onConnected] Connected with MQTT! URL: ${url}, Client ID: ${opts.clientId}`,
+    );
   }
 };
 
-export const onReconnected = (): void => {
+export const onReconnected = (url: string): void => {
   if (adapter) {
     adapter.lastLogin = new Date();
     adapter.setState("info.connection", true, true);
-    adapter.log.info("[onReconnected] Reconnected to MQTT!");
+    adapter.log.info(`[onReconnected] Reconnected to MQTT! URL: ${url}`);
   }
 };
 
-export const onDisconnected = (): void => {
+export const onDisconnected = (url: string): void => {
   if (adapter) {
     adapter.lastLogin = new Date();
     adapter.setState("info.connection", false, true);
-    adapter.log.info("[onDisconnected] Disconnected from MQTT!");
+    adapter.log.info(`[onDisconnected] Disconnected from MQTT! URL: ${url}`);
   }
 };
 
-export const onError = (error: any): void => {
+export const onError = (error: any, url: string): void => {
   if (adapter) {
     adapter.setState("info.connection", false, true);
-    adapter.log.error("Connection to MQTT failed! Error: " + error);
+    adapter.log.error(
+      `[onError] Connection to MQTT failed! URL: ${url}, Error: ${error}`,
+    );
   }
 };
 
