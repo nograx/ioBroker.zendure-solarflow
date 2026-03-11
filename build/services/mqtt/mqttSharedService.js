@@ -105,9 +105,6 @@ const onMessageLocal = async (topic, message) => {
       `[onMessageLocal] MQTT message on topic '${topic}': ${message.toString()}`
     );
   }
-  const device = adapter == null ? void 0 : adapter.zenIobDeviceList.find(
-    (x) => x.productKey == productKey && x.deviceKey == deviceKey
-  );
   onMessage(productKey, deviceKey, obj);
   if ((adapter == null ? void 0 : adapter.config.relayMqttToCloud) && ((_a = adapter == null ? void 0 : adapter.cloudMqttService) == null ? void 0 : _a.mqttClient)) {
     adapter == null ? void 0 : adapter.log.debug(
