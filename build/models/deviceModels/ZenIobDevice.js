@@ -1,7 +1,9 @@
 "use strict";
+var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __export = (target, all) => {
   for (var name in all)
@@ -15,6 +17,14 @@ var __copyProps = (to, from, except, desc) => {
   }
   return to;
 };
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var ZenIobDevice_exports = {};
 __export(ZenIobDevice_exports, {
@@ -25,14 +35,21 @@ var import_crypto = require("crypto");
 var import_constants = require("../../constants/sensorStates/constants");
 var import_createCalculationStates = require("../../helpers/createCalculationStates");
 var import_timeHelper = require("../../helpers/timeHelper");
-var import_mqttSharedService = require("../../services/mqttSharedService");
+var import_mqttSharedService = require("../../services/mqtt/mqttSharedService");
+var import_enums = require("../../helpers/enums");
+var import_axios = __toESM(require("axios"));
+var import_processDeviceProperties = require("../../helpers/processDeviceProperties");
 class ZenIobDevice {
-  constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenIobDeviceDetails) {
+  constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, isZenSdkSupported, _zenIobDeviceDetails) {
+    this.deviceConnectionMode = void 0;
+    this.snNumber = void 0;
+    this.ipAddress = void 0;
     this.messageId = 0;
     this.batteries = [];
-    this.iotTopic = "";
-    this.functionTopic = "";
+    this.iotTopic = void 0;
+    this.functionTopic = void 0;
     this.password = "";
+    // No initializer - let derived classes set this
     this.maxInputLimit = 0;
     this.maxOutputLimit = 0;
     this.states = [];
@@ -496,18 +513,40 @@ class ZenIobDevice {
     this.deviceKey = _deviceKey;
     this.deviceName = _deviceName;
     this.productName = _productName;
+    this.isZenSdkSupported = isZenSdkSupported;
     this.iotTopic = `iot/${_productKey}/${_deviceKey}/properties/write`;
     this.functionTopic = `iot/${_productKey}/${_deviceKey}/function/invoke`;
-    this.password = (0, import_crypto.createHash)("md5").update(_deviceKey, "utf8").digest("hex").toUpperCase().substring(8, 24);
     this.createSolarFlowStates();
+    if (_zenIobDeviceDetails) {
+      this.updateSolarFlowStatesFromDeviceDetails(_zenIobDeviceDetails);
+    }
+    this.password = (0, import_crypto.createHash)("md5").update(_deviceKey, "utf8").digest("hex").toUpperCase().substring(8, 24);
+    this.adapter.log.debug(
+      `[ZenIobDevice] useZenSDK for device ${this.deviceKey}: Supported=${this.isZenSdkSupported} Config=${this.adapter.config.useZenSDK}`
+    );
+    if (this.adapter.config.useZenSDK && this.isZenSdkSupported) {
+      this.getZenSdkProperties().then((success) => {
+        if (success) {
+          this.deviceConnectionMode = import_enums.DeviceConnectionMode.zenSDK;
+          this.updateSolarFlowState("connectionMode", "zenSDK");
+          this.updateSolarFlowState("wifiState", "Connected");
+        } else {
+          this.updateSolarFlowState("wifiState", "Disconnected");
+        }
+      }).catch(() => {
+        this.updateSolarFlowState("wifiState", "Disconnected");
+        this.setupMqttConnection();
+      });
+    } else {
+      this.setupMqttConnection();
+    }
+  }
+  setupMqttConnection() {
     this.subscribeReportTopic();
     this.subscribeIotTopic();
     this.adapter.setTimeout(() => {
       this.triggerFullTelemetryUpdate();
     }, 5e3);
-    if (_zenIobDeviceDetails) {
-      this.updateSolarFlowStatesFromDeviceDetails(_zenIobDeviceDetails);
-    }
   }
   async updateSolarFlowStatesFromDeviceDetails(zenIobDeviceDetails) {
     var _a;
@@ -523,9 +562,11 @@ class ZenIobDevice {
       );
     }
     if (zenIobDeviceDetails.ip) {
+      this.ipAddress = zenIobDeviceDetails.ip;
       this.updateSolarFlowState("ip", zenIobDeviceDetails.ip);
     }
     if (zenIobDeviceDetails.snNumber) {
+      this.snNumber = zenIobDeviceDetails.snNumber;
       this.updateSolarFlowState("snNumber", zenIobDeviceDetails.snNumber);
     }
     if (zenIobDeviceDetails.deviceName) {
@@ -674,30 +715,227 @@ class ZenIobDevice {
       await (0, import_createCalculationStates.createCalculationStates)(this.adapter, productKey, deviceKey);
     }
   }
+  getZenSdkProperties() {
+    this.adapter.log.debug(
+      `[getZenSdkProperties] Getting properties with zenSDK for device ${this.deviceKey}!`
+    );
+    if (this.ipAddress) {
+      const headers = {
+        "Content-Type": "application/json"
+      };
+      const config = {
+        headers,
+        timeout: 4e3
+      };
+      return import_axios.default.get(`http://${this.ipAddress}/properties/report`, config).then(async (response) => {
+        const data = await response.data;
+        this.adapter.log.debug(
+          `[getZenSdkProperties] Successfully got properties for device ${this.deviceKey} with zenSDK!}`
+        );
+        if (data.properties) {
+          (0, import_processDeviceProperties.processDeviceProperties)(this, data.properties, true);
+        }
+        if (data.packData) {
+          this.addOrUpdatePackData(data.packData, true);
+        }
+        return true;
+      }).catch((error) => {
+        this.adapter.log.error(
+          `[getZenSdkProperties] Error getting properties for device ${this.deviceKey} with zenSDK: ${error}`
+        );
+        return false;
+      });
+    } else {
+      this.adapter.log.error(
+        `[getZenSdkProperties] IP address is not defined for device ${this.deviceKey}!`
+      );
+    }
+    return Promise.resolve(false);
+  }
+  writeZenSdkProperties(properties) {
+    this.adapter.log.debug(
+      `[writeZenSdkProperties] Writing properties with zenSDK for device ${this.deviceKey}: ${properties}`
+    );
+    if (this.ipAddress) {
+      const headers = {
+        "Content-Type": "application/json"
+      };
+      const config = {
+        headers,
+        timeout: 4e3
+      };
+      return import_axios.default.post(
+        `http://${this.ipAddress}/properties/write`,
+        {
+          sn: this.snNumber,
+          // Required
+          properties: JSON.parse(properties)
+        },
+        config
+      ).then(async (response) => {
+        this.adapter.log.debug(
+          `[writeZenSdkProperties] Successfully wrote properties for device ${this.deviceKey} with zenSDK: ${properties} / status: ${response.status}`
+        );
+        return true;
+      }).catch((error) => {
+        this.adapter.log.error(
+          `[writeZenSdkProperties] Error writing properties with zenSDK for device ${this.deviceKey}: ${error}`
+        );
+        return false;
+      });
+    } else {
+      this.adapter.log.error(
+        `[writeZenSdkProperties] IP address is not defined for device ${this.deviceKey}!`
+      );
+      return Promise.resolve(false);
+    }
+  }
+  writeMqttProperties(properties) {
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j;
+    if (!this.iotTopic) {
+      this.adapter.log.error(
+        `[writeMqttProperties] IoT topic is not defined for device ${this.deviceKey}!`
+      );
+      return false;
+    }
+    if (this.productKey && this.deviceKey) {
+      this.messageId += 1;
+      if (((_b = (_a = this.adapter) == null ? void 0 : _a.localMqttService) == null ? void 0 : _b.mqttClient) && (this.deviceConnectionMode == import_enums.DeviceConnectionMode.LocalMqtt || this.deviceConnectionMode == import_enums.DeviceConnectionMode.LocalMqttWithCloudRelay)) {
+        (_e = (_d = (_c = this.adapter) == null ? void 0 : _c.localMqttService) == null ? void 0 : _d.mqttClient) == null ? void 0 : _e.publish(
+          this.iotTopic,
+          properties
+        );
+      } else if ((_g = (_f = this.adapter) == null ? void 0 : _f.cloudMqttService) == null ? void 0 : _g.mqttClient) {
+        (_j = (_i = (_h = this.adapter) == null ? void 0 : _h.cloudMqttService) == null ? void 0 : _i.mqttClient) == null ? void 0 : _j.publish(
+          this.iotTopic,
+          properties
+        );
+      }
+    }
+    return true;
+  }
+  invokeMqttFunction(properties) {
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j;
+    if (!this.functionTopic) {
+      this.adapter.log.error(
+        `[invokeMqttFunction] Function topic is not defined for device ${this.deviceKey}!`
+      );
+      return;
+    }
+    if (this.productKey && this.deviceKey) {
+      if (((_b = (_a = this.adapter) == null ? void 0 : _a.localMqttService) == null ? void 0 : _b.mqttClient) && (this.deviceConnectionMode == import_enums.DeviceConnectionMode.LocalMqtt || this.deviceConnectionMode == import_enums.DeviceConnectionMode.LocalMqttWithCloudRelay)) {
+        (_e = (_d = (_c = this.adapter) == null ? void 0 : _c.localMqttService) == null ? void 0 : _d.mqttClient) == null ? void 0 : _e.publish(
+          this.functionTopic,
+          properties
+        );
+      } else if ((_g = (_f = this.adapter) == null ? void 0 : _f.cloudMqttService) == null ? void 0 : _g.mqttClient) {
+        (_j = (_i = (_h = this.adapter) == null ? void 0 : _h.cloudMqttService) == null ? void 0 : _i.mqttClient) == null ? void 0 : _j.publish(
+          this.functionTopic,
+          properties
+        );
+      }
+    }
+  }
   subscribeReportTopic() {
-    var _a;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s;
     const reportTopic = `/${this.productKey}/${this.deviceKey}/#`;
     if (this.adapter) {
+      if ((_b = (_a = this.adapter) == null ? void 0 : _a.cloudMqttService) == null ? void 0 : _b.mqttClient) {
+        this.adapter.log.debug(
+          `[subscribeReportTopic] Subscribing to MQTT Topic: ${reportTopic} (Cloud)`
+        );
+        (_e = (_d = (_c = this.adapter) == null ? void 0 : _c.cloudMqttService) == null ? void 0 : _d.mqttClient) == null ? void 0 : _e.subscribe(
+          reportTopic,
+          import_mqttSharedService.onSubscribeReportTopic
+        );
+      }
+      if ((_g = (_f = this.adapter) == null ? void 0 : _f.localMqttService) == null ? void 0 : _g.mqttClient) {
+        this.adapter.log.debug(
+          `[subscribeReportTopic] Subscribing to MQTT Topic: ${reportTopic} (Local)`
+        );
+        (_j = (_i = (_h = this.adapter) == null ? void 0 : _h.localMqttService) == null ? void 0 : _i.mqttClient) == null ? void 0 : _j.subscribe(
+          reportTopic,
+          import_mqttSharedService.onSubscribeReportTopic
+        );
+      }
       this.adapter.log.debug(
-        `[subscribeReportTopic] Subscribing to MQTT Topic: ${reportTopic}`
+        `[subscribeReportTopic] Setting connectionMode for device ${this.deviceKey}, relayMqttToCloud=${this.adapter.config.relayMqttToCloud}!`
       );
-      (_a = this.adapter.mqttClient) == null ? void 0 : _a.subscribe(reportTopic, import_mqttSharedService.onSubscribeReportTopic);
+      if (this && ((_l = (_k = this.adapter) == null ? void 0 : _k.localMqttService) == null ? void 0 : _l.mqttClient) && this.adapter.config.relayMqttToCloud) {
+        this.deviceConnectionMode = import_enums.DeviceConnectionMode.LocalMqttWithCloudRelay;
+        this.updateSolarFlowState(
+          "connectionMode",
+          "Local MQTT with Cloud Relay"
+        );
+        (_m = this.adapter) == null ? void 0 : _m.log.debug(
+          `[subscribeReportTopic] Set connectionMode to 'Local MQTT with Cloud Relay' for device ${this.deviceKey}`
+        );
+      } else if (this && ((_o = (_n = this.adapter) == null ? void 0 : _n.localMqttService) == null ? void 0 : _o.mqttClient)) {
+        if (this && this.deviceConnectionMode == void 0) {
+          this.deviceConnectionMode = import_enums.DeviceConnectionMode.LocalMqtt;
+          this.updateSolarFlowState("connectionMode", "Local MQTT");
+          (_p = this.adapter) == null ? void 0 : _p.log.debug(
+            `[subscribeReportTopic] Set connectionMode to 'Local MQTT' for device ${this.deviceKey}`
+          );
+        }
+      } else if (this && ((_r = (_q = this.adapter) == null ? void 0 : _q.cloudMqttService) == null ? void 0 : _r.mqttClient)) {
+        this.deviceConnectionMode = import_enums.DeviceConnectionMode.CloudMqtt;
+        this.updateSolarFlowState("connectionMode", "Cloud MQTT");
+        (_s = this.adapter) == null ? void 0 : _s.log.debug(
+          `[subscribeReportTopic] Set connectionMode to 'Cloud MQTT' for device ${this.deviceKey}`
+        );
+      }
     }
   }
   subscribeIotTopic() {
-    var _a, _b, _c;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j;
     const iotTopic = `iot/${this.productKey}/${this.deviceKey}/#`;
-    (_a = this.adapter) == null ? void 0 : _a.log.debug(
-      `[subscribeIotTopic] Subscribing to MQTT Topic: ${iotTopic}`
-    );
-    (_c = (_b = this.adapter) == null ? void 0 : _b.mqttClient) == null ? void 0 : _c.subscribe(iotTopic, (error) => {
-      (0, import_mqttSharedService.onSubscribeIotTopic)(error, this.productKey, this.deviceKey);
-    });
+    if (this.adapter) {
+      if ((_b = (_a = this.adapter) == null ? void 0 : _a.cloudMqttService) == null ? void 0 : _b.mqttClient) {
+        (_c = this.adapter) == null ? void 0 : _c.log.debug(
+          `[subscribeIotTopic] Subscribing to MQTT Topic: '${iotTopic}' (Cloud)`
+        );
+        (_e = (_d = this.adapter) == null ? void 0 : _d.cloudMqttService) == null ? void 0 : _e.mqttClient.subscribe(
+          iotTopic,
+          (error) => {
+            (0, import_mqttSharedService.onSubscribeIotTopic)(error, this.productKey, this.deviceKey);
+          }
+        );
+      }
+      if ((_g = (_f = this.adapter) == null ? void 0 : _f.localMqttService) == null ? void 0 : _g.mqttClient) {
+        (_h = this.adapter) == null ? void 0 : _h.log.debug(
+          `[subscribeIotTopic] Subscribing to MQTT Topic: '${iotTopic}' (Local)`
+        );
+        (_j = (_i = this.adapter) == null ? void 0 : _i.localMqttService) == null ? void 0 : _j.mqttClient.subscribe(
+          iotTopic,
+          (error) => {
+            (0, import_mqttSharedService.onSubscribeIotTopic)(error, this.productKey, this.deviceKey);
+          }
+        );
+      }
+    }
+  }
+  async updateProperty(property, value) {
+    if (this.isZenSdkSupported && this.adapter.config.useZenSDK) {
+      const setPropertyContent = { [property]: value };
+      this.adapter.log.debug(
+        `[updateProperty] Updating property ${property} with value ${value} for device ${this.deviceKey} using zenSDK!`
+      );
+      return await this.writeZenSdkProperties(
+        JSON.stringify(setPropertyContent)
+      );
+    } else {
+      const setPropertyContent = { properties: { [property]: value } };
+      this.adapter.log.debug(
+        `[updateProperty] Updating property ${property} with value ${value} for device ${this.deviceKey} using MQTT!`
+      );
+      return this.writeMqttProperties(JSON.stringify(setPropertyContent));
+    }
   }
   setDeviceAutomationInOutLimit(limit) {
     var _a;
     (_a = this.adapter) == null ? void 0 : _a.log.error(
-      `[setAcMode] Method setDeviceAutomationInOutLimit (set to ${limit}) not defined in base class!`
+      `[setDeviceAutomationInOutLimit] Method setDeviceAutomationInOutLimit (set to ${limit}) not defined in base class!`
     );
     return;
   }
@@ -711,60 +949,34 @@ class ZenIobDevice {
   setDcSwitch(dcSwitch) {
     var _a;
     (_a = this.adapter) == null ? void 0 : _a.log.error(
-      `[setAcMode] Method setDcSwitch (set to ${dcSwitch}) not defined in base class!`
+      `[setDcSwitch] Method setDcSwitch (set to ${dcSwitch}) not defined in base class!`
     );
     return;
   }
   setAcSwitch(acSwitch) {
     var _a;
     (_a = this.adapter) == null ? void 0 : _a.log.error(
-      `[setAcMode] Method setAcSwitch (set to ${acSwitch}) not defined in base class!`
+      `[setAcSwitch] Method setAcSwitch (set to ${acSwitch}) not defined in base class!`
     );
     return;
   }
   setHubState(hubState) {
-    var _a;
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
+    if (this.productKey && this.deviceKey) {
       if (hubState == 0 || hubState == 1) {
-        const topic = `iot/${this.productKey}/${this.deviceKey}/properties/write`;
-        const socSetLimit = { properties: { hubState } };
-        this.adapter.log.debug(
-          `[setHubState] Setting Hub State for deviceKey ${this.deviceKey} to ${hubState}!`
-        );
-        (_a = this.adapter.mqttClient) == null ? void 0 : _a.publish(topic, JSON.stringify(socSetLimit));
+        this.updateProperty("hubState", hubState);
       } else {
         this.adapter.log.debug(`[setHubState] Hub state is not 0 or 1!`);
       }
     }
   }
   setPassMode(passMode) {
-    var _a;
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
-      const topic = `iot/${this.productKey}/${this.deviceKey}/properties/write`;
-      const setPassModeContent = { properties: { passMode } };
-      this.adapter.log.debug(
-        `[setPassMode] Set passMode for deviceKey ${this.deviceKey} to ${passMode}!`
-      );
-      (_a = this.adapter.mqttClient) == null ? void 0 : _a.publish(
-        topic,
-        JSON.stringify(setPassModeContent)
-      );
+    if (this.productKey && this.deviceKey) {
+      this.updateProperty("passMode", passMode);
     }
   }
   setAutoRecover(autoRecover) {
-    var _a;
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
-      const topic = `iot/${this.productKey}/${this.deviceKey}/properties/write`;
-      const setAutoRecoverContent = {
-        properties: { autoRecover: autoRecover ? 1 : 0 }
-      };
-      this.adapter.log.debug(
-        `[setAutoRecover] Set autoRecover for deviceKey ${this.deviceKey} to ${autoRecover}!`
-      );
-      (_a = this.adapter.mqttClient) == null ? void 0 : _a.publish(
-        topic,
-        JSON.stringify(setAutoRecoverContent)
-      );
+    if (this.productKey && this.deviceKey) {
+      this.updateProperty("autoRecover", autoRecover ? 1 : 0);
     }
   }
   /**
@@ -773,15 +985,9 @@ class ZenIobDevice {
    * @returns void
    */
   setDischargeLimit(minSoc) {
-    var _a;
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
+    if (this.productKey && this.deviceKey) {
       if (minSoc >= 0 && minSoc <= 50) {
-        const topic = `iot/${this.productKey}/${this.deviceKey}/properties/write`;
-        const socSetLimit = { properties: { minSoc: minSoc * 10 } };
-        this.adapter.log.debug(
-          `[setDischargeLimit] Setting Discharge Limit for device key ${this.deviceKey} to ${minSoc}!`
-        );
-        (_a = this.adapter.mqttClient) == null ? void 0 : _a.publish(topic, JSON.stringify(socSetLimit));
+        this.updateProperty("minSoc", minSoc * 10);
       } else {
         this.adapter.log.debug(
           `[setDischargeLimit] Discharge limit is not in range 0<>50!`
@@ -795,17 +1001,9 @@ class ZenIobDevice {
    * @returns void
    */
   setChargeLimit(socSet) {
-    var _a;
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
+    if (this.productKey && this.deviceKey) {
       if (socSet >= 40 && socSet <= 100) {
-        const socSetLimit = { properties: { socSet: socSet * 10 } };
-        this.adapter.log.debug(
-          `[setChargeLimit] Setting ChargeLimit for device key ${this.deviceKey} to ${socSet}!`
-        );
-        (_a = this.adapter.mqttClient) == null ? void 0 : _a.publish(
-          this.iotTopic,
-          JSON.stringify(socSetLimit)
-        );
+        this.updateProperty("socSet", socSet * 10);
       } else {
         this.adapter.log.debug(
           `[setChargeLimit] Charge limit is not in range 40<>100!`
@@ -819,8 +1017,16 @@ class ZenIobDevice {
    * @returns void
    */
   setAutoModel(autoModel) {
-    var _a;
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
+    if (this.isZenSdkSupported && this.adapter.config.useZenSDK) {
+      if (autoModel != 0) {
+        this.adapter.log.warn(
+          `[setAutoModel] Can't set autoModel to a value other than 0 when using zenSDK!`
+        );
+      }
+      this.updateProperty("autoModel", 0);
+      return;
+    }
+    if (this.productKey && this.deviceKey) {
       let setAutoModelContent = { properties: { autoModel } };
       switch (autoModel) {
         case 8: {
@@ -856,15 +1062,12 @@ class ZenIobDevice {
       this.adapter.log.debug(
         `[setAutoModel] Setting autoModel for device key ${this.deviceKey} to ${autoModel}!`
       );
-      (_a = this.adapter.mqttClient) == null ? void 0 : _a.publish(
-        this.iotTopic,
-        JSON.stringify(setAutoModelContent)
-      );
+      this.writeMqttProperties(JSON.stringify(setAutoModelContent));
     }
   }
   async setOutputLimit(limit) {
-    var _a, _b, _c;
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
+    var _a, _b;
+    if (this.productKey && this.deviceKey) {
       const autoModel = (_a = await this.adapter.getStateAsync(
         this.productKey + "." + this.deviceKey + ".autoModel"
       )) == null ? void 0 : _a.val;
@@ -912,21 +1115,15 @@ class ZenIobDevice {
       )) == null ? void 0 : _b.val;
       if (currentLimit != null && currentLimit != void 0) {
         if (currentLimit != limit) {
-          const outputlimit = { properties: { outputLimit: limit } };
-          this.messageId += 1;
           const timestamp = /* @__PURE__ */ new Date();
           timestamp.setMilliseconds(0);
-          (_c = this.adapter.mqttClient) == null ? void 0 : _c.publish(
-            this.iotTopic,
-            JSON.stringify(outputlimit)
-          );
+          this.updateProperty("outputLimit", limit);
         }
       }
     }
   }
   setInputLimit(limit) {
-    var _a;
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
+    if (this.productKey && this.deviceKey) {
       if (limit < 0) {
         this.adapter.log.debug(
           `[setInputLimit] limit ${limit} is negative, converting to positive!`
@@ -948,52 +1145,43 @@ class ZenIobDevice {
       if (this.productKey.includes("8bm93h")) {
         limit = Math.ceil(limit / 100) * 100;
       }
-      const inputLimitContent = { properties: { inputLimit: limit } };
-      (_a = this.adapter.mqttClient) == null ? void 0 : _a.publish(
-        this.iotTopic,
-        JSON.stringify(inputLimitContent)
-      );
+      this.updateProperty("inputLimit", limit);
     }
   }
   setSmartMode(smartModeOn) {
-    var _a;
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
-      const setSmartModeContent = {
-        properties: { smartMode: smartModeOn ? 1 : 0 }
-      };
-      this.adapter.log.debug(
-        `[setBuzzer] Setting Smart Mode for device key ${this.deviceKey} to ${smartModeOn}!`
-      );
-      (_a = this.adapter.mqttClient) == null ? void 0 : _a.publish(
-        this.iotTopic,
-        JSON.stringify(setSmartModeContent)
-      );
+    if (this.productKey && this.deviceKey) {
+      this.updateProperty("smartMode", smartModeOn ? 1 : 0);
     }
   }
   setBuzzerSwitch(buzzerOn) {
-    var _a;
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
-      const setBuzzerSwitchContent = {
-        properties: { buzzerSwitch: buzzerOn ? 1 : 0 }
-      };
-      this.adapter.log.debug(
-        `[setBuzzer] Setting Buzzer for device key ${this.deviceKey} to ${buzzerOn}!`
-      );
-      (_a = this.adapter.mqttClient) == null ? void 0 : _a.publish(
-        this.iotTopic,
-        JSON.stringify(setBuzzerSwitchContent)
-      );
+    if (this.productKey && this.deviceKey) {
+      this.updateProperty("buzzerSwitch", buzzerOn ? 1 : 0);
     }
   }
   triggerFullTelemetryUpdate() {
-    var _a;
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
-      const topic = `iot/${this.productKey}/${this.deviceKey}/properties/read`;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j;
+    if (this.isZenSdkSupported && this.adapter.config.useZenSDK) {
+      this.getZenSdkProperties();
+      return;
+    }
+    if (this.productKey && this.deviceKey) {
       const getAllContent = { properties: ["getAll"] };
       this.adapter.log.debug(
         `[triggerFullTelemetryUpdate] Triggering full telemetry update for device key ${this.deviceKey}!`
       );
-      (_a = this.adapter.mqttClient) == null ? void 0 : _a.publish(topic, JSON.stringify(getAllContent));
+      const topic = `iot/${this.productKey}/${this.deviceKey}/properties/read`;
+      this.messageId += 1;
+      if ((_b = (_a = this.adapter) == null ? void 0 : _a.localMqttService) == null ? void 0 : _b.mqttClient) {
+        (_e = (_d = (_c = this.adapter) == null ? void 0 : _c.localMqttService) == null ? void 0 : _d.mqttClient) == null ? void 0 : _e.publish(
+          topic,
+          JSON.stringify(getAllContent)
+        );
+      } else if ((_g = (_f = this.adapter) == null ? void 0 : _f.cloudMqttService) == null ? void 0 : _g.mqttClient) {
+        (_j = (_i = (_h = this.adapter) == null ? void 0 : _h.cloudMqttService) == null ? void 0 : _i.mqttClient) == null ? void 0 : _j.publish(
+          topic,
+          JSON.stringify(getAllContent)
+        );
+      }
     }
   }
   async updateSolarFlowState(state, val) {

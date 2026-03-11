@@ -235,6 +235,13 @@ const sharedStates = [
     nameEn: "Heat state",
     type: "boolean",
     role: "value"
+  },
+  {
+    title: "connectionMode",
+    nameDe: "Verbindungs Modus",
+    nameEn: "Connection mode",
+    type: "string",
+    role: "value"
   }
 ];
 // Annotate the CommonJS export names for ESM import in node:

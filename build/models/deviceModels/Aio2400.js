@@ -32,6 +32,8 @@ class Aio2400 extends import_ZenIobDevice.ZenIobDevice {
       _deviceKey,
       _productName,
       _deviceName,
+      false,
+      // zenSDK not supported
       _zenHaDeviceDetails
     );
     this.maxInputLimit = 0;
@@ -40,8 +42,7 @@ class Aio2400 extends import_ZenIobDevice.ZenIobDevice {
     this.controlStates = import_aioControlStates.aioControlStates;
   }
   async setDeviceAutomationInOutLimit(limit) {
-    var _a;
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
+    if (this.productKey && this.deviceKey) {
       this.adapter.log.debug(
         `[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`
       );
@@ -107,10 +108,7 @@ class Aio2400 extends import_ZenIobDevice.ZenIobDevice {
         deviceKey: this.deviceKey,
         timestamp: timestamp.getTime() / 1e3
       };
-      (_a = this.adapter.mqttClient) == null ? void 0 : _a.publish(
-        this.functionTopic,
-        JSON.stringify(deviceAutomation)
-      );
+      this.invokeMqttFunction(JSON.stringify(deviceAutomation));
     }
   }
 }

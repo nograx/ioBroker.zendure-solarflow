@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/indent */
 
 import mqtt from "mqtt";
-import { ZendureSolarflow } from "../main";
+import { ZendureSolarflow } from "../../main";
 import { MqttService } from "./mqttService";
 
 /**
@@ -26,17 +26,15 @@ export class CloudMqttService extends MqttService {
       protocolVersion: 5,
     };
 
-    const url = `mqtt://${this.adapter.mqttSettings.url}:1883`;
-    return this.connectWithOptions(opts, url);
+    this.adapter.log.debug(
+      `[CloudMqttService] Connecting to cloud MQTT broker at ${this.adapter.mqttSettings.url} with client ID ${opts.clientId}`,
+    );
+
+    const result: [string, string] = this.adapter.mqttSettings.url.includes(":")
+      ? (this.adapter.mqttSettings.url.split(/:(?=[^:]*$)/) as [string, string])
+      : [this.adapter.mqttSettings.url, "1883"];
+
+    const url = `mqtt://${result[0]}:${result[1]}`;
+    return this.connectWithOptions(opts, url, false);
   }
 }
-
-/**
- * backward‑compatible wrapper matching the old exported function.
- */
-export const connectCloudZenMqttClient = (
-  _adapter: ZendureSolarflow,
-): boolean => {
-  const svc = new CloudMqttService(_adapter);
-  return svc.connect();
-};

@@ -26,44 +26,27 @@ export class Ace1500 extends ZenIobDevice {
       _deviceKey,
       _productName,
       _deviceName,
+      false, // zenSDK not supported
       _zenHaDeviceDetails,
     );
   }
 
   public setDcSwitch(dcSwitch: boolean): void {
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
-      const setDcSwitchContent = {
-        properties: { dcSwitch: dcSwitch ? 1 : 0 },
-      };
-      this.adapter.log.debug(
-        `[setDcSwitch] Set DC Switch for device ${this.deviceKey} to ${dcSwitch}!`,
-      );
-      this.adapter.mqttClient?.publish(
-        this.iotTopic,
-        JSON.stringify(setDcSwitchContent),
-      );
+    if (this.productKey && this.deviceKey) {
+      this.updateProperty("dcSwitch", dcSwitch ? 1 : 0);
     }
   }
 
   public setAcSwitch(acSwitch: boolean): void {
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
-      const setAcSwitchContent = {
-        properties: { acSwitch: acSwitch ? 1 : 0 },
-      };
-      this.adapter.log.debug(
-        `[setAcSwitch] Set AC Switch for device ${this.deviceKey} to ${acSwitch}!`,
-      );
-      this.adapter.mqttClient?.publish(
-        this.iotTopic,
-        JSON.stringify(setAcSwitchContent),
-      );
+    if (this.productKey && this.deviceKey) {
+      this.updateProperty("acSwitch", acSwitch ? 1 : 0);
     }
   }
 
   public async setDeviceAutomationInOutLimit(
     limit: number, // can be negative, negative will trigger charging mode
   ): Promise<void> {
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
+    if (this.productKey && this.deviceKey) {
       this.adapter.log.debug(
         `[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`,
       );
@@ -121,10 +104,7 @@ export class Ace1500 extends ZenIobDevice {
         deviceKey: this.deviceKey,
         timestamp: timestamp.getTime() / 1000,
       };
-      this.adapter.mqttClient?.publish(
-        this.functionTopic,
-        JSON.stringify(deviceAutomation),
-      );
+      this.invokeMqttFunction(JSON.stringify(deviceAutomation));
     }
   }
 }

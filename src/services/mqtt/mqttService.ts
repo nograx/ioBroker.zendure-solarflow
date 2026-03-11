@@ -1,18 +1,19 @@
 import mqtt from "mqtt";
-import { ZendureSolarflow } from "../main";
+import { ZendureSolarflow } from "../../main";
 import {
   initAdapter,
   onConnected,
   onDisconnected,
   onError,
-  onMessage,
+  onMessageCloud,
+  onMessageLocal,
   onReconnected,
 } from "./mqttSharedService";
 import {
   startCalculationJob,
   startCheckStatesAndConnectionJob,
   startResetValuesJob,
-} from "./jobSchedule";
+} from "../jobSchedule";
 
 /**
  * Base class encapsulating common MQTT client setup and job scheduling.
@@ -20,7 +21,7 @@ import {
  */
 export abstract class MqttService {
   protected adapter: ZendureSolarflow;
-  protected client?: mqtt.MqttClient;
+  public mqttClient?: mqtt.MqttClient;
 
   constructor(adapter: ZendureSolarflow) {
     this.adapter = adapter;
@@ -34,6 +35,7 @@ export abstract class MqttService {
   protected connectWithOptions(
     opts: mqtt.IClientOptions,
     url: string,
+    isLocal: boolean,
   ): boolean {
     if (!mqtt) {
       this.adapter.log.error("[MqttService] mqtt dependency missing");
@@ -41,17 +43,15 @@ export abstract class MqttService {
     }
 
     this.adapter.log.debug(`[MqttService] Connecting to MQTT broker ${url}...`);
-    this.client = mqtt.connect(url, opts);
+    this.mqttClient = mqtt.connect(url, opts);
 
-    if (this.client) {
+    if (this.mqttClient) {
       // keep the old public field in sync for existing code
-      this.adapter.mqttClient = this.client;
-
-      this.client.on("connect", onConnected);
-      this.client.on("reconnect", onReconnected);
-      this.client.on("disconnect", onDisconnected);
-      this.client.on("error", onError);
-      this.client.on("message", onMessage);
+      this.mqttClient.on("connect", onConnected);
+      this.mqttClient.on("reconnect", onReconnected);
+      this.mqttClient.on("disconnect", onDisconnected);
+      this.mqttClient.on("error", onError);
+      this.mqttClient.on("message", isLocal ? onMessageLocal : onMessageCloud);
 
       this.startJobs();
       return true;
@@ -80,6 +80,6 @@ export abstract class MqttService {
    * Tear down the client if it exists.
    */
   disconnect(): void {
-    this.client?.end(true);
+    this.mqttClient?.end(true);
   }
 }

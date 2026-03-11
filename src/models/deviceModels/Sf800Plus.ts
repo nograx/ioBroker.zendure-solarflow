@@ -1,13 +1,13 @@
 import { solarflow800PlusControlStates } from "../../constants/controlStates/solarflow800PlusControlStates";
 import { solarflow800PlusStates } from "../../constants/sensorStates/solarflow800PlusStates";
 import { ZendureSolarflow } from "../../main";
-import { IHemsEpPayload } from "../IDeviceAutomationPayload";
 import { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
-import { ZenIobDevice } from "./ZenIobDevice";
+import { ZenSdkIobDevice } from "./ZenSdkIobDevice";
 
-export class Sf800Plus extends ZenIobDevice {
+export class Sf800Plus extends ZenSdkIobDevice {
   maxInputLimit = 1000;
   maxOutputLimit = 800;
+  isZenSdkSupported = true;
 
   states = solarflow800PlusStates;
   controlStates = solarflow800PlusControlStates;
@@ -31,13 +31,9 @@ export class Sf800Plus extends ZenIobDevice {
   }
 
   public async setAcMode(acMode: number): Promise<void> {
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
+    if (this.productKey && this.deviceKey) {
       if (acMode >= 0 && acMode <= 3) {
-        const topic = `iot/${this.productKey}/${this.deviceKey}/properties/write`;
-
-        const setAcMode = { properties: { acMode: acMode } };
-        this.adapter.log.debug(`[setAcMode] Set AC mode to ${acMode}!`);
-        this.adapter.mqttClient?.publish(topic, JSON.stringify(setAcMode));
+        this.updateProperty("acMode", acMode);
 
         // Check if device is HUB, then check if smartMode is false - if so send a warning to log!
         const smartMode = await this.adapter.getStateAsync(
@@ -58,103 +54,8 @@ export class Sf800Plus extends ZenIobDevice {
   }
 
   public setAcSwitch(acSwitch: boolean): void {
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
-      const setAcSwitchContent = {
-        properties: { acSwitch: acSwitch ? 1 : 0 },
-      };
-      this.adapter.log.debug(
-        `[setAcSwitch] Set AC Switch for device ${this.deviceKey} to ${acSwitch}!`,
-      );
-      this.adapter.mqttClient?.publish(
-        this.iotTopic,
-        JSON.stringify(setAcSwitchContent),
-      );
-    }
-  }
-
-  public async setDeviceAutomationInOutLimit(
-    limit: number, // can be negative, negative will trigger charging mode
-  ): Promise<void> {
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
-      this.adapter.log.debug(
-        `[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`,
-      );
-
-      if (limit) {
-        limit = Math.round(limit);
-      } else {
-        limit = 0;
-      }
-
-      if (this.adapter.config.useLowVoltageBlock) {
-        const lowVoltageBlockState = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.lowVoltageBlock",
-        );
-        if (
-          lowVoltageBlockState &&
-          lowVoltageBlockState.val &&
-          lowVoltageBlockState.val == true &&
-          limit > 0
-        ) {
-          limit = 0;
-        }
-
-        const fullChargeNeeded = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.fullChargeNeeded",
-        );
-
-        if (
-          fullChargeNeeded &&
-          fullChargeNeeded.val &&
-          fullChargeNeeded.val == true &&
-          limit > 0
-        ) {
-          limit = 0;
-        }
-      }
-
-      // Convert maxInputLimit to negative value and compare to limit
-      if (limit < 0 && limit < -this.maxInputLimit) {
-        this.adapter.log.debug(
-          `[setDeviceAutomationInOutLimit] limit ${limit} is below the maximum input limit of ${this.maxInputLimit}, setting to ${-this.maxInputLimit}!`,
-        );
-        limit = -this.maxInputLimit;
-      } else if (limit > this.maxOutputLimit) {
-        this.adapter.log.debug(
-          `[setDeviceAutomationInOutLimit] limit ${limit} is higher the maximum output limit of ${this.maxOutputLimit}, setting to ${this.maxOutputLimit}!`,
-        );
-        limit = this.maxOutputLimit;
-      }
-
-      this.messageId += 1;
-
-      const timestamp = new Date();
-      timestamp.setMilliseconds(0);
-
-      // Device Automation for Solarflow 2400 AC and Solarflow 800
-      this.adapter.log.debug(
-        `[setDeviceAutomationInOutLimit] Using HEMS Variant of device automation, as deviceKey '${this.deviceKey}' detected!`,
-      );
-
-      // HEMS Variante
-      const _arguments: IHemsEpPayload = {
-        outputPower: limit > 0 ? limit : 0,
-        chargeState: limit > 0 ? 0 : 1,
-        chargePower: limit > 0 ? 0 : -limit,
-        mode: 9,
-      };
-
-      const hemsEP = {
-        arguments: _arguments,
-        function: "hemsEP",
-        messageId: this.messageId,
-        deviceKey: this.deviceKey,
-        timestamp: timestamp.getTime() / 1000,
-      };
-      this.adapter.mqttClient?.publish(
-        this.functionTopic,
-        JSON.stringify(hemsEP),
-      );
+    if (this.productKey && this.deviceKey) {
+      this.updateProperty("acSwitch", acSwitch ? 1 : 0);
     }
   }
 }

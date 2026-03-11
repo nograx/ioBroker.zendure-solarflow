@@ -7,27 +7,34 @@ import {
   knownPackDataProperties,
   onSubscribeIotTopic,
   onSubscribeReportTopic,
-} from "../../services/mqttSharedService";
+} from "../../services/mqtt/mqttSharedService";
 import { IDevicePack } from "../IDevicePack";
 import { IPackData } from "../IPackData";
 import { ISolarflowState } from "../ISolarflowState";
 import { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
+import { DeviceConnectionMode } from "../../helpers/enums";
+import axios from "axios";
+import { processDeviceProperties } from "../../helpers/processDeviceProperties";
 
 export class ZenIobDevice {
   public zenIobDeviceDetails?: IZenIobDeviceDetails;
   public adapter: ZendureSolarflow;
+  public deviceConnectionMode: DeviceConnectionMode | undefined = undefined;
 
   public productKey: string;
   public deviceKey: string;
+  public snNumber: string | undefined = undefined;
   public productName: string;
   public deviceName: string;
+  public ipAddress: string | undefined = undefined;
   public messageId: number = 0;
   public batteries: IDevicePack[] = [];
 
-  public iotTopic: string = "";
-  public functionTopic = "";
+  public iotTopic: string | undefined = undefined;
+  public functionTopic: string | undefined = undefined;
   public password: string = "";
 
+  public isZenSdkSupported!: boolean; // No initializer - let derived classes set this
   public maxInputLimit: number = 0;
   public maxOutputLimit: number = 0;
 
@@ -40,9 +47,11 @@ export class ZenIobDevice {
     _deviceKey: string,
     _productName: string,
     _deviceName: string,
+    isZenSdkSupported: boolean,
     _zenIobDeviceDetails?: IZenIobDeviceDetails,
   ) {
     this.zenIobDeviceDetails = _zenIobDeviceDetails;
+
     this.adapter = _adapter;
     this.productKey = _productKey;
     this.deviceKey = _deviceKey;
@@ -50,8 +59,18 @@ export class ZenIobDevice {
     this.deviceName = _deviceName;
     this.productName = _productName;
 
+    this.isZenSdkSupported = isZenSdkSupported;
+
     this.iotTopic = `iot/${_productKey}/${_deviceKey}/properties/write`;
     this.functionTopic = `iot/${_productKey}/${_deviceKey}/function/invoke`;
+
+    // Create or update states
+    this.createSolarFlowStates();
+
+    // Update states from device details
+    if (_zenIobDeviceDetails) {
+      this.updateSolarFlowStatesFromDeviceDetails(_zenIobDeviceDetails);
+    }
 
     // Calculate device password
     this.password = createHash("md5")
@@ -60,9 +79,36 @@ export class ZenIobDevice {
       .toUpperCase()
       .substring(8, 24);
 
-    // Create or update states
-    this.createSolarFlowStates();
+    this.adapter.log.debug(
+      `[ZenIobDevice] useZenSDK for device ${this.deviceKey}: Supported=${this.isZenSdkSupported} Config=${this.adapter.config.useZenSDK}`,
+    );
 
+    if (this.adapter.config.useZenSDK && this.isZenSdkSupported) {
+      // Try to get data from device via zenSDK
+      this.getZenSdkProperties()
+        .then((success) => {
+          if (success) {
+            // Device is reachable, so set connection mode to zenSDK
+            this.deviceConnectionMode = DeviceConnectionMode.zenSDK;
+
+            this.updateSolarFlowState("connectionMode", "zenSDK");
+            this.updateSolarFlowState("wifiState", "Connected");
+          } else {
+            this.updateSolarFlowState("wifiState", "Disconnected");
+          }
+        })
+        .catch(() => {
+          this.updateSolarFlowState("wifiState", "Disconnected");
+          // After zenSDK failure, setup MQTT fallback
+          this.setupMqttConnection();
+        });
+    } else {
+      // zenSDK not enabled/supported, use MQTT directly
+      this.setupMqttConnection();
+    }
+  }
+
+  private setupMqttConnection(): void {
     // Subscribe to report topic (get telemetry)
     this.subscribeReportTopic();
 
@@ -73,10 +119,6 @@ export class ZenIobDevice {
     this.adapter.setTimeout(() => {
       this.triggerFullTelemetryUpdate();
     }, 5000);
-
-    if (_zenIobDeviceDetails) {
-      this.updateSolarFlowStatesFromDeviceDetails(_zenIobDeviceDetails);
-    }
   }
 
   private async updateSolarFlowStatesFromDeviceDetails(
@@ -96,10 +138,12 @@ export class ZenIobDevice {
     }
 
     if (zenIobDeviceDetails.ip) {
+      this.ipAddress = zenIobDeviceDetails.ip;
       this.updateSolarFlowState("ip", zenIobDeviceDetails.ip);
     }
 
     if (zenIobDeviceDetails.snNumber) {
+      this.snNumber = zenIobDeviceDetails.snNumber;
       this.updateSolarFlowState("snNumber", zenIobDeviceDetails.snNumber);
     }
 
@@ -270,31 +314,281 @@ export class ZenIobDevice {
     }
   }
 
+  public getZenSdkProperties(): Promise<boolean> {
+    this.adapter.log.debug(
+      `[getZenSdkProperties] Getting properties with zenSDK for device ${this.deviceKey}!`,
+    );
+
+    if (this.ipAddress) {
+      const headers = {
+        "Content-Type": "application/json",
+      };
+
+      const config = {
+        headers: headers,
+        timeout: 4000,
+      };
+
+      return axios
+        .get(`http://${this.ipAddress}/properties/report`, config)
+        .then(async (response) => {
+          const data = await response.data;
+
+          this.adapter.log.debug(
+            `[getZenSdkProperties] Successfully got properties for device ${this.deviceKey} with zenSDK!}`,
+          );
+
+          // Process properties if they exist in the message
+          if (data.properties) {
+            processDeviceProperties(this, data.properties, true);
+          }
+
+          // Process packData if it exists in the message
+          if (data.packData) {
+            this.addOrUpdatePackData(data.packData, true);
+          }
+
+          return true;
+        })
+        .catch((error) => {
+          this.adapter.log.error(
+            `[getZenSdkProperties] Error getting properties for device ${this.deviceKey} with zenSDK: ${error}`,
+          );
+          return false;
+        });
+    } else {
+      this.adapter.log.error(
+        `[getZenSdkProperties] IP address is not defined for device ${this.deviceKey}!`,
+      );
+    }
+
+    return Promise.resolve(false);
+  }
+
+  public writeZenSdkProperties(properties: string): Promise<boolean> {
+    this.adapter.log.debug(
+      `[writeZenSdkProperties] Writing properties with zenSDK for device ${this.deviceKey}: ${properties}`,
+    );
+
+    if (this.ipAddress) {
+      const headers = {
+        "Content-Type": "application/json",
+      };
+
+      const config = {
+        headers: headers,
+        timeout: 4000,
+      };
+
+      return axios
+        .post(
+          `http://${this.ipAddress}/properties/write`,
+          {
+            sn: this.snNumber, // Required
+            properties: JSON.parse(properties),
+          },
+          config,
+        )
+        .then(async (response) => {
+          this.adapter.log.debug(
+            `[writeZenSdkProperties] Successfully wrote properties for device ${this.deviceKey} with zenSDK: ${properties} / status: ${response.status}`,
+          );
+          return true;
+        })
+        .catch((error) => {
+          this.adapter.log.error(
+            `[writeZenSdkProperties] Error writing properties with zenSDK for device ${this.deviceKey}: ${error}`,
+          );
+          return false;
+        });
+    } else {
+      this.adapter.log.error(
+        `[writeZenSdkProperties] IP address is not defined for device ${this.deviceKey}!`,
+      );
+      return Promise.resolve(false);
+    }
+  }
+
+  public writeMqttProperties(properties: string): boolean {
+    if (!this.iotTopic) {
+      this.adapter.log.error(
+        `[writeMqttProperties] IoT topic is not defined for device ${this.deviceKey}!`,
+      );
+      return false;
+    }
+    if (this.productKey && this.deviceKey) {
+      this.messageId += 1;
+      // if local MQTT is enabled, prefer local MQTT client for setting properties, otherwise use cloud MQTT client
+      if (
+        this.adapter?.localMqttService?.mqttClient &&
+        (this.deviceConnectionMode == DeviceConnectionMode.LocalMqtt ||
+          this.deviceConnectionMode ==
+            DeviceConnectionMode.LocalMqttWithCloudRelay)
+      ) {
+        this.adapter?.localMqttService?.mqttClient?.publish(
+          this.iotTopic,
+          properties,
+        );
+      } else if (this.adapter?.cloudMqttService?.mqttClient) {
+        this.adapter?.cloudMqttService?.mqttClient?.publish(
+          this.iotTopic,
+          properties,
+        );
+      }
+    }
+    return true;
+  }
+
+  public invokeMqttFunction(properties: string): void {
+    if (!this.functionTopic) {
+      this.adapter.log.error(
+        `[invokeMqttFunction] Function topic is not defined for device ${this.deviceKey}!`,
+      );
+      return;
+    }
+
+    if (this.productKey && this.deviceKey) {
+      // if local MQTT is enabled, prefer local MQTT client for invoking functions, otherwise use cloud MQTT client
+      if (
+        this.adapter?.localMqttService?.mqttClient &&
+        (this.deviceConnectionMode == DeviceConnectionMode.LocalMqtt ||
+          this.deviceConnectionMode ==
+            DeviceConnectionMode.LocalMqttWithCloudRelay)
+      ) {
+        this.adapter?.localMqttService?.mqttClient?.publish(
+          this.functionTopic,
+          properties,
+        );
+      } else if (this.adapter?.cloudMqttService?.mqttClient) {
+        this.adapter?.cloudMqttService?.mqttClient?.publish(
+          this.functionTopic,
+          properties,
+        );
+      }
+    }
+  }
+
   public subscribeReportTopic(): void {
-    const reportTopic = `/${this.productKey}/${this.deviceKey}/#`;
+    const reportTopic = `/${this.productKey}/${this.deviceKey}/#`; // Use wildcard topic to get ALL messages from device
 
     if (this.adapter) {
+      // Subscribe to report topic with both MQTT clients, if available. This is necessary because we don't know which MQTT client the device will report to (cloud or local), so we have to subscribe with both to make sure we receive the reports.
+      if (this.adapter?.cloudMqttService?.mqttClient) {
+        this.adapter.log.debug(
+          `[subscribeReportTopic] Subscribing to MQTT Topic: ${reportTopic} (Cloud)`,
+        );
+        this.adapter?.cloudMqttService?.mqttClient?.subscribe(
+          reportTopic,
+          onSubscribeReportTopic,
+        );
+      }
+
+      if (this.adapter?.localMqttService?.mqttClient) {
+        this.adapter.log.debug(
+          `[subscribeReportTopic] Subscribing to MQTT Topic: ${reportTopic} (Local)`,
+        );
+        this.adapter?.localMqttService?.mqttClient?.subscribe(
+          reportTopic,
+          onSubscribeReportTopic,
+        );
+      }
+
       this.adapter.log.debug(
-        `[subscribeReportTopic] Subscribing to MQTT Topic: ${reportTopic}`,
+        `[subscribeReportTopic] Setting connectionMode for device ${this.deviceKey}, relayMqttToCloud=${this.adapter.config.relayMqttToCloud}!`,
       );
-      this.adapter.mqttClient?.subscribe(reportTopic, onSubscribeReportTopic);
+
+      if (
+        this &&
+        this.adapter?.localMqttService?.mqttClient &&
+        this.adapter.config.relayMqttToCloud
+      ) {
+        this.deviceConnectionMode =
+          DeviceConnectionMode.LocalMqttWithCloudRelay;
+
+        this.updateSolarFlowState(
+          "connectionMode",
+          "Local MQTT with Cloud Relay",
+        );
+
+        this.adapter?.log.debug(
+          `[subscribeReportTopic] Set connectionMode to 'Local MQTT with Cloud Relay' for device ${this.deviceKey}`,
+        );
+      } else if (this && this.adapter?.localMqttService?.mqttClient) {
+        if (this && this.deviceConnectionMode == undefined) {
+          this.deviceConnectionMode = DeviceConnectionMode.LocalMqtt;
+
+          this.updateSolarFlowState("connectionMode", "Local MQTT");
+
+          this.adapter?.log.debug(
+            `[subscribeReportTopic] Set connectionMode to 'Local MQTT' for device ${this.deviceKey}`,
+          );
+        }
+      } else if (this && this.adapter?.cloudMqttService?.mqttClient) {
+        this.deviceConnectionMode = DeviceConnectionMode.CloudMqtt;
+
+        this.updateSolarFlowState("connectionMode", "Cloud MQTT");
+
+        this.adapter?.log.debug(
+          `[subscribeReportTopic] Set connectionMode to 'Cloud MQTT' for device ${this.deviceKey}`,
+        );
+      }
     }
   }
 
   private subscribeIotTopic(): void {
-    const iotTopic = `iot/${this.productKey}/${this.deviceKey}/#`;
+    const iotTopic = `iot/${this.productKey}/${this.deviceKey}/#`; // Use wildcard topic to get all messages from device
 
-    this.adapter?.log.debug(
-      `[subscribeIotTopic] Subscribing to MQTT Topic: ${iotTopic}`,
-    );
-    this.adapter?.mqttClient?.subscribe(iotTopic, (error) => {
-      onSubscribeIotTopic(error, this.productKey, this.deviceKey);
-    });
+    if (this.adapter) {
+      if (this.adapter?.cloudMqttService?.mqttClient) {
+        this.adapter?.log.debug(
+          `[subscribeIotTopic] Subscribing to MQTT Topic: '${iotTopic}' (Cloud)`,
+        );
+        this.adapter?.cloudMqttService?.mqttClient.subscribe(
+          iotTopic,
+          (error) => {
+            onSubscribeIotTopic(error, this.productKey, this.deviceKey);
+          },
+        );
+      }
+
+      if (this.adapter?.localMqttService?.mqttClient) {
+        this.adapter?.log.debug(
+          `[subscribeIotTopic] Subscribing to MQTT Topic: '${iotTopic}' (Local)`,
+        );
+        this.adapter?.localMqttService?.mqttClient.subscribe(
+          iotTopic,
+          (error) => {
+            onSubscribeIotTopic(error, this.productKey, this.deviceKey);
+          },
+        );
+      }
+    }
+  }
+
+  public async updateProperty(
+    property: string,
+    value: number,
+  ): Promise<boolean> {
+    if (this.isZenSdkSupported && this.adapter.config.useZenSDK) {
+      const setPropertyContent = { [property]: value };
+      this.adapter.log.debug(
+        `[updateProperty] Updating property ${property} with value ${value} for device ${this.deviceKey} using zenSDK!`,
+      );
+      return await this.writeZenSdkProperties(
+        JSON.stringify(setPropertyContent),
+      );
+    } else {
+      const setPropertyContent = { properties: { [property]: value } };
+      this.adapter.log.debug(
+        `[updateProperty] Updating property ${property} with value ${value} for device ${this.deviceKey} using MQTT!`,
+      );
+      return this.writeMqttProperties(JSON.stringify(setPropertyContent));
+    }
   }
 
   public setDeviceAutomationInOutLimit(limit: number): void {
     this.adapter?.log.error(
-      `[setAcMode] Method setDeviceAutomationInOutLimit (set to ${limit}) not defined in base class!`,
+      `[setDeviceAutomationInOutLimit] Method setDeviceAutomationInOutLimit (set to ${limit}) not defined in base class!`,
     );
     return;
   }
@@ -308,28 +602,22 @@ export class ZenIobDevice {
 
   public setDcSwitch(dcSwitch: boolean): void {
     this.adapter?.log.error(
-      `[setAcMode] Method setDcSwitch (set to ${dcSwitch}) not defined in base class!`,
+      `[setDcSwitch] Method setDcSwitch (set to ${dcSwitch}) not defined in base class!`,
     );
     return;
   }
 
   public setAcSwitch(acSwitch: boolean): void {
     this.adapter?.log.error(
-      `[setAcMode] Method setAcSwitch (set to ${acSwitch}) not defined in base class!`,
+      `[setAcSwitch] Method setAcSwitch (set to ${acSwitch}) not defined in base class!`,
     );
     return;
   }
 
   public setHubState(hubState: number): void {
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
+    if (this.productKey && this.deviceKey) {
       if (hubState == 0 || hubState == 1) {
-        const topic = `iot/${this.productKey}/${this.deviceKey}/properties/write`;
-
-        const socSetLimit = { properties: { hubState: hubState } };
-        this.adapter.log.debug(
-          `[setHubState] Setting Hub State for deviceKey ${this.deviceKey} to ${hubState}!`,
-        );
-        this.adapter.mqttClient?.publish(topic, JSON.stringify(socSetLimit));
+        this.updateProperty("hubState", hubState);
       } else {
         this.adapter.log.debug(`[setHubState] Hub state is not 0 or 1!`);
       }
@@ -337,34 +625,14 @@ export class ZenIobDevice {
   }
 
   public setPassMode(passMode: number): void {
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
-      const topic = `iot/${this.productKey}/${this.deviceKey}/properties/write`;
-
-      const setPassModeContent = { properties: { passMode: passMode } };
-      this.adapter.log.debug(
-        `[setPassMode] Set passMode for deviceKey ${this.deviceKey} to ${passMode}!`,
-      );
-      this.adapter.mqttClient?.publish(
-        topic,
-        JSON.stringify(setPassModeContent),
-      );
+    if (this.productKey && this.deviceKey) {
+      this.updateProperty("passMode", passMode);
     }
   }
 
   public setAutoRecover(autoRecover: boolean): void {
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
-      const topic = `iot/${this.productKey}/${this.deviceKey}/properties/write`;
-
-      const setAutoRecoverContent = {
-        properties: { autoRecover: autoRecover ? 1 : 0 },
-      };
-      this.adapter.log.debug(
-        `[setAutoRecover] Set autoRecover for deviceKey ${this.deviceKey} to ${autoRecover}!`,
-      );
-      this.adapter.mqttClient?.publish(
-        topic,
-        JSON.stringify(setAutoRecoverContent),
-      );
+    if (this.productKey && this.deviceKey) {
+      this.updateProperty("autoRecover", autoRecover ? 1 : 0);
     }
   }
 
@@ -374,15 +642,9 @@ export class ZenIobDevice {
    * @returns void
    */
   public setDischargeLimit(minSoc: number): void {
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
+    if (this.productKey && this.deviceKey) {
       if (minSoc >= 0 && minSoc <= 50) {
-        const topic = `iot/${this.productKey}/${this.deviceKey}/properties/write`;
-
-        const socSetLimit = { properties: { minSoc: minSoc * 10 } };
-        this.adapter.log.debug(
-          `[setDischargeLimit] Setting Discharge Limit for device key ${this.deviceKey} to ${minSoc}!`,
-        );
-        this.adapter.mqttClient?.publish(topic, JSON.stringify(socSetLimit));
+        this.updateProperty("minSoc", minSoc * 10);
       } else {
         this.adapter.log.debug(
           `[setDischargeLimit] Discharge limit is not in range 0<>50!`,
@@ -397,16 +659,9 @@ export class ZenIobDevice {
    * @returns void
    */
   public setChargeLimit(socSet: number): void {
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
+    if (this.productKey && this.deviceKey) {
       if (socSet >= 40 && socSet <= 100) {
-        const socSetLimit = { properties: { socSet: socSet * 10 } };
-        this.adapter.log.debug(
-          `[setChargeLimit] Setting ChargeLimit for device key ${this.deviceKey} to ${socSet}!`,
-        );
-        this.adapter.mqttClient?.publish(
-          this.iotTopic,
-          JSON.stringify(socSetLimit),
-        );
+        this.updateProperty("socSet", socSet * 10);
       } else {
         this.adapter.log.debug(
           `[setChargeLimit] Charge limit is not in range 40<>100!`,
@@ -421,7 +676,18 @@ export class ZenIobDevice {
    * @returns void
    */
   public setAutoModel(autoModel: number): void {
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
+    if (this.isZenSdkSupported && this.adapter.config.useZenSDK) {
+      if (autoModel != 0) {
+        this.adapter.log.warn(
+          `[setAutoModel] Can't set autoModel to a value other than 0 when using zenSDK!`,
+        );
+      }
+
+      this.updateProperty("autoModel", 0);
+      return;
+    }
+
+    if (this.productKey && this.deviceKey) {
       let setAutoModelContent: any = { properties: { autoModel: autoModel } };
 
       switch (autoModel) {
@@ -460,15 +726,12 @@ export class ZenIobDevice {
       this.adapter.log.debug(
         `[setAutoModel] Setting autoModel for device key ${this.deviceKey} to ${autoModel}!`,
       );
-      this.adapter.mqttClient?.publish(
-        this.iotTopic,
-        JSON.stringify(setAutoModelContent),
-      );
+      this.writeMqttProperties(JSON.stringify(setAutoModelContent));
     }
   }
 
   public async setOutputLimit(limit: number): Promise<void> {
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
+    if (this.productKey && this.deviceKey) {
       // Check if autoModel is set to 0 (Nothing) or 8 (Smart Matching)
       const autoModel = (
         await this.adapter.getStateAsync(
@@ -547,24 +810,17 @@ export class ZenIobDevice {
 
       if (currentLimit != null && currentLimit != undefined) {
         if (currentLimit != limit) {
-          const outputlimit = { properties: { outputLimit: limit } };
-
-          this.messageId += 1;
-
           const timestamp = new Date();
           timestamp.setMilliseconds(0);
 
-          this.adapter.mqttClient?.publish(
-            this.iotTopic,
-            JSON.stringify(outputlimit),
-          );
+          this.updateProperty("outputLimit", limit);
         }
       }
     }
   }
 
   public setInputLimit(limit: number): void {
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
+    if (this.productKey && this.deviceKey) {
       // Limit has always to be positive!
       if (limit < 0) {
         this.adapter.log.debug(
@@ -592,54 +848,48 @@ export class ZenIobDevice {
         limit = Math.ceil(limit / 100) * 100;
       }
 
-      const inputLimitContent = { properties: { inputLimit: limit } };
-      this.adapter.mqttClient?.publish(
-        this.iotTopic,
-        JSON.stringify(inputLimitContent),
-      );
+      this.updateProperty("inputLimit", limit);
     }
   }
 
   public setSmartMode(smartModeOn: boolean): void {
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
-      const setSmartModeContent = {
-        properties: { smartMode: smartModeOn ? 1 : 0 },
-      };
-
-      this.adapter.log.debug(
-        `[setBuzzer] Setting Smart Mode for device key ${this.deviceKey} to ${smartModeOn}!`,
-      );
-      this.adapter.mqttClient?.publish(
-        this.iotTopic,
-        JSON.stringify(setSmartModeContent),
-      );
+    if (this.productKey && this.deviceKey) {
+      this.updateProperty("smartMode", smartModeOn ? 1 : 0);
     }
   }
 
   public setBuzzerSwitch(buzzerOn: boolean): void {
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
-      const setBuzzerSwitchContent = {
-        properties: { buzzerSwitch: buzzerOn ? 1 : 0 },
-      };
-      this.adapter.log.debug(
-        `[setBuzzer] Setting Buzzer for device key ${this.deviceKey} to ${buzzerOn}!`,
-      );
-      this.adapter.mqttClient?.publish(
-        this.iotTopic,
-        JSON.stringify(setBuzzerSwitchContent),
-      );
+    if (this.productKey && this.deviceKey) {
+      this.updateProperty("buzzerSwitch", buzzerOn ? 1 : 0);
     }
   }
 
   public triggerFullTelemetryUpdate(): void {
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
-      const topic = `iot/${this.productKey}/${this.deviceKey}/properties/read`;
+    if (this.isZenSdkSupported && this.adapter.config.useZenSDK) {
+      this.getZenSdkProperties();
+      return;
+    }
 
+    if (this.productKey && this.deviceKey) {
       const getAllContent = { properties: ["getAll"] };
       this.adapter.log.debug(
         `[triggerFullTelemetryUpdate] Triggering full telemetry update for device key ${this.deviceKey}!`,
       );
-      this.adapter.mqttClient?.publish(topic, JSON.stringify(getAllContent));
+      const topic = `iot/${this.productKey}/${this.deviceKey}/properties/read`;
+
+      this.messageId += 1;
+      // if local MQTT is enabled, prefer local MQTT client for setting properties, otherwise use cloud MQTT client
+      if (this.adapter?.localMqttService?.mqttClient) {
+        this.adapter?.localMqttService?.mqttClient?.publish(
+          topic,
+          JSON.stringify(getAllContent),
+        );
+      } else if (this.adapter?.cloudMqttService?.mqttClient) {
+        this.adapter?.cloudMqttService?.mqttClient?.publish(
+          topic,
+          JSON.stringify(getAllContent),
+        );
+      }
     }
   }
 

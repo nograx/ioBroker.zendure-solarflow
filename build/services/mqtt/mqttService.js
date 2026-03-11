@@ -33,7 +33,7 @@ __export(mqttService_exports, {
 module.exports = __toCommonJS(mqttService_exports);
 var import_mqtt = __toESM(require("mqtt"));
 var import_mqttSharedService = require("./mqttSharedService");
-var import_jobSchedule = require("./jobSchedule");
+var import_jobSchedule = require("../jobSchedule");
 class MqttService {
   constructor(adapter) {
     this.adapter = adapter;
@@ -43,20 +43,19 @@ class MqttService {
    * Helper used by subclasses to wire up a client once options and URL are known.
    * Returns true when the client was successfully created and listeners attached.
    */
-  connectWithOptions(opts, url) {
+  connectWithOptions(opts, url, isLocal) {
     if (!import_mqtt.default) {
       this.adapter.log.error("[MqttService] mqtt dependency missing");
       return false;
     }
     this.adapter.log.debug(`[MqttService] Connecting to MQTT broker ${url}...`);
-    this.client = import_mqtt.default.connect(url, opts);
-    if (this.client) {
-      this.adapter.mqttClient = this.client;
-      this.client.on("connect", import_mqttSharedService.onConnected);
-      this.client.on("reconnect", import_mqttSharedService.onReconnected);
-      this.client.on("disconnect", import_mqttSharedService.onDisconnected);
-      this.client.on("error", import_mqttSharedService.onError);
-      this.client.on("message", import_mqttSharedService.onMessage);
+    this.mqttClient = import_mqtt.default.connect(url, opts);
+    if (this.mqttClient) {
+      this.mqttClient.on("connect", import_mqttSharedService.onConnected);
+      this.mqttClient.on("reconnect", import_mqttSharedService.onReconnected);
+      this.mqttClient.on("disconnect", import_mqttSharedService.onDisconnected);
+      this.mqttClient.on("error", import_mqttSharedService.onError);
+      this.mqttClient.on("message", isLocal ? import_mqttSharedService.onMessageLocal : import_mqttSharedService.onMessageCloud);
       this.startJobs();
       return true;
     }
@@ -77,7 +76,7 @@ class MqttService {
    */
   disconnect() {
     var _a;
-    (_a = this.client) == null ? void 0 : _a.end(true);
+    (_a = this.mqttClient) == null ? void 0 : _a.end(true);
   }
 }
 // Annotate the CommonJS export names for ESM import in node:

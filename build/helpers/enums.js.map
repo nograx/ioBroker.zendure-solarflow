@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/helpers/enums.ts"],
+  "sourcesContent": ["export enum DeviceConnectionMode {\r\n  CloudMqtt = 1,\r\n  LocalMqtt = 2,\r\n  LocalMqttWithCloudRelay = 3,\r\n  zenSDK = 4,\r\n}\r\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAO,IAAK,uBAAL,kBAAKA,0BAAL;AACL,EAAAA,4CAAA,eAAY,KAAZ;AACA,EAAAA,4CAAA,eAAY,KAAZ;AACA,EAAAA,4CAAA,6BAA0B,KAA1B;AACA,EAAAA,4CAAA,YAAS,KAAT;AAJU,SAAAA;AAAA,GAAA;",
+  "names": ["DeviceConnectionMode"]
+}

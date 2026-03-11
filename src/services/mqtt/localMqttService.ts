@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/indent */
 import mqtt from "mqtt";
-import { ZendureSolarflow } from "../main";
+import { ZendureSolarflow } from "../../main";
 import { MqttService } from "./mqttService";
 
 export class LocalMqttService extends MqttService {
@@ -18,8 +18,12 @@ export class LocalMqttService extends MqttService {
       clientId: "ioBroker.zendure-solarflow." + this.adapter.instance,
     };
 
+    this.adapter.log.debug(
+      `[LocalMqttService] Connecting to local MQTT broker at ${this.adapter.config.localMqttUrl} with client ID ${opts.clientId}`,
+    );
+
     const url = `mqtt://${this.adapter.config.localMqttUrl}:1883`;
-    const ok = this.connectWithOptions(opts, url);
+    const ok = this.connectWithOptions(opts, url, true);
 
     if (ok) {
       // we previously set the flag immediately for local mode
@@ -29,8 +33,3 @@ export class LocalMqttService extends MqttService {
     return ok;
   }
 }
-
-export const connectLocalMqttClient = (_adapter: ZendureSolarflow): boolean => {
-  const svc = new LocalMqttService(_adapter);
-  return svc.connect();
-};

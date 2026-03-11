@@ -21,14 +21,14 @@ const productKeys: { value; title }[] = [
   { value: "gDa3tb", title: "Hyper 2000 (gDa3tb)" },
   { value: "B3Dxda", title: "Hyper 2000 (B3Dxda)" },
   { value: "8bM93H", title: "Ace 1500 (8bM93H)" },
-  { value: "65174u", title: "SolarFlow 1600 AC+ (65174u)" },
+  /*{ value: "65174u", title: "SolarFlow 1600 AC+ (65174u)" },
   { value: "BC8B7F", title: "SolarFlow 2400 AC (BC8B7F)" },
   { value: "5fG27j", title: "SolarFlow 2400 AC+ (5fG27j)" },
   { value: "2Qe7C9", title: "SolarFlow 2400 Pro (2Qe7C9)" },
   { value: "B1NHMC", title: "SolarFlow 800 (B1NHMC)" },
   { value: "a4ss5P", title: "SolarFlow 800 (a4ss5P)" },
   { value: "R3mn8U", title: "SolarFlow 800 Pro (R3mn8U)" },
-  { value: "8n77V3", title: "SolarFlow 800 Plus (8n77V3)" },
+  { value: "8n77V3", title: "SolarFlow 800 Plus (8n77V3)" },*/
 ];
 
 interface SettingsProps {
@@ -172,14 +172,38 @@ function Settings(props: SettingsProps) {
           </Box>
         )}
 
-        {props.native["connectionMode"] == "local" && (
+        {props.native["connectionMode"] == "authKey" && (
           <Box sx={{ marginTop: 1.25 }}>
-            <Box>
-              <FormLabel>{I18n.t("localMqttUrl")}:</FormLabel>
-            </Box>
-            <Box>{renderInput("localMqttUrl", "text")}</Box>
+            <Box>{renderCheckbox("useZenSDK", "useZenSDK")}</Box>
           </Box>
         )}
+
+        {props.native["connectionMode"] == "authKey" && (
+          <Box sx={{ marginTop: 1.25 }}>
+            <Box>
+              {renderCheckbox("useAddionalLocalMqtt", "useAddionalLocalMqtt")}
+            </Box>
+          </Box>
+        )}
+
+        {props.native["connectionMode"] == "local" ||
+          (props.native["useAddionalLocalMqtt"] && (
+            <Box sx={{ marginTop: 1.25 }}>
+              <Box>
+                <FormLabel>{I18n.t("localMqttUrl")}:</FormLabel>
+              </Box>
+              <Box>{renderInput("localMqttUrl", "text")}</Box>
+            </Box>
+          ))}
+
+        {props.native["connectionMode"] == "authKey" &&
+          props.native["useAddionalLocalMqtt"] && (
+            <Box sx={{ marginTop: 1.25 }}>
+              <Box>
+                {renderCheckbox("relayMqttToCloud", "relayMqttToCloud")}
+              </Box>
+            </Box>
+          )}
 
         <Box>{renderCheckbox("useRestart", "useRestart")}</Box>
 

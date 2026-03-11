@@ -34,23 +34,26 @@ module.exports = __toCommonJS(main_exports);
 var utils = __toESM(require("@iobroker/adapter-core"));
 var import_zenWebService = require("./services/zenWebService");
 var import_jobSchedule = require("./services/jobSchedule");
-var import_mqttLocalService = require("./services/mqttLocalService");
-var import_mqttCloudZenService = require("./services/mqttCloudZenService");
+var import_localMqttService = require("./services/mqtt/localMqttService");
+var import_cloudMqttService = require("./services/mqtt/cloudMqttService");
 var import_helpers = require("./helpers/helpers");
+var import_fileHelper = require("./helpers/fileHelper");
 class ZendureSolarflow extends utils.Adapter {
   constructor(options = {}) {
     super({
       ...options,
       name: "zendure-solarflow"
     });
-    this.zenHaDeviceList = [];
+    this.zenIobDeviceList = [];
     // All found devices for this instance will be in this array
     this.mqttSettings = void 0;
     this.lastLogin = void 0;
-    this.mqttClient = void 0;
+    this.localMqttService = void 0;
+    this.cloudMqttService = void 0;
     this.resetValuesJob = void 0;
     this.checkStatesJob = void 0;
     this.calculationJob = void 0;
+    this.zenSdkDataRefreshJob = void 0;
     this.refreshAccessTokenInterval = void 0;
     this.retryTimeout = void 0;
     this.on("ready", this.onReady.bind(this));
@@ -109,39 +112,76 @@ class ZendureSolarflow extends utils.Adapter {
           );
           break;
         }
+        const fileHelper = new import_fileHelper.FileHelper(this);
+        let deviceList;
         const data = await (0, import_zenWebService.zenLogin)(this);
         if (typeof data === "string" || data == void 0) {
           this.setState("info.connection", false, true);
+          fileHelper.readDeviceListFromFile().then((data2) => {
+            if (data2) {
+              deviceList = data2;
+              this.log.debug(
+                "[onReady] No connection to Zendure Cloud possible, but device list found in file. Using device list from file."
+              );
+            } else {
+              this.log.error(
+                "[onReady] No connection to Zendure Cloud possible and no device list found in file. Cannot continue."
+              );
+              return;
+            }
+          }).catch((err) => {
+            this.log.error(
+              `[onReady] No connection to Zendure Cloud possible and error reading device list from file: ${err.message}. Cannot continue.`
+            );
+            return;
+          });
         } else {
           this.mqttSettings = data.mqtt;
-          if (!(0, import_mqttCloudZenService.connectCloudZenMqttClient)(this)) {
-            return;
+          this.cloudMqttService = new import_cloudMqttService.CloudMqttService(this);
+          this.cloudMqttService.connect();
+          if (!this.cloudMqttService.connect()) {
+            this.log.error("[onReady] Could not connect to MQTT cloud server!");
+          } else {
+            deviceList = data.deviceList;
+            fileHelper.writeDeviceListToFile(deviceList);
           }
-          this.log.debug(
-            `[onReady] Creating ${data.deviceList.length} devices...`
-          );
-          await data.deviceList.forEach(
-            async (device) => {
-              const deviceModel = (0, import_helpers.createDeviceModel)(
-                this,
-                device.productKey,
-                device.deviceKey,
-                device
+          if (this.config.useAddionalLocalMqtt) {
+            this.localMqttService = new import_localMqttService.LocalMqttService(this);
+            if (!this.localMqttService.connect()) {
+              this.log.error(
+                "[onReady] Could not connect to MQTT local server!"
               );
-              if (deviceModel) {
-                this.zenHaDeviceList.push(deviceModel);
-              } else {
-                this.log.error(
-                  `[onReady] Error creating device with productKey '${device.productKey}' / deviceKey '${device.deviceKey} / productModel ${device.productModel}'`
-                );
-              }
             }
-          );
+          }
+        }
+        if (deviceList) {
+          this.log.debug(`[onReady] Creating ${deviceList.length} devices...`);
+          await deviceList.forEach(async (device) => {
+            const deviceModel = (0, import_helpers.createDeviceModel)(
+              this,
+              device.productKey,
+              device.deviceKey,
+              device
+            );
+            if (deviceModel) {
+              this.zenIobDeviceList.push(deviceModel);
+            } else {
+              this.log.error(
+                `[onReady] Error creating device with productKey '${device.productKey}' / deviceKey '${device.deviceKey}' / productModel '${device.productModel}'`
+              );
+            }
+          });
+          if (this.zenIobDeviceList.find((x) => x.isZenSdkSupported) != void 0 && this.config.useZenSDK) {
+            (0, import_jobSchedule.startZenSdkDataRefreshJob)(this);
+          }
         }
         break;
       case "local": {
         this.log.debug("[onReady] Using local MQTT server");
-        (0, import_mqttLocalService.connectLocalMqttClient)(this);
+        this.localMqttService = new import_localMqttService.LocalMqttService(this);
+        if (!this.localMqttService.connect()) {
+          this.log.error("[onReady] Could not connect to MQTT local server!");
+        }
         if (this.config.localDevice1ProductKey && this.config.localDevice1DeviceKey) {
           const deviceModel = (0, import_helpers.createDeviceModel)(
             this,
@@ -149,7 +189,7 @@ class ZendureSolarflow extends utils.Adapter {
             this.config.localDevice1DeviceKey
           );
           if (deviceModel) {
-            this.zenHaDeviceList.push(deviceModel);
+            this.zenIobDeviceList.push(deviceModel);
           }
         }
         if (this.config.localDevice2ProductKey && this.config.localDevice2DeviceKey) {
@@ -159,7 +199,7 @@ class ZendureSolarflow extends utils.Adapter {
             this.config.localDevice2DeviceKey
           );
           if (deviceModel) {
-            this.zenHaDeviceList.push(deviceModel);
+            this.zenIobDeviceList.push(deviceModel);
           }
         }
         if (this.config.localDevice3ProductKey && this.config.localDevice3DeviceKey) {
@@ -169,7 +209,7 @@ class ZendureSolarflow extends utils.Adapter {
             this.config.localDevice3DeviceKey
           );
           if (deviceModel) {
-            this.zenHaDeviceList.push(deviceModel);
+            this.zenIobDeviceList.push(deviceModel);
           }
         }
         if (this.config.localDevice4ProductKey && this.config.localDevice4DeviceKey) {
@@ -179,7 +219,7 @@ class ZendureSolarflow extends utils.Adapter {
             this.config.localDevice4DeviceKey
           );
           if (deviceModel) {
-            this.zenHaDeviceList.push(deviceModel);
+            this.zenIobDeviceList.push(deviceModel);
           }
         }
         if (this.config.useRestart) {
@@ -197,17 +237,28 @@ class ZendureSolarflow extends utils.Adapter {
    * Is called when adapter shuts down - callback has to be called under any circumstances!
    */
   async onUnload(callback) {
-    var _a, _b;
+    var _a, _b, _c, _d, _e;
     try {
       if (this.refreshAccessTokenInterval) {
         this.clearInterval(this.refreshAccessTokenInterval);
       }
       try {
-        await ((_a = this.mqttClient) == null ? void 0 : _a.endAsync());
-        this.log.info("[onUnload] MQTT client stopped!");
-        this.mqttClient = void 0;
+        await ((_b = (_a = this.cloudMqttService) == null ? void 0 : _a.mqttClient) == null ? void 0 : _b.endAsync());
+        this.log.info("[onUnload] MQTT cloud client stopped!");
+        this.cloudMqttService = void 0;
       } catch (ex) {
-        this.log.error("[onUnload] Error stopping MQTT client: !" + ex.message);
+        this.log.error(
+          "[onUnload] Error stopping MQTT cloud client: !" + ex.message
+        );
+      }
+      try {
+        await ((_d = (_c = this.localMqttService) == null ? void 0 : _c.mqttClient) == null ? void 0 : _d.endAsync());
+        this.log.info("[onUnload] MQTT local client stopped!");
+        this.localMqttService = void 0;
+      } catch (ex) {
+        this.log.error(
+          "[onUnload] Error stopping MQTT local client: !" + ex.message
+        );
       }
       this.setState("info.connection", false, true);
       if (this.resetValuesJob) {
@@ -215,12 +266,16 @@ class ZendureSolarflow extends utils.Adapter {
         this.resetValuesJob = void 0;
       }
       if (this.checkStatesJob) {
-        (_b = this.checkStatesJob) == null ? void 0 : _b.cancel();
+        (_e = this.checkStatesJob) == null ? void 0 : _e.cancel();
         this.checkStatesJob = void 0;
       }
       if (this.calculationJob) {
         this.calculationJob.cancel();
         this.calculationJob = void 0;
+      }
+      if (this.zenSdkDataRefreshJob) {
+        this.zenSdkDataRefreshJob.cancel();
+        this.zenSdkDataRefreshJob = void 0;
       }
       if (this.retryTimeout) {
         this.clearTimeout(this.retryTimeout);
@@ -240,7 +295,7 @@ class ZendureSolarflow extends utils.Adapter {
       const deviceKey = splitted[3];
       const stateName1 = splitted[4];
       const stateName2 = splitted[5];
-      const _device = this.zenHaDeviceList.find(
+      const _device = this.zenIobDeviceList.find(
         (x) => x.productKey == productKey && x.deviceKey == deviceKey
       );
       if (!_device) {

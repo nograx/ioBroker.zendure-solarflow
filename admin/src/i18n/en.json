@@ -1,6 +1,6 @@
 {
   "settings": "Adapter settings for Zendure Solarflow",
-  "settingsDesc": "Please provide the login information for the Zendure Cloud (the same you entered in the official app).",
+  "settingsDesc": "Please provide the login information for the Zendure Cloud (Authorization Cloud Key).",
   "server": "Server",
   "userName": "E-Mail",
   "password": "Password",
@@ -41,5 +41,8 @@
   "useRestart": "Use restart of adapter every 3 hours to refresh access token",
   "connectionMode": "Connection mode",
   "authKey": "Authorization Cloud Key",
-  "usrPwd": "Username & password"
+  "usrPwd": "Username & password",
+  "useZenSDK": "Use zenSDK (if supported by device)",
+  "useAddionalLocalMqtt": "Use additional local MQTT server",
+  "relayMqttToCloud": "Relay MQTT messages to cloud"
 }

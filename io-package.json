@@ -196,7 +196,10 @@
     "useCalculation": false,
     "useLowVoltageBlock": false,
     "dischargeLimit": 10,
-    "useRestart": true
+    "useRestart": true,
+    "useAddionalLocalMqtt": false,
+    "relayMqttToCloud": false,
+    "useZenSDK": true
   },
   "encryptedNative": [
     "password"

@@ -19,12 +19,27 @@ export const startRefreshAccessTokenTimerJob = async (
   );
 };
 
+export const startZenSdkDataRefreshJob = async (
+  adapter: ZendureSolarflow,
+): Promise<void> => {
+  adapter.zenSdkDataRefreshJob = scheduleJob("*/5 * * * * *", () => {
+    adapter.zenIobDeviceList.forEach(async (device) => {
+      if (device.isZenSdkSupported && adapter.config.useZenSDK) {
+        device.getZenSdkProperties();
+
+        // Add small delay between each device to avoid too many requests at the same time
+        await adapter.delay(1 * 1000);
+      }
+    });
+  });
+};
+
 export const startResetValuesJob = async (
   adapter: ZendureSolarflow,
 ): Promise<void> => {
   adapter.resetValuesJob = scheduleJob("5 0 0 * * *", () => {
     // Reset Values on midnight
-    adapter.zenHaDeviceList.forEach((device) => {
+    adapter.zenIobDeviceList.forEach((device) => {
       device.resetValuesForDevice();
     });
   });
@@ -34,7 +49,7 @@ export const startCalculationJob = async (
   adapter: ZendureSolarflow,
 ): Promise<void> => {
   adapter.calculationJob = scheduleJob("*/30 * * * * *", () => {
-    adapter.zenHaDeviceList.forEach((device) => {
+    adapter.zenIobDeviceList.forEach((device) => {
       if (device.productKey != "s3Xk4x") {
         device.calculateEnergy();
       }
@@ -66,7 +81,7 @@ export const startCheckStatesAndConnectionJob = async (
   );
 
   adapter.checkStatesJob = scheduleJob("*/5 * * * *", async () => {
-    adapter.zenHaDeviceList.forEach(async (device) => {
+    adapter.zenIobDeviceList.forEach(async (device) => {
       if (refreshAccessTokenNeeded) {
         return;
       }

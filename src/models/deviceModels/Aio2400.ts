@@ -26,6 +26,7 @@ export class Aio2400 extends ZenIobDevice {
       _deviceKey,
       _productName,
       _deviceName,
+      false, // zenSDK not supported
       _zenHaDeviceDetails,
     );
   }
@@ -33,7 +34,7 @@ export class Aio2400 extends ZenIobDevice {
   public async setDeviceAutomationInOutLimit(
     limit: number, // can be negative, negative will trigger charging mode
   ): Promise<void> {
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
+    if (this.productKey && this.deviceKey) {
       this.adapter.log.debug(
         `[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`,
       );
@@ -128,10 +129,7 @@ export class Aio2400 extends ZenIobDevice {
         deviceKey: this.deviceKey,
         timestamp: timestamp.getTime() / 1000,
       };
-      this.adapter.mqttClient?.publish(
-        this.functionTopic,
-        JSON.stringify(deviceAutomation),
-      );
+      this.invokeMqttFunction(JSON.stringify(deviceAutomation));
     }
   }
 }

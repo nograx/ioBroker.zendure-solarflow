@@ -32,6 +32,8 @@ class Ace1500 extends import_ZenIobDevice.ZenIobDevice {
       _deviceKey,
       _productName,
       _deviceName,
+      false,
+      // zenSDK not supported
       _zenHaDeviceDetails
     );
     this.maxInputLimit = 900;
@@ -40,38 +42,17 @@ class Ace1500 extends import_ZenIobDevice.ZenIobDevice {
     this.controlStates = import_aceControlStates.aceControlStates;
   }
   setDcSwitch(dcSwitch) {
-    var _a;
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
-      const setDcSwitchContent = {
-        properties: { dcSwitch: dcSwitch ? 1 : 0 }
-      };
-      this.adapter.log.debug(
-        `[setDcSwitch] Set DC Switch for device ${this.deviceKey} to ${dcSwitch}!`
-      );
-      (_a = this.adapter.mqttClient) == null ? void 0 : _a.publish(
-        this.iotTopic,
-        JSON.stringify(setDcSwitchContent)
-      );
+    if (this.productKey && this.deviceKey) {
+      this.updateProperty("dcSwitch", dcSwitch ? 1 : 0);
     }
   }
   setAcSwitch(acSwitch) {
-    var _a;
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
-      const setAcSwitchContent = {
-        properties: { acSwitch: acSwitch ? 1 : 0 }
-      };
-      this.adapter.log.debug(
-        `[setAcSwitch] Set AC Switch for device ${this.deviceKey} to ${acSwitch}!`
-      );
-      (_a = this.adapter.mqttClient) == null ? void 0 : _a.publish(
-        this.iotTopic,
-        JSON.stringify(setAcSwitchContent)
-      );
+    if (this.productKey && this.deviceKey) {
+      this.updateProperty("acSwitch", acSwitch ? 1 : 0);
     }
   }
   async setDeviceAutomationInOutLimit(limit) {
-    var _a;
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
+    if (this.productKey && this.deviceKey) {
       this.adapter.log.debug(
         `[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`
       );
@@ -120,10 +101,7 @@ class Ace1500 extends import_ZenIobDevice.ZenIobDevice {
         deviceKey: this.deviceKey,
         timestamp: timestamp.getTime() / 1e3
       };
-      (_a = this.adapter.mqttClient) == null ? void 0 : _a.publish(
-        this.functionTopic,
-        JSON.stringify(deviceAutomation)
-      );
+      this.invokeMqttFunction(JSON.stringify(deviceAutomation));
     }
   }
 }

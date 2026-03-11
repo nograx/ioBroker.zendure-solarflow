@@ -9,14 +9,17 @@ import * as utils from "@iobroker/adapter-core";
 
 import { zenLogin } from "./services/zenWebService";
 import { Job } from "node-schedule";
-import { MqttClient } from "mqtt";
-import { startRefreshAccessTokenTimerJob } from "./services/jobSchedule";
-import { connectLocalMqttClient } from "./services/mqttLocalService";
+import {
+  startRefreshAccessTokenTimerJob,
+  startZenSdkDataRefreshJob,
+} from "./services/jobSchedule";
+import { LocalMqttService } from "./services/mqtt/localMqttService";
 import { IZenIobDeviceDetails } from "./models/IZenIobDeviceDetails";
-import { connectCloudZenMqttClient } from "./services/mqttCloudZenService";
+import { CloudMqttService } from "./services/mqtt/cloudMqttService";
 import { IZenIobMqttData } from "./models/IZenIobMqttData";
 import { ZenIobDevice } from "./models/deviceModels/ZenIobDevice";
 import { createDeviceModel } from "./helpers/helpers";
+import { FileHelper } from "./helpers/fileHelper";
 
 export class ZendureSolarflow extends utils.Adapter {
   public constructor(options: Partial<utils.AdapterOptions> = {}) {
@@ -29,16 +32,19 @@ export class ZendureSolarflow extends utils.Adapter {
     this.on("unload", this.onUnload.bind(this));
   }
 
-  public zenHaDeviceList: ZenIobDevice[] = []; // All found devices for this instance will be in this array
+  public zenIobDeviceList: ZenIobDevice[] = []; // All found devices for this instance will be in this array
   public mqttSettings: IZenIobMqttData | undefined = undefined;
 
   public lastLogin: Date | undefined = undefined;
 
-  public mqttClient: MqttClient | undefined = undefined;
+  public localMqttService: LocalMqttService | undefined = undefined;
+  public cloudMqttService: CloudMqttService | undefined = undefined;
 
   public resetValuesJob: Job | undefined = undefined;
   public checkStatesJob: Job | undefined = undefined;
   public calculationJob: Job | undefined = undefined;
+  public zenSdkDataRefreshJob: Job | undefined = undefined;
+
   public refreshAccessTokenInterval: ioBroker.Interval | undefined = undefined;
   public retryTimeout: ioBroker.Timeout | undefined = undefined;
 
@@ -100,47 +106,104 @@ export class ZendureSolarflow extends utils.Adapter {
           break;
         }
 
+        const fileHelper = new FileHelper(this);
+        let deviceList: IZenIobDeviceDetails[] | undefined;
         const data = await zenLogin(this);
 
         if (typeof data === "string" || data == undefined) {
-          // Fehler
+          // Error, try to read device list from file, if possible. This allows the adapter to continue working with the last known devices, even if the connection to Zendure Cloud is currently not possible (e.g. due to network issues).
           this.setState("info.connection", false, true);
-        } else {
-          this.mqttSettings = data.mqtt;
 
-          if (!connectCloudZenMqttClient(this)) {
-            return;
-          }
+          fileHelper
+            .readDeviceListFromFile()
+            .then((data) => {
+              if (data) {
+                deviceList = data;
 
-          this.log.debug(
-            `[onReady] Creating ${data.deviceList.length} devices...`,
-          );
-
-          await data.deviceList.forEach(
-            async (device: IZenIobDeviceDetails) => {
-              // States erstellen
-              const deviceModel = createDeviceModel(
-                this,
-                device.productKey,
-                device.deviceKey,
-                device,
-              );
-
-              if (deviceModel) {
-                this.zenHaDeviceList.push(deviceModel);
+                this.log.debug(
+                  "[onReady] No connection to Zendure Cloud possible, but device list found in file. Using device list from file.",
+                );
               } else {
                 this.log.error(
-                  `[onReady] Error creating device with productKey '${device.productKey}' / deviceKey '${device.deviceKey} / productModel ${device.productModel}'`,
+                  "[onReady] No connection to Zendure Cloud possible and no device list found in file. Cannot continue.",
                 );
+                return;
               }
-            },
-          );
+            })
+            .catch((err) => {
+              this.log.error(
+                `[onReady] No connection to Zendure Cloud possible and error reading device list from file: ${err.message}. Cannot continue.`,
+              );
+              return;
+            });
+        } else {
+          // Connection successful, continue as normal
+          this.mqttSettings = data.mqtt;
+
+          this.cloudMqttService = new CloudMqttService(this);
+          this.cloudMqttService.connect();
+
+          // Connect to cloud MQTT client
+          if (!this.cloudMqttService.connect()) {
+            this.log.error("[onReady] Could not connect to MQTT cloud server!");
+          } else {
+            deviceList = data.deviceList;
+
+            // Save device list to file
+            fileHelper.writeDeviceListToFile(deviceList);
+          }
+
+          // If enabled, also start local MQTT client
+          if (this.config.useAddionalLocalMqtt) {
+            this.localMqttService = new LocalMqttService(this);
+            if (!this.localMqttService.connect()) {
+              this.log.error(
+                "[onReady] Could not connect to MQTT local server!",
+              );
+            }
+          }
         }
+
+        // Process device list, if available. If connection to cloud was successful, this is the fresh list from the cloud. If not, this is the last known list from file (if available).
+        if (deviceList) {
+          this.log.debug(`[onReady] Creating ${deviceList.length} devices...`);
+          await deviceList.forEach(async (device: IZenIobDeviceDetails) => {
+            // Create states
+            const deviceModel = createDeviceModel(
+              this,
+              device.productKey,
+              device.deviceKey,
+              device,
+            );
+
+            if (deviceModel) {
+              this.zenIobDeviceList.push(deviceModel);
+            } else {
+              this.log.error(
+                `[onReady] Error creating device with productKey '${device.productKey}' / deviceKey '${device.deviceKey}' / productModel '${device.productModel}'`,
+              );
+            }
+          });
+
+          // if any zenSDK device start the zenSDK data refresh job
+          if (
+            this.zenIobDeviceList.find((x) => x.isZenSdkSupported) !=
+              undefined &&
+            this.config.useZenSDK
+          ) {
+            startZenSdkDataRefreshJob(this);
+          }
+        }
+
         break;
       case "local": {
         this.log.debug("[onReady] Using local MQTT server");
 
-        connectLocalMqttClient(this);
+        // Connect to local MQTT client
+        this.localMqttService = new LocalMqttService(this);
+        if (!this.localMqttService.connect()) {
+          this.log.error("[onReady] Could not connect to MQTT local server!");
+        }
 
         // Subscribe to 1. device from local settings
         if (
@@ -155,7 +218,7 @@ export class ZendureSolarflow extends utils.Adapter {
           );
 
           if (deviceModel) {
-            this.zenHaDeviceList.push(deviceModel);
+            this.zenIobDeviceList.push(deviceModel);
           }
         }
 
@@ -172,7 +235,7 @@ export class ZendureSolarflow extends utils.Adapter {
           );
 
           if (deviceModel) {
-            this.zenHaDeviceList.push(deviceModel);
+            this.zenIobDeviceList.push(deviceModel);
           }
         }
 
@@ -189,7 +252,7 @@ export class ZendureSolarflow extends utils.Adapter {
           );
 
           if (deviceModel) {
-            this.zenHaDeviceList.push(deviceModel);
+            this.zenIobDeviceList.push(deviceModel);
           }
         }
 
@@ -206,7 +269,7 @@ export class ZendureSolarflow extends utils.Adapter {
           );
 
           if (deviceModel) {
-            this.zenHaDeviceList.push(deviceModel);
+            this.zenIobDeviceList.push(deviceModel);
           }
         }
 
@@ -232,12 +295,26 @@ export class ZendureSolarflow extends utils.Adapter {
         this.clearInterval(this.refreshAccessTokenInterval);
       }
 
+      // Stop MQTT Cloud client
       try {
-        await this.mqttClient?.endAsync();
-        this.log.info("[onUnload] MQTT client stopped!");
-        this.mqttClient = undefined;
+        await this.cloudMqttService?.mqttClient?.endAsync();
+        this.log.info("[onUnload] MQTT cloud client stopped!");
+        this.cloudMqttService = undefined;
       } catch (ex: any) {
-        this.log.error("[onUnload] Error stopping MQTT client: !" + ex.message);
+        this.log.error(
+          "[onUnload] Error stopping MQTT cloud client: !" + ex.message,
+        );
+      }
+
+      // Stop MQTT Local client
+      try {
+        await this.localMqttService?.mqttClient?.endAsync();
+        this.log.info("[onUnload] MQTT local client stopped!");
+        this.localMqttService = undefined;
+      } catch (ex: any) {
+        this.log.error(
+          "[onUnload] Error stopping MQTT local client: !" + ex.message,
+        );
       }
 
       this.setState("info.connection", false, true);
@@ -256,6 +333,11 @@ export class ZendureSolarflow extends utils.Adapter {
       if (this.calculationJob) {
         this.calculationJob.cancel();
         this.calculationJob = undefined;
+      }
+
+      if (this.zenSdkDataRefreshJob) {
+        this.zenSdkDataRefreshJob.cancel();
+        this.zenSdkDataRefreshJob = undefined;
       }
 
       if (this.retryTimeout) {
@@ -285,7 +367,7 @@ export class ZendureSolarflow extends utils.Adapter {
       const stateName1 = splitted[4]; // Folder/State Name 1 (e.g. 'control')
       const stateName2 = splitted[5]; // State Name, like 'setOutputLimit'
 
-      const _device = this.zenHaDeviceList.find(
+      const _device = this.zenIobDeviceList.find(
         (x) => x.productKey == productKey && x.deviceKey == deviceKey,
       );
 

@@ -21,7 +21,8 @@ __export(jobSchedule_exports, {
   startCalculationJob: () => startCalculationJob,
   startCheckStatesAndConnectionJob: () => startCheckStatesAndConnectionJob,
   startRefreshAccessTokenTimerJob: () => startRefreshAccessTokenTimerJob,
-  startResetValuesJob: () => startResetValuesJob
+  startResetValuesJob: () => startResetValuesJob,
+  startZenSdkDataRefreshJob: () => startZenSdkDataRefreshJob
 });
 module.exports = __toCommonJS(jobSchedule_exports);
 var import_node_schedule = require("node-schedule");
@@ -37,16 +38,26 @@ const startRefreshAccessTokenTimerJob = async (adapter) => {
     3 * 60 * 60 * 1e3
   );
 };
+const startZenSdkDataRefreshJob = async (adapter) => {
+  adapter.zenSdkDataRefreshJob = (0, import_node_schedule.scheduleJob)("*/5 * * * * *", () => {
+    adapter.zenIobDeviceList.forEach(async (device) => {
+      if (device.isZenSdkSupported && adapter.config.useZenSDK) {
+        device.getZenSdkProperties();
+        await adapter.delay(1 * 1e3);
+      }
+    });
+  });
+};
 const startResetValuesJob = async (adapter) => {
   adapter.resetValuesJob = (0, import_node_schedule.scheduleJob)("5 0 0 * * *", () => {
-    adapter.zenHaDeviceList.forEach((device) => {
+    adapter.zenIobDeviceList.forEach((device) => {
       device.resetValuesForDevice();
     });
   });
 };
 const startCalculationJob = async (adapter) => {
   adapter.calculationJob = (0, import_node_schedule.scheduleJob)("*/30 * * * * *", () => {
-    adapter.zenHaDeviceList.forEach((device) => {
+    adapter.zenIobDeviceList.forEach((device) => {
       if (device.productKey != "s3Xk4x") {
         device.calculateEnergy();
       }
@@ -71,7 +82,7 @@ const startCheckStatesAndConnectionJob = async (adapter) => {
     `[checkStatesJob] Starting check of states and connection!`
   );
   adapter.checkStatesJob = (0, import_node_schedule.scheduleJob)("*/5 * * * *", async () => {
-    adapter.zenHaDeviceList.forEach(async (device) => {
+    adapter.zenIobDeviceList.forEach(async (device) => {
       if (refreshAccessTokenNeeded) {
         return;
       }
@@ -127,6 +138,7 @@ const startCheckStatesAndConnectionJob = async (adapter) => {
   startCalculationJob,
   startCheckStatesAndConnectionJob,
   startRefreshAccessTokenTimerJob,
-  startResetValuesJob
+  startResetValuesJob,
+  startZenSdkDataRefreshJob
 });
 //# sourceMappingURL=jobSchedule.js.map

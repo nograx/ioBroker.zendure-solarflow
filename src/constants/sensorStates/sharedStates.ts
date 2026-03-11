@@ -215,4 +215,11 @@ export const sharedStates: ISolarflowState[] = [
     type: "boolean",
     role: "value",
   },
+  {
+    title: "connectionMode",
+    nameDe: "Verbindungs Modus",
+    nameEn: "Connection mode",
+    type: "string",
+    role: "value",
+  },
 ];

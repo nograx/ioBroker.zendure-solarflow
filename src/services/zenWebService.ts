@@ -94,5 +94,7 @@ export const zenLogin = async (
         adapter.log.error(`[zenLogin] Error: ${error.message}`);
       }
       adapter.log.error(JSON.stringify(error.config, null, 2));
+
+      return undefined;
     });
 };

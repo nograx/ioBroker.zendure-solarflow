@@ -26,19 +26,15 @@ export class Hyper2000 extends ZenIobDevice {
       _deviceKey,
       _productName,
       _deviceName,
+      false, // zenSDK not supported
       _zenHaDeviceDetails,
     );
   }
 
   public async setAcMode(acMode: number): Promise<void> {
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
+    if (this.productKey && this.deviceKey) {
       if (acMode >= 0 && acMode <= 3) {
-        const setAcMode = { properties: { acMode: acMode } };
-        this.adapter.log.debug(`[setAcMode] Set AC mode to ${acMode}!`);
-        this.adapter.mqttClient?.publish(
-          this.iotTopic,
-          JSON.stringify(setAcMode),
-        );
+        this.updateProperty("acMode", acMode);
       } else {
         this.adapter.log.error(
           `[setAcMode] AC mode must be a value between 0 and 3!`,
@@ -48,24 +44,15 @@ export class Hyper2000 extends ZenIobDevice {
   }
 
   public setAcSwitch(acSwitch: boolean): void {
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
-      const setAcSwitchContent = {
-        properties: { acSwitch: acSwitch ? 1 : 0 },
-      };
-      this.adapter.log.debug(
-        `[setAcSwitch] Set AC Switch for device ${this.deviceKey} to ${acSwitch}!`,
-      );
-      this.adapter.mqttClient?.publish(
-        this.iotTopic,
-        JSON.stringify(setAcSwitchContent),
-      );
+    if (this.productKey && this.deviceKey) {
+      this.updateProperty("acSwitch", acSwitch ? 1 : 0);
     }
   }
 
   public async setDeviceAutomationInOutLimit(
     limit: number, // can be negative, negative will trigger charging mode
   ): Promise<void> {
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
+    if (this.productKey && this.deviceKey) {
       this.adapter.log.debug(
         `[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`,
       );
@@ -173,10 +160,7 @@ export class Hyper2000 extends ZenIobDevice {
         deviceKey: this.deviceKey,
         timestamp: timestamp.getTime() / 1000,
       };
-      this.adapter.mqttClient?.publish(
-        this.functionTopic,
-        JSON.stringify(deviceAutomation),
-      );
+      this.invokeMqttFunction(JSON.stringify(deviceAutomation));
     }
   }
 }

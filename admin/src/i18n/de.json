@@ -25,7 +25,7 @@
     "buzzerSwitch": "Ton-Ausgabe am PV-HUB",
     "electricLevel": "Ladestand des Akkus / SOC",
     "settings": "Adaptereinstellungen für Zendure-Solarflow",
-    "settingsDesc": "Bitte geben Sie die Anmeldeinformationen für die Zendure Cloud an (die gleichen, die Sie in der offiziellen App eingegeben haben).",
+    "settingsDesc": "Bitte geben Sie die Anmeldeinformationen für die Zendure Cloud an (Autorisierungs-Cloud-Schlüssel).",
     "donate1": "Wenn Sie den Adapter nützlich finden und meine Arbeit unterstützen möchten, können Sie gerne per Paypal spenden. Danke schön!",
     "donate2": "(Dies ist ein persönlicher Spendenlink für Nograx, der in keiner Verbindung zum ioBroker-Projekt steht!)",
     "donateHeader": "Spende",
@@ -42,5 +42,8 @@
     "useRestart": "Neustart des Adapters alle 3 Stunden verwenden um die Verbindung zu erneuern",
     "connectionMode": "Verbindungsmodus",
     "authKey": "Authorization Auth Key",
-    "usrPwd": "Benutzername & Kennwort"
+    "usrPwd": "Benutzername & Kennwort",
+    "useZenSDK": "zenSDK verwenden (sofern vom Gerät unterstützt)",
+    "useAddionalLocalMqtt": "Zusätzlichen lokalen MQTT Server verwenden",
+    "relayMqttToCloud": "MQTT Nachrichten an Cloud weiterleiten"
 }

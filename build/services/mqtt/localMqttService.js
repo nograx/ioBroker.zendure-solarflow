@@ -16,40 +16,37 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-var mqttCloudZenService_exports = {};
-__export(mqttCloudZenService_exports, {
-  CloudMqttService: () => CloudMqttService,
-  connectCloudZenMqttClient: () => connectCloudZenMqttClient
+var localMqttService_exports = {};
+__export(localMqttService_exports, {
+  LocalMqttService: () => LocalMqttService
 });
-module.exports = __toCommonJS(mqttCloudZenService_exports);
+module.exports = __toCommonJS(localMqttService_exports);
 var import_mqttService = require("./mqttService");
-class CloudMqttService extends import_mqttService.MqttService {
+class LocalMqttService extends import_mqttService.MqttService {
   constructor(adapter) {
     super(adapter);
   }
   connect() {
-    if (!this.adapter.mqttSettings) {
-      this.adapter.log.error("[CloudMqttService] MQTT settings missing!");
+    if (!this.adapter.config || !this.adapter.config.localMqttUrl) {
+      this.adapter.log.error("[LocalMqttService] local MQTT url missing!");
       return false;
     }
     const opts = {
-      clientId: this.adapter.mqttSettings.clientId,
-      username: this.adapter.mqttSettings.username,
-      password: this.adapter.mqttSettings.password,
-      clean: true,
-      protocolVersion: 5
+      clientId: "ioBroker.zendure-solarflow." + this.adapter.instance
     };
-    const url = `mqtt://${this.adapter.mqttSettings.url}:1883`;
-    return this.connectWithOptions(opts, url);
+    this.adapter.log.debug(
+      `[LocalMqttService] Connecting to local MQTT broker at ${this.adapter.config.localMqttUrl} with client ID ${opts.clientId}`
+    );
+    const url = `mqtt://${this.adapter.config.localMqttUrl}:1883`;
+    const ok = this.connectWithOptions(opts, url, true);
+    if (ok) {
+      this.adapter.setState("info.connection", true, true);
+    }
+    return ok;
   }
 }
-const connectCloudZenMqttClient = (_adapter) => {
-  const svc = new CloudMqttService(_adapter);
-  return svc.connect();
-};
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  CloudMqttService,
-  connectCloudZenMqttClient
+  LocalMqttService
 });
-//# sourceMappingURL=mqttCloudZenService.js.map
+//# sourceMappingURL=localMqttService.js.map

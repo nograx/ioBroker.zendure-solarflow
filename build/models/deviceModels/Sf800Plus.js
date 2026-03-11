@@ -23,8 +23,8 @@ __export(Sf800Plus_exports, {
 module.exports = __toCommonJS(Sf800Plus_exports);
 var import_solarflow800PlusControlStates = require("../../constants/controlStates/solarflow800PlusControlStates");
 var import_solarflow800PlusStates = require("../../constants/sensorStates/solarflow800PlusStates");
-var import_ZenIobDevice = require("./ZenIobDevice");
-class Sf800Plus extends import_ZenIobDevice.ZenIobDevice {
+var import_ZenSdkIobDevice = require("./ZenSdkIobDevice");
+class Sf800Plus extends import_ZenSdkIobDevice.ZenSdkIobDevice {
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {
     super(
       _adapter,
@@ -36,17 +36,14 @@ class Sf800Plus extends import_ZenIobDevice.ZenIobDevice {
     );
     this.maxInputLimit = 1e3;
     this.maxOutputLimit = 800;
+    this.isZenSdkSupported = true;
     this.states = import_solarflow800PlusStates.solarflow800PlusStates;
     this.controlStates = import_solarflow800PlusControlStates.solarflow800PlusControlStates;
   }
   async setAcMode(acMode) {
-    var _a;
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
+    if (this.productKey && this.deviceKey) {
       if (acMode >= 0 && acMode <= 3) {
-        const topic = `iot/${this.productKey}/${this.deviceKey}/properties/write`;
-        const setAcMode = { properties: { acMode } };
-        this.adapter.log.debug(`[setAcMode] Set AC mode to ${acMode}!`);
-        (_a = this.adapter.mqttClient) == null ? void 0 : _a.publish(topic, JSON.stringify(setAcMode));
+        this.updateProperty("acMode", acMode);
         const smartMode = await this.adapter.getStateAsync(
           this.productKey + "." + this.deviceKey + ".control.smartMode"
         );
@@ -63,79 +60,8 @@ class Sf800Plus extends import_ZenIobDevice.ZenIobDevice {
     }
   }
   setAcSwitch(acSwitch) {
-    var _a;
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
-      const setAcSwitchContent = {
-        properties: { acSwitch: acSwitch ? 1 : 0 }
-      };
-      this.adapter.log.debug(
-        `[setAcSwitch] Set AC Switch for device ${this.deviceKey} to ${acSwitch}!`
-      );
-      (_a = this.adapter.mqttClient) == null ? void 0 : _a.publish(
-        this.iotTopic,
-        JSON.stringify(setAcSwitchContent)
-      );
-    }
-  }
-  async setDeviceAutomationInOutLimit(limit) {
-    var _a;
-    if (this.adapter.mqttClient && this.productKey && this.deviceKey) {
-      this.adapter.log.debug(
-        `[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`
-      );
-      if (limit) {
-        limit = Math.round(limit);
-      } else {
-        limit = 0;
-      }
-      if (this.adapter.config.useLowVoltageBlock) {
-        const lowVoltageBlockState = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.lowVoltageBlock"
-        );
-        if (lowVoltageBlockState && lowVoltageBlockState.val && lowVoltageBlockState.val == true && limit > 0) {
-          limit = 0;
-        }
-        const fullChargeNeeded = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.fullChargeNeeded"
-        );
-        if (fullChargeNeeded && fullChargeNeeded.val && fullChargeNeeded.val == true && limit > 0) {
-          limit = 0;
-        }
-      }
-      if (limit < 0 && limit < -this.maxInputLimit) {
-        this.adapter.log.debug(
-          `[setDeviceAutomationInOutLimit] limit ${limit} is below the maximum input limit of ${this.maxInputLimit}, setting to ${-this.maxInputLimit}!`
-        );
-        limit = -this.maxInputLimit;
-      } else if (limit > this.maxOutputLimit) {
-        this.adapter.log.debug(
-          `[setDeviceAutomationInOutLimit] limit ${limit} is higher the maximum output limit of ${this.maxOutputLimit}, setting to ${this.maxOutputLimit}!`
-        );
-        limit = this.maxOutputLimit;
-      }
-      this.messageId += 1;
-      const timestamp = /* @__PURE__ */ new Date();
-      timestamp.setMilliseconds(0);
-      this.adapter.log.debug(
-        `[setDeviceAutomationInOutLimit] Using HEMS Variant of device automation, as deviceKey '${this.deviceKey}' detected!`
-      );
-      const _arguments = {
-        outputPower: limit > 0 ? limit : 0,
-        chargeState: limit > 0 ? 0 : 1,
-        chargePower: limit > 0 ? 0 : -limit,
-        mode: 9
-      };
-      const hemsEP = {
-        arguments: _arguments,
-        function: "hemsEP",
-        messageId: this.messageId,
-        deviceKey: this.deviceKey,
-        timestamp: timestamp.getTime() / 1e3
-      };
-      (_a = this.adapter.mqttClient) == null ? void 0 : _a.publish(
-        this.functionTopic,
-        JSON.stringify(hemsEP)
-      );
+    if (this.productKey && this.deviceKey) {
+      this.updateProperty("acSwitch", acSwitch ? 1 : 0);
     }
   }
 }
