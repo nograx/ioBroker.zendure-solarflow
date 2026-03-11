@@ -51,10 +51,10 @@ class MqttService {
     this.adapter.log.debug(`[MqttService] Connecting to MQTT broker ${url}...`);
     this.mqttClient = import_mqtt.default.connect(url, opts);
     if (this.mqttClient) {
-      this.mqttClient.on("connect", import_mqttSharedService.onConnected);
-      this.mqttClient.on("reconnect", import_mqttSharedService.onReconnected);
-      this.mqttClient.on("disconnect", import_mqttSharedService.onDisconnected);
-      this.mqttClient.on("error", import_mqttSharedService.onError);
+      this.mqttClient.on("connect", () => (0, import_mqttSharedService.onConnected)(url, opts));
+      this.mqttClient.on("reconnect", () => (0, import_mqttSharedService.onReconnected)(url));
+      this.mqttClient.on("disconnect", () => (0, import_mqttSharedService.onDisconnected)(url));
+      this.mqttClient.on("error", (error) => (0, import_mqttSharedService.onError)(error, url));
       this.mqttClient.on("message", isLocal ? import_mqttSharedService.onMessageLocal : import_mqttSharedService.onMessageCloud);
       this.startJobs();
       return true;

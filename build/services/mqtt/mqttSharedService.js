@@ -149,31 +149,35 @@ const onMessageCloud = async (topic, message) => {
     );
   }
 };
-const onConnected = () => {
+const onConnected = (url, opts) => {
   if (adapter) {
     adapter.lastLogin = /* @__PURE__ */ new Date();
     adapter.setState("info.connection", true, true);
-    adapter.log.info("[onConnected] Connected with MQTT!");
+    adapter.log.info(
+      `[onConnected] Connected with MQTT! URL: ${url}, Client ID: ${opts.clientId}`
+    );
   }
 };
-const onReconnected = () => {
+const onReconnected = (url) => {
   if (adapter) {
     adapter.lastLogin = /* @__PURE__ */ new Date();
     adapter.setState("info.connection", true, true);
-    adapter.log.info("[onReconnected] Reconnected to MQTT!");
+    adapter.log.info(`[onReconnected] Reconnected to MQTT! URL: ${url}`);
   }
 };
-const onDisconnected = () => {
+const onDisconnected = (url) => {
   if (adapter) {
     adapter.lastLogin = /* @__PURE__ */ new Date();
     adapter.setState("info.connection", false, true);
-    adapter.log.info("[onDisconnected] Disconnected from MQTT!");
+    adapter.log.info(`[onDisconnected] Disconnected from MQTT! URL: ${url}`);
   }
 };
-const onError = (error) => {
+const onError = (error, url) => {
   if (adapter) {
     adapter.setState("info.connection", false, true);
-    adapter.log.error("Connection to MQTT failed! Error: " + error);
+    adapter.log.error(
+      `[onError] Connection to MQTT failed! URL: ${url}, Error: ${error}`
+    );
   }
 };
 const onSubscribeReportTopic = (error) => {

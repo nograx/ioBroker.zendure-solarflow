@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "4.0.0-alpha.1",
+    "version": "4.0.0-alpha.2",
     "news": {
+      "4.0.0-alpha.2": {
+        "en": "Add some more debug information to MQTT logging.",
+        "de": "Fügen Sie weitere Debug-Informationen zu MQTT-Logging hinzu.",
+        "ru": "Добавьте дополнительную информацию для отладки в журнал MQTT.",
+        "pt": "Adicione mais informações de depuração ao registro MQTT.",
+        "nl": "Voeg wat meer debug informatie toe aan MQTT logging.",
+        "fr": "Ajoutez d'autres informations de débogage à l'enregistrement MQTT.",
+        "it": "Aggiungi altre informazioni debug alla registrazione MQTT.",
+        "es": "Añadir más información de depuración a la tala de MQTT.",
+        "pl": "Dodaj więcej informacji o debugowaniu do logowania MQTT.",
+        "uk": "Додайте більше інформації про відключення до входу MQTT.",
+        "zh-cn": "在 MQTT 日志中添加一些调试信息 ."
+      },
       "4.0.0-alpha.1": {
         "en": "Add support for zenSDK! All devices can now communicate in the local network (with full cloud support for backup and maintenance)\nAdd possibility to relay local MQTT messages to Zendure cloud!\nSave device list from Zendure Cloud as a local backup if cloud is unavailable\nMajor refactor and improvements",
         "de": "Unterstützung für zenSDK hinzufügen! Alle Geräte können nun im lokalen Netzwerk kommunizieren (mit vollem Cloud-Support für Backup und Wartung)\nFügen Sie die Möglichkeit, lokale MQTT-Nachrichten in Zendure-Cloud weiterzuleiten!\nSpeichern Sie die Geräteliste von Zendure Cloud als lokales Backup, wenn Cloud nicht verfügbar ist\nGroßer Refaktor und Verbesserungen",
