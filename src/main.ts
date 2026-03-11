@@ -141,7 +141,6 @@ export class ZendureSolarflow extends utils.Adapter {
           this.mqttSettings = data.mqtt;
 
           this.cloudMqttService = new CloudMqttService(this);
-          this.cloudMqttService.connect();
 
           // Connect to cloud MQTT client
           if (!this.cloudMqttService.connect()) {
