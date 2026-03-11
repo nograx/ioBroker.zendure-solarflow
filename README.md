@@ -94,7 +94,8 @@ If you plan to control the charging and feed in of your device with a script/blo
 This adapter will use the Cloud Authorization Code for authentication on the official mqtt servers, which you can generate in the Zendure app!
 
 ## Changelog
-### 4.0.0-alpha.0 (2026-03-11)
+
+### **WORK IN PROGRESS**
 
 - Add support for zenSDK! All devices can now communicate in the local network (with full cloud support for backup and maintenance)
 - Add possibility to relay local MQTT messages to Zendure cloud!
