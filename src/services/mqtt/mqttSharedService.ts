@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/indent */
-import { DeviceConnectionMode } from "../../helpers/enums";
 import { processDeviceProperties } from "../../helpers/processDeviceProperties";
 import { ZendureSolarflow } from "../../main";
 
@@ -113,10 +111,6 @@ export const onMessageLocal = async (
       `[onMessageLocal] MQTT message on topic '${topic}': ${message.toString()}`,
     );
   }
-
-  const device = adapter?.zenIobDeviceList.find(
-    (x) => x.productKey == productKey && x.deviceKey == deviceKey,
-  );
 
   onMessage(productKey, deviceKey, obj);
 
