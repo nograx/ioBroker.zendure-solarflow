@@ -48,13 +48,13 @@ Currently all Zendure Solarflow devices are supported via cloud.
 
 These devices support the advanced zenSDK automation features with full **local** control over http:
 
-- **Solarflow 1600 AC Plus** - Full zenSDK support with enhanced automation
-- **Solarflow 2400 AC** - Full zenSDK support with enhanced automation
-- **Solarflow 2400 AC Plus** - Full zenSDK support with enhanced automation
-- **Solarflow 2400 Pro** - Full zenSDK support with enhanced automation
-- **Solarflow 800** - Full zenSDK support with enhanced automation
-- **Solarflow 800 Plus** - Full zenSDK support with enhanced automation
-- **Solarflow 800 Pro** - Full zenSDK support with enhanced automation
+- **Solarflow 1600 AC Plus** - Full zenSDK support
+- **Solarflow 2400 AC** - Full zenSDK support
+- **Solarflow 2400 AC Plus** - Full zenSDK support
+- **Solarflow 2400 Pro** - Full zenSDK support
+- **Solarflow 800** - Full zenSDK support
+- **Solarflow 800 Plus** - Full zenSDK support
+- **Solarflow 800 Pro** - Full zenSDK support
 
 ### Legacy Devices 🔄
 
@@ -94,6 +94,11 @@ If you plan to control the charging and feed in of your device with a script/blo
 This adapter will use the Cloud Authorization Code for authentication on the official mqtt servers, which you can generate in the Zendure app!
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Correctly set 'lastUpdate' and 'wifiState' when zenSDK is used
+
 ### 4.0.0-alpha.3 (2026-03-11)
 
 - Add support for zenSDK! All devices can now communicate in the local network (with full cloud support for backup and maintenance)

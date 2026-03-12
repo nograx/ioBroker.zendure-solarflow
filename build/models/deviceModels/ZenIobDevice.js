@@ -728,12 +728,19 @@ class ZenIobDevice {
         timeout: 4e3
       };
       return import_axios.default.get(`http://${this.ipAddress}/properties/report`, config).then(async (response) => {
+        var _a;
         const data = await response.data;
         this.adapter.log.debug(
           `[getZenSdkProperties] Successfully got properties for device ${this.deviceKey} with zenSDK!}`
         );
         if (data.properties) {
           (0, import_processDeviceProperties.processDeviceProperties)(this, data.properties, true);
+          await ((_a = this.adapter) == null ? void 0 : _a.setState(
+            `${this.productKey}.${this.deviceKey}.lastUpdate`,
+            (/* @__PURE__ */ new Date()).getTime(),
+            true
+          ));
+          this.updateSolarFlowState("wifiState", "Connected");
         }
         if (data.packData) {
           this.addOrUpdatePackData(data.packData, true);
@@ -743,6 +750,7 @@ class ZenIobDevice {
         this.adapter.log.error(
           `[getZenSdkProperties] Error getting properties for device ${this.deviceKey} with zenSDK: ${error}`
         );
+        this.updateSolarFlowState("wifiState", "Disconnected");
         return false;
       });
     } else {

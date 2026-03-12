@@ -341,6 +341,14 @@ export class ZenIobDevice {
           // Process properties if they exist in the message
           if (data.properties) {
             processDeviceProperties(this, data.properties, true);
+
+            await this.adapter?.setState(
+              `${this.productKey}.${this.deviceKey}.lastUpdate`,
+              new Date().getTime(),
+              true,
+            );
+
+            this.updateSolarFlowState("wifiState", "Connected");
           }
 
           // Process packData if it exists in the message
@@ -354,6 +362,8 @@ export class ZenIobDevice {
           this.adapter.log.error(
             `[getZenSdkProperties] Error getting properties for device ${this.deviceKey} with zenSDK: ${error}`,
           );
+
+          this.updateSolarFlowState("wifiState", "Disconnected");
           return false;
         });
     } else {

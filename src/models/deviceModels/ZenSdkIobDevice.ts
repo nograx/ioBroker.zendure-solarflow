@@ -154,11 +154,12 @@ export abstract class ZenSdkIobDevice extends ZenIobDevice {
             }
           }, 2000);
 
+          /*
           setTimeout(async () => {
             if (currentSmartMode && currentSmartMode.val != 0) {
               results.push(await this.updateProperty("smartMode", 0));
             }
-          }, 4000);
+          }, 4000);*/
         }
 
         // Check if all updates were successful
