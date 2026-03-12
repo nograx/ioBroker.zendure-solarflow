@@ -94,8 +94,7 @@ If you plan to control the charging and feed in of your device with a script/blo
 This adapter will use the Cloud Authorization Code for authentication on the official mqtt servers, which you can generate in the Zendure app!
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 4.0.0-alpha.4 (2026-03-12)
 
 - Correctly set 'lastUpdate' and 'wifiState' when zenSDK is used
 

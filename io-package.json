@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "4.0.0-alpha.3",
+    "version": "4.0.0-alpha.4",
     "news": {
+      "4.0.0-alpha.4": {
+        "en": "Correctly set 'lastUpdate' and 'wifiState' when zenSDK is used",
+        "de": "Setzen Sie 'lastUpdate' und 'wifiState' richtig, wenn zenSDK verwendet wird",
+        "ru": "Правильно установить «lastUpdate» и «wifiState» при использовании zenSDK",
+        "pt": "Definir corretamente 'lastUpdate' e 'wifiState' quando zenSDK for usado",
+        "nl": "Correct instellen 'lastUpdate' en 'wifiState' wanneer zenSDK wordt gebruikt",
+        "fr": "Définir correctement 'lastUpdate' et 'wifiState' lorsque zenSDK est utilisé",
+        "it": "Impostare correttamente 'lastUpdate' e 'wifiState' quando zenSDK viene utilizzato",
+        "es": "Establecer correctamente 'última actualización' y 'wifiState' cuando se utiliza zenSDK",
+        "pl": "Prawidłowo ustawić 'lastUpdate' i 'wifistate', kiedy jest używane zenSDK",
+        "uk": "Правильно встановити 'lastUpdate' і 'wifiState' при використанні ZenSDK",
+        "zh-cn": "使用 zenSDK 时正确设置“ last Update” 和“ wifi State ”"
+      },
       "4.0.0-alpha.3": {
         "en": "Add support for zenSDK! All devices can now communicate in the local network (with full cloud support for backup and maintenance)\nAdd possibility to relay local MQTT messages to Zendure cloud!\nSave device list from Zendure Cloud as a local backup if cloud is unavailable\nMajor refactor and improvements",
         "de": "Unterstützung für zenSDK hinzufügen! Alle Geräte können nun im lokalen Netzwerk kommunizieren (mit vollem Cloud-Support für Backup und Wartung)\nFügen Sie die Möglichkeit, lokale MQTT-Nachrichten in Zendure-Cloud weiterzuleiten!\nSpeichern Sie die Geräteliste von Zendure Cloud als lokales Backup, wenn Cloud nicht verfügbar ist\nGroßer Refaktor und Verbesserungen",
