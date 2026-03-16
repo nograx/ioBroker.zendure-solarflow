@@ -85,11 +85,6 @@ export const processDeviceProperties = async (
             ? "Discharging"
             : "Unknown";
     device?.updateSolarFlowState("packState", value);
-
-    if (properties?.packState) {
-      // Update combined data point
-      device?.updateSolarFlowState("packPower", 0);
-    }
   }
 
   if (properties?.passMode != null && properties?.passMode != undefined) {

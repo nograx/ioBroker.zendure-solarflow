@@ -58,9 +58,6 @@ const processDeviceProperties = async (device, properties, isSolarFlow) => {
   if ((properties == null ? void 0 : properties.packState) != null && (properties == null ? void 0 : properties.packState) != void 0) {
     const value = (properties == null ? void 0 : properties.packState) == 0 ? "Idle" : (properties == null ? void 0 : properties.packState) == 1 ? "Charging" : (properties == null ? void 0 : properties.packState) == 2 ? "Discharging" : "Unknown";
     device == null ? void 0 : device.updateSolarFlowState("packState", value);
-    if (properties == null ? void 0 : properties.packState) {
-      device == null ? void 0 : device.updateSolarFlowState("packPower", 0);
-    }
   }
   if ((properties == null ? void 0 : properties.passMode) != null && (properties == null ? void 0 : properties.passMode) != void 0) {
     const value = (properties == null ? void 0 : properties.passMode) == 0 ? "Automatic" : (properties == null ? void 0 : properties.passMode) == 1 ? "Always off" : (properties == null ? void 0 : properties.passMode) == 2 ? "Always on" : "Unknown";
