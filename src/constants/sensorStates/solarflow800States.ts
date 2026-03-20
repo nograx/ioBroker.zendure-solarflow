@@ -75,4 +75,11 @@ export const solarflow800States: ISolarflowState[] = sharedStates.concat([
       2: "AC output mode",
     },
   },
+  {
+    title: "smartMode",
+    nameDe: "Smart Mode",
+    nameEn: "Smart Mode",
+    type: "boolean",
+    role: "value",
+  },
 ]);

@@ -92,4 +92,11 @@ export const ac2400States: ISolarflowState[] = sharedStates.concat([
     type: "boolean",
     role: "value",
   },
+  {
+    title: "smartMode",
+    nameDe: "Smart Mode",
+    nameEn: "Smart Mode",
+    type: "boolean",
+    role: "value",
+  },
 ]);
