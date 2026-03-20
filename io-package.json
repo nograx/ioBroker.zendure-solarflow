@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "4.0.0",
+    "version": "4.0.1",
     "news": {
+      "4.0.1": {
+        "en": "Fix missing smartMode state for Solarflow AC 2400 and Solarflow 800",
+        "de": "Fehlerbehebung Smart Modezustand für Solarflow AC 2400 und Solarflow 800",
+        "ru": "Исправить недостающие умные Режим работы Solarflow AC 2400 и Solarflow 800",
+        "pt": "Corrigir a falta de inteligência Modo estado para Solarflow AC 2400 e Solarflow 800",
+        "nl": "Smart herstellen Modustoestand voor Solarflow AC 2400 en Solarflow 800",
+        "fr": "Correction manquante smart État du mode pour Solarflow AC 2400 et Solarflow 800",
+        "it": "Risolvere intelligente mancante Stato di modalità per Solarflow AC 2400 e Solarflow 800",
+        "es": "Arreglar inteligente perdido Mode state for Solarflow AC 2400 and Solarflow 800",
+        "pl": "Popraw brakujące inteligentne Stan trybu dla Solarflow AC 2400 i Solarflow 800",
+        "uk": "Виправлення відсутній смарт Стандартний стан для Solarflow AC 2400 та Solarflow 800",
+        "zh-cn": "修复丢失的智能 太阳流 AC 2400和太阳流 800的模式状态"
+      },
       "4.0.0": {
         "en": "Add support for zenSDK! All devices can now communicate in the local network (with full cloud support for backup and maintenance)\nAdd possibility to relay local MQTT messages to Zendure cloud!\nSave device list from Zendure Cloud as a local backup if cloud is unavailable\nMajor refactor and improvements\nFix 'packPower' not correctly set (resetting to 0 every new data package)",
         "de": "Unterstützung für zenSDK hinzufügen! Alle Geräte können nun im lokalen Netzwerk kommunizieren (mit vollem Cloud-Support für Backup und Wartung)\nFügen Sie die Möglichkeit, lokale MQTT-Nachrichten in Zendure-Cloud weiterzuleiten!\nSpeichern Sie die Geräteliste von Zendure Cloud als lokales Backup, wenn Cloud nicht verfügbar ist\nGroßer Refaktor und Verbesserungen\nFix 'packPower' nicht korrekt eingestellt (Reset auf 0 jedes neue Datenpaket)",
