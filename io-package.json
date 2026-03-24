@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "4.0.1",
+    "version": "4.0.2",
     "news": {
+      "4.0.2": {
+        "en": "Re-add new SF devices to local mode settings\nAdd product key '64174u' for Solarflow 1600 AC+",
+        "de": "Neue SF-Geräte auf lokale Mode-Einstellungen neuaddieren\nProduktschlüssel '64174u' für Solarflow 1600 AC+ hinzufügen",
+        "ru": "Повторное добавление новых устройств SF в локальные настройки режима\nДобавить ключ продукта 64174u для Solarflow 1600 AC+",
+        "pt": "Readiciona novos dispositivos SF às configurações do modo local\nAdicionar a chave do produto '64174u' para Solarflow 1600 AC+",
+        "nl": "Nieuwe SF-apparaten opnieuw toevoegen aan lokale modusinstellingen\nProductsleutel '64174u' toevoegen voor Solarflow 1600 AC+",
+        "fr": "Réajouter de nouveaux périphériques SF aux paramètres du mode local\nAjouter la clé de produit '64174u' pour Solarflow 1600 AC+",
+        "it": "Reinserire nuovi dispositivi SF nelle impostazioni della modalità locale\nAggiungi la chiave del prodotto '64174u' per Solarflow 1600 AC+",
+        "es": "Nuevos dispositivos SF a la configuración del modo local\nAñadir la clave del producto '64174u' para el flujo solar 1600 AC+",
+        "pl": "Ponownie dodać nowe urządzenia SF do ustawień lokalnego trybu\nDodaj klucz produktu '64174u' dla Solarflow 1600 AC +",
+        "uk": "Завантажити нові пристрої SF на локальні налаштування режиму\nДодати ключ продукту '64174u' для Solarflow 1600 AC+",
+        "zh-cn": "在本地模式设置中重新添加新的 SF 设备\n为太阳流1600 AC+添加产品密钥 '64174u'"
+      },
       "4.0.1": {
         "en": "Fix missing smartMode state for Solarflow AC 2400 and Solarflow 800",
         "de": "Fehlerbehebung Smart Modezustand für Solarflow AC 2400 und Solarflow 800",
@@ -80,19 +93,6 @@
         "pl": "Dodaj productKey '5fG27j' dla Solarflow 2400 AC +",
         "uk": "Додати продуктKey '5fG27j' для Solarflow 2400 AC+",
         "zh-cn": "添加“ 5fG27j” 产品, 用于太阳能流 2400 AC+"
-      },
-      "3.5.1": {
-        "en": "Try to update state only if state exist for this device\nImproved error handling",
-        "de": "Versuchen Sie, Zustand nur zu aktualisieren, wenn Zustand für dieses Gerät existiert\nVerbesserte Fehlerbehandlung",
-        "ru": "Попробуйте обновить состояние только в том случае, если для этого устройства существует состояние\nУлучшенная обработка ошибок",
-        "pt": "Tente atualizar o estado somente se o estado existir para este dispositivo\nMelhor manipulação de erros",
-        "nl": "Probeer de status alleen bij te werken als de status voor dit apparaat bestaat\nVerbeterde foutafhandeling",
-        "fr": "Essayez de mettre à jour l'état seulement si l'état existe pour ce périphérique\nAmélioration du traitement des erreurs",
-        "it": "Cerca di aggiornare lo stato solo se esistono stati per questo dispositivo\nMiglioramento della gestione degli errori",
-        "es": "Trate de actualizar estado sólo si el estado existe para este dispositivo\nMejor manejo de errores",
-        "pl": "Spróbuj zaktualizować stan tylko jeśli istnieje stan dla tego urządzenia\nUlepszona obsługa błędów",
-        "uk": "Спробуйте оновити стан тільки якщо держава існує для цього пристрою\nПоліпшення обробки помилок",
-        "zh-cn": "仅在此设备存在状态时尝试更新状态\n改进错误处理"
       }
     },
     "titleLang": {
