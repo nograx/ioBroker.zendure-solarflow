@@ -94,6 +94,12 @@ If you plan to control the charging and feed in of your device with a script/blo
 This adapter will use the Cloud Authorization Code for authentication on the official mqtt servers, which you can generate in the Zendure app!
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Re-add new SF devices to local mode settings
+- Add product key '64174u' for Solarflow 1600 AC+
+
 ### 4.0.1 (2026-03-20)
 
 - Fix missing smartMode state for Solarflow AC 2400 and Solarflow 800

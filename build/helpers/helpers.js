@@ -72,30 +72,8 @@ const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetail
         _zenHaDeviceDetails
       );
     case "ja72u0ha":
-      _adapter.log.debug(
-        `[onReady] Creating deviceModel Hyper 2000 ${_productKey}`
-      );
-      return new import_Hyper2000.Hyper2000(
-        _adapter,
-        _productKey,
-        _deviceKey,
-        _zenHaDeviceDetails ? _zenHaDeviceDetails.productModel : "Hyper 2000",
-        _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "Hyper 2000",
-        _zenHaDeviceDetails
-      );
-    case "gda3tb":
-      _adapter.log.debug(
-        `[onReady] Creating deviceModel Hyper 2000 ${_productKey}`
-      );
-      return new import_Hyper2000.Hyper2000(
-        _adapter,
-        _productKey,
-        _deviceKey,
-        _zenHaDeviceDetails ? _zenHaDeviceDetails.productModel : "Hyper 2000",
-        _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "Hyper 2000",
-        _zenHaDeviceDetails
-      );
     case "b3dxda":
+    case "gda3tb":
       _adapter.log.debug(
         `[onReady] Creating deviceModel Hyper 2000 ${_productKey}`
       );
@@ -119,6 +97,7 @@ const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetail
         _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "Ace 1500",
         _zenHaDeviceDetails
       );
+    case "64174u":
     case "65174u":
       _adapter.log.debug(
         `[onReady] Creating deviceModel Solarflow 1600 AC+ ${_productKey}`
