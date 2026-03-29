@@ -1,4 +1,4 @@
-import { createHash } from "crypto";
+import { createHash } from "node:crypto";
 import { calculationStateKeys } from "../../constants/sensorStates/constants";
 import { createCalculationStates } from "../../helpers/createCalculationStates";
 import { toHoursAndMinutes } from "../../helpers/timeHelper";
