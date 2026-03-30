@@ -187,15 +187,15 @@ function Settings(props: SettingsProps) {
           </Box>
         )}
 
-        {props.native["connectionMode"] == "local" ||
-          (props.native["useAddionalLocalMqtt"] && (
-            <Box sx={{ marginTop: 1.25 }}>
-              <Box>
-                <FormLabel>{I18n.t("localMqttUrl")}:</FormLabel>
-              </Box>
-              <Box>{renderInput("localMqttUrl", "text")}</Box>
+        {(props.native["connectionMode"] == "local" ||
+          props.native["useAddionalLocalMqtt"]) && (
+          <Box sx={{ marginTop: 1.25 }}>
+            <Box>
+              <FormLabel>{I18n.t("localMqttUrl")}:</FormLabel>
             </Box>
-          ))}
+            <Box>{renderInput("localMqttUrl", "text")}</Box>
+          </Box>
+        )}
 
         {props.native["connectionMode"] == "authKey" &&
           props.native["useAddionalLocalMqtt"] && (

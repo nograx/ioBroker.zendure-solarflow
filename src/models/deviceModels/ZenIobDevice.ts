@@ -375,6 +375,31 @@ export class ZenIobDevice {
     return Promise.resolve(false);
   }
 
+  private async axiosPostWithRetry(
+    url: string,
+    data: any,
+    config: any,
+    maxRetries: number = 3,
+  ): Promise<any> {
+    let lastError: any;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        return await axios.post(url, data, config);
+      } catch (error) {
+        lastError = error;
+
+        if (attempt < maxRetries) {
+          this.adapter.log.warn(
+            `[retryAxiosPost] Request failed (attempt ${attempt}/${maxRetries}), retrying... Error: ${error}`,
+          );
+        }
+      }
+    }
+
+    throw lastError;
+  }
+
   public writeZenSdkProperties(properties: string): Promise<boolean> {
     this.adapter.log.debug(
       `[writeZenSdkProperties] Writing properties with zenSDK for device ${this.deviceKey}: ${properties}`,
@@ -390,15 +415,14 @@ export class ZenIobDevice {
         timeout: 4000,
       };
 
-      return axios
-        .post(
-          `http://${this.ipAddress}/properties/write`,
-          {
-            sn: this.snNumber, // Required
-            properties: JSON.parse(properties),
-          },
-          config,
-        )
+      return this.axiosPostWithRetry(
+        `http://${this.ipAddress}/properties/write`,
+        {
+          sn: this.snNumber, // Required
+          properties: JSON.parse(properties),
+        },
+        config,
+      )
         .then(async (response) => {
           this.adapter.log.debug(
             `[writeZenSdkProperties] Successfully wrote properties for device ${this.deviceKey} with zenSDK: ${properties} / status: ${response.status}`,

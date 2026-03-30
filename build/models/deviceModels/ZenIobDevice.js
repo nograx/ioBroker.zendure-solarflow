@@ -760,6 +760,22 @@ class ZenIobDevice {
     }
     return Promise.resolve(false);
   }
+  async axiosPostWithRetry(url, data, config, maxRetries = 3) {
+    let lastError;
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        return await import_axios.default.post(url, data, config);
+      } catch (error) {
+        lastError = error;
+        if (attempt < maxRetries) {
+          this.adapter.log.warn(
+            `[retryAxiosPost] Request failed (attempt ${attempt}/${maxRetries}), retrying... Error: ${error}`
+          );
+        }
+      }
+    }
+    throw lastError;
+  }
   writeZenSdkProperties(properties) {
     this.adapter.log.debug(
       `[writeZenSdkProperties] Writing properties with zenSDK for device ${this.deviceKey}: ${properties}`
@@ -772,7 +788,7 @@ class ZenIobDevice {
         headers,
         timeout: 4e3
       };
-      return import_axios.default.post(
+      return this.axiosPostWithRetry(
         `http://${this.ipAddress}/properties/write`,
         {
           sn: this.snNumber,
