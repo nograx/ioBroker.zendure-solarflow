@@ -1002,6 +1002,9 @@ export class ZenIobDevice {
           } else if (x.sn.startsWith("B")) {
             batType = "AB1000S";
           } else if (x.sn.startsWith("C")) {
+            if (x.sn[1] === "O" && x.sn[2] === "4") {
+              batType = "I1920"; // Internal of 1600 AC+
+            }
             if (x.sn[3] == "F") {
               batType = "AB2000S";
             } else if (x.sn[3] == "E") {
@@ -1011,6 +1014,10 @@ export class ZenIobDevice {
             }
           } else if (x.sn.startsWith("F")) {
             batType = "AB3000X";
+          } else if (x.sn.startsWith("G")) {
+            batType = "AB3000L";
+          } else if (x.sn.startsWith("J")) {
+            batType = "I2400"; // Internal of 2400 AC+ or 2400 Pro
           }
 
           // Check if is in Pack2device list
@@ -1670,6 +1677,10 @@ export class ZenIobDevice {
           energyWhMax = (energyWhMax ? energyWhMax : 0) + 1920;
         } else if (this.batteries[i].type.includes("AB3000")) {
           energyWhMax = (energyWhMax ? energyWhMax : 0) + 2880;
+        } else if (this.batteries[i].type.includes("I2400")) {
+          energyWhMax = (energyWhMax ? energyWhMax : 0) + 2400;
+        } else if (this.batteries[i].type.includes("I1920")) {
+          energyWhMax = (energyWhMax ? energyWhMax : 0) + 1920;
         }
       }
     }

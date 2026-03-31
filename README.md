@@ -99,6 +99,7 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 
 - Fix missing ip field in settings for local mode
 - Add retry loop for zenSDK requests (retry 3 times if connection failed)
+- Update battery detection
 
 ### 4.0.2 (2026-03-24)
 

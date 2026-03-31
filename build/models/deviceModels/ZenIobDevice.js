@@ -67,6 +67,9 @@ class ZenIobDevice {
             } else if (x.sn.startsWith("B")) {
               batType = "AB1000S";
             } else if (x.sn.startsWith("C")) {
+              if (x.sn[1] === "O" && x.sn[2] === "4") {
+                batType = "I1920";
+              }
               if (x.sn[3] == "F") {
                 batType = "AB2000S";
               } else if (x.sn[3] == "E") {
@@ -76,6 +79,10 @@ class ZenIobDevice {
               }
             } else if (x.sn.startsWith("F")) {
               batType = "AB3000X";
+            } else if (x.sn.startsWith("G")) {
+              batType = "AB3000L";
+            } else if (x.sn.startsWith("J")) {
+              batType = "I2400";
             }
             if (!this.batteries.some((y) => y.packSn == x.sn)) {
               this.batteries.push({
@@ -407,6 +414,10 @@ class ZenIobDevice {
             energyWhMax = (energyWhMax ? energyWhMax : 0) + 1920;
           } else if (this.batteries[i].type.includes("AB3000")) {
             energyWhMax = (energyWhMax ? energyWhMax : 0) + 2880;
+          } else if (this.batteries[i].type.includes("I2400")) {
+            energyWhMax = (energyWhMax ? energyWhMax : 0) + 2400;
+          } else if (this.batteries[i].type.includes("I1920")) {
+            energyWhMax = (energyWhMax ? energyWhMax : 0) + 1920;
           }
         }
       }
