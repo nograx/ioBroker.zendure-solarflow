@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "4.0.2",
+    "version": "4.0.3",
     "news": {
+      "4.0.3": {
+        "en": "Fix missing ip address field in settings for local mode\nAdd retry loop for zenSDK requests (retry 3 times if connection failed)\nUpdate battery detection",
+        "de": "Fix fehlendes ip-Adressenfeld in Einstellungen für den lokalen Modus\nFügen Sie Retry-Schleife für zenSDK-Anfragen hinzu (wiederholen Sie 3 mal, wenn die Verbindung fehlgeschlagen ist)\nBatterieerkennung aktualisieren",
+        "ru": "Исправление недостающего поля IP-адреса в настройках для локального режима\nДобавить повторную петлю для запросов zenSDK (повторить 3 раза, если соединение не удалось)\nОбновление обнаружения батареи",
+        "pt": "Corrigir o campo de endereços IP em falta nas configurações do modo local\nAdicionar um ciclo de repetição para pedidos zenSDK (tentar 3 vezes se a ligação falhar)\nAtualizar a detecção da bateria",
+        "nl": "Ontbrekend ip-adresveld in instellingen voor lokale modus herstellen\nRetry-lus voor zenSDK-verzoeken toevoegen (inschakelen 3 keer als de verbinding mislukt)\nBatterijdetectie bijwerken",
+        "fr": "Correction du champ d'adresse ip manquant dans les paramètres pour le mode local\nAjouter une boucle de réessayer pour les requêtes zenSDK (réessayer 3 fois si la connexion a échoué)\nMettre à jour la détection de la batterie",
+        "it": "Fissare il campo di indirizzi ip mancanti nelle impostazioni per la modalità locale\nAggiungi loop di riprovazione per le richieste di zenSDK (ricerca 3 volte se la connessione non è riuscita)\nAggiornamento del rilevamento della batteria",
+        "es": "Arreglar el campo de dirección ip perdido en la configuración del modo local\nAgregue el bucle de reingreso para las solicitudes zenSDK (entrada 3 veces si la conexión falló)\nActualización de la detección de baterías",
+        "pl": "Naprawianie brakującego pola adresu IP w ustawieniach dla lokalnego trybu\nDodaj pętlę ponowną dla żądań zenSDK (powtórz 3 razy, jeśli połączenie nie powiodło się)\nAktualizuj wykrywanie baterii",
+        "uk": "Виправлення відсутності поля адреси IP в налаштуваннях локального режиму\nДодайте петлю птиця для запитів zenSDK (три 3 рази, якщо з'єднання не вдалося)\nОновлення виявлення батареї",
+        "zh-cn": "在本地模式设置中修复缺失的 ip 地址字段\n添加 zenSDK 请求的重试环( 如果连接失败, 重试三次)\n更新电池检测"
+      },
       "4.0.2": {
         "en": "Re-add new SF devices to local mode settings\nAdd product key '64174u' for Solarflow 1600 AC+",
         "de": "Neue SF-Geräte auf lokale Mode-Einstellungen neuaddieren\nProduktschlüssel '64174u' für Solarflow 1600 AC+ hinzufügen",
@@ -80,19 +93,6 @@
         "pl": "Napraw setDeviceAutomationInOutLimit na niektórych urządzeniach HEMS takich jak 2400 AC (+)",
         "uk": "Виправлення setDeviceAutomationInOutLimit на певних пристроях HEMS, таких як 2400 AC(+)",
         "zh-cn": "某些HEMS设备,如2400 AC(+)上的DeviceAutomation InOutLimit"
-      },
-      "3.5.2": {
-        "en": "Add productKey '5fG27j' for Solarflow 2400 AC+",
-        "de": "Produkt hinzufügenKey '5fG27j' für Solarflow 2400 AC+",
-        "ru": "Добавить продуктKey '5fG27j для Solarflow 2400 AC+",
-        "pt": "Adicionar produtoKey '5fG27j' para Solarflow 2400 AC+",
-        "nl": "Product toevoegenKey '5fG27j' voor Solarflow 2400 AC+",
-        "fr": "Ajouter le produitKey '5fG27j' pour Solarflow 2400 AC+",
-        "it": "Aggiungi prodottoKey '5fG27j' per Solarflow 2400 AC+",
-        "es": "Añadir productoKey '5fG27j' para el flujo solar 2400 AC+",
-        "pl": "Dodaj productKey '5fG27j' dla Solarflow 2400 AC +",
-        "uk": "Додати продуктKey '5fG27j' для Solarflow 2400 AC+",
-        "zh-cn": "添加“ 5fG27j” 产品, 用于太阳能流 2400 AC+"
       }
     },
     "titleLang": {
