@@ -2,7 +2,7 @@
 import axios, { AxiosRequestConfig } from "axios";
 import { iobKey } from "../constants/sensorStates/constants";
 import { ZendureSolarflow } from "../main";
-import * as crypto from "crypto";
+import * as crypto from "node:crypto";
 import { IIobDeviceListData } from "../models/IIobDeviceListData";
 
 export const zenLogin = async (
