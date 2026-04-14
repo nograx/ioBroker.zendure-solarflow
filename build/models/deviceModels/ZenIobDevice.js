@@ -31,7 +31,7 @@ __export(ZenIobDevice_exports, {
   ZenIobDevice: () => ZenIobDevice
 });
 module.exports = __toCommonJS(ZenIobDevice_exports);
-var import_crypto = require("crypto");
+var import_node_crypto = require("node:crypto");
 var import_constants = require("../../constants/sensorStates/constants");
 var import_createCalculationStates = require("../../helpers/createCalculationStates");
 var import_timeHelper = require("../../helpers/timeHelper");
@@ -531,7 +531,7 @@ class ZenIobDevice {
     if (_zenIobDeviceDetails) {
       this.updateSolarFlowStatesFromDeviceDetails(_zenIobDeviceDetails);
     }
-    this.password = (0, import_crypto.createHash)("md5").update(_deviceKey, "utf8").digest("hex").toUpperCase().substring(8, 24);
+    this.password = (0, import_node_crypto.createHash)("md5").update(_deviceKey, "utf8").digest("hex").toUpperCase().substring(8, 24);
     this.adapter.log.debug(
       `[ZenIobDevice] useZenSDK for device ${this.deviceKey}: Supported=${this.isZenSdkSupported} Config=${this.adapter.config.useZenSDK}`
     );

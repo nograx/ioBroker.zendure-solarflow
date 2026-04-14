@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "4.0.3",
+    "version": "4.0.4",
     "news": {
+      "4.0.4": {
+        "en": "Update dependencies",
+        "de": "Abhängigkeiten aktualisieren",
+        "ru": "Обновление зависимостей",
+        "pt": "Atualizar dependências",
+        "nl": "Afhankelijkheden bijwerken",
+        "fr": "Mise à jour des dépendances",
+        "it": "Dipendenze di aggiornamento",
+        "es": "Actualizar las dependencias",
+        "pl": "Aktualizuj zależności",
+        "uk": "Оновлення залежності",
+        "zh-cn": "更新依赖关系"
+      },
       "4.0.3": {
         "en": "Fix missing ip address field in settings for local mode\nAdd retry loop for zenSDK requests (retry 3 times if connection failed)\nUpdate battery detection",
         "de": "Fix fehlendes ip-Adressenfeld in Einstellungen für den lokalen Modus\nFügen Sie Retry-Schleife für zenSDK-Anfragen hinzu (wiederholen Sie 3 mal, wenn die Verbindung fehlgeschlagen ist)\nBatterieerkennung aktualisieren",
@@ -80,19 +93,6 @@
         "pl": "Dodaj klucz urządzenia '65174u' dla Solarflow 1600 AC +",
         "uk": "Додати ключ пристрою '65174u' для Solarflow 1600 AC+",
         "zh-cn": "为 Solarflow 1600 AC+ 添加设备密钥“ 65174u ”"
-      },
-      "3.5.3": {
-        "en": "Fix setDeviceAutomationInOutLimit on certain HEMS devices like 2400 AC(+)",
-        "de": "Fix setDeviceAutomationInOutLimit auf bestimmte HEMS-Geräte wie 2400 AC(+)",
-        "ru": "Исправьте наборDeviceAutomationInOutLimit на определенных устройствах HEMS, таких как 2400 AC(+)",
-        "pt": "Fix setDeviceAutomationInOutLimit em certos dispositivos HEMS como 2400 AC(+)",
-        "nl": "Fix setDeviceAutomationInOutLimit op bepaalde HEMS apparaten zoals 2400 AC(+)",
-        "fr": "Correction setDeviceAutomationInOutLimit sur certains appareils HEMS comme 2400 AC(+)",
-        "it": "Fix setDeviceAutomationInOutLimit su alcuni dispositivi HEMS come 2400 AC(+)",
-        "es": "Set de fijaciónDeviceAutomationInOutLimit on certain HEMS devices like 2400 AC(+)",
-        "pl": "Napraw setDeviceAutomationInOutLimit na niektórych urządzeniach HEMS takich jak 2400 AC (+)",
-        "uk": "Виправлення setDeviceAutomationInOutLimit на певних пристроях HEMS, таких як 2400 AC(+)",
-        "zh-cn": "某些HEMS设备,如2400 AC(+)上的DeviceAutomation InOutLimit"
       }
     },
     "titleLang": {

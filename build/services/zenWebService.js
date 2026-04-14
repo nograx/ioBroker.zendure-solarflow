@@ -33,7 +33,7 @@ __export(zenWebService_exports, {
 module.exports = __toCommonJS(zenWebService_exports);
 var import_axios = __toESM(require("axios"));
 var import_constants = require("../constants/sensorStates/constants");
-var crypto = __toESM(require("crypto"));
+var crypto = __toESM(require("node:crypto"));
 const zenLogin = async (adapter) => {
   const decodedAuthCloudKey = Buffer.from(
     adapter.config.authorizationCloudKey,
