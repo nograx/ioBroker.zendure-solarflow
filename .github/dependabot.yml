@@ -4,26 +4,25 @@
 # Reference: https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference
 version: 2
 updates:
-
-  - package-ecosystem: 'npm'
-    directory: '/'
+  - package-ecosystem: "npm"
+    directory: "/"
     schedule:
-      interval: 'monthly'
-      time: '04:00'
-      timezone: 'Europe/Berlin'
-    open-pull-requests-limit: 5
+      interval: "monthly"
+      time: "04:00"
+      timezone: "Europe/Berlin"
+    open-pull-requests-limit: 15
     assignees:
-      - 'nograx'
-    versioning-strategy: 'increase'
+      - "nograx"
+    versioning-strategy: "increase"
     cooldown:
       default-days: 7
 
-  - package-ecosystem: 'github-actions'
-    directory: '/'
+  - package-ecosystem: "github-actions"
+    directory: "/"
     schedule:
-      interval: 'monthly'
-      time: '04:00'
-      timezone: 'Europe/Berlin'
-    open-pull-requests-limit: 5
+      interval: "monthly"
+      time: "04:00"
+      timezone: "Europe/Berlin"
+    open-pull-requests-limit: 15
     assignees:
-      - 'nograx'
+      - "nograx"
