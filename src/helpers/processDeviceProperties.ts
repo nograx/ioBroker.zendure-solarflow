@@ -6,7 +6,7 @@ export const processDeviceProperties = async (
   device: ZenIobDevice,
   properties: ISolarFlowMqttProperties,
   isSolarFlow: boolean,
-) => {
+): Promise<void> => {
   if (properties?.autoModel != null && properties?.autoModel != undefined) {
     device?.updateSolarFlowState("autoModel", properties.autoModel);
 
