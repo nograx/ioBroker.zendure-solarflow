@@ -25,7 +25,7 @@
     "@mui/styles": "^6.4.8",
     "axios": "^1.9.0",
     "babel-eslint": "^10.1.0",
-    "mqtt": "^5.14.1"
+    "mqtt": "^5.15.1"
   },
   "devDependencies": {
     "@types/node-schedule": "^2.1.6",
