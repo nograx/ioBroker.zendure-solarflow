@@ -100,6 +100,9 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 
 ## Changelog
 
+### **WORK IN PROGRESS**
+- (copilot) Adapter requires node.js >= 22 now
+
 ### 4.0.4 (2026-04-14)
 
 - Update dependencies
