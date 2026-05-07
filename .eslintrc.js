@@ -20,10 +20,6 @@ module.exports = {
 		},
 	},
 	rules: {
-		"@typescript-eslint/indent": [
-			"warn",
-			2
-		],
 		"quotes": [
 			"error",
 			"double",
@@ -32,7 +28,6 @@ module.exports = {
 				"allowTemplateLiterals": true
 			}
 		],
-		"@typescript-eslint/no-parameter-properties": "off",
 		"@typescript-eslint/no-explicit-any": "off",
 		"@typescript-eslint/no-use-before-define": [
 			"error",
@@ -56,8 +51,6 @@ module.exports = {
 				allowTypedFunctionExpressions: true,
 			},
 		],
-		"@typescript-eslint/no-object-literal-type-assertion": "off",
-		"@typescript-eslint/interface-name-prefix": "off",
 		"@typescript-eslint/no-non-null-assertion": "off", // This is necessary for Map.has()/get()!
 		"no-var": "error",
 		"prefer-const": "error",

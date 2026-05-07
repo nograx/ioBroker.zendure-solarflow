@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/indent */
 
 import { ZendureSolarflow } from "../main";
 import { Ace1500 } from "../models/deviceModels/Ace1500";

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/indent */
 import { IPackData } from "./IPackData";
 
 export interface IMqttData {

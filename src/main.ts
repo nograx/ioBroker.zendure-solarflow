@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/indent */
 /*
  * Created with @iobroker/create-adapter v2.5.0
  */
@@ -344,7 +343,7 @@ export class ZendureSolarflow extends utils.Adapter {
       }
 
       callback();
-    } catch (e) {
+    } catch {
       callback();
     }
   }

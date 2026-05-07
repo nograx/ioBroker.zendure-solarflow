@@ -100,7 +100,7 @@ export const onMessageLocal = async (
   let obj: IMqttData = {};
   try {
     obj = JSON.parse(message.toString());
-  } catch (e) {
+  } catch {
     const txt = message.toString();
     adapter?.log.error(`[onMessageLocal] JSON Parse error!`);
 
@@ -154,7 +154,7 @@ export const onMessageCloud = async (
       // Message already processed in local mqtt, ignore to avoid loops
       return;
     }
-  } catch (e) {
+  } catch {
     const txt = message.toString();
     adapter?.log.error(`[onMessageCloud] JSON Parse error!`);
 

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/indent */
 
 import { ac2400ControlStates } from "../constants/controlStates/ac2400ControlStates";
 import { aceControlStates } from "../constants/controlStates/aceControlStates";

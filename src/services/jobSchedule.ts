@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/indent */
 import { scheduleJob } from "node-schedule";
 import { ZendureSolarflow } from "../main";
 

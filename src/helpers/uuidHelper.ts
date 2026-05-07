@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/indent */
 export const generateUniqSerial = (): string => {
   return "xxxx-xxxx-xxx-xxxx".replace(/[x]/g, function (c) {
     const r = (Math.random() * 16) | 0,

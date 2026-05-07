@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/indent */
 import { ISolarflowState } from "../../models/ISolarflowState";
 
 export const solarflow2400ProControlStates: ISolarflowState[] = [

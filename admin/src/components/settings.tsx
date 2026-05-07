@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/indent */
 import React, { useEffect, useState } from "react";
 import {
   Box,

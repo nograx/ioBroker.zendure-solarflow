@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/indent */
 import mqtt from "mqtt";
 import { ZendureSolarflow } from "../../main";
 import { MqttService } from "./mqttService";

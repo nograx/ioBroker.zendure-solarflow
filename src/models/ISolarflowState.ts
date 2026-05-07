@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/indent */
 export interface ISolarflowState {
   title: string;
   nameDe: string;

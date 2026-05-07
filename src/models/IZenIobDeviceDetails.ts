@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/indent */
 export interface IZenIobDeviceDetails {
   deviceKey: string;
   deviceName: string;

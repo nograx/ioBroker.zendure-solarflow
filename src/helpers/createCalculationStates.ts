@@ -1,6 +1,5 @@
 import { ZendureSolarflow } from "../main";
 
-/* eslint-disable @typescript-eslint/indent */
 export const createCalculationStates = async (
   adapter: ZendureSolarflow,
   productKey: string,

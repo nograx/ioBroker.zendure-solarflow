@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/indent */
 import React from "react";
 import { StyledEngineProvider, ThemeProvider } from "@mui/material";
 

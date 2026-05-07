@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/indent */
 export interface IDeviceAutomationPayload {
   autoModelProgram: number;
   autoModelValue: IAutoModelValue | number;
