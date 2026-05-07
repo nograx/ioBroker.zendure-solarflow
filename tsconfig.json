@@ -32,7 +32,9 @@
     // "useUnknownInCatchVariables": false,
 
     "sourceMap": true,
-    "inlineSourceMap": false
+    "inlineSourceMap": false,
+
+    "types": ["mocha", "node"]
   },
   "include": ["src/**/*.ts"],
   "exclude": ["build/**", "node_modules/**", "widgets/**"]
