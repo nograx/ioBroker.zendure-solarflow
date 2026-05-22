@@ -4,11 +4,12 @@
 declare global {
   namespace ioBroker {
     interface AdapterConfig {
-      connectionMode; // Cloud (api key) or local MQTT
+      connectionMode: "authKey" | "local" | "manualIps"; // Cloud (api key), local MQTT or manual IP list
       useZenSDK: boolean;
       useAddionalLocalMqtt: boolean;
       relayMqttToCloud: boolean;
       authorizationCloudKey: string;
+      manualDeviceIps: string;
       localMqttUrl: string;
       localMqttPort: number;
       localDevice1ProductKey: string;

@@ -41,6 +41,8 @@
   "useRestart": "Use restart of adapter every 3 hours to refresh access token",
   "connectionMode": "Connection mode",
   "authKey": "Authorization Cloud Key",
+  "manualIps": "Manual Device IPs",
+  "manualDeviceIps": "Device IPs (comma-separated)",
   "usrPwd": "Username & password",
   "useZenSDK": "Use zenSDK (if supported by device)",
   "useAddionalLocalMqtt": "Use additional local MQTT server",

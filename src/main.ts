@@ -6,7 +6,11 @@
 // you need to create an adapter
 import * as utils from "@iobroker/adapter-core";
 
-import { zenLogin } from "./services/zenWebService";
+import {
+  getLanDeviceListByIps,
+  parseManualDeviceIps,
+  zenLogin,
+} from "./services/zenWebService";
 import { Job } from "node-schedule";
 import {
   startRefreshAccessTokenTimerJob,
@@ -16,6 +20,7 @@ import { LocalMqttService } from "./services/mqtt/localMqttService";
 import { IZenIobDeviceDetails } from "./models/IZenIobDeviceDetails";
 import { CloudMqttService } from "./services/mqtt/cloudMqttService";
 import { IZenIobMqttData } from "./models/IZenIobMqttData";
+import { IIobDeviceListData } from "./models/IIobDeviceListData";
 import { ZenIobDevice } from "./models/deviceModels/ZenIobDevice";
 import { createDeviceModel } from "./helpers/helpers";
 import { FileHelper } from "./helpers/fileHelper";
@@ -137,6 +142,51 @@ export class ZendureSolarflow extends utils.Adapter {
             });
         } else {
           // Connection successful, continue as normal
+          const payloadKeys =
+            data && typeof data === "object" ? Object.keys(data) : [];
+          this.log.debug(
+            `[onReady] Zendure login payload keys: ${payloadKeys.join(",")}`,
+          );
+
+          const mqttCandidate = (data as Partial<IIobDeviceListData>).mqtt;
+          const hasCompleteMqttSettings = !!(
+            mqttCandidate?.url &&
+            mqttCandidate?.clientId &&
+            mqttCandidate?.username &&
+            mqttCandidate?.password
+          );
+
+          if (!hasCompleteMqttSettings) {
+            const redactedData = {
+              ...((data as unknown as Record<string, unknown>) || {}),
+            };
+            if (redactedData.mqtt && typeof redactedData.mqtt === "object") {
+              const mqtt = {
+                ...(redactedData.mqtt as Record<string, unknown>),
+              };
+              if (mqtt.password) {
+                mqtt.password = "***";
+              }
+              redactedData.mqtt = mqtt;
+            }
+
+            this.log.error(
+              "[onReady] Zendure login payload does not contain complete MQTT settings in 'data.mqtt'.",
+            );
+            this.log.error(
+              `[onReady] Zendure login payload keys: ${payloadKeys.join(",")}`,
+            );
+            this.log.error(
+              `[onReady] MQTT candidate keys: ${mqttCandidate ? Object.keys(mqttCandidate).join(",") : "none"}`,
+            );
+            this.log.error(
+              `[onReady] Zendure payload snapshot: ${JSON.stringify(redactedData)}`,
+            );
+            this.log.debug(
+              `[onReady] MQTT candidate keys: ${mqttCandidate ? Object.keys(mqttCandidate).join(",") : "none"}`,
+            );
+          }
+
           this.mqttSettings = data.mqtt;
 
           this.cloudMqttService = new CloudMqttService(this);
@@ -275,6 +325,63 @@ export class ZendureSolarflow extends utils.Adapter {
           // Add interval to restart adapter every 3 hours
           startRefreshAccessTokenTimerJob(this);
         }
+        break;
+      }
+      case "manualIps": {
+        this.log.debug("[onReady] Using manual device IP list");
+
+        const manualIps = parseManualDeviceIps(this.config.manualDeviceIps);
+        if (manualIps.length === 0) {
+          this.log.error(
+            "[onReady] No valid manual device IPs configured. Please set 'Device IPs (comma-separated)' in adapter settings.",
+          );
+          break;
+        }
+
+        this.log.debug(
+          `[onReady] Trying to discover Zendure devices via zenSDK at ${manualIps.length} IP(s).`,
+        );
+
+        const deviceList = await getLanDeviceListByIps(this, manualIps);
+        if (!deviceList.length) {
+          this.log.error(
+            "[onReady] No reachable Zendure devices found via manual IP list.",
+          );
+          this.setState("info.connection", false, true);
+          break;
+        }
+
+        this.setState("info.connection", true, true);
+        this.log.debug(`[onReady] Creating ${deviceList.length} devices...`);
+        await deviceList.forEach(async (device: IZenIobDeviceDetails) => {
+          const deviceModel = createDeviceModel(
+            this,
+            device.productKey,
+            device.deviceKey,
+            device,
+          );
+
+          if (deviceModel) {
+            this.zenIobDeviceList.push(deviceModel);
+          } else {
+            this.log.error(
+              `[onReady] Error creating device with productKey '${device.productKey}' / deviceKey '${device.deviceKey}' / productModel '${device.productModel}'`,
+            );
+          }
+        });
+
+        if (
+          this.zenIobDeviceList.find((x) => x.isZenSdkSupported) !=
+            undefined &&
+          this.config.useZenSDK
+        ) {
+          startZenSdkDataRefreshJob(this);
+        } else {
+          this.log.warn(
+            "[onReady] No zenSDK-supported devices detected. Manual IP mode requires zenSDK-compatible devices.",
+          );
+        }
+
         break;
       }
       default:

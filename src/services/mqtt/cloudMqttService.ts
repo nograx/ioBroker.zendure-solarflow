@@ -17,6 +17,18 @@ export class CloudMqttService extends MqttService {
       return false;
     }
 
+    if (
+      !this.adapter.mqttSettings.url ||
+      !this.adapter.mqttSettings.clientId ||
+      !this.adapter.mqttSettings.username ||
+      !this.adapter.mqttSettings.password
+    ) {
+      this.adapter.log.error(
+        "[CloudMqttService] Incomplete MQTT settings from Zendure cloud (url/clientId/username/password missing)!",
+      );
+      return false;
+    }
+
     const opts: mqtt.IClientOptions = {
       clientId: this.adapter.mqttSettings.clientId,
       username: this.adapter.mqttSettings.username,
