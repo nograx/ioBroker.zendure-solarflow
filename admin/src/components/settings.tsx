@@ -158,6 +158,7 @@ function Settings(props: SettingsProps) {
             {renderSelect("connectionMode", [
               { value: "authKey", title: "authKey" },
               { value: "local", title: "local" },
+              { value: "manualIps", title: "manualIps" },
             ])}
           </Box>
         </Box>
@@ -169,6 +170,15 @@ function Settings(props: SettingsProps) {
               <FormLabel>{I18n.t("authKey")}:</FormLabel>
             </Box>
             <Box>{renderInput("authorizationCloudKey", "text")}</Box>
+          </Box>
+        )}
+
+        {props.native["connectionMode"] == "manualIps" && (
+          <Box sx={{ marginTop: 1.25 }}>
+            <Box>
+              <FormLabel>{I18n.t("manualDeviceIps")}:</FormLabel>
+            </Box>
+            <Box>{renderInput("manualDeviceIps", "text")}</Box>
           </Box>
         )}
 
