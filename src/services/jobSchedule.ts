@@ -21,15 +21,26 @@ export const startRefreshAccessTokenTimerJob = async (
 export const startZenSdkDataRefreshJob = async (
   adapter: ZendureSolarflow,
 ): Promise<void> => {
-  adapter.zenSdkDataRefreshJob = scheduleJob("*/5 * * * * *", () => {
-    adapter.zenIobDeviceList.forEach(async (device) => {
-      if (device.isZenSdkSupported && adapter.config.useZenSDK) {
-        device.getZenSdkProperties();
+  adapter.zenSdkDataRefreshJob = scheduleJob("*/5 * * * * *", async () => {
+    const tasks: Promise<boolean>[] = [];
 
-        // Add small delay between each device to avoid too many requests at the same time
-        await adapter.delay(1 * 1000);
+    adapter.zenIobDeviceList.forEach((device) => {
+      if (device.isZenSdkSupported && adapter.config.useZenSDK) {
+        tasks.push(device.getZenSdkProperties());
       }
     });
+
+    if (!tasks.length) {
+      if (adapter.config.connectionMode === "manualIps") {
+        adapter.setState("info.connection", false, true);
+      }
+      return;
+    }
+
+    const results = await Promise.all(tasks);
+    if (adapter.config.connectionMode === "manualIps") {
+      adapter.setState("info.connection", results.some((x) => x), true);
+    }
   });
 };
 

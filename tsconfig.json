@@ -13,6 +13,7 @@
     "checkJs": true,
     "forceConsistentCasingInFileNames": true,
     "noEmitOnError": true,
+    "rootDir": ".",
     "outDir": "./build/",
     "removeComments": false,
 

@@ -17,6 +17,8 @@ import axios from "axios";
 import { processDeviceProperties } from "../../helpers/processDeviceProperties";
 
 export class ZenIobDevice {
+  private static readonly ZENSDK_TIMEOUT_LOG_INTERVAL_MS = 10 * 60 * 1000;
+
   public zenIobDeviceDetails?: IZenIobDeviceDetails;
   public adapter: ZendureSolarflow;
   public deviceConnectionMode: DeviceConnectionMode | undefined = undefined;
@@ -40,6 +42,9 @@ export class ZenIobDevice {
 
   public states: ISolarflowState[] = [];
   public controlStates: ISolarflowState[] = [];
+  private lastZenSdkTimeoutLogAt: number = 0;
+  private zenSdkLastPollTimedOut: boolean = false;
+  private mqttConnectionInitialized: boolean = false;
 
   public constructor(
     _adapter: ZendureSolarflow,
@@ -95,6 +100,8 @@ export class ZenIobDevice {
             this.updateSolarFlowState("wifiState", "Connected");
           } else {
             this.updateSolarFlowState("wifiState", "Disconnected");
+            // Initial zenSDK call failed, enable MQTT fallback.
+            this.setupMqttConnection();
           }
         })
         .catch(() => {
@@ -109,6 +116,11 @@ export class ZenIobDevice {
   }
 
   private setupMqttConnection(): void {
+    if (this.mqttConnectionInitialized) {
+      return;
+    }
+    this.mqttConnectionInitialized = true;
+
     // Subscribe to report topic (get telemetry)
     this.subscribeReportTopic();
 
@@ -334,6 +346,17 @@ export class ZenIobDevice {
         .then(async (response) => {
           const data = await response.data;
 
+          this.deviceConnectionMode = DeviceConnectionMode.zenSDK;
+          this.updateSolarFlowState("connectionMode", "zenSDK");
+          this.updateSolarFlowState("wifiState", "Connected");
+
+          if (this.zenSdkLastPollTimedOut) {
+            this.adapter.log.info(
+              `[getZenSdkProperties] Device ${this.deviceKey} at ${this.ipAddress} is reachable again via zenSDK.`,
+            );
+            this.zenSdkLastPollTimedOut = false;
+          }
+
           this.adapter.log.debug(
             `[getZenSdkProperties] Successfully got properties for device ${this.deviceKey} with zenSDK!}`,
           );
@@ -359,9 +382,28 @@ export class ZenIobDevice {
           return true;
         })
         .catch((error) => {
-          this.adapter.log.error(
-            `[getZenSdkProperties] Error getting properties for device ${this.deviceKey} with zenSDK: ${error}`,
-          );
+          const isTimeout =
+            error?.code === "ECONNABORTED" ||
+            String(error?.message || "").toLowerCase().includes("timeout");
+
+          if (isTimeout) {
+            const now = Date.now();
+            if (
+              !this.lastZenSdkTimeoutLogAt ||
+              now - this.lastZenSdkTimeoutLogAt >=
+                ZenIobDevice.ZENSDK_TIMEOUT_LOG_INTERVAL_MS
+            ) {
+              this.adapter.log.error(
+                `[getZenSdkProperties] Timeout getting properties for device ${this.deviceKey} at ${this.ipAddress}. Further timeout errors are suppressed for 10 minutes.`,
+              );
+              this.lastZenSdkTimeoutLogAt = now;
+            }
+            this.zenSdkLastPollTimedOut = true;
+          } else {
+            this.adapter.log.error(
+              `[getZenSdkProperties] Error getting properties for device ${this.deviceKey} with zenSDK: ${error}`,
+            );
+          }
 
           this.updateSolarFlowState("wifiState", "Disconnected");
           return false;
@@ -672,7 +714,7 @@ export class ZenIobDevice {
 
   /**
    * Will set the discharge limit (minSoc)
-   * @param socSet the desired minimum soc
+   * @param minSoc the desired minimum soc
    * @returns void
    */
   public setDischargeLimit(minSoc: number): void {
