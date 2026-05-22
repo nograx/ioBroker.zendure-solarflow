@@ -44,6 +44,8 @@ Currently all Zendure Solarflow devices are supported via cloud.
 
 - **Local MQTT** It's also possible to use the local only mode. Currently there is no known way for the new Solarflow devices to set the MQTT server directly on the device, so for these you have to use a DNS relay.
 
+- **manual IP** Local only mode without MQTT and using the zenSDK is also possible. The adapter then polls the device every 5 seconds.
+
 ### zenSDK Compatible Devices ✅
 
 These devices support the advanced zenSDK automation features with full **local** control over http:
@@ -81,9 +83,13 @@ These devices are supported via **local** MQTT mode (Zendure Cloud Disconnector)
 
 As a new feature you can disconnect the Zendure device from the Cloud. You can either use the [Solarflow Bluetooth Manager](https://github.com/reinhard-brandstaedter/solarflow-bt-manager) from Reinhard Brandstätter or my own Windows Tool [Zendure Cloud Disconnector](https://github.com/nograx/zendure-cloud-disconnector) to disconnect the device from the cloud. It's also possible to redirect DNS requests with your router from "mq.zen-iot.com" to your own MQTT server!
 
-Both tools connect to the Zendure device via bluetooth and simply sets the internal MQTT url to a new url/ip you have to provide. Currently you are forced to use the default MQTT port 1883 on your server. You are also forced to deactivate authentication on the MQTT server as the Zendure device use a hardcoded password.
+Both tools connect to the Zendure device via bluetooth and simply sets the internal MQTT url to a new url/ip you have to provide. Currently, you are forced to use the default MQTT port 1883 on your server. You are also forced to deactivate authentication on the MQTT server as the Zendure device use a hardcoded password.
 
 You can use this in combination with your cloud authentication key or use the full local mode.
+
+## Manual IP mode (Disconnect from Zendure Cloud)
+
+You have to enter a comma-separated list of IP addresses of your local Zendure devices. The adapter will then use zenSDK to poll those devices and not access the Zendure Cloud. The names of the created items in IOBroker differ from the names created using the Authentication Cloud Key method, as the adapter has no access to the cloud names, but only to the serial numbers of the devices and will use them.  
 
 ## Important
 
@@ -103,6 +109,9 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 ### **WORK IN PROGRESS**
 
 - (copilot) Adapter requires node.js >= 22 now
+
+### 4.0.? (2026-05-22)
+- (codex) added support for manual IP mode
 
 ### 4.0.4 (2026-04-14)
 
