@@ -68,7 +68,16 @@ export const zenLogin = async (
     .then(async function (response) {
       const data = await response.data;
 
-      return data.data;
+      if (data?.data) {
+        adapter.log.debug(
+          `[zenLogin] deviceList Response: ${JSON.stringify(data, null, 2)}`,
+        );
+
+        return data.data;
+      } else {
+        adapter.log.error(`[zenLogin] deviceList response is empty!`);
+        return null;
+      }
     })
     .catch(async function (error) {
       if (error.response) {

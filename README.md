@@ -102,7 +102,10 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 
 ### **WORK IN PROGRESS**
 
-- (copilot) Adapter requires node.js >= 22 now
+- Add state 'socStatus' (Auto-calibration) for modern devices (SF 800 upwards)
+- Fix adapter start if deviceList is empty
+- Improve logging of errors
+- Adapter requires node.js >= 22 now
 
 ### 4.0.4 (2026-04-14)
 

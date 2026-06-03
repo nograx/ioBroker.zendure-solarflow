@@ -1,4 +1,3 @@
-
 import mqtt from "mqtt";
 import { ZendureSolarflow } from "../../main";
 import { MqttService } from "./mqttService";
@@ -14,6 +13,13 @@ export class CloudMqttService extends MqttService {
   connect(): boolean {
     if (!this.adapter.mqttSettings) {
       this.adapter.log.error("[CloudMqttService] MQTT settings missing!");
+      return false;
+    }
+
+    if (!this.adapter.mqttSettings.url) {
+      this.adapter.log.error(
+        "[CloudMqttService] MQTT URL is missing in mqttSettings!",
+      );
       return false;
     }
 

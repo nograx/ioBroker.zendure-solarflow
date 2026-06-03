@@ -147,6 +147,10 @@ export class ZendureSolarflow extends utils.Adapter {
           } else {
             deviceList = data.deviceList;
 
+            if (deviceList.length == 0) {
+              this.log.warn("[onReady] device list is empty!");
+            }
+
             // Save device list to file
             fileHelper.writeDeviceListToFile(deviceList);
           }
