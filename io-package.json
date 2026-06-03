@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "4.0.4",
+    "version": "4.0.5",
     "news": {
+      "4.0.5": {
+        "en": "Add state 'socStatus' (Auto-calibration) for modern devices (SF 800 upwards)\nFix adapter start if deviceList is empty\nImprove logging of errors\nAdapter requires node.js >= 22 now",
+        "de": "Zustand 'socStatus' (Autokalibrierung) für moderne Geräte (SF 800 nach oben)\nFix Adapterstart, wenn deviceList leer ist\nFehlersuche verbessern\nAdapter benötigt node.js >= 22 jetzt",
+        "ru": "Добавить состояние «socStatus» (автокалибровка) для современных устройств (SF 800 выше)\nЗапуск адаптера исправления, если список устройств пуст\nУлучшение регистрации ошибок\nАдаптер требует node.js >= 22 сейчас",
+        "pt": "Adicionar estado 'socStatus' (Calibração automática) para dispositivos modernos (SF 800 para cima)\nCorrigir o início do adaptador se a lista estiver vazia\nMelhorar o registro de erros\nAdaptador requer nod.js >= 22 agora",
+        "nl": "Toevoegen status 'socStatus' (Auto-kalibratie) voor moderne apparaten (SF 800 naar boven)\nFix adapter start als apparaatlijst leeg is\nHet loggen van fouten verbeteren\nVoor de adapter zijn node.js < 22 nu nodig",
+        "fr": "Ajouter l'état 'socStatus' (étalonnage automatique) pour les appareils modernes (SF 800 vers le haut)\nCorrection du démarrage de l'adaptateur si deviceList est vide\nAméliorer l'enregistrement des erreurs\nAdaptateur nécessite node.js >= 22 maintenant",
+        "it": "Aggiungere lo stato 'socStatus' (calibrazione automatica) per dispositivi moderni (SF 800 verso l'alto)\nFissare l'avvio dell'adattatore se il dispositivoList è vuoto\nMigliorare la registrazione degli errori\nAdattatore richiede node.js >= 22 ora",
+        "es": "Añadir estado 'socStatus' (Auto-calibración) para dispositivos modernos (SF 800 hacia arriba)\nInicio del adaptador de fijación si dispositivoList está vacío\nMejorar el registro de errores\nAdaptador requiere node.js ю= 22 ahora",
+        "pl": "Dodaj stan 'socStatus' (Autokalibracja) dla nowoczesnych urządzeń (SF 800 w górę)\nNapraw adapter, jeśli DeviceList jest pusty\nPoprawa rejestrowania błędów\nAdapter wymaga node.js > = 22",
+        "uk": "Додати стан \"socStatus\" (Auto-calibration) для сучасних пристроїв (SF 800 вгору)\nЗапуск адаптера, якщо пристрійСписок порожній\nПокращити залогу помилок\nАдаптер вимагає node.js >= 22 тепер",
+        "zh-cn": "为现代设备添加状态“ oc status”( 自动校准) (SF 800 向上)\n如果设备列表为空, 固定适配器启动\n改进错误记录\n适配器需要节点.js 现在22"
+      },
       "4.0.4": {
         "en": "Update dependencies",
         "de": "Abhängigkeiten aktualisieren",
@@ -80,19 +93,6 @@
         "pl": "Fix packInputPower & outputPackPower na nowych urządzeniach Solarflow\nKonstruktor urządzenia w trybie lokalnym\nNapraw setDeviceAutomationInOutLimit dla Solarflow 1600 AC +\nCzytaj więcej danych z serwisu internetowego Zabb\nUstaw flagę ACK poprawnie dla funkcji hemsEP\nZmień wartość niektórych plików",
         "uk": "Fix packInputPower & виведенняPackPower на нові пристрої Solarflow\nКонструктор пристроїв у локальному режимі\nФіксований комплектDeviceAutomationInOutLimit для Solarflow 1600 AC+\nЧитати більше даних від Zendure WebService\nВстановіть прапорець ACK правильно для функції HemsEP\nРефактор деяких файлів",
         "zh-cn": "在新太阳能流设备上修复装包输入器和输出PackPower\n局部模式的固定设备构造器\n日光流 1600 AC+ 的自动调试\n从 Zendure WebService 读取更多数据\n为 hemsEP 函数正确设置 AK 旗\n重构一些文件"
-      },
-      "3.5.4": {
-        "en": "Add device key '65174u' for Solarflow 1600 AC+",
-        "de": "Geräteschlüssel '65174u' für Solarflow 1600 AC+ hinzufügen",
-        "ru": "Добавить клавишу «65174u» для Solarflow 1600 AC+",
-        "pt": "Adicionar a chave do dispositivo '65174u' para Solarflow 1600 AC+",
-        "nl": "Toevoegen apparaatsleutel '65174u' voor Solarflow 1600 AC+",
-        "fr": "Ajouter la touche '65174u' pour Solarflow 1600 AC+",
-        "it": "Aggiungi la chiave del dispositivo '65174u' per Solarflow 1600 AC+",
-        "es": "Añadir la llave del dispositivo '65174u' para el flujo solar 1600 AC+",
-        "pl": "Dodaj klucz urządzenia '65174u' dla Solarflow 1600 AC +",
-        "uk": "Додати ключ пристрою '65174u' для Solarflow 1600 AC+",
-        "zh-cn": "为 Solarflow 1600 AC+ 添加设备密钥“ 65174u ”"
       }
     },
     "titleLang": {

@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["../../src/models/IDeviceAutomationPayload.ts"],
-  "sourcesContent": ["/* eslint-disable @typescript-eslint/indent */\nexport interface IDeviceAutomationPayload {\n  autoModelProgram: number;\n  autoModelValue: IAutoModelValue | number;\n  msgType: number;\n  autoModel: number;\n}\n\nexport interface IHemsEpPayload {\n  outputPower: number;\n  chargeState: number;\n  chargePower: number;\n  mode: number;\n}\n\ninterface IAutoModelValue {\n  upTime?: number;\n  chargingType: number;\n  pullTime?: number;\n  price?: number;\n  chargingPower: number;\n  prices?: number[];\n  outPower: number;\n  freq: number;\n}\n"],
+  "sourcesContent": ["export interface IDeviceAutomationPayload {\n  autoModelProgram: number;\n  autoModelValue: IAutoModelValue | number;\n  msgType: number;\n  autoModel: number;\n}\n\nexport interface IHemsEpPayload {\n  outputPower: number;\n  chargeState: number;\n  chargePower: number;\n  mode: number;\n}\n\ninterface IAutoModelValue {\n  upTime?: number;\n  chargingType: number;\n  pullTime?: number;\n  price?: number;\n  chargingPower: number;\n  prices?: number[];\n  outPower: number;\n  freq: number;\n}\n"],
   "mappings": ";;;;;;;;;;;;;;AAAA;AAAA;",
   "names": []
 }

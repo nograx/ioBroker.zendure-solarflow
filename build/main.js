@@ -142,6 +142,9 @@ class ZendureSolarflow extends utils.Adapter {
             this.log.error("[onReady] Could not connect to MQTT cloud server!");
           } else {
             deviceList = data.deviceList;
+            if (deviceList.length == 0) {
+              this.log.warn("[onReady] device list is empty!");
+            }
             fileHelper.writeDeviceListToFile(deviceList);
           }
           if (this.config.useAddionalLocalMqtt) {
@@ -280,7 +283,7 @@ class ZendureSolarflow extends utils.Adapter {
         this.clearTimeout(this.retryTimeout);
       }
       callback();
-    } catch (e) {
+    } catch {
       callback();
     }
   }

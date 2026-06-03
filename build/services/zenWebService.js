@@ -72,7 +72,15 @@ const zenLogin = async (adapter) => {
   };
   return import_axios.default.post(`${apiUrl}/api/ha/deviceList`, JSON.stringify(body), config).then(async function(response) {
     const data = await response.data;
-    return data.data;
+    if (data == null ? void 0 : data.data) {
+      adapter.log.debug(
+        `[zenLogin] deviceList Response: ${JSON.stringify(data, null, 2)}`
+      );
+      return data.data;
+    } else {
+      adapter.log.error(`[zenLogin] deviceList response is empty!`);
+      return null;
+    }
   }).catch(async function(error) {
     if (error.response) {
       adapter.log.error(

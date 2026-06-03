@@ -157,3 +157,12 @@
 
 - Add 'packPower' state, which shows combined power from (packInputPower and outputPackPower). Discharging will be shown with a negative value.
 - Add 'hyperTmp' to Solarflow 800 devices in hope this will show the temperature of the Solarflow 800 (can not test it due to lack of test device).
+## 4.0.0 (2026-03-17)
+
+- Add support for zenSDK! All devices can now communicate in the local network (with full cloud support for backup and maintenance)
+- Add possibility to relay local MQTT messages to Zendure cloud!
+- Save device list from Zendure Cloud as a local backup if cloud is unavailable
+- Major refactor and improvements
+- Fix 'packPower' not correctly set (resetting to 0 every new data package)
+
+[Older changelogs can be found there](CHANGELOG_OLD.md)

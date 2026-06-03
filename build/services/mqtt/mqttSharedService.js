@@ -95,7 +95,7 @@ const onMessageLocal = async (topic, message) => {
   let obj = {};
   try {
     obj = JSON.parse(message.toString());
-  } catch (e) {
+  } catch {
     const txt = message.toString();
     adapter == null ? void 0 : adapter.log.error(`[onMessageLocal] JSON Parse error!`);
     adapter == null ? void 0 : adapter.log.debug(`[onMessageLocal] JSON Parse error: ${txt}!`);
@@ -130,7 +130,7 @@ const onMessageCloud = async (topic, message) => {
     if (obj.isHA) {
       return;
     }
-  } catch (e) {
+  } catch {
     const txt = message.toString();
     adapter == null ? void 0 : adapter.log.error(`[onMessageCloud] JSON Parse error!`);
     adapter == null ? void 0 : adapter.log.debug(`[onMessageCloud] JSON Parse error: ${txt}!`);

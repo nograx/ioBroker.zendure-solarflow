@@ -31,6 +31,12 @@ class CloudMqttService extends import_mqttService.MqttService {
       this.adapter.log.error("[CloudMqttService] MQTT settings missing!");
       return false;
     }
+    if (!this.adapter.mqttSettings.url) {
+      this.adapter.log.error(
+        "[CloudMqttService] MQTT URL is missing in mqttSettings!"
+      );
+      return false;
+    }
     const opts = {
       clientId: this.adapter.mqttSettings.clientId,
       username: this.adapter.mqttSettings.username,

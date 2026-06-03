@@ -111,6 +111,17 @@ const ac2400PlusStates = import_sharedStates.sharedStates.concat([
     nameEn: "Bypass on/off",
     type: "boolean",
     role: "value"
+  },
+  {
+    title: "socStatus",
+    nameDe: "Smart Mode",
+    nameEn: "Smart Mode",
+    type: "number",
+    role: "value",
+    states: {
+      0: "Normal mode",
+      1: "Auto-calibration"
+    }
   }
 ]);
 // Annotate the CommonJS export names for ESM import in node:

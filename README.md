@@ -99,8 +99,7 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 -->
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 4.0.5 (2026-06-03)
 
 - Add state 'socStatus' (Auto-calibration) for modern devices (SF 800 upwards)
 - Fix adapter start if deviceList is empty
@@ -125,16 +124,6 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 ### 4.0.1 (2026-03-20)
 
 - Fix missing smartMode state for Solarflow AC 2400 and Solarflow 800
-
-### 4.0.0 (2026-03-17)
-
-- Add support for zenSDK! All devices can now communicate in the local network (with full cloud support for backup and maintenance)
-- Add possibility to relay local MQTT messages to Zendure cloud!
-- Save device list from Zendure Cloud as a local backup if cloud is unavailable
-- Major refactor and improvements
-- Fix 'packPower' not correctly set (resetting to 0 every new data package)
-
-[Older changelogs can be found there](CHANGELOG_OLD.md)
 
 ## License
 

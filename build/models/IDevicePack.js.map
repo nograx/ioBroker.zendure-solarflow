@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["../../src/models/IDevicePack.ts"],
-  "sourcesContent": ["/* eslint-disable @typescript-eslint/indent */\nexport interface IDevicePack {\n  packSn: string;\n  type: string;\n}\n"],
+  "sourcesContent": ["export interface IDevicePack {\n  packSn: string;\n  type: string;\n}\n"],
   "mappings": ";;;;;;;;;;;;;;AAAA;AAAA;",
   "names": []
 }

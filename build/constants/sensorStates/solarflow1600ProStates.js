@@ -118,6 +118,17 @@ const solarflow1600AcPlusStates = import_sharedStates.sharedStates.concat(
       nameEn: "Smart Mode",
       type: "boolean",
       role: "value"
+    },
+    {
+      title: "socStatus",
+      nameDe: "Smart Mode",
+      nameEn: "Smart Mode",
+      type: "number",
+      role: "value",
+      states: {
+        0: "Normal mode",
+        1: "Auto-calibration"
+      }
     }
   ]
 );
