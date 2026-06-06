@@ -95,12 +95,12 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 
 <!--
     Placeholder for the next version (at the beginning of the line):
-    ## **WORK IN PROGRESS**
+    ### **WORK IN PROGRESS**
 -->
 
 ## Changelog
 
-## **WORK IN PROGRESS**
+### **WORK IN PROGRESS**
 - Add productKey 'nVyeqM' for Solarflow Pro 2
 
 ### 4.0.5 (2026-06-03)
