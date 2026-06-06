@@ -99,6 +99,10 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 -->
 
 ## Changelog
+
+## **WORK IN PROGRESS**
+- Add productKey 'nVyeqM' for Solarflow Pro 2
+
 ### 4.0.5 (2026-06-03)
 
 - Add state 'socStatus' (Auto-calibration) for modern devices (SF 800 upwards)

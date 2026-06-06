@@ -1,4 +1,3 @@
-
 import { ZendureSolarflow } from "../main";
 import { Ace1500 } from "../models/deviceModels/Ace1500";
 import { Aio2400 } from "../models/deviceModels/Aio2400";
@@ -190,6 +189,22 @@ export const createDeviceModel = (
         _zenHaDeviceDetails,
       );
     case "r3mn8u":
+      _adapter.log.debug(
+        `[onReady] Creating deviceModel SF 800 Pro ${_productKey}`,
+      );
+      return new Sf800Pro(
+        _adapter,
+        _productKey,
+        _deviceKey,
+        _zenHaDeviceDetails
+          ? _zenHaDeviceDetails.productModel
+          : "Solarflow 800 Pro",
+        _zenHaDeviceDetails
+          ? _zenHaDeviceDetails.deviceName
+          : "Solarflow 800 Pro",
+        _zenHaDeviceDetails,
+      );
+    case "nvyeqm":
       _adapter.log.debug(
         `[onReady] Creating deviceModel SF 800 Pro ${_productKey}`,
       );

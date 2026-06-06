@@ -97,4 +97,15 @@ export const solarflow2400ProStates: ISolarflowState[] = sharedStates.concat([
     type: "boolean",
     role: "value",
   },
+  {
+    title: "socStatus",
+    nameDe: "Smart Mode",
+    nameEn: "Smart Mode",
+    type: "number",
+    role: "value",
+    states: {
+      0: "Normal mode",
+      1: "Auto-calibration",
+    },
+  },
 ]);

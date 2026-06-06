@@ -28,6 +28,7 @@ const productKeys: { value; title }[] = [
   { value: "B1NHMC", title: "SolarFlow 800 (B1NHMC)" },
   { value: "a4ss5P", title: "SolarFlow 800 (a4ss5P)" },
   { value: "R3mn8U", title: "SolarFlow 800 Pro (R3mn8U)" },
+  { value: "nVyeqM", title: "SolarFlow 800 Pro 2 (nVyeqM)" },
   { value: "8n77V3", title: "SolarFlow 800 Plus (8n77V3)" },
 ];
 
