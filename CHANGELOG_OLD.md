@@ -157,6 +157,10 @@
 
 - Add 'packPower' state, which shows combined power from (packInputPower and outputPackPower). Discharging will be shown with a negative value.
 - Add 'hyperTmp' to Solarflow 800 devices in hope this will show the temperature of the Solarflow 800 (can not test it due to lack of test device).
+## 4.0.1 (2026-03-20)
+
+- Fix missing smartMode state for Solarflow AC 2400 and Solarflow 800
+
 ## 4.0.0 (2026-03-17)
 
 - Add support for zenSDK! All devices can now communicate in the local network (with full cloud support for backup and maintenance)

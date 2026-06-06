@@ -182,6 +182,18 @@ const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetail
         _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "Solarflow 800 Pro",
         _zenHaDeviceDetails
       );
+    case "nvyeqm":
+      _adapter.log.debug(
+        `[onReady] Creating deviceModel SF 800 Pro ${_productKey}`
+      );
+      return new import_Sf800Pro.Sf800Pro(
+        _adapter,
+        _productKey,
+        _deviceKey,
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.productModel : "Solarflow 800 Pro",
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "Solarflow 800 Pro",
+        _zenHaDeviceDetails
+      );
     case "8n77v3":
       _adapter.log.debug(
         `[onReady] Creating deviceModel SF 800 Plus ${_productKey}`

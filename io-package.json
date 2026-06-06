@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "4.0.5",
+    "version": "4.0.6",
     "news": {
+      "4.0.6": {
+        "en": "Add productKey 'nVyeqM' for Solarflow Pro 2",
+        "de": "Produkt hinzufügenKey 'nVyeqM' für Solarflow Pro 2",
+        "ru": "Добавить продуктKey 'nVyeqM для Solarflow Pro 2",
+        "pt": "Adicionar produtoKey 'nVyeqM' para Solarflow Pro 2",
+        "nl": "Product toevoegenKey 'nVyeqM' voor Solarflow Pro 2",
+        "fr": "Ajouter le produitKey 'nVyeqM' pour Solarflow Pro 2",
+        "it": "Aggiungi prodottoKey 'nVyeqM' per Solarflow Pro 2",
+        "es": "Añadir productoKey 'nVyeqM' para Solarflow Pro 2",
+        "pl": "Dodaj productKey 'nVyeqM' dla Solarflow Pro 2",
+        "uk": "Додати продуктKey 'nVyeqM' для Solarflow Pro 2",
+        "zh-cn": "为太阳流Pro 2 添加产品 Key “ nVyeqM ”"
+      },
       "4.0.5": {
         "en": "Add state 'socStatus' (Auto-calibration) for modern devices (SF 800 upwards)\nFix adapter start if deviceList is empty\nImprove logging of errors\nAdapter requires node.js >= 22 now",
         "de": "Zustand 'socStatus' (Autokalibrierung) für moderne Geräte (SF 800 nach oben)\nFix Adapterstart, wenn deviceList leer ist\nFehlersuche verbessern\nAdapter benötigt node.js >= 22 jetzt",
@@ -80,19 +93,6 @@
         "pl": "Dodaj wsparcie dla zenSDK! Wszystkie urządzenia mogą teraz komunikować się w sieci lokalnej (z pełnym wsparciem dla chmur do tworzenia kopii zapasowych i konserwacji)\nDodaj możliwość przekazywania lokalnych wiadomości MQTT do chmury Zharge!\nZapisz listę urządzeń z Zhamb Cloud jako lokalne backup jeśli chmura jest niedostępna\nZnaczący czynnik i poprawa\nPoprawiono 'packPower' nieprawidłowo ustawione (ponowne ustawienie na 0 każdego nowego pakietu danych)",
         "uk": "Додати підтримку zenSDK! Всі пристрої тепер можуть спілкуватися в локальній мережі (з повним хмарним забезпеченням для резервного копіювання та обслуговування)\nДодати можливість перекласти локальні повідомлення MQTT до хмари Zendure!\nЗберегти список пристроїв від Zendure Cloud як локальна резервна копія, якщо хмара недоступна\nОсновні рефактори та вдосконалення\nВиправлення 'packPower' не правильно встановити (редагування до 0 кожного нового пакету даних)",
         "zh-cn": "添加 ZenSDK 的支持 ! 所有设备现在都可以在本地网络中通信(对备份和维护有全云支持)\n添加向 Zendure 云转发本地 MQTT 消息的可能性 !\n如果云不可用, 请将 Zendure Cloud 的设备列表保存为本地备份\n重大改进\n修正“ packPower” 不正确的设置( 每套新数据重设为 0)"
-      },
-      "3.6.0": {
-        "en": "Fix packInputPower & outputPackPower on new Solarflow devices\nFix device constructor in local mode\nFix setDeviceAutomationInOutLimit for Solarflow 1600 AC+\nRead more data from Zendure WebService\nSet ACK flag correctly for hemsEP function\nRefactor some files",
-        "de": "Fix packInputPower & OutputPackPower auf neue Solarflow-Geräte\nGerätekonstruktor im lokalen Modus reparieren\nFix setDeviceAutomationInOutLimit für Solarflow 1600 AC+\nLesen Sie mehr Daten von Zendure WebService\nSetzen Sie ACK-Flag richtig für hemsEP-Funktion\nRefactor einige Dateien",
-        "ru": "Исправьте пакет InputPower и outputPackPower на новых устройствах Solarflow\nИсправьте конструктор устройств в локальном режиме\nРемонтный наборDeviceAutomationInOutLimit для Solarflow 1600 AC+\nЧитать далее Zendure WebService\nУстановите ACK флаг правильно для функции HemsEP\nРефактор некоторых файлов",
-        "pt": "Fix packInputPower & outputPackPower em novos dispositivos Solarflow\nCorrigir o construtor do dispositivo no modo local\nFix setDeviceAutomationInOutLimit para Solarflow 1600 AC+\nLeia mais dados do Zendure WebService\nDefinir a bandeira ACK corretamente para a função hemsEP\nRefatorizar alguns arquivos",
-        "nl": "Fix packInputPower & outputPackPower op nieuwe Solarflow apparaten\nFix apparaat constructor in lokale modus\nFix setDeviceAutomationInOutLimit voor Solarflow 1600 AC+\nLees meer gegevens van Zendure WebService\nACK vlag correct instellen voor hemsEP functie\nRefactor sommige bestanden",
-        "fr": "Fix packInputPower & outputPackPower sur les nouveaux appareils Solarflow\nCorrection du constructeur de périphérique en mode local\nCorrection setDeviceAutomationInOutLimit pour Solarflow 1600 AC+\nLire plus de données de Zendure WebService\nDéfinir le drapeau ACK correctement pour la fonction hemsEP\nRefactorer certains fichiers",
-        "it": "Fix packInputPower & outputPackPower su nuovi dispositivi Solarflow\nFissare il costruttore del dispositivo in modalità locale\nFix setDeviceAutomationInOutLimit per Solarflow 1600 AC+\nLeggi altri dati da Zendure WebService\nImpostare correttamente la bandiera ACK per la funzione hemsEP\nRefactor alcuni file",
-        "es": "Pack de fijaciónInputPower & outputPackPower en nuevos dispositivos de flujo solar\nConstructor de dispositivo fijo en modo local\nSet de fijaciónDeviceAutomationInOutLimit for Solarflow 1600 AC+\nLeer más datos de Zendure WebService\nEstablecer la bandera ACK correctamente para la función hemsEP\nRefactor algunos archivos",
-        "pl": "Fix packInputPower & outputPackPower na nowych urządzeniach Solarflow\nKonstruktor urządzenia w trybie lokalnym\nNapraw setDeviceAutomationInOutLimit dla Solarflow 1600 AC +\nCzytaj więcej danych z serwisu internetowego Zabb\nUstaw flagę ACK poprawnie dla funkcji hemsEP\nZmień wartość niektórych plików",
-        "uk": "Fix packInputPower & виведенняPackPower на нові пристрої Solarflow\nКонструктор пристроїв у локальному режимі\nФіксований комплектDeviceAutomationInOutLimit для Solarflow 1600 AC+\nЧитати більше даних від Zendure WebService\nВстановіть прапорець ACK правильно для функції HemsEP\nРефактор деяких файлів",
-        "zh-cn": "在新太阳能流设备上修复装包输入器和输出PackPower\n局部模式的固定设备构造器\n日光流 1600 AC+ 的自动调试\n从 Zendure WebService 读取更多数据\n为 hemsEP 函数正确设置 AK 旗\n重构一些文件"
       }
     },
     "titleLang": {
