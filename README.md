@@ -99,7 +99,14 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 -->
 
 ## Changelog
+
+## **WORK IN PROGRESS**
+
+- Allow local SSL MQTT Server on port 8883 (due to new device firmware)
+- Fix batcur calculation
+
 ### 4.0.6 (2026-06-06)
+
 - Add productKey 'nVyeqM' for Solarflow 800 Pro 2
 
 ### 4.0.5 (2026-06-03)
@@ -123,6 +130,10 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 
 - Re-add new SF devices to local mode settings
 - Add product key '64174u' for Solarflow 1600 AC+
+
+### 4.0.1 (2026-03-20)
+
+- Fix missing smartMode state for Solarflow AC 2400 and Solarflow 800
 
 ## License
 

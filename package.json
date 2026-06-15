@@ -78,6 +78,7 @@
     "prebuild:react": "rimraf admin/build",
     "build:react": "build-adapter react",
     "watch:react": "build-adapter react --watch",
+    "clean:dev-admin": "rimraf \".dev-server/node_modules/iobroker.zendure-solarflow\"",
     "test:ts": "mocha --config test/mocharc.custom.json src/**/*.test.ts",
     "test:package": "mocha test/package --exit",
     "test:integration": "mocha test/integration --exit",

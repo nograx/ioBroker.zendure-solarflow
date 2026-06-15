@@ -25,6 +25,12 @@
       "type": "node-terminal"
     },
     {
+      "command": "dev-server run default",
+      "name": "Dev Server (Admin UI only)",
+      "request": "launch",
+      "type": "node-terminal"
+    },
+    {
       "name": "Launch Edge",
       "request": "launch",
       "type": "msedge",
@@ -39,6 +45,13 @@
         "Start Dev Server",
         "Launch Edge",
         "Attach by Process ID"
+      ]
+    },
+    {
+      "name": "Debug Admin UI",
+      "configurations": [
+        "Dev Server (Admin UI only)",
+        "Launch Edge"
       ]
     }
   ]

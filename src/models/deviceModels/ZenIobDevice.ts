@@ -1222,7 +1222,15 @@ export class ZenIobDevice {
               native: {},
             });
 
-            await this.adapter?.setState(key + ".batcur", x.batcur / 10, true);
+            let batcur = 0;
+
+            if (x.batcur > 32767) {
+              batcur -= 65536;
+            }
+
+            batcur = batcur / 10;
+
+            await this.adapter?.setState(key + ".batcur", batcur, true);
           }
 
           // Check if Value exist and changed, if so update lastUpdate!

@@ -38,6 +38,8 @@
   "Ace 1500": "Ace 1500",
   "AIO 2400": "AIO 2400",
   "localMqttUrl": "Local MQTT Server URL/IP",
+  "localMqttSSL": "Use SSL (port 8883)",
+  "localMqttAcceptSelfSignedSSL": "Allow self signed certificate",
   "useRestart": "Use restart of adapter every 3 hours to refresh access token",
   "connectionMode": "Connection mode",
   "authKey": "Authorization Cloud Key",

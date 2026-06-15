@@ -32,12 +32,15 @@ class LocalMqttService extends import_mqttService.MqttService {
       return false;
     }
     const opts = {
-      clientId: "ioBroker.zendure-solarflow." + this.adapter.instance
+      clientId: "ioBroker.zendure-solarflow." + this.adapter.instance,
+      rejectUnauthorized: false
     };
+    const port = this.adapter.config.localMqttSSL ? 8883 : 1883;
+    const protocol = this.adapter.config.localMqttSSL ? "mqtts" : "mqtt";
     this.adapter.log.debug(
-      `[LocalMqttService] Connecting to local MQTT broker at ${this.adapter.config.localMqttUrl} with client ID ${opts.clientId}`
+      `[LocalMqttService] Connecting to local MQTT broker at ${this.adapter.config.localMqttUrl}:${port} with client ID ${opts.clientId}`
     );
-    const url = `mqtt://${this.adapter.config.localMqttUrl}:1883`;
+    const url = `${protocol}://${this.adapter.config.localMqttUrl}:${port}`;
     const ok = this.connectWithOptions(opts, url, true);
     if (ok) {
       this.adapter.setState("info.connection", true, true);

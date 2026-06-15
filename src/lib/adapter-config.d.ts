@@ -10,7 +10,8 @@ declare global {
       relayMqttToCloud: boolean;
       authorizationCloudKey: string;
       localMqttUrl: string;
-      localMqttPort: number;
+      localMqttSSL: boolean;
+      localMqttAcceptSelfSignedSSL: boolean;
       localDevice1ProductKey: string;
       localDevice1DeviceKey: string;
       localDevice2ProductKey: string;

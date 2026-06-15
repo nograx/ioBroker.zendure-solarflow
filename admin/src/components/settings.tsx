@@ -197,6 +197,21 @@ function Settings(props: SettingsProps) {
           </Box>
         )}
 
+        {(props.native["connectionMode"] == "local" ||
+          props.native["useAddionalLocalMqtt"]) && (
+          <Box>
+            {renderCheckbox("localMqttSSL", "localMqttSSL")}
+            {props.native["localMqttSSL"] && (
+              <Box>
+                {renderCheckbox(
+                  "localMqttAcceptSelfSignedSSL",
+                  "localMqttAcceptSelfSignedSSL",
+                )}
+              </Box>
+            )}
+          </Box>
+        )}
+
         {props.native["connectionMode"] == "authKey" &&
           props.native["useAddionalLocalMqtt"] && (
             <Box sx={{ marginTop: 1.25 }}>
@@ -206,7 +221,9 @@ function Settings(props: SettingsProps) {
             </Box>
           )}
 
-        <Box>{renderCheckbox("useRestart", "useRestart")}</Box>
+        {props.native["connectionMode"] == "authKey" && (
+          <Box>{renderCheckbox("useRestart", "useRestart")}</Box>
+        )}
 
         {props.native["connectionMode"] == "local" && (
           <Box sx={{ marginTop: 1.25 }}>

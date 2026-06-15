@@ -242,7 +242,12 @@ class ZenIobDevice {
                 },
                 native: {}
               }));
-              await ((_q = this.adapter) == null ? void 0 : _q.setState(key + ".batcur", x.batcur / 10, true));
+              let batcur = 0;
+              if (x.batcur > 32767) {
+                batcur -= 65536;
+              }
+              batcur = batcur / 10;
+              await ((_q = this.adapter) == null ? void 0 : _q.setState(key + ".batcur", batcur, true));
             }
             if (x.maxVol) {
               const maxVol = x.maxVol / 100;
