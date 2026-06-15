@@ -3,6 +3,19 @@
     "name": "zendure-solarflow",
     "version": "4.0.6",
     "news": {
+      "NEXT": {
+        "en": "Allow local SSL MQTT Server on port 8883\nFix batcur calculation",
+        "de": "Lokalen SSL-MQTT-Server auf Port 8883 erlauben\nBatcur-Berechnung korrigiert",
+        "ru": "Разрешить локальный SSL MQTT сервер на порту 8883\nИсправлен расчёт batcur",
+        "pt": "Permitir servidor MQTT SSL local na porta 8883\nCorrecção do cálculo batcur",
+        "nl": "Lokale SSL MQTT-server op poort 8883 toestaan\nBatcur-berekening gecorrigeerd",
+        "fr": "Autoriser le serveur MQTT SSL local sur le port 8883\nCorrection du calcul batcur",
+        "it": "Consentire il server MQTT SSL locale sulla porta 8883\nCorrezione del calcolo batcur",
+        "es": "Permitir servidor MQTT SSL local en el puerto 8883\nCorreción del cálculo batcur",
+        "pl": "Zezwól na lokalny serwer SSL MQTT na porcie 8883\nNaprawiono obliczenie batcur",
+        "uk": "Дозволити локальний SSL MQTT сервер на порту 8883\nВиправлено розрахунок batcur",
+        "zh-cn": "允许本地SSL MQTT服务器使用8883端口\n修复batcur计算"
+      },
       "4.0.6": {
         "en": "Add productKey 'nVyeqM' for Solarflow Pro 2",
         "de": "Produkt hinzufügenKey 'nVyeqM' für Solarflow Pro 2",
