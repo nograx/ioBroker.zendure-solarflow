@@ -100,7 +100,7 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 
 ## Changelog
 
-## **WORK IN PROGRESS**
+### **WORK IN PROGRESS**
 
 - Allow local SSL MQTT Server on port 8883 (due to new device firmware)
 - Fix batcur calculation
