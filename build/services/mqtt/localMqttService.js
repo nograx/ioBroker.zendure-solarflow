@@ -33,7 +33,7 @@ class LocalMqttService extends import_mqttService.MqttService {
     }
     const opts = {
       clientId: "ioBroker.zendure-solarflow." + this.adapter.instance,
-      rejectUnauthorized: false
+      rejectUnauthorized: this.adapter.config.localMqttAcceptSelfSignedSSL ? false : true
     };
     const port = this.adapter.config.localMqttSSL ? 8883 : 1883;
     const protocol = this.adapter.config.localMqttSSL ? "mqtts" : "mqtt";

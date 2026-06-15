@@ -184,14 +184,14 @@ const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetail
       );
     case "nvyeqm":
       _adapter.log.debug(
-        `[onReady] Creating deviceModel SF 800 Pro ${_productKey}`
+        `[onReady] Creating deviceModel SF 800 Pro 2 ${_productKey}`
       );
       return new import_Sf800Pro.Sf800Pro(
         _adapter,
         _productKey,
         _deviceKey,
-        _zenHaDeviceDetails ? _zenHaDeviceDetails.productModel : "Solarflow 800 Pro",
-        _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "Solarflow 800 Pro",
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.productModel : "Solarflow 800 Pro 2",
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "Solarflow 800 Pro 2",
         _zenHaDeviceDetails
       );
     case "8n77v3":

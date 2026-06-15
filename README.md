@@ -99,8 +99,7 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 -->
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 4.0.7-alpha.0 (2026-06-15)
 
 - Allow local SSL MQTT Server on port 8883 (due to new device firmware)
 - Fix batcur calculation
@@ -125,15 +124,6 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 - Fix missing ip address field in settings for local mode
 - Add retry loop for zenSDK requests (retry 3 times if connection failed)
 - Update battery detection
-
-### 4.0.2 (2026-03-24)
-
-- Re-add new SF devices to local mode settings
-- Add product key '64174u' for Solarflow 1600 AC+
-
-### 4.0.1 (2026-03-20)
-
-- Fix missing smartMode state for Solarflow AC 2400 and Solarflow 800
 
 ## License
 

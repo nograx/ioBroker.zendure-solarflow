@@ -157,6 +157,15 @@
 
 - Add 'packPower' state, which shows combined power from (packInputPower and outputPackPower). Discharging will be shown with a negative value.
 - Add 'hyperTmp' to Solarflow 800 devices in hope this will show the temperature of the Solarflow 800 (can not test it due to lack of test device).
+## 4.0.2 (2026-03-24)
+
+- Re-add new SF devices to local mode settings
+- Add product key '64174u' for Solarflow 1600 AC+
+
+## 4.0.1 (2026-03-20)
+
+- Fix missing smartMode state for Solarflow AC 2400 and Solarflow 800
+
 ## 4.0.1 (2026-03-20)
 
 - Fix missing smartMode state for Solarflow AC 2400 and Solarflow 800
