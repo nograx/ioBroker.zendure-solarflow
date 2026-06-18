@@ -1226,6 +1226,8 @@ export class ZenIobDevice {
 
             if (x.batcur > 32767) {
               batcur -= 65536;
+            } else {
+              batcur = x.batcur;
             }
 
             batcur = batcur / 10;
