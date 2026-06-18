@@ -41,5 +41,9 @@
     "Ace 1500": "ACE 1500",
     "AIO 2400": "AIO 2400",
     "localMqttUrl": "URL / IP du serveur MQTT local",
-    "useRestart": "Utilisez le redémarrage de l'adaptateur toutes les 3 heures pour actualiser le jeton d'accès"
+    "useRestart": "Utilisez le redémarrage de l'adaptateur toutes les 3 heures pour actualiser le jeton d'accès",
+    "sectionConnection": "Connexion",
+    "sectionLocalMqtt": "MQTT local",
+    "sectionDevices": "Appareils",
+    "sectionPowerManagement": "Calculs et gestion de l'énergie"
 }

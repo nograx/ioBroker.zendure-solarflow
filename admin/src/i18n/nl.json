@@ -41,5 +41,9 @@
     "Ace 1500": "Ace 1500",
     "AIO 2400": "AIO 2400",
     "localMqttUrl": "Lokale MQTT Server URL/IP",
-    "useRestart": "Gebruik de herstart van de adapter om de 3 uur om de toegangstoken te vernieuwen"
+    "useRestart": "Gebruik de herstart van de adapter om de 3 uur om de toegangstoken te vernieuwen",
+    "sectionConnection": "Verbinding",
+    "sectionLocalMqtt": "Lokale MQTT",
+    "sectionDevices": "Apparaten",
+    "sectionPowerManagement": "Berekeningen & energiebeheer"
 }

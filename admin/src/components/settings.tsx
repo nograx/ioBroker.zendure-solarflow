@@ -9,6 +9,10 @@ import {
   FormControlLabel,
   Checkbox,
   FormLabel,
+  Paper,
+  Typography,
+  Divider,
+  Stack,
 } from "@mui/material";
 import { GenericApp, I18n } from "@iobroker/adapter-react-v5";
 
@@ -121,213 +125,222 @@ function Settings(props: SettingsProps) {
     );
   }
 
-  return (
-    <Box sx={{ margin: 2.5 }}>
-      <h3>{I18n.t("donateHeader")}</h3>
-      <Box sx={{ marginTop: 2.5 }}>
-        {I18n.t("donate1")}
-
-        <br />
-        {I18n.t("donate2")}
-      </Box>
-      <Box sx={{ marginTop: 2.5 }}>
-        <a
-          href="https://www.paypal.com/paypalme/PeterFrommert"
-          target="_blank"
-          rel="noreferrer noopener"
+  function renderSection(title: string, children: React.ReactNode) {
+    return (
+      <Paper elevation={1} sx={{ p: 2.5, mb: 2 }}>
+        <Typography
+          variant="subtitle1"
+          sx={{ fontWeight: 600, color: "text.primary", mb: 1 }}
         >
-          <img
-            alt="Paypal Badge"
-            height={30}
-            src={
-              "https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white"
-            }
-          ></img>
-        </a>
+          {title}
+        </Typography>
+        <Divider sx={{ mb: 2 }} />
+        {children}
+      </Paper>
+    );
+  }
+
+  const isAuthKey = props.native["connectionMode"] === "authKey";
+  const isLocal = props.native["connectionMode"] === "local";
+  const useLocalMqtt = props.native["useAddionalLocalMqtt"];
+  const showLocalMqttSection = isLocal || useLocalMqtt;
+
+  return (
+    <Box sx={{ margin: 2.5, maxWidth: 800 }}>
+      {/* Donate */}
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h6" sx={{ mb: 1 }}>
+          {I18n.t("donateHeader")}
+        </Typography>
+        <Typography variant="body2">{I18n.t("donate1")}</Typography>
+        <Typography variant="body2" sx={{ mt: 0.5, color: "text.secondary" }}>
+          {I18n.t("donate2")}
+        </Typography>
+        <Box sx={{ mt: 1.5 }}>
+          <a
+            href="https://www.paypal.com/paypalme/PeterFrommert"
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            <img
+              alt="Paypal Badge"
+              height={30}
+              src="https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white"
+            />
+          </a>
+        </Box>
       </Box>
 
       <form autoComplete="off">
-        <Box sx={{ marginBottom: 2.5 }}>
-          <h3>{I18n.t("settings")}</h3>
-        </Box>
-        <Box>{I18n.t("settingsDesc")}</Box>
-
-        {/* Connection mode Selection */}
-        <Box sx={{ marginTop: 3.75 }}>
-          <FormLabel>{I18n.t("connectionMode")}:</FormLabel>
-          <Box>
-            {renderSelect("connectionMode", [
-              { value: "authKey", title: "authKey" },
-              { value: "local", title: "local" },
-            ])}
-          </Box>
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="h6">{I18n.t("settings")}</Typography>
+          <Typography variant="body2" sx={{ mt: 0.5, color: "text.secondary" }}>
+            {I18n.t("settingsDesc")}
+          </Typography>
         </Box>
 
-        {/* Auth Key */}
-        {props.native["connectionMode"] == "authKey" && (
-          <Box sx={{ marginTop: 1.25 }}>
+        {/* Section: Connection */}
+        {renderSection(
+          I18n.t("sectionConnection"),
+          <Stack spacing={1.5}>
             <Box>
-              <FormLabel>{I18n.t("authKey")}:</FormLabel>
-            </Box>
-            <Box>{renderInput("authorizationCloudKey", "text")}</Box>
-          </Box>
-        )}
-
-        {props.native["connectionMode"] == "authKey" && (
-          <Box sx={{ marginTop: 1.25 }}>
-            <Box>{renderCheckbox("useZenSDK", "useZenSDK")}</Box>
-          </Box>
-        )}
-
-        {props.native["connectionMode"] == "authKey" && (
-          <Box sx={{ marginTop: 1.25 }}>
-            <Box>
-              {renderCheckbox("useAddionalLocalMqtt", "useAddionalLocalMqtt")}
-            </Box>
-          </Box>
-        )}
-
-        {(props.native["connectionMode"] == "local" ||
-          props.native["useAddionalLocalMqtt"]) && (
-          <Box sx={{ marginTop: 1.25 }}>
-            <Box>
-              <FormLabel>{I18n.t("localMqttUrl")}:</FormLabel>
-            </Box>
-            <Box>{renderInput("localMqttUrl", "text")}</Box>
-          </Box>
-        )}
-
-        {(props.native["connectionMode"] == "local" ||
-          props.native["useAddionalLocalMqtt"]) && (
-          <Box>
-            {renderCheckbox("localMqttSSL", "localMqttSSL")}
-            {props.native["localMqttSSL"] && (
+              <FormLabel>{I18n.t("connectionMode")}:</FormLabel>
               <Box>
-                {renderCheckbox(
-                  "localMqttAcceptSelfSignedSSL",
-                  "localMqttAcceptSelfSignedSSL",
-                )}
+                {renderSelect("connectionMode", [
+                  { value: "authKey", title: "authKey" },
+                  { value: "local", title: "local" },
+                ])}
+              </Box>
+            </Box>
+
+            {isAuthKey && (
+              <Box>
+                <FormLabel>{I18n.t("authKey")}:</FormLabel>
+                <Box>{renderInput("authorizationCloudKey", "text")}</Box>
               </Box>
             )}
-          </Box>
-        )}
 
-        {props.native["connectionMode"] == "authKey" &&
-          props.native["useAddionalLocalMqtt"] && (
-            <Box sx={{ marginTop: 1.25 }}>
+            {isAuthKey && (
+              <Box>{renderCheckbox("useZenSDK", "useZenSDK")}</Box>
+            )}
+
+            {isAuthKey && (
               <Box>
-                {renderCheckbox("relayMqttToCloud", "relayMqttToCloud")}
+                {renderCheckbox("useAddionalLocalMqtt", "useAddionalLocalMqtt")}
               </Box>
-            </Box>
-          )}
+            )}
 
-        {props.native["connectionMode"] == "authKey" && (
-          <Box>{renderCheckbox("useRestart", "useRestart")}</Box>
+            {isAuthKey && (
+              <Box>{renderCheckbox("useRestart", "useRestart")}</Box>
+            )}
+          </Stack>,
         )}
 
-        {props.native["connectionMode"] == "local" && (
-          <Box sx={{ marginTop: 1.25 }}>
-            {/* Device 1 Settings  */}
-            <FormLabel>Device 1:</FormLabel>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
-              {renderSelect("localDevice1ProductKey", productKeys)}
-
-              <Box sx={{ marginLeft: 1.25 }}>
-                {renderInput("localDevice1DeviceKey", "text", "Device Key")}
+        {/* Section: Local MQTT */}
+        {showLocalMqttSection &&
+          renderSection(
+            I18n.t("sectionLocalMqtt"),
+            <Stack spacing={1.5}>
+              <Box>
+                <FormLabel>{I18n.t("localMqttUrl")}:</FormLabel>
+                <Box>{renderInput("localMqttUrl", "text")}</Box>
               </Box>
-            </Box>
-          </Box>
-        )}
 
-        {props.native["connectionMode"] == "local" &&
-          props.native["localDevice1DeviceKey"] && (
-            <Box sx={{ marginTop: 1.25 }}>
-              {/* Device 2 Settings  */}
-              <FormLabel>Device 2:</FormLabel>
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                }}
-              >
-                {renderSelect("localDevice2ProductKey", productKeys)}
-
-                <Box sx={{ marginLeft: 1.25 }}>
-                  {renderInput("localDevice2DeviceKey", "text", "Device Key")}
-                </Box>
-              </Box>
-            </Box>
-          )}
-
-        {props.native["connectionMode"] == "local" &&
-          props.native["localDevice2DeviceKey"] && (
-            <Box sx={{ marginTop: 1.25 }}>
-              {/* Device 3 Settings  */}
-              <FormLabel>Device 3:</FormLabel>
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                }}
-              >
-                {renderSelect("localDevice3ProductKey", productKeys)}
-
-                <Box sx={{ marginLeft: 1.25 }}>
-                  {renderInput("localDevice3DeviceKey", "text", "Device Key")}
-                </Box>
-              </Box>
-            </Box>
-          )}
-
-        {props.native["connectionMode"] == "local" &&
-          props.native["localDevice3DeviceKey"] && (
-            <Box sx={{ marginTop: 1.25 }}>
-              {/* Device 4 Settings  */}
-              <FormLabel>Device 4:</FormLabel>
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                }}
-              >
-                {renderSelect("localDevice4ProductKey", productKeys)}
-
-                <Box sx={{ marginLeft: 1.25 }}>
-                  {renderInput("localDevice4DeviceKey", "text", "Device Key")}
-                </Box>
-              </Box>
-            </Box>
-          )}
-
-        <Box>{renderCheckbox("useCalculation", "useCalculation")}</Box>
-        <Box>{renderCheckbox("useLowVoltageBlock", "useLowVoltageBlock")}</Box>
-
-        {props.native["useLowVoltageBlock"] != undefined &&
-          props.native["useLowVoltageBlock"] == true && (
-            <Box>
-              {renderCheckbox(
-                "forceShutdownOnLowVoltage",
-                "forceShutdownOnLowVoltage",
-              )}
-
-              {props.native["forceShutdownOnLowVoltage"] != undefined &&
-                props.native["forceShutdownOnLowVoltage"] == true && (
-                  <Box sx={{ marginTop: 1.25 }}>
-                    <FormLabel>{I18n.t("dischargeLimit")}:</FormLabel>
-                    <Box>{renderInput("dischargeLimit", "number")}</Box>
+              <Box>
+                {renderCheckbox("localMqttSSL", "localMqttSSL")}
+                {props.native["localMqttSSL"] && (
+                  <Box sx={{ pl: 3.5 }}>
+                    {renderCheckbox(
+                      "localMqttAcceptSelfSignedSSL",
+                      "localMqttAcceptSelfSignedSSL",
+                    )}
                   </Box>
                 )}
+              </Box>
 
-              {props.native["forceShutdownOnLowVoltage"] != undefined &&
-                props.native["forceShutdownOnLowVoltage"] == true &&
-                renderCheckbox("fullChargeIfNeeded", "fullChargeIfNeeded")}
-            </Box>
+              {isAuthKey && useLocalMqtt && (
+                <Box>
+                  {renderCheckbox("relayMqttToCloud", "relayMqttToCloud")}
+                </Box>
+              )}
+            </Stack>,
           )}
+
+        {/* Section: Devices (local mode only) */}
+        {isLocal &&
+          renderSection(
+            I18n.t("sectionDevices"),
+            <Stack spacing={2}>
+              <Box>
+                <FormLabel>Device 1:</FormLabel>
+                <Box sx={{ display: "flex", alignItems: "center", mt: 0.5 }}>
+                  {renderSelect("localDevice1ProductKey", productKeys)}
+                  <Box sx={{ ml: 1.25 }}>
+                    {renderInput("localDevice1DeviceKey", "text", "Device Key")}
+                  </Box>
+                </Box>
+              </Box>
+
+              {props.native["localDevice1DeviceKey"] && (
+                <Box>
+                  <FormLabel>Device 2:</FormLabel>
+                  <Box sx={{ display: "flex", alignItems: "center", mt: 0.5 }}>
+                    {renderSelect("localDevice2ProductKey", productKeys)}
+                    <Box sx={{ ml: 1.25 }}>
+                      {renderInput(
+                        "localDevice2DeviceKey",
+                        "text",
+                        "Device Key",
+                      )}
+                    </Box>
+                  </Box>
+                </Box>
+              )}
+
+              {props.native["localDevice2DeviceKey"] && (
+                <Box>
+                  <FormLabel>Device 3:</FormLabel>
+                  <Box sx={{ display: "flex", alignItems: "center", mt: 0.5 }}>
+                    {renderSelect("localDevice3ProductKey", productKeys)}
+                    <Box sx={{ ml: 1.25 }}>
+                      {renderInput(
+                        "localDevice3DeviceKey",
+                        "text",
+                        "Device Key",
+                      )}
+                    </Box>
+                  </Box>
+                </Box>
+              )}
+
+              {props.native["localDevice3DeviceKey"] && (
+                <Box>
+                  <FormLabel>Device 4:</FormLabel>
+                  <Box sx={{ display: "flex", alignItems: "center", mt: 0.5 }}>
+                    {renderSelect("localDevice4ProductKey", productKeys)}
+                    <Box sx={{ ml: 1.25 }}>
+                      {renderInput(
+                        "localDevice4DeviceKey",
+                        "text",
+                        "Device Key",
+                      )}
+                    </Box>
+                  </Box>
+                </Box>
+              )}
+            </Stack>,
+          )}
+
+        {/* Section: Calculations & Power Management */}
+        {renderSection(
+          I18n.t("sectionPowerManagement"),
+          <Stack spacing={0.5}>
+            <Box>{renderCheckbox("useCalculation", "useCalculation")}</Box>
+            <Box>
+              {renderCheckbox("useLowVoltageBlock", "useLowVoltageBlock")}
+              {props.native["useLowVoltageBlock"] && (
+                <Box sx={{ pl: 3.5 }}>
+                  {renderCheckbox(
+                    "forceShutdownOnLowVoltage",
+                    "forceShutdownOnLowVoltage",
+                  )}
+                  {props.native["forceShutdownOnLowVoltage"] && (
+                    <Box sx={{ pl: 3.5 }}>
+                      <Box>
+                        <FormLabel>{I18n.t("dischargeLimit")}:</FormLabel>
+                        <Box>{renderInput("dischargeLimit", "number")}</Box>
+                      </Box>
+                      {renderCheckbox(
+                        "fullChargeIfNeeded",
+                        "fullChargeIfNeeded",
+                      )}
+                    </Box>
+                  )}
+                </Box>
+              )}
+            </Box>
+          </Stack>,
+        )}
       </form>
     </Box>
   );

@@ -41,5 +41,9 @@
     "Ace 1500": "王牌1500",
     "AIO 2400": "AIO 2400",
     "localMqttUrl": "本地MQTT服务器URL/IP",
-    "useRestart": "每3小时使用重新启动适配器来刷新访问令牌"
+    "useRestart": "每3小时使用重新启动适配器来刷新访问令牌",
+    "sectionConnection": "连接",
+    "sectionLocalMqtt": "本地MQTT",
+    "sectionDevices": "设备",
+    "sectionPowerManagement": "计算与电源管理"
 }

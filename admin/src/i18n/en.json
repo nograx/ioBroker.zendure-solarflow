@@ -46,5 +46,9 @@
   "usrPwd": "Username & password",
   "useZenSDK": "Use zenSDK (if supported by device)",
   "useAddionalLocalMqtt": "Use additional local MQTT server",
-  "relayMqttToCloud": "Relay MQTT messages to cloud"
+  "relayMqttToCloud": "Relay MQTT messages to cloud",
+  "sectionConnection": "Connection",
+  "sectionLocalMqtt": "Local MQTT",
+  "sectionDevices": "Devices",
+  "sectionPowerManagement": "Calculations & Power Management"
 }

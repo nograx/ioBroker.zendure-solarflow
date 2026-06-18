@@ -41,5 +41,9 @@
     "Ace 1500": "ACE 1500",
     "AIO 2400": "AIO 2400",
     "localMqttUrl": "URL/IP do servidor MQTT local",
-    "useRestart": "Use o reinício do adaptador a cada 3 horas para atualizar o token de acesso"
+    "useRestart": "Use o reinício do adaptador a cada 3 horas para atualizar o token de acesso",
+    "sectionConnection": "Conexão",
+    "sectionLocalMqtt": "MQTT local",
+    "sectionDevices": "Dispositivos",
+    "sectionPowerManagement": "Cálculos e gestão de energia"
 }
