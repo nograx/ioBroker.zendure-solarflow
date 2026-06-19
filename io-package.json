@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "4.0.7-alpha.0",
+    "version": "4.1.0",
     "news": {
+      "4.1.0": {
+        "en": "Allow local TLS MQTT Server connection on port 8883 (due to new device firmware) in settings\nFix batcur calculation",
+        "de": "In den Einstellungen muss die lokale TLS-MQTT-Serververbindung auf Port 8883 zugelassen werden (aufgrund neuer Geräte-Firmware).\nKorrektur der Batch-Berechnung",
+        "ru": "В настройках разрешите локальное подключение к TLS MQTT-серверу через порт 8883 (в связи с новой прошивкой устройства).\nИсправить расчет batcur",
+        "pt": "Permitir conexão local com servidor TLS MQTT na porta 8883 (devido a uma nova atualização de firmware do dispositivo) nas configurações.\nCorrigir cálculo de batcur",
+        "nl": "Schakel in de instellingen de lokale TLS MQTT-serververbinding op poort 8883 in (vanwege de nieuwe firmware van het apparaat).\nCorrectie van de batcur-berekening",
+        "fr": "Autoriser la connexion au serveur MQTT TLS local sur le port 8883 (en raison de la nouvelle mise à jour du firmware de l'appareil) dans les paramètres\nCalcul de correction de batcur",
+        "it": "Consenti la connessione al server MQTT TLS locale sulla porta 8883 (a causa del nuovo firmware del dispositivo) nelle impostazioni\nCorreggere il calcolo del batcur",
+        "es": "Permitir la conexión local al servidor TLS MQTT en el puerto 8883 (debido al nuevo firmware del dispositivo) en la configuración.\nCorregir el cálculo de batcur",
+        "pl": "Zezwól na połączenie lokalnego serwera TLS MQTT na porcie 8883 (z powodu nowego oprogramowania sprzętowego urządzenia) w ustawieniach\nNapraw obliczenia Batcura",
+        "uk": "Дозволити підключення локального сервера TLS MQTT на порту 8883 (через нову прошивку пристрою) у налаштуваннях\nВиправити розрахунок Batcur",
+        "zh-cn": "允许本地 TLS MQTT 服务器连接到端口 8883（由于设备固件更新），请在设置中进行启用。\n修复 batcur 计算"
+      },
       "4.0.7-alpha.0": {
         "en": "Allow local SSL MQTT Server on port 8883\nFix batcur calculation",
         "de": "Lokalen SSL-MQTT-Server auf Port 8883 erlauben\nBatcur-Berechnung korrigiert",
@@ -80,19 +93,6 @@
         "pl": "Ponownie dodać nowe urządzenia SF do ustawień lokalnego trybu\nDodaj klucz produktu '64174u' dla Solarflow 1600 AC +",
         "uk": "Завантажити нові пристрої SF на локальні налаштування режиму\nДодати ключ продукту '64174u' для Solarflow 1600 AC+",
         "zh-cn": "在本地模式设置中重新添加新的 SF 设备\n为太阳流1600 AC+添加产品密钥 '64174u'"
-      },
-      "4.0.1": {
-        "en": "Fix missing smartMode state for Solarflow AC 2400 and Solarflow 800",
-        "de": "Fehlerbehebung Smart Modezustand für Solarflow AC 2400 und Solarflow 800",
-        "ru": "Исправить недостающие умные Режим работы Solarflow AC 2400 и Solarflow 800",
-        "pt": "Corrigir a falta de inteligência Modo estado para Solarflow AC 2400 e Solarflow 800",
-        "nl": "Smart herstellen Modustoestand voor Solarflow AC 2400 en Solarflow 800",
-        "fr": "Correction manquante smart État du mode pour Solarflow AC 2400 et Solarflow 800",
-        "it": "Risolvere intelligente mancante Stato di modalità per Solarflow AC 2400 e Solarflow 800",
-        "es": "Arreglar inteligente perdido Mode state for Solarflow AC 2400 and Solarflow 800",
-        "pl": "Popraw brakujące inteligentne Stan trybu dla Solarflow AC 2400 i Solarflow 800",
-        "uk": "Виправлення відсутній смарт Стандартний стан для Solarflow AC 2400 та Solarflow 800",
-        "zh-cn": "修复丢失的智能 太阳流 AC 2400和太阳流 800的模式状态"
       }
     },
     "titleLang": {
