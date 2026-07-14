@@ -22,7 +22,6 @@ __export(Sf800Pro_exports, {
 });
 module.exports = __toCommonJS(Sf800Pro_exports);
 var import_solarflow800ProControlStates = require("../../constants/controlStates/solarflow800ProControlStates");
-var import_solarflow800ProStates = require("../../constants/sensorStates/solarflow800ProStates");
 var import_ZenSdkIobDevice = require("./ZenSdkIobDevice");
 class Sf800Pro extends import_ZenSdkIobDevice.ZenSdkIobDevice {
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {
@@ -37,7 +36,6 @@ class Sf800Pro extends import_ZenSdkIobDevice.ZenSdkIobDevice {
     this.maxInputLimit = 1e3;
     this.maxOutputLimit = 800;
     this.isZenSdkSupported = true;
-    this.states = import_solarflow800ProStates.solarflow800ProStates;
     this.controlStates = import_solarflow800ProControlStates.solarflow800ProControlStates;
   }
   async setAcMode(acMode) {

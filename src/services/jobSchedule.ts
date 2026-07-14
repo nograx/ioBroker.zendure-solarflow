@@ -131,7 +131,7 @@ export const startCheckStatesAndConnectionJob = async (
           )}, set Wifi state to Disconnected!`,
         );
 
-        device?.updateSolarFlowState("wifiState", "Disconnected");
+        device?.updateSolarFlowState("wifiState", 0);
       }
 
       if (
@@ -149,8 +149,9 @@ export const startCheckStatesAndConnectionJob = async (
         );
         // State was not updated in the last 5 minutes... set states to 0
         await statesToReset.forEach(async (stateName: string) => {
-          // First check if state exist
-          const exist = device.states.find((x) => x.title === stateName);
+          const exist = await adapter.getObjectAsync(
+            `${device.productKey}.${device.deviceKey}.${stateName}`,
+          );
 
           if (!exist) {
             adapter.log.debug(

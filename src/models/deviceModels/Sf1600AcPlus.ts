@@ -1,5 +1,4 @@
 import { solarflow1600AcPlusControlStates } from "../../constants/controlStates/solarflow1600AcPlusControlStates";
-import { solarflow1600AcPlusStates } from "../../constants/sensorStates/solarflow1600ProStates";
 import { ZendureSolarflow } from "../../main";
 import { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
 import { ZenSdkIobDevice } from "./ZenSdkIobDevice";
@@ -9,8 +8,7 @@ export class Sf1600AcPlus extends ZenSdkIobDevice {
   maxOutputLimit = 1600;
   isZenSdkSupported = true;
 
-  states = solarflow1600AcPlusStates;
-  controlStates = solarflow1600AcPlusControlStates;
+controlStates = solarflow1600AcPlusControlStates;
 
   public constructor(
     _adapter: ZendureSolarflow,

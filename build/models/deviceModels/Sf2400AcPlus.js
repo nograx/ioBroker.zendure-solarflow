@@ -22,7 +22,6 @@ __export(Sf2400AcPlus_exports, {
 });
 module.exports = __toCommonJS(Sf2400AcPlus_exports);
 var import_ac2400PlusControlStates = require("../../constants/controlStates/ac2400PlusControlStates");
-var import_ac2400PlusStates = require("../../constants/sensorStates/ac2400PlusStates");
 var import_ZenSdkIobDevice = require("./ZenSdkIobDevice");
 class Sf2400AcPlus extends import_ZenSdkIobDevice.ZenSdkIobDevice {
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {
@@ -37,7 +36,6 @@ class Sf2400AcPlus extends import_ZenSdkIobDevice.ZenSdkIobDevice {
     this.maxInputLimit = 2400;
     this.maxOutputLimit = 2400;
     this.isZenSdkSupported = true;
-    this.states = import_ac2400PlusStates.ac2400PlusStates;
     this.controlStates = import_ac2400PlusControlStates.ac2400PlusControlStates;
   }
   async setAcMode(acMode) {

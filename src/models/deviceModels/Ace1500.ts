@@ -1,5 +1,4 @@
 import { aceControlStates } from "../../constants/controlStates/aceControlStates";
-import { aceStates } from "../../constants/sensorStates/aceStates";
 import { ZendureSolarflow } from "../../main";
 import { IDeviceAutomationPayload } from "../IDeviceAutomationPayload";
 import { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
@@ -9,8 +8,7 @@ export class Ace1500 extends ZenIobDevice {
   maxInputLimit = 900;
   maxOutputLimit = 900;
 
-  states = aceStates;
-  controlStates = aceControlStates;
+controlStates = aceControlStates;
 
   public constructor(
     _adapter: ZendureSolarflow,

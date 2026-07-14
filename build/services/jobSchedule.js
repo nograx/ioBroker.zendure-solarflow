@@ -116,7 +116,9 @@ const startCheckStatesAndConnectionJob = async (adapter) => {
           )}, checking for pseudo power values!`
         );
         await statesToReset.forEach(async (stateName) => {
-          const exist = device.states.find((x) => x.title === stateName);
+          const exist = await adapter.getObjectAsync(
+            `${device.productKey}.${device.deviceKey}.${stateName}`
+          );
           if (!exist) {
             adapter.log.debug(
               `[checkStatesJob] State ${stateName} does not exist for deviceKey ${device.deviceKey}!`

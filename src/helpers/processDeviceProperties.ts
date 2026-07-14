@@ -1,52 +1,153 @@
+import { allStates } from "../constants/sensorStates/allStates";
 import { ZenIobDevice } from "../models/deviceModels/ZenIobDevice";
 import { ISolarFlowMqttProperties } from "../models/ISolarFlowMqttProperties";
-import { ISolarflowState } from "../models/ISolarflowState";
+
+// Cache of states already created per device in this session (avoids redundant extendObject calls)
+const createdStateCache = new Map<string, Set<string>>();
+
+// All MQTT property keys that have explicit handlers in processDeviceProperties
+const handledMqttKeys = new Set<string>([
+  "autoModel",
+  "heatState",
+  "electricLevel",
+  "packData",
+  "packState",
+  "passMode",
+  "pass",
+  "autoRecover",
+  "outputHomePower",
+  "energyPower",
+  "outputLimit",
+  "smartMode",
+  "buzzerSwitch",
+  "outputPackPower",
+  "packInputPower",
+  "solarInputPower",
+  "pvPower1",
+  "pvPower2",
+  "solarPower1",
+  "solarPower2",
+  "solarPower3",
+  "solarPower4",
+  "remainOutTime",
+  "remainInputTime",
+  "socSet",
+  "minSoc",
+  "inputLimit",
+  "gridInputPower",
+  "acMode",
+  "hyperTmp",
+  "acOutputPower",
+  "gridPower",
+  "acSwitch",
+  "dcSwitch",
+  "dcOutputPower",
+  "pvBrand",
+  "inverseMaxPower",
+  "wifiState",
+  "packNum",
+  "hubState",
+  "batteryElectric",
+]);
+
+const ensureState = async (
+  device: ZenIobDevice,
+  stateTitle: string,
+  rawValue?: number | string | boolean,
+): Promise<void> => {
+  const deviceId = `${device.productKey}.${device.deviceKey}`;
+  if (createdStateCache.get(deviceId)?.has(stateTitle)) return;
+
+  const stateDef = allStates[stateTitle];
+  const productKey = device.productKey.replace(
+    device.adapter.FORBIDDEN_CHARS,
+    "",
+  );
+  const deviceKey = device.deviceKey.replace(
+    device.adapter.FORBIDDEN_CHARS,
+    "",
+  );
+
+  let type: ioBroker.CommonType;
+  let role: string;
+  let nameDe: string;
+  let nameEn: string;
+
+  if (stateDef) {
+    type = stateDef.type;
+    role = stateDef.role;
+    nameDe = stateDef.nameDe;
+    nameEn = stateDef.nameEn;
+  } else if (rawValue !== undefined) {
+    const t = typeof rawValue;
+    type = t === "number" ? "number" : t === "boolean" ? "boolean" : "string";
+    role = "value";
+    nameDe = stateTitle;
+    nameEn = stateTitle;
+  } else {
+    return;
+  }
+
+  await device.adapter.extendObject(
+    `${productKey}.${deviceKey}.${stateTitle}`,
+    {
+      type: "state",
+      common: {
+        name: { de: nameDe, en: nameEn },
+        type,
+        desc: stateTitle,
+        role,
+        read: true,
+        write: false,
+        unit: stateDef?.unit,
+        states: stateDef?.states,
+      },
+      native: {},
+    },
+  );
+
+  if (!createdStateCache.has(deviceId)) {
+    createdStateCache.set(deviceId, new Set());
+  }
+  createdStateCache.get(deviceId)!.add(stateTitle);
+};
 
 export const processDeviceProperties = async (
   device: ZenIobDevice,
   properties: ISolarFlowMqttProperties,
   isSolarFlow: boolean,
 ): Promise<void> => {
-  if (properties?.autoModel != null && properties?.autoModel != undefined) {
-    device?.updateSolarFlowState("autoModel", properties.autoModel);
+  // Phase 1: collect all transformed state values and control state values.
+  // Side effects (setEnergyWhMax, setSocToZero, etc.) are triggered here.
+  const statesToSet = new Map<string, number | string | boolean>();
+  const controlStatesToSet = new Map<string, number | string | boolean>();
 
-    device?.updateSolarFlowControlState("autoModel", properties.autoModel);
+  if (properties?.autoModel != null) {
+    statesToSet.set("autoModel", properties.autoModel);
+    controlStatesToSet.set("autoModel", properties.autoModel);
   }
 
-  if (properties?.heatState != null && properties?.heatState != undefined) {
-    const value = properties?.heatState == 0 ? false : true;
-
-    device?.updateSolarFlowState("heatState", value);
+  if (properties?.heatState != null) {
+    statesToSet.set("heatState", properties.heatState == 0 ? false : true);
   }
 
-  if (
-    properties?.electricLevel != null &&
-    properties?.electricLevel != undefined
-  ) {
-    device?.updateSolarFlowState("electricLevel", properties.electricLevel);
+  if (properties?.electricLevel != null) {
+    statesToSet.set("electricLevel", properties.electricLevel);
 
     if (
       device.adapter?.config.useCalculation &&
       properties.electricLevel == 100 &&
       isSolarFlow
     ) {
-      device?.setEnergyWhMax();
+      device.setEnergyWhMax();
     }
 
     if (properties.electricLevel == 100) {
       const fullChargeNeeded = await device.adapter.getStateAsync(
-        device.productKey +
-          "." +
-          device.deviceKey +
-          ".control.fullChargeNeeded",
+        `${device.productKey}.${device.deviceKey}.control.fullChargeNeeded`,
       );
-
-      if (
-        fullChargeNeeded &&
-        fullChargeNeeded.val &&
-        fullChargeNeeded.val == true
-      ) {
-        await device.adapter?.setState(
+      if (fullChargeNeeded?.val == true) {
+        await device.adapter.setState(
           `${device.productKey}.${device.deviceKey}.control.fullChargeNeeded`,
           false,
           true,
@@ -54,360 +155,253 @@ export const processDeviceProperties = async (
       }
     }
 
-    // if minSoc is reached, set the calculated soc to 0
-    const minSoc = await device.adapter?.getStateAsync(
+    const minSoc = await device.adapter.getStateAsync(
       `${device.productKey}.${device.deviceKey}.minSoc`,
     );
     if (
       device.adapter?.config.useCalculation &&
-      minSoc &&
-      minSoc.val &&
+      minSoc?.val &&
       properties.electricLevel == Number(minSoc.val) &&
       isSolarFlow
     ) {
-      device?.setSocToZero();
+      device.setSocToZero();
     }
   }
 
-  /*
-  if (properties.power != null && obj.power != undefined) {
-    const value = obj.power / 10;
-    device?.updateSolarFlowState("power", value);
-  }*/
-
-  if (properties?.packState != null && properties?.packState != undefined) {
-    const value =
-      properties?.packState == 0
+  if (properties?.packState != null) {
+    statesToSet.set(
+      "packState",
+      properties.packState == 0
         ? "Idle"
-        : properties?.packState == 1
+        : properties.packState == 1
           ? "Charging"
-          : properties?.packState == 2
+          : properties.packState == 2
             ? "Discharging"
-            : "Unknown";
-    device?.updateSolarFlowState("packState", value);
+            : "Unknown",
+    );
   }
 
-  if (properties?.passMode != null && properties?.passMode != undefined) {
-    const value =
-      properties?.passMode == 0
+  if (properties?.passMode != null) {
+    statesToSet.set(
+      "passMode",
+      properties.passMode == 0
         ? "Automatic"
-        : properties?.passMode == 1
+        : properties.passMode == 1
           ? "Always off"
-          : properties?.passMode == 2
+          : properties.passMode == 2
             ? "Always on"
-            : "Unknown";
-    device?.updateSolarFlowState("passMode", value);
-
-    device?.updateSolarFlowControlState("passMode", properties?.passMode);
-  }
-
-  if (properties?.pass != null && properties?.pass != undefined) {
-    const value = properties?.pass == 0 ? false : true;
-
-    device?.updateSolarFlowState("pass", value);
-  }
-
-  if (properties?.autoRecover != null && properties?.autoRecover != undefined) {
-    const value = properties?.autoRecover == 0 ? false : true;
-
-    device?.updateSolarFlowState("autoRecover", value);
-
-    device?.updateSolarFlowControlState("autoRecover", value);
-  }
-
-  if (
-    properties?.outputHomePower != null &&
-    properties?.outputHomePower != undefined
-  ) {
-    device?.updateSolarFlowState("outputHomePower", properties.outputHomePower);
-  }
-
-  if (properties?.energyPower != null && properties?.energyPower != undefined) {
-    device?.updateSolarFlowState("energyPower", properties.energyPower);
-  }
-
-  if (properties?.outputLimit != null && properties?.outputLimit != undefined) {
-    device?.updateSolarFlowState("outputLimit", properties.outputLimit);
-
-    device?.updateSolarFlowControlState(
-      "setOutputLimit",
-      properties.outputLimit,
+            : "Unknown",
     );
+    controlStatesToSet.set("passMode", properties.passMode);
   }
 
-  if (properties?.smartMode != null && properties?.smartMode != undefined) {
-    const value = properties?.smartMode == 0 ? false : true;
-
-    device?.updateSolarFlowState("smartMode", value);
-
-    device?.updateSolarFlowControlState("smartMode", value);
+  if (properties?.pass != null) {
+    statesToSet.set("pass", properties.pass == 0 ? false : true);
   }
 
-  if (
-    properties?.buzzerSwitch != null &&
-    properties?.buzzerSwitch != undefined
-  ) {
-    const value = properties?.buzzerSwitch == 0 ? false : true;
-
-    device?.updateSolarFlowState("buzzerSwitch", value);
-
-    device?.updateSolarFlowControlState("buzzerSwitch", value);
+  if (properties?.autoRecover != null) {
+    const value = properties.autoRecover == 0 ? false : true;
+    statesToSet.set("autoRecover", value);
+    controlStatesToSet.set("autoRecover", value);
   }
 
-  if (
-    properties?.outputPackPower != null &&
-    properties?.outputPackPower != undefined
-  ) {
-    device?.updateSolarFlowState("outputPackPower", properties.outputPackPower);
+  if (properties?.outputHomePower != null) {
+    statesToSet.set("outputHomePower", properties.outputHomePower);
+  }
 
-    // if outPutPackPower is not 0 set packInputPower to 0
+  if (properties?.energyPower != null) {
+    statesToSet.set("energyPower", properties.energyPower);
+  }
+
+  if (properties?.outputLimit != null) {
+    statesToSet.set("outputLimit", properties.outputLimit);
+    controlStatesToSet.set("setOutputLimit", properties.outputLimit);
+  }
+
+  if (properties?.smartMode != null) {
+    const value = properties.smartMode == 0 ? false : true;
+    statesToSet.set("smartMode", value);
+    controlStatesToSet.set("smartMode", value);
+  }
+
+  if (properties?.buzzerSwitch != null) {
+    const value = properties.buzzerSwitch == 0 ? false : true;
+    statesToSet.set("buzzerSwitch", value);
+    controlStatesToSet.set("buzzerSwitch", value);
+  }
+
+  if (properties?.outputPackPower != null) {
+    statesToSet.set("outputPackPower", properties.outputPackPower);
     if (properties.outputPackPower > 0) {
-      device?.updateSolarFlowState("packInputPower", 0);
+      statesToSet.set("packInputPower", 0);
     }
   }
 
-  if (
-    properties?.packInputPower != null &&
-    properties?.packInputPower != undefined
-  ) {
-    device?.updateSolarFlowState("packInputPower", properties.packInputPower);
-
-    // if packInputPower is not 0 set outputPackPower to 0
+  if (properties?.packInputPower != null) {
+    statesToSet.set("packInputPower", properties.packInputPower);
     if (properties.packInputPower > 0) {
-      device?.updateSolarFlowState("outputPackPower", 0);
+      statesToSet.set("outputPackPower", 0);
     }
   }
 
-  if (
-    properties?.solarInputPower != null &&
-    properties?.solarInputPower != undefined
-  ) {
-    device?.updateSolarFlowState("solarInputPower", properties.solarInputPower);
+  if (properties?.solarInputPower != null) {
+    statesToSet.set("solarInputPower", properties.solarInputPower);
   }
 
-  if (properties?.pvPower1 != null && properties?.pvPower1 != undefined) {
-    device?.updateSolarFlowState(
-      "pvPower2", // Reversed to adjust like offical app
-      properties.pvPower1,
-    );
+  // pvPower1/2 are reversed to align with the official app
+  if (properties?.pvPower1 != null)
+    statesToSet.set("pvPower2", properties.pvPower1);
+  if (properties?.pvPower2 != null)
+    statesToSet.set("pvPower1", properties.pvPower2);
+
+  if (properties?.solarPower1 != null)
+    statesToSet.set("pvPower1", properties.solarPower1);
+  if (properties?.solarPower2 != null)
+    statesToSet.set("pvPower2", properties.solarPower2);
+  if (properties?.solarPower3 != null)
+    statesToSet.set("pvPower3", properties.solarPower3);
+  if (properties?.solarPower4 != null)
+    statesToSet.set("pvPower4", properties.solarPower4);
+
+  if (properties?.remainOutTime != null)
+    statesToSet.set("remainOutTime", properties.remainOutTime);
+  if (properties?.remainInputTime != null)
+    statesToSet.set("remainInputTime", properties.remainInputTime);
+
+  if (properties?.socSet != null) {
+    statesToSet.set("socSet", Number(properties.socSet) / 10);
+    controlStatesToSet.set("chargeLimit", Number(properties.socSet) / 10);
   }
 
-  if (properties?.pvPower2 != null && properties?.pvPower2 != undefined) {
-    device?.updateSolarFlowState(
-      "pvPower1", // Reversed to adjust like offical app
-      properties.pvPower2,
-    );
+  if (properties?.minSoc != null) {
+    statesToSet.set("minSoc", Number(properties.minSoc) / 10);
+    controlStatesToSet.set("dischargeLimit", Number(properties.minSoc) / 10);
   }
 
-  if (properties?.solarPower1 != null && properties?.solarPower1 != undefined) {
-    device?.updateSolarFlowState("pvPower1", properties.solarPower1);
+  if (properties?.inputLimit != null) {
+    statesToSet.set("inputLimit", properties.inputLimit);
+    controlStatesToSet.set("setInputLimit", properties.inputLimit);
   }
 
-  if (properties?.solarPower2 != null && properties?.solarPower2 != undefined) {
-    device?.updateSolarFlowState("pvPower2", properties.solarPower2);
+  if (properties?.gridInputPower != null)
+    statesToSet.set("gridInputPower", properties.gridInputPower);
+
+  if (properties?.acMode != null) {
+    statesToSet.set("acMode", properties.acMode);
+    controlStatesToSet.set("acMode", properties.acMode);
   }
 
-  if (properties?.solarPower3 != null && properties?.solarPower3 != undefined) {
-    device?.updateSolarFlowState("pvPower3", properties.solarPower3);
+  if (properties?.hyperTmp != null)
+    statesToSet.set("hyperTmp", properties.hyperTmp / 10 - 273.15);
+  if (properties?.acOutputPower != null)
+    statesToSet.set("acOutputPower", properties.acOutputPower);
+  if (properties?.gridPower != null)
+    statesToSet.set("gridInputPower", properties.gridPower);
+
+  if (properties?.acSwitch != null) {
+    const value = properties.acSwitch == 0 ? false : true;
+    statesToSet.set("acSwitch", value);
+    controlStatesToSet.set("acSwitch", value);
   }
 
-  if (properties?.solarPower4 != null && properties?.solarPower4 != undefined) {
-    device?.updateSolarFlowState("pvPower4", properties.solarPower4);
+  if (properties?.dcSwitch != null) {
+    const value = properties.dcSwitch == 0 ? false : true;
+    statesToSet.set("dcSwitch", value);
+    controlStatesToSet.set("dcSwitch", value);
   }
 
-  if (
-    properties?.remainOutTime != null &&
-    properties?.remainOutTime != undefined
-  ) {
-    device?.updateSolarFlowState("remainOutTime", properties.remainOutTime);
-  }
+  if (properties?.dcOutputPower != null)
+    statesToSet.set("dcOutputPower", properties.dcOutputPower);
 
-  if (
-    properties?.remainInputTime != null &&
-    properties?.remainInputTime != undefined
-  ) {
-    device?.updateSolarFlowState("remainInputTime", properties.remainInputTime);
-  }
-
-  if (properties?.socSet != null && properties?.socSet != undefined) {
-    device?.updateSolarFlowState("socSet", Number(properties.socSet) / 10);
-
-    device?.updateSolarFlowControlState(
-      "chargeLimit",
-      Number(properties.socSet) / 10,
-    );
-  }
-
-  if (properties?.minSoc != null && properties?.minSoc != undefined) {
-    device?.updateSolarFlowState("minSoc", Number(properties.minSoc) / 10);
-
-    device?.updateSolarFlowControlState(
-      "dischargeLimit",
-      Number(properties.minSoc) / 10,
-    );
-  }
-
-  if (properties?.inputLimit != null && properties?.inputLimit != undefined) {
-    device?.updateSolarFlowState("inputLimit", properties.inputLimit);
-
-    device?.updateSolarFlowControlState("setInputLimit", properties.inputLimit);
-  }
-
-  if (
-    properties?.gridInputPower != null &&
-    properties?.gridInputPower != undefined
-  ) {
-    device?.updateSolarFlowState("gridInputPower", properties.gridInputPower);
-  }
-
-  if (properties?.acMode != null && properties?.acMode != undefined) {
-    device?.updateSolarFlowState("acMode", properties.acMode);
-
-    device?.updateSolarFlowControlState("acMode", properties.acMode);
-  }
-
-  if (properties?.hyperTmp != null && properties?.hyperTmp != undefined) {
-    device?.updateSolarFlowState("hyperTmp", properties.hyperTmp / 10 - 273.15);
-  }
-
-  if (
-    properties?.acOutputPower != null &&
-    properties?.acOutputPower != undefined
-  ) {
-    device?.updateSolarFlowState("acOutputPower", properties.acOutputPower);
-  }
-
-  if (properties?.gridPower != null && properties?.gridPower != undefined) {
-    device?.updateSolarFlowState("gridInputPower", properties.gridPower);
-  }
-
-  if (properties?.acSwitch != null && properties?.acSwitch != undefined) {
-    const value = properties?.acSwitch == 0 ? false : true;
-
-    device?.updateSolarFlowState("acSwitch", value);
-
-    device?.updateSolarFlowControlState("acSwitch", value);
-  }
-
-  if (properties?.dcSwitch != null && properties?.dcSwitch != undefined) {
-    const value = properties?.dcSwitch == 0 ? false : true;
-
-    device?.updateSolarFlowState("dcSwitch", value);
-
-    device?.updateSolarFlowControlState("dcSwitch", value);
-  }
-
-  if (
-    properties?.dcOutputPower != null &&
-    properties?.dcOutputPower != undefined
-  ) {
-    device?.updateSolarFlowState("dcOutputPower", properties.dcOutputPower);
-  }
-
-  if (properties?.pvBrand != null && properties?.pvBrand != undefined) {
-    const value =
-      properties?.pvBrand == 0
+  if (properties?.pvBrand != null) {
+    statesToSet.set(
+      "pvBrand",
+      properties.pvBrand == 0
         ? "Others"
-        : properties?.pvBrand == 1
+        : properties.pvBrand == 1
           ? "Hoymiles"
-          : properties?.pvBrand == 2
+          : properties.pvBrand == 2
             ? "Enphase"
-            : properties?.pvBrand == 3
+            : properties.pvBrand == 3
               ? "APSystems"
-              : properties?.pvBrand == 4
+              : properties.pvBrand == 4
                 ? "Anker"
-                : properties?.pvBrand == 5
+                : properties.pvBrand == 5
                   ? "Deye"
-                  : properties?.pvBrand == 6
+                  : properties.pvBrand == 6
                     ? "Bosswerk"
-                    : "Unknown";
-    device?.updateSolarFlowState("pvBrand", value);
-  }
-
-  if (
-    properties?.inverseMaxPower != null &&
-    properties?.inverseMaxPower != undefined
-  ) {
-    device?.updateSolarFlowState("inverseMaxPower", properties.inverseMaxPower);
-  }
-
-  if (properties?.wifiState != null && properties?.wifiState != undefined) {
-    device?.updateSolarFlowState(
-      "wifiState",
-      properties.wifiState == 1 ? "Connected" : "Disconnected",
+                    : "Unknown",
     );
   }
 
-  if (properties?.packNum != null && properties?.packNum != undefined) {
-    device?.updateSolarFlowState("packNum", properties.packNum);
+  if (properties?.inverseMaxPower != null)
+    statesToSet.set("inverseMaxPower", properties.inverseMaxPower);
+
+  if (properties?.wifiState != null) {
+    statesToSet.set("wifiState", properties.wifiState);
   }
 
-  if (properties?.hubState != null && properties?.hubState != undefined) {
-    device?.updateSolarFlowState("hubState", properties.hubState);
+  if (properties?.packNum != null)
+    statesToSet.set("packNum", properties.packNum);
 
-    device?.updateSolarFlowControlState("hubState", properties.hubState);
+  if (properties?.hubState != null) {
+    statesToSet.set("hubState", properties.hubState);
+    controlStatesToSet.set("hubState", properties.hubState);
   }
 
-  // Calculate packPower based on current outputPackPower and packInputPower values
-  if (
-    (properties?.outputPackPower != null &&
-      properties?.outputPackPower != undefined) ||
-    (properties?.packInputPower != null &&
-      properties?.packInputPower != undefined)
-  ) {
-    // Use properties values if available, otherwise get current state values
-    let outputPower = 0;
-    let inputPower = 0;
+  if (properties?.batteryElectric != null)
+    statesToSet.set("batteryElectric", properties.batteryElectric);
 
-    if (
-      properties?.outputPackPower != null &&
-      properties?.outputPackPower != undefined
-    ) {
-      outputPower = properties.outputPackPower;
-    } else {
-      const outputPackPowerState = await device.adapter?.getStateAsync(
-        device.productKey + "." + device.deviceKey + ".outputPackPower",
+  if (properties?.packData != null) {
+    await device.addOrUpdatePackData(properties.packData, isSolarFlow);
+  }
+
+  // Derive packPower from outputPackPower and packInputPower
+  if (statesToSet.has("outputPackPower") || statesToSet.has("packInputPower")) {
+    let outputPower =
+      (statesToSet.get("outputPackPower") as number | undefined) ?? 0;
+    let inputPower =
+      (statesToSet.get("packInputPower") as number | undefined) ?? 0;
+
+    if (!statesToSet.has("outputPackPower")) {
+      const s = await device.adapter.getStateAsync(
+        `${device.productKey}.${device.deviceKey}.outputPackPower`,
       );
-      outputPower = (outputPackPowerState?.val as number) || 0;
+      outputPower = (s?.val as number) || 0;
     }
-
-    if (
-      properties?.packInputPower != null &&
-      properties?.packInputPower != undefined
-    ) {
-      inputPower = properties.packInputPower;
-    } else {
-      const packInputPowerState = await device.adapter?.getStateAsync(
-        device.productKey + "." + device.deviceKey + ".packInputPower",
+    if (!statesToSet.has("packInputPower")) {
+      const s = await device.adapter.getStateAsync(
+        `${device.productKey}.${device.deviceKey}.packInputPower`,
       );
-      inputPower = (packInputPowerState?.val as number) || 0;
+      inputPower = (s?.val as number) || 0;
     }
-
-    // Calculate net power: positive for discharge, negative for charge
-    const netPower = outputPower - inputPower;
-
-    device?.updateSolarFlowState("packPower", netPower);
+    statesToSet.set("packPower", outputPower - inputPower);
   }
 
-  if (properties && device.adapter.log.level == "debug") {
-    let found = false;
+  // Phase 2: ensure states exist and set all collected values
+  for (const [key, value] of statesToSet) {
+    await ensureState(device, key, value);
+    device.updateSolarFlowState(key, value);
+  }
 
-    Object.entries(properties).forEach(([key, value]) => {
-      device?.states.forEach((state: ISolarflowState) => {
-        if (state.title == key) {
-          found = true;
-        }
-      });
+  // Phase 3: apply control state updates
+  for (const [key, value] of controlStatesToSet) {
+    device.updateSolarFlowControlState(key, value);
+  }
 
-      if (found) {
-        //console.log(
-        //  `${productName?.val}: ${key} with value ${value} is a KNOWN Mqtt Prop!`
-        //);
-      } else {
-        device.adapter?.log.debug(
-          `[onMessage] ${device?.deviceKey}: ${key} with value ${JSON.stringify(value)} is a UNKNOWN Mqtt Property!`,
-        );
-      }
-    });
+  // Fallback: for any MQTT property not explicitly handled above, create a state and store the raw value
+  for (const [key, value] of Object.entries(properties)) {
+    if (handledMqttKeys.has(key)) continue;
+    if (value == null || typeof value === "object") continue;
+
+    const rawValue = value as number | string | boolean;
+    await ensureState(device, key, rawValue);
+    device.updateSolarFlowState(key, rawValue);
+
+    if (device.adapter.log.level == "debug") {
+      device.adapter.log.debug(
+        `[onMessage] ${device.deviceKey}: ${key} = ${JSON.stringify(rawValue)} stored via fallback handler`,
+      );
+    }
   }
 };

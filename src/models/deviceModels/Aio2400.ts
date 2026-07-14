@@ -1,5 +1,4 @@
 import { aioControlStates } from "../../constants/controlStates/aioControlStates";
-import { aioStates } from "../../constants/sensorStates/aioStates";
 import { ZendureSolarflow } from "../../main";
 import { IDeviceAutomationPayload } from "../IDeviceAutomationPayload";
 import { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
@@ -9,8 +8,7 @@ export class Aio2400 extends ZenIobDevice {
   maxInputLimit = 0;
   maxOutputLimit = 1200;
 
-  states = aioStates;
-  controlStates = aioControlStates;
+controlStates = aioControlStates;
 
   public constructor(
     _adapter: ZendureSolarflow,

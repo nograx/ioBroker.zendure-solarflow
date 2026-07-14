@@ -22,7 +22,6 @@ __export(Sf1600AcPlus_exports, {
 });
 module.exports = __toCommonJS(Sf1600AcPlus_exports);
 var import_solarflow1600AcPlusControlStates = require("../../constants/controlStates/solarflow1600AcPlusControlStates");
-var import_solarflow1600ProStates = require("../../constants/sensorStates/solarflow1600ProStates");
 var import_ZenSdkIobDevice = require("./ZenSdkIobDevice");
 class Sf1600AcPlus extends import_ZenSdkIobDevice.ZenSdkIobDevice {
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {
@@ -37,7 +36,6 @@ class Sf1600AcPlus extends import_ZenSdkIobDevice.ZenSdkIobDevice {
     this.maxInputLimit = 1600;
     this.maxOutputLimit = 1600;
     this.isZenSdkSupported = true;
-    this.states = import_solarflow1600ProStates.solarflow1600AcPlusStates;
     this.controlStates = import_solarflow1600AcPlusControlStates.solarflow1600AcPlusControlStates;
   }
   async setAcMode(acMode) {

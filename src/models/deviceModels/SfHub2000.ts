@@ -1,5 +1,4 @@
 import { hubControlStates } from "../../constants/controlStates/hubControlStates";
-import { hubStates } from "../../constants/sensorStates/hubStates";
 import { ZendureSolarflow } from "../../main";
 import { IDeviceAutomationPayload } from "../IDeviceAutomationPayload";
 import { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
@@ -9,8 +8,7 @@ export class SfHub2000 extends ZenIobDevice {
   maxInputLimit = 900;
   maxOutputLimit = 1200;
 
-  states = hubStates;
-  controlStates = hubControlStates;
+controlStates = hubControlStates;
 
   public constructor(
     _adapter: ZendureSolarflow,

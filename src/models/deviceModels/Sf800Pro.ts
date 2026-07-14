@@ -1,5 +1,4 @@
 import { solarflow800ProControlStates } from "../../constants/controlStates/solarflow800ProControlStates";
-import { solarflow800ProStates } from "../../constants/sensorStates/solarflow800ProStates";
 import { ZendureSolarflow } from "../../main";
 import { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
 import { ZenSdkIobDevice } from "./ZenSdkIobDevice";
@@ -9,8 +8,7 @@ export class Sf800Pro extends ZenSdkIobDevice {
   maxOutputLimit = 800;
   isZenSdkSupported = true;
 
-  states = solarflow800ProStates;
-  controlStates = solarflow800ProControlStates;
+controlStates = solarflow800ProControlStates;
 
   public constructor(
     _adapter: ZendureSolarflow,
