@@ -41,6 +41,11 @@ export class ZenIobDevice {
   public states: ISolarflowState[] = [];
   public controlStates: ISolarflowState[] = [];
 
+  private zenSdkErrorCount: number = 0;
+  private zenSdkPausedUntil: number = 0;
+  private static readonly ZEN_SDK_MAX_ERROR_LOGS = 5;
+  private static readonly ZEN_SDK_PAUSE_DURATION_MS = 10 * 60 * 1000;
+
   public constructor(
     _adapter: ZendureSolarflow,
     _productKey: string,
@@ -315,6 +320,16 @@ export class ZenIobDevice {
   }
 
   public getZenSdkProperties(): Promise<boolean> {
+    if (Date.now() < this.zenSdkPausedUntil) {
+      this.adapter.log.debug(
+        `[getZenSdkProperties] Skipping poll for device ${this.deviceKey}, paused until ${new Date(
+          this.zenSdkPausedUntil,
+        )} after repeated errors!`,
+      );
+
+      return Promise.resolve(false);
+    }
+
     this.adapter.log.debug(
       `[getZenSdkProperties] Getting properties with zenSDK for device ${this.deviceKey}!`,
     );
@@ -333,6 +348,9 @@ export class ZenIobDevice {
         .get(`http://${this.ipAddress}/properties/report`, config)
         .then(async (response) => {
           const data = await response.data;
+
+          // Device is online, so set error count to 0!
+          this.zenSdkErrorCount = 0;
 
           this.adapter.log.debug(
             `[getZenSdkProperties] Successfully got properties for device ${this.deviceKey} with zenSDK!}`,
@@ -359,9 +377,25 @@ export class ZenIobDevice {
           return true;
         })
         .catch((error) => {
-          this.adapter.log.error(
-            `[getZenSdkProperties] Error getting properties for device ${this.deviceKey} with zenSDK: ${error}`,
-          );
+          this.zenSdkErrorCount++;
+
+          if (this.zenSdkErrorCount <= ZenIobDevice.ZEN_SDK_MAX_ERROR_LOGS) {
+            this.adapter.log.error(
+              `[getZenSdkProperties] Error getting properties for device ${this.deviceKey} with zenSDK: ${error}`,
+            );
+          }
+
+          if (this.zenSdkErrorCount >= ZenIobDevice.ZEN_SDK_MAX_ERROR_LOGS) {
+            this.adapter.log.warn(
+              `[getZenSdkProperties] Reached ${ZenIobDevice.ZEN_SDK_MAX_ERROR_LOGS} consecutive errors for device ${this.deviceKey}, pausing zenSDK polling for ${
+                ZenIobDevice.ZEN_SDK_PAUSE_DURATION_MS / 60000
+              } minutes!`,
+            );
+
+            this.zenSdkPausedUntil =
+              Date.now() + ZenIobDevice.ZEN_SDK_PAUSE_DURATION_MS;
+            this.zenSdkErrorCount = 0;
+          }
 
           this.updateSolarFlowState("wifiState", "Disconnected");
           return false;
@@ -462,11 +496,13 @@ export class ZenIobDevice {
         this.adapter?.localMqttService?.mqttClient?.publish(
           this.iotTopic,
           properties,
+          { qos: 1 },
         );
       } else if (this.adapter?.cloudMqttService?.mqttClient) {
         this.adapter?.cloudMqttService?.mqttClient?.publish(
           this.iotTopic,
           properties,
+          { qos: 1 },
         );
       }
     }
@@ -492,11 +528,13 @@ export class ZenIobDevice {
         this.adapter?.localMqttService?.mqttClient?.publish(
           this.functionTopic,
           properties,
+          { qos: 1 },
         );
       } else if (this.adapter?.cloudMqttService?.mqttClient) {
         this.adapter?.cloudMqttService?.mqttClient?.publish(
           this.functionTopic,
           properties,
+          { qos: 1 },
         );
       }
     }
@@ -917,11 +955,13 @@ export class ZenIobDevice {
         this.adapter?.localMqttService?.mqttClient?.publish(
           topic,
           JSON.stringify(getAllContent),
+          { qos: 1 },
         );
       } else if (this.adapter?.cloudMqttService?.mqttClient) {
         this.adapter?.cloudMqttService?.mqttClient?.publish(
           topic,
           JSON.stringify(getAllContent),
+          { qos: 1 },
         );
       }
     }
