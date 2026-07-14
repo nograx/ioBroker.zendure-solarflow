@@ -39,7 +39,7 @@ var import_mqttSharedService = require("../../services/mqtt/mqttSharedService");
 var import_enums = require("../../helpers/enums");
 var import_axios = __toESM(require("axios"));
 var import_processDeviceProperties = require("../../helpers/processDeviceProperties");
-class ZenIobDevice {
+const _ZenIobDevice = class _ZenIobDevice {
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, isZenSdkSupported, _zenIobDeviceDetails) {
     this.deviceConnectionMode = void 0;
     this.snNumber = void 0;
@@ -54,6 +54,8 @@ class ZenIobDevice {
     this.maxOutputLimit = 0;
     this.states = [];
     this.controlStates = [];
+    this.zenSdkErrorCount = 0;
+    this.zenSdkPausedUntil = 0;
     this.addOrUpdatePackData = async (packData, isSolarFlow) => {
       if (this.adapter && this.productKey && this.deviceKey) {
         await packData.forEach(async (x) => {
@@ -734,6 +736,14 @@ class ZenIobDevice {
     }
   }
   getZenSdkProperties() {
+    if (Date.now() < this.zenSdkPausedUntil) {
+      this.adapter.log.debug(
+        `[getZenSdkProperties] Skipping poll for device ${this.deviceKey}, paused until ${new Date(
+          this.zenSdkPausedUntil
+        )} after repeated errors!`
+      );
+      return Promise.resolve(false);
+    }
     this.adapter.log.debug(
       `[getZenSdkProperties] Getting properties with zenSDK for device ${this.deviceKey}!`
     );
@@ -748,6 +758,7 @@ class ZenIobDevice {
       return import_axios.default.get(`http://${this.ipAddress}/properties/report`, config).then(async (response) => {
         var _a;
         const data = await response.data;
+        this.zenSdkErrorCount = 0;
         this.adapter.log.debug(
           `[getZenSdkProperties] Successfully got properties for device ${this.deviceKey} with zenSDK!}`
         );
@@ -765,9 +776,19 @@ class ZenIobDevice {
         }
         return true;
       }).catch((error) => {
-        this.adapter.log.error(
-          `[getZenSdkProperties] Error getting properties for device ${this.deviceKey} with zenSDK: ${error}`
-        );
+        this.zenSdkErrorCount++;
+        if (this.zenSdkErrorCount <= _ZenIobDevice.ZEN_SDK_MAX_ERROR_LOGS) {
+          this.adapter.log.error(
+            `[getZenSdkProperties] Error getting properties for device ${this.deviceKey} with zenSDK: ${error}`
+          );
+        }
+        if (this.zenSdkErrorCount >= _ZenIobDevice.ZEN_SDK_MAX_ERROR_LOGS) {
+          this.adapter.log.warn(
+            `[getZenSdkProperties] Reached ${_ZenIobDevice.ZEN_SDK_MAX_ERROR_LOGS} consecutive errors for device ${this.deviceKey}, pausing zenSDK polling for ${_ZenIobDevice.ZEN_SDK_PAUSE_DURATION_MS / 6e4} minutes!`
+          );
+          this.zenSdkPausedUntil = Date.now() + _ZenIobDevice.ZEN_SDK_PAUSE_DURATION_MS;
+          this.zenSdkErrorCount = 0;
+        }
         this.updateSolarFlowState("wifiState", "Disconnected");
         return false;
       });
@@ -845,12 +866,14 @@ class ZenIobDevice {
       if (((_b = (_a = this.adapter) == null ? void 0 : _a.localMqttService) == null ? void 0 : _b.mqttClient) && (this.deviceConnectionMode == import_enums.DeviceConnectionMode.LocalMqtt || this.deviceConnectionMode == import_enums.DeviceConnectionMode.LocalMqttWithCloudRelay)) {
         (_e = (_d = (_c = this.adapter) == null ? void 0 : _c.localMqttService) == null ? void 0 : _d.mqttClient) == null ? void 0 : _e.publish(
           this.iotTopic,
-          properties
+          properties,
+          { qos: 1 }
         );
       } else if ((_g = (_f = this.adapter) == null ? void 0 : _f.cloudMqttService) == null ? void 0 : _g.mqttClient) {
         (_j = (_i = (_h = this.adapter) == null ? void 0 : _h.cloudMqttService) == null ? void 0 : _i.mqttClient) == null ? void 0 : _j.publish(
           this.iotTopic,
-          properties
+          properties,
+          { qos: 1 }
         );
       }
     }
@@ -868,12 +891,14 @@ class ZenIobDevice {
       if (((_b = (_a = this.adapter) == null ? void 0 : _a.localMqttService) == null ? void 0 : _b.mqttClient) && (this.deviceConnectionMode == import_enums.DeviceConnectionMode.LocalMqtt || this.deviceConnectionMode == import_enums.DeviceConnectionMode.LocalMqttWithCloudRelay)) {
         (_e = (_d = (_c = this.adapter) == null ? void 0 : _c.localMqttService) == null ? void 0 : _d.mqttClient) == null ? void 0 : _e.publish(
           this.functionTopic,
-          properties
+          properties,
+          { qos: 1 }
         );
       } else if ((_g = (_f = this.adapter) == null ? void 0 : _f.cloudMqttService) == null ? void 0 : _g.mqttClient) {
         (_j = (_i = (_h = this.adapter) == null ? void 0 : _h.cloudMqttService) == null ? void 0 : _i.mqttClient) == null ? void 0 : _j.publish(
           this.functionTopic,
-          properties
+          properties,
+          { qos: 1 }
         );
       }
     }
@@ -1216,12 +1241,14 @@ class ZenIobDevice {
       if ((_b = (_a = this.adapter) == null ? void 0 : _a.localMqttService) == null ? void 0 : _b.mqttClient) {
         (_e = (_d = (_c = this.adapter) == null ? void 0 : _c.localMqttService) == null ? void 0 : _d.mqttClient) == null ? void 0 : _e.publish(
           topic,
-          JSON.stringify(getAllContent)
+          JSON.stringify(getAllContent),
+          { qos: 1 }
         );
       } else if ((_g = (_f = this.adapter) == null ? void 0 : _f.cloudMqttService) == null ? void 0 : _g.mqttClient) {
         (_j = (_i = (_h = this.adapter) == null ? void 0 : _h.cloudMqttService) == null ? void 0 : _i.mqttClient) == null ? void 0 : _j.publish(
           topic,
-          JSON.stringify(getAllContent)
+          JSON.stringify(getAllContent),
+          { qos: 1 }
         );
       }
     }
@@ -1504,7 +1531,10 @@ class ZenIobDevice {
       }
     });
   }
-}
+};
+_ZenIobDevice.ZEN_SDK_MAX_ERROR_LOGS = 5;
+_ZenIobDevice.ZEN_SDK_PAUSE_DURATION_MS = 10 * 60 * 1e3;
+let ZenIobDevice = _ZenIobDevice;
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   ZenIobDevice

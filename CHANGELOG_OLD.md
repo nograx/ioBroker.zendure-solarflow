@@ -157,6 +157,12 @@
 
 - Add 'packPower' state, which shows combined power from (packInputPower and outputPackPower). Discharging will be shown with a negative value.
 - Add 'hyperTmp' to Solarflow 800 devices in hope this will show the temperature of the Solarflow 800 (can not test it due to lack of test device).
+## 4.0.3 (2026-03-31)
+
+- Fix missing ip address field in settings for local mode
+- Add retry loop for zenSDK requests (retry 3 times if connection failed)
+- Update battery detection
+
 ## 4.0.2 (2026-03-24)
 
 - Re-add new SF devices to local mode settings

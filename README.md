@@ -99,8 +99,7 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 -->
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 4.1.1 (2026-07-14)
 
 - Send MQTT commands with QOS=1
 - If zenSDK device is not reachable, stop polling device after 5 retries. Try again after 10 minutes.
@@ -124,12 +123,6 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 ### 4.0.4 (2026-04-14)
 
 - Update dependencies
-
-### 4.0.3 (2026-03-31)
-
-- Fix missing ip address field in settings for local mode
-- Add retry loop for zenSDK requests (retry 3 times if connection failed)
-- Update battery detection
 
 ## License
 

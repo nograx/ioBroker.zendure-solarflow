@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "4.1.0",
+    "version": "4.1.1",
     "news": {
+      "4.1.1": {
+        "en": "Send MQTT commands with QOS=1\nIf zenSDK device is not reachable, stop polling device after 5 retries. Try again after 10 minutes.",
+        "de": "Sende MQTT-Befehle mit QoS=1\nWenn das zenSDK-Gerät nicht erreichbar ist, wird die Abfrage des Geräts nach 5 Versuchen abgebrochen. Ein erneuter Versuch erfolgt nach 10 Minuten.",
+        "ru": "Отправляйте команды MQTT с параметром QOS=1.\nЕсли устройство zenSDK недоступно, прекратите опрос устройства после 5 попыток. Повторите попытку через 10 минут.",
+        "pt": "Enviar comandos MQTT com QoS=1\nSe o dispositivo zenSDK não estiver acessível, pare de tentar localizá-lo após 5 tentativas. Tente novamente após 10 minutos.",
+        "nl": "Verzend MQTT-opdrachten met QOS=1\nAls het zenSDK-apparaat niet bereikbaar is, stop dan na 5 pogingen met het controleren van het apparaat. Probeer het na 10 minuten opnieuw.",
+        "fr": "Envoyer des commandes MQTT avec QOS=1\nSi le périphérique zenSDK est injoignable, arrêtez l'interrogation après 5 tentatives. Réessayez après 10 minutes.",
+        "it": "Invia comandi MQTT con QOS=1\nSe il dispositivo zenSDK non è raggiungibile, interrompere il polling dopo 5 tentativi. Riprovare dopo 10 minuti.",
+        "es": "Enviar comandos MQTT con QOS=1\nSi no se puede acceder al dispositivo zenSDK, deje de sondearlo después de 5 intentos. Vuelva a intentarlo después de 10 minutos.",
+        "pl": "Wysyłaj polecenia MQTT z QOS=1\nJeśli urządzenie zenSDK jest niedostępne, zatrzymaj odpytywanie urządzenia po 5 próbach. Spróbuj ponownie za 10 minut.",
+        "uk": "Надсилайте команди MQTT з QOS=1\nЯкщо пристрій zenSDK недоступний, зупиніть опитування пристрою після 5 спроб. Спробуйте ще раз через 10 хвилин.",
+        "zh-cn": "发送 MQTT 命令时 QOS=1\n如果 zenSDK 设备无法连接，则在重试 5 次后停止轮询设备。10 分钟后再试一次。"
+      },
       "4.1.0": {
         "en": "Allow local TLS MQTT Server connection on port 8883 (due to new device firmware) in settings\nFix batcur calculation",
         "de": "In den Einstellungen muss die lokale TLS-MQTT-Serververbindung auf Port 8883 zugelassen werden (aufgrund neuer Geräte-Firmware).\nKorrektur der Batch-Berechnung",
@@ -80,19 +93,6 @@
         "pl": "Naprawianie brakującego pola adresu IP w ustawieniach dla lokalnego trybu\nDodaj pętlę ponowną dla żądań zenSDK (powtórz 3 razy, jeśli połączenie nie powiodło się)\nAktualizuj wykrywanie baterii",
         "uk": "Виправлення відсутності поля адреси IP в налаштуваннях локального режиму\nДодайте петлю птиця для запитів zenSDK (три 3 рази, якщо з'єднання не вдалося)\nОновлення виявлення батареї",
         "zh-cn": "在本地模式设置中修复缺失的 ip 地址字段\n添加 zenSDK 请求的重试环( 如果连接失败, 重试三次)\n更新电池检测"
-      },
-      "4.0.2": {
-        "en": "Re-add new SF devices to local mode settings\nAdd product key '64174u' for Solarflow 1600 AC+",
-        "de": "Neue SF-Geräte auf lokale Mode-Einstellungen neuaddieren\nProduktschlüssel '64174u' für Solarflow 1600 AC+ hinzufügen",
-        "ru": "Повторное добавление новых устройств SF в локальные настройки режима\nДобавить ключ продукта 64174u для Solarflow 1600 AC+",
-        "pt": "Readiciona novos dispositivos SF às configurações do modo local\nAdicionar a chave do produto '64174u' para Solarflow 1600 AC+",
-        "nl": "Nieuwe SF-apparaten opnieuw toevoegen aan lokale modusinstellingen\nProductsleutel '64174u' toevoegen voor Solarflow 1600 AC+",
-        "fr": "Réajouter de nouveaux périphériques SF aux paramètres du mode local\nAjouter la clé de produit '64174u' pour Solarflow 1600 AC+",
-        "it": "Reinserire nuovi dispositivi SF nelle impostazioni della modalità locale\nAggiungi la chiave del prodotto '64174u' per Solarflow 1600 AC+",
-        "es": "Nuevos dispositivos SF a la configuración del modo local\nAñadir la clave del producto '64174u' para el flujo solar 1600 AC+",
-        "pl": "Ponownie dodać nowe urządzenia SF do ustawień lokalnego trybu\nDodaj klucz produktu '64174u' dla Solarflow 1600 AC +",
-        "uk": "Завантажити нові пристрої SF на локальні налаштування режиму\nДодати ключ продукту '64174u' для Solarflow 1600 AC+",
-        "zh-cn": "在本地模式设置中重新添加新的 SF 设备\n为太阳流1600 AC+添加产品密钥 '64174u'"
       }
     },
     "titleLang": {
