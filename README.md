@@ -99,6 +99,13 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 -->
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Fixed batcur reading
+- Add missing translations
+- Add dependencies
+
 ### 4.1.1 (2026-07-14)
 
 - Send MQTT commands with QOS=1
