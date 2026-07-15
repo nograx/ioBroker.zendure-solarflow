@@ -99,8 +99,7 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 -->
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 4.1.2 (2026-07-15)
 
 - Fixed batcur reading
 - Add missing translations
@@ -126,10 +125,6 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 - Fix adapter start if deviceList is empty
 - Improve logging of errors
 - Adapter requires node.js >= 22 now
-
-### 4.0.4 (2026-04-14)
-
-- Update dependencies
 
 ## License
 

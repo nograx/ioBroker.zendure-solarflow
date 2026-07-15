@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "4.1.1",
+    "version": "4.1.2",
     "news": {
+      "4.1.2": {
+        "en": "Fixed batcur reading\nAdd missing translations\nAdd dependencies",
+        "de": "Fester Batterie-Messwert\nFehlende Übersetzungen hinzufügen\nAbhängigkeiten hinzufügen",
+        "ru": "Скорректировано показание batcur\nДобавить недостающие переводы\nДобавить зависимости",
+        "pt": "Leitura de batcur fixa\nAdicionar traduções em falta\nAdicionar dependências",
+        "nl": "Vaste batcur-lezing\nVoeg ontbrekende vertalingen toe\nAfhankelijkheden toevoegen",
+        "fr": "Lecture fixe de batcur\nAjouter les traductions manquantes\nAjouter les dépendances",
+        "it": "Lettura fissa del batcur\nAggiungi le traduzioni mancanti\nAggiungi dipendenze",
+        "es": "Lectura de batcur corregida\nAgregar traducciones faltantes\nAgregar dependencias",
+        "pl": "Naprawiono czytanie Batcura\nDodaj brakujące tłumaczenia\nDodaj zależności",
+        "uk": "Виправлено читання Batcur\nДодати відсутні переклади\nДодати залежності",
+        "zh-cn": "已修复 batcur 读取\n添加缺失的翻译\n添加依赖项"
+      },
       "4.1.1": {
         "en": "Send MQTT commands with QOS=1\nIf zenSDK device is not reachable, stop polling device after 5 retries. Try again after 10 minutes.",
         "de": "Sende MQTT-Befehle mit QoS=1\nWenn das zenSDK-Gerät nicht erreichbar ist, wird die Abfrage des Geräts nach 5 Versuchen abgebrochen. Ein erneuter Versuch erfolgt nach 10 Minuten.",
@@ -80,19 +93,6 @@
         "pl": "Aktualizuj zależności",
         "uk": "Оновлення залежності",
         "zh-cn": "更新依赖关系"
-      },
-      "4.0.3": {
-        "en": "Fix missing ip address field in settings for local mode\nAdd retry loop for zenSDK requests (retry 3 times if connection failed)\nUpdate battery detection",
-        "de": "Fix fehlendes ip-Adressenfeld in Einstellungen für den lokalen Modus\nFügen Sie Retry-Schleife für zenSDK-Anfragen hinzu (wiederholen Sie 3 mal, wenn die Verbindung fehlgeschlagen ist)\nBatterieerkennung aktualisieren",
-        "ru": "Исправление недостающего поля IP-адреса в настройках для локального режима\nДобавить повторную петлю для запросов zenSDK (повторить 3 раза, если соединение не удалось)\nОбновление обнаружения батареи",
-        "pt": "Corrigir o campo de endereços IP em falta nas configurações do modo local\nAdicionar um ciclo de repetição para pedidos zenSDK (tentar 3 vezes se a ligação falhar)\nAtualizar a detecção da bateria",
-        "nl": "Ontbrekend ip-adresveld in instellingen voor lokale modus herstellen\nRetry-lus voor zenSDK-verzoeken toevoegen (inschakelen 3 keer als de verbinding mislukt)\nBatterijdetectie bijwerken",
-        "fr": "Correction du champ d'adresse ip manquant dans les paramètres pour le mode local\nAjouter une boucle de réessayer pour les requêtes zenSDK (réessayer 3 fois si la connexion a échoué)\nMettre à jour la détection de la batterie",
-        "it": "Fissare il campo di indirizzi ip mancanti nelle impostazioni per la modalità locale\nAggiungi loop di riprovazione per le richieste di zenSDK (ricerca 3 volte se la connessione non è riuscita)\nAggiornamento del rilevamento della batteria",
-        "es": "Arreglar el campo de dirección ip perdido en la configuración del modo local\nAgregue el bucle de reingreso para las solicitudes zenSDK (entrada 3 veces si la conexión falló)\nActualización de la detección de baterías",
-        "pl": "Naprawianie brakującego pola adresu IP w ustawieniach dla lokalnego trybu\nDodaj pętlę ponowną dla żądań zenSDK (powtórz 3 razy, jeśli połączenie nie powiodło się)\nAktualizuj wykrywanie baterii",
-        "uk": "Виправлення відсутності поля адреси IP в налаштуваннях локального режиму\nДодайте петлю птиця для запитів zenSDK (три 3 рази, якщо з'єднання не вдалося)\nОновлення виявлення батареї",
-        "zh-cn": "在本地模式设置中修复缺失的 ip 地址字段\n添加 zenSDK 请求的重试环( 如果连接失败, 重试三次)\n更新电池检测"
       }
     },
     "titleLang": {

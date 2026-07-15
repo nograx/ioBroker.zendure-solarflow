@@ -244,11 +244,9 @@ const _ZenIobDevice = class _ZenIobDevice {
                 },
                 native: {}
               }));
-              let batcur = 0;
+              let batcur = x.batcur;
               if (x.batcur > 32767) {
                 batcur -= 65536;
-              } else {
-                batcur = x.batcur;
               }
               batcur = batcur / 10;
               await ((_q = this.adapter) == null ? void 0 : _q.setState(key + ".batcur", batcur, true));
