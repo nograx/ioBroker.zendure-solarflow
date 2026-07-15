@@ -177,7 +177,8 @@
           "it": "Avviso IMPORTANTE!",
           "es": "Noticia importante!",
           "pl": "Ważna uwaga!",
-          "zh-cn": "重要通知!"
+          "zh-cn": "重要通知!",
+          "uk": "Важливе повідомлення!"
         },
         "text": {
           "en": "BREAKING CHANGE. <br> Changed authentication with username/password to 'cloud authentication key'. You have to generate a key in the official zendure app!<br>'Fallback server' is no longer supported and removed in this version!",
@@ -204,7 +205,8 @@
           "it": "Leggimi",
           "es": "Léame",
           "pl": "Readme",
-          "zh-cn": "自述文件"
+          "zh-cn": "自述文件",
+          "uk": "Readme"
         },
         "buttons": [
           "agree",
