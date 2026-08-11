@@ -50,5 +50,6 @@
   "sectionConnection": "Connection",
   "sectionLocalMqtt": "Local MQTT",
   "sectionDevices": "Devices",
-  "sectionPowerManagement": "Calculations & Power Management"
+  "sectionPowerManagement": "Calculations & Power Management",
+  "removeDevice": "Remove device"
 }

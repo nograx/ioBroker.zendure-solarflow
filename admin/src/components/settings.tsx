@@ -13,10 +13,13 @@ import {
   Typography,
   Divider,
   Stack,
+  IconButton,
 } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { GenericApp, I18n } from "@iobroker/adapter-react-v5";
 
 const productKeys: { value; title }[] = [
+  { value: "", title: "-" },
   { value: "73bkTV", title: "HUB 1200 (73bkTV)" },
   { value: "A8yh63", title: "HUB 2000 (A8yh63)" },
   { value: "yWF7hV", title: "AIO 2400 (yWF7hV)" },
@@ -35,6 +38,8 @@ const productKeys: { value; title }[] = [
   { value: "nVyeqM", title: "SolarFlow 800 Pro 2 (nVyeqM)" },
   { value: "8n77V3", title: "SolarFlow 800 Plus (8n77V3)" },
 ];
+
+const productKeysWithoutEmpty = productKeys.filter((item) => item.value);
 
 interface SettingsProps {
   app: GenericApp;
@@ -56,6 +61,19 @@ function Settings(props: SettingsProps) {
   useEffect(() => {
     props.onChange("password", password);
   }, [password]);
+
+  useEffect(() => {
+    if (props.native.connectionMode === "local" && props.native.useZenSDK) {
+      props.onChange("useZenSDK", false);
+    }
+
+    if (
+      props.native.connectionMode === "local" &&
+      props.native.useAddionalLocalMqtt
+    ) {
+      props.onChange("useAddionalLocalMqtt", false);
+    }
+  }, [props.native.connectionMode]);
 
   const inputSx = {
     marginTop: 0,
@@ -123,6 +141,35 @@ function Settings(props: SettingsProps) {
         label={I18n.t(title)}
       />
     );
+  }
+
+  const maxDevices = 4;
+
+  function removeDevice(deviceNumber: number) {
+    const updates: [string, any][] = [];
+    for (let i = deviceNumber; i < maxDevices; i++) {
+      updates.push([
+        `localDevice${i}ProductKey`,
+        props.native[`localDevice${i + 1}ProductKey`] || "",
+      ]);
+      updates.push([
+        `localDevice${i}DeviceKey`,
+        props.native[`localDevice${i + 1}DeviceKey`] || "",
+      ]);
+    }
+    updates.push([`localDevice${maxDevices}ProductKey`, ""]);
+    updates.push([`localDevice${maxDevices}DeviceKey`, ""]);
+
+    // Chained via cb: updateNativeValue clones this.state.native per call, so
+    // firing all updates synchronously would let only the last one survive.
+    function applyNext(index: number) {
+      if (index >= updates.length) {
+        return;
+      }
+      const [attr, value] = updates[index];
+      props.app.updateNativeValue(attr, value, () => applyNext(index + 1));
+    }
+    applyNext(0);
   }
 
   function renderSection(title: string, children: React.ReactNode) {
@@ -200,9 +247,7 @@ function Settings(props: SettingsProps) {
               </Box>
             )}
 
-            {isAuthKey && (
-              <Box>{renderCheckbox("useZenSDK", "useZenSDK")}</Box>
-            )}
+            {isAuthKey && <Box>{renderCheckbox("useZenSDK", "useZenSDK")}</Box>}
 
             {isAuthKey && (
               <Box>
@@ -254,10 +299,24 @@ function Settings(props: SettingsProps) {
               <Box>
                 <FormLabel>Device 1:</FormLabel>
                 <Box sx={{ display: "flex", alignItems: "center", mt: 0.5 }}>
-                  {renderSelect("localDevice1ProductKey", productKeys)}
+                  {renderSelect(
+                    "localDevice1ProductKey",
+                    props.native["localDevice1DeviceKey"]
+                      ? productKeysWithoutEmpty
+                      : productKeys,
+                  )}
                   <Box sx={{ ml: 1.25 }}>
                     {renderInput("localDevice1DeviceKey", "text", "Device Key")}
                   </Box>
+                  {props.native["localDevice1DeviceKey"] && (
+                    <IconButton
+                      size="small"
+                      title={I18n.t("removeDevice")}
+                      onClick={() => removeDevice(1)}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  )}
                 </Box>
               </Box>
 
@@ -265,7 +324,12 @@ function Settings(props: SettingsProps) {
                 <Box>
                   <FormLabel>Device 2:</FormLabel>
                   <Box sx={{ display: "flex", alignItems: "center", mt: 0.5 }}>
-                    {renderSelect("localDevice2ProductKey", productKeys)}
+                    {renderSelect(
+                      "localDevice2ProductKey",
+                      props.native["localDevice2DeviceKey"]
+                        ? productKeysWithoutEmpty
+                        : productKeys,
+                    )}
                     <Box sx={{ ml: 1.25 }}>
                       {renderInput(
                         "localDevice2DeviceKey",
@@ -273,6 +337,15 @@ function Settings(props: SettingsProps) {
                         "Device Key",
                       )}
                     </Box>
+                    {props.native["localDevice2DeviceKey"] && (
+                      <IconButton
+                        size="small"
+                        title={I18n.t("removeDevice")}
+                        onClick={() => removeDevice(2)}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    )}
                   </Box>
                 </Box>
               )}
@@ -281,7 +354,12 @@ function Settings(props: SettingsProps) {
                 <Box>
                   <FormLabel>Device 3:</FormLabel>
                   <Box sx={{ display: "flex", alignItems: "center", mt: 0.5 }}>
-                    {renderSelect("localDevice3ProductKey", productKeys)}
+                    {renderSelect(
+                      "localDevice3ProductKey",
+                      props.native["localDevice3DeviceKey"]
+                        ? productKeysWithoutEmpty
+                        : productKeys,
+                    )}
                     <Box sx={{ ml: 1.25 }}>
                       {renderInput(
                         "localDevice3DeviceKey",
@@ -289,6 +367,15 @@ function Settings(props: SettingsProps) {
                         "Device Key",
                       )}
                     </Box>
+                    {props.native["localDevice3DeviceKey"] && (
+                      <IconButton
+                        size="small"
+                        title={I18n.t("removeDevice")}
+                        onClick={() => removeDevice(3)}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    )}
                   </Box>
                 </Box>
               )}
@@ -305,6 +392,15 @@ function Settings(props: SettingsProps) {
                         "Device Key",
                       )}
                     </Box>
+                    {props.native["localDevice4DeviceKey"] && (
+                      <IconButton
+                        size="small"
+                        title={I18n.t("removeDevice")}
+                        onClick={() => removeDevice(4)}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    )}
                   </Box>
                 </Box>
               )}
