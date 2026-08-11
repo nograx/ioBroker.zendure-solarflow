@@ -33,6 +33,7 @@
   "relayMqttToCloud": "Stuur MQTT-berichten door naar de cloud",
   "remainInputTime": "Resterende oplaadtijd",
   "remainOutTime": "Resterende uitvoertijd",
+  "removeDevice": "Apparaat verwijderen",
   "sectionConnection": "Verbinding",
   "sectionDevices": "Apparaten",
   "sectionLocalMqtt": "Lokale MQTT",

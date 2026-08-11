@@ -33,6 +33,7 @@
   "relayMqttToCloud": "将 MQTT 消息中继到云端",
   "remainInputTime": "剩余充电时间",
   "remainOutTime": "剩余输出时间",
+  "removeDevice": "移除设备",
   "sectionConnection": "连接",
   "sectionDevices": "设备",
   "sectionLocalMqtt": "本地MQTT",

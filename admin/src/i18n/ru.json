@@ -33,6 +33,7 @@
   "relayMqttToCloud": "Ретрансляция сообщений MQTT в облако",
   "remainInputTime": "Оставшееся время зарядки",
   "remainOutTime": "Оставшееся время вывода",
+  "removeDevice": "Удалить устройство",
   "sectionConnection": "Подключение",
   "sectionDevices": "Устройства",
   "sectionLocalMqtt": "Локальный MQTT",

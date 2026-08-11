@@ -33,6 +33,7 @@
   "relayMqttToCloud": "Inoltra i messaggi MQTT al cloud",
   "remainInputTime": "Tempo di ricarica rimanente",
   "remainOutTime": "Tempo di uscita rimanente",
+  "removeDevice": "Rimuovi il dispositivo",
   "sectionConnection": "Connessione",
   "sectionDevices": "Dispositivi",
   "sectionLocalMqtt": "MQTT locale",
