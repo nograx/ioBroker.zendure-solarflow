@@ -209,8 +209,12 @@ const allStates = {
     title: "wifiState",
     nameDe: "WiFi Status",
     nameEn: "WiFi Status",
-    type: "string",
-    role: "value"
+    type: "number",
+    role: "value",
+    states: {
+      0: "Disconnected",
+      1: "Connected"
+    }
   },
   hubState: {
     title: "hubState",
