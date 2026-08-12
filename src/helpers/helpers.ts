@@ -1,4 +1,4 @@
-import { ZendureSolarflow } from "../main";
+import type { ZendureSolarflow } from "../main";
 import { Ace1500 } from "../models/deviceModels/Ace1500";
 import { Aio2400 } from "../models/deviceModels/Aio2400";
 import { Hyper2000 } from "../models/deviceModels/Hyper2000";
@@ -12,7 +12,7 @@ import { Sf800Pro } from "../models/deviceModels/Sf800Pro";
 import { SfHub1200 } from "../models/deviceModels/SfHub1200";
 import { SfHub2000 } from "../models/deviceModels/SfHub2000";
 
-import { IZenIobDeviceDetails } from "../models/IZenIobDeviceDetails";
+import type { IZenIobDeviceDetails } from "../models/IZenIobDeviceDetails";
 
 export const createDeviceModel = (
   _adapter: ZendureSolarflow,
@@ -34,9 +34,7 @@ export const createDeviceModel = (
   | undefined => {
   switch (_productKey.toLowerCase()) {
     case "73bktv":
-      _adapter.log.debug(
-        `[onReady] Creating deviceModel HUB 1200 ${_productKey}`,
-      );
+      _adapter.log.debug(`[onReady] Creating deviceModel HUB 1200 ${_productKey}`);
       return new SfHub1200(
         _adapter,
         _productKey,
@@ -46,9 +44,7 @@ export const createDeviceModel = (
         _zenHaDeviceDetails,
       );
     case "a8yh63":
-      _adapter.log.debug(
-        `[onReady] Creating deviceModel HUB 2000 ${_productKey}`,
-      );
+      _adapter.log.debug(`[onReady] Creating deviceModel HUB 2000 ${_productKey}`);
       return new SfHub2000(
         _adapter,
         _productKey,
@@ -58,9 +54,7 @@ export const createDeviceModel = (
         _zenHaDeviceDetails,
       );
     case "ywf7hv":
-      _adapter.log.debug(
-        `[onReady] Creating deviceModel AIO 2400 ${_productKey}`,
-      );
+      _adapter.log.debug(`[onReady] Creating deviceModel AIO 2400 ${_productKey}`);
       return new Aio2400(
         _adapter,
         _productKey,
@@ -72,9 +66,7 @@ export const createDeviceModel = (
     case "ja72u0ha":
     case "b3dxda":
     case "gda3tb":
-      _adapter.log.debug(
-        `[onReady] Creating deviceModel Hyper 2000 ${_productKey}`,
-      );
+      _adapter.log.debug(`[onReady] Creating deviceModel Hyper 2000 ${_productKey}`);
       return new Hyper2000(
         _adapter,
         _productKey,
@@ -84,9 +76,7 @@ export const createDeviceModel = (
         _zenHaDeviceDetails,
       );
     case "8bm93h":
-      _adapter.log.debug(
-        `[onReady] Creating deviceModel ACE 1500 ${_productKey}`,
-      );
+      _adapter.log.debug(`[onReady] Creating deviceModel ACE 1500 ${_productKey}`);
       return new Ace1500(
         _adapter,
         _productKey,
@@ -97,143 +87,93 @@ export const createDeviceModel = (
       );
     case "64174u":
     case "65174u":
-      _adapter.log.debug(
-        `[onReady] Creating deviceModel Solarflow 1600 AC+ ${_productKey}`,
-      );
+      _adapter.log.debug(`[onReady] Creating deviceModel Solarflow 1600 AC+ ${_productKey}`);
       return new Sf1600AcPlus(
         _adapter,
         _productKey,
         _deviceKey,
-        _zenHaDeviceDetails
-          ? _zenHaDeviceDetails.productModel
-          : "Solarflow 1600 AC+",
-        _zenHaDeviceDetails
-          ? _zenHaDeviceDetails.deviceName
-          : "Solarflow 1600 AC+",
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.productModel : "Solarflow 1600 AC+",
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "Solarflow 1600 AC+",
         _zenHaDeviceDetails,
       );
     case "5fg27j":
-      _adapter.log.debug(
-        `[onReady] Creating deviceModel SF 2400 AC+ ${_productKey}`,
-      );
+      _adapter.log.debug(`[onReady] Creating deviceModel SF 2400 AC+ ${_productKey}`);
       return new Sf2400AcPlus(
         _adapter,
         _productKey,
         _deviceKey,
-        _zenHaDeviceDetails
-          ? _zenHaDeviceDetails.productModel
-          : "Solarflow 2400 AC+",
-        _zenHaDeviceDetails
-          ? _zenHaDeviceDetails.deviceName
-          : "Solarflow 2400 AC+",
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.productModel : "Solarflow 2400 AC+",
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "Solarflow 2400 AC+",
         _zenHaDeviceDetails,
       );
     case "bc8b7f":
-      _adapter.log.debug(
-        `[onReady] Creating deviceModel SF 2400 AC ${_productKey}`,
-      );
+      _adapter.log.debug(`[onReady] Creating deviceModel SF 2400 AC ${_productKey}`);
       return new Sf2400Ac(
         _adapter,
         _productKey,
         _deviceKey,
-        _zenHaDeviceDetails
-          ? _zenHaDeviceDetails.productModel
-          : "Solarflow 2400 AC",
-        _zenHaDeviceDetails
-          ? _zenHaDeviceDetails.deviceName
-          : "Solarflow 2400 AC",
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.productModel : "Solarflow 2400 AC",
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "Solarflow 2400 AC",
         _zenHaDeviceDetails,
       );
     case "2qe7c9":
-      _adapter.log.debug(
-        `[onReady] Creating deviceModel SF 2400 Pro ${_productKey}`,
-      );
+      _adapter.log.debug(`[onReady] Creating deviceModel SF 2400 Pro ${_productKey}`);
       return new Sf2400Pro(
         _adapter,
         _productKey,
         _deviceKey,
-        _zenHaDeviceDetails
-          ? _zenHaDeviceDetails.productModel
-          : "Solarflow 2400 Pro",
-        _zenHaDeviceDetails
-          ? _zenHaDeviceDetails.deviceName
-          : "Solarflow 2400 Pro",
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.productModel : "Solarflow 2400 Pro",
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "Solarflow 2400 Pro",
         _zenHaDeviceDetails,
       );
     case "a4ss5p":
-      _adapter.log.debug(
-        `[onReady] Creating deviceModel SF 800 ${_productKey}`,
-      );
+      _adapter.log.debug(`[onReady] Creating deviceModel SF 800 ${_productKey}`);
       return new Sf800(
         _adapter,
         _productKey,
         _deviceKey,
-        _zenHaDeviceDetails
-          ? _zenHaDeviceDetails.productModel
-          : "Solarflow 800",
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.productModel : "Solarflow 800",
         _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "Solarflow 800",
         _zenHaDeviceDetails,
       );
     case "b1nhmc":
-      _adapter.log.debug(
-        `[onReady] Creating deviceModel SF 800 ${_productKey}`,
-      );
+      _adapter.log.debug(`[onReady] Creating deviceModel SF 800 ${_productKey}`);
       return new Sf800(
         _adapter,
         _productKey,
         _deviceKey,
-        _zenHaDeviceDetails
-          ? _zenHaDeviceDetails.productModel
-          : "Solarflow 800",
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.productModel : "Solarflow 800",
         _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "Solarflow 800",
         _zenHaDeviceDetails,
       );
     case "r3mn8u":
-      _adapter.log.debug(
-        `[onReady] Creating deviceModel SF 800 Pro ${_productKey}`,
-      );
+      _adapter.log.debug(`[onReady] Creating deviceModel SF 800 Pro ${_productKey}`);
       return new Sf800Pro(
         _adapter,
         _productKey,
         _deviceKey,
-        _zenHaDeviceDetails
-          ? _zenHaDeviceDetails.productModel
-          : "Solarflow 800 Pro",
-        _zenHaDeviceDetails
-          ? _zenHaDeviceDetails.deviceName
-          : "Solarflow 800 Pro",
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.productModel : "Solarflow 800 Pro",
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "Solarflow 800 Pro",
         _zenHaDeviceDetails,
       );
     case "nvyeqm":
-      _adapter.log.debug(
-        `[onReady] Creating deviceModel SF 800 Pro 2 ${_productKey}`,
-      );
+      _adapter.log.debug(`[onReady] Creating deviceModel SF 800 Pro 2 ${_productKey}`);
       return new Sf800Pro(
         _adapter,
         _productKey,
         _deviceKey,
-        _zenHaDeviceDetails
-          ? _zenHaDeviceDetails.productModel
-          : "Solarflow 800 Pro 2",
-        _zenHaDeviceDetails
-          ? _zenHaDeviceDetails.deviceName
-          : "Solarflow 800 Pro 2",
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.productModel : "Solarflow 800 Pro 2",
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "Solarflow 800 Pro 2",
         _zenHaDeviceDetails,
       );
     case "8n77v3":
-      _adapter.log.debug(
-        `[onReady] Creating deviceModel SF 800 Plus ${_productKey}`,
-      );
+      _adapter.log.debug(`[onReady] Creating deviceModel SF 800 Plus ${_productKey}`);
       return new Sf800Plus(
         _adapter,
         _productKey,
         _deviceKey,
-        _zenHaDeviceDetails
-          ? _zenHaDeviceDetails.productModel
-          : "Solarflow 800 Plus",
-        _zenHaDeviceDetails
-          ? _zenHaDeviceDetails.deviceName
-          : "Solarflow 800 Plus",
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.productModel : "Solarflow 800 Plus",
+        _zenHaDeviceDetails ? _zenHaDeviceDetails.deviceName : "Solarflow 800 Plus",
         _zenHaDeviceDetails,
       );
     default:

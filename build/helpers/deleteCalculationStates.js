@@ -21,7 +21,7 @@ __export(deleteCalculationStates_exports, {
   deleteCalculationStates: () => deleteCalculationStates
 });
 module.exports = __toCommonJS(deleteCalculationStates_exports);
-const deleteCalculationStates = async (adapter, productKey, deviceKey) => {
+const deleteCalculationStates = (adapter, productKey, deviceKey) => {
   const stateNames = [
     "energyWhMax",
     "energyWh",
@@ -38,7 +38,7 @@ const deleteCalculationStates = async (adapter, productKey, deviceKey) => {
     "solarInputEnergyTodayWh"
   ];
   stateNames.forEach(async (stateName) => {
-    const key = productKey + "." + deviceKey + ".calculations." + stateName;
+    const key = `${productKey}.${deviceKey}.calculations.${stateName}`;
     if (await adapter.objectExists(key)) {
       await (adapter == null ? void 0 : adapter.deleteStateAsync(key));
     }

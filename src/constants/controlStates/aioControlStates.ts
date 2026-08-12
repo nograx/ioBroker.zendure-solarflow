@@ -1,4 +1,4 @@
-import { ISolarflowState } from "../../models/ISolarflowState";
+import type { ISolarflowState } from "../../models/ISolarflowState";
 
 export const aioControlStates: ISolarflowState[] = [
   {
@@ -59,10 +59,8 @@ export const aioControlStates: ISolarflowState[] = [
     write: true,
   },
   {
-    nameDe:
-      "Geräte Automation Input/Output Limit (negativ = Laden, positiv = Einspeisen)",
-    nameEn:
-      "Device automation input/output limit (negative = charging, positive = feed in)",
+    nameDe: "Geräte Automation Input/Output Limit (negativ = Laden, positiv = Einspeisen)",
+    nameEn: "Device automation input/output limit (negative = charging, positive = feed in)",
     type: "number",
     def: 0,
     title: "setDeviceAutomationInOutLimit",

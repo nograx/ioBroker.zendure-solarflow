@@ -42,6 +42,10 @@ class MqttService {
   /**
    * Helper used by subclasses to wire up a client once options and URL are known.
    * Returns true when the client was successfully created and listeners attached.
+   *
+   * @param opts
+   * @param url
+   * @param isLocal
    */
   connectWithOptions(opts, url, isLocal) {
     if (!import_mqtt.default) {

@@ -50,20 +50,16 @@ class Ace1500 extends import_ZenIobDevice.ZenIobDevice {
       this.updateProperty("acSwitch", acSwitch ? 1 : 0);
     }
   }
-  async setDeviceAutomationInOutLimit(limit) {
+  setDeviceAutomationInOutLimit(limit) {
     if (this.productKey && this.deviceKey) {
-      this.adapter.log.debug(
-        `[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`
-      );
+      this.adapter.log.debug(`[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`);
       if (limit) {
         limit = Math.round(limit);
       } else {
         limit = 0;
       }
       if (limit > 0) {
-        this.adapter.log.error(
-          `[setDeviceAutomationInOutLimit] ACE 1500 can not feed in!`
-        );
+        this.adapter.log.error(`[setDeviceAutomationInOutLimit] ACE 1500 can not feed in!`);
       }
       if (limit < 0 && limit < -this.maxInputLimit) {
         this.adapter.log.debug(

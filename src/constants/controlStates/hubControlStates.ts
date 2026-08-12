@@ -1,4 +1,4 @@
-import { ISolarflowState } from "../../models/ISolarflowState";
+import type { ISolarflowState } from "../../models/ISolarflowState";
 
 export const hubControlStates: ISolarflowState[] = [
   {

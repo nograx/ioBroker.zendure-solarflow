@@ -26,19 +26,17 @@ __export(jobSchedule_exports, {
 });
 module.exports = __toCommonJS(jobSchedule_exports);
 var import_node_schedule = require("node-schedule");
-const startRefreshAccessTokenTimerJob = async (adapter) => {
+const startRefreshAccessTokenTimerJob = (adapter) => {
   adapter.refreshAccessTokenInterval = adapter.setInterval(
     async () => {
-      adapter.log.info(
-        `Refresh Access Token - Adapter will restart in 20 seconds!`
-      );
+      adapter.log.info(`Refresh Access Token - Adapter will restart in 20 seconds!`);
       await adapter.delay(20 * 1e3);
       adapter.restart();
     },
     3 * 60 * 60 * 1e3
   );
 };
-const startZenSdkDataRefreshJob = async (adapter) => {
+const startZenSdkDataRefreshJob = (adapter) => {
   adapter.zenSdkDataRefreshJob = (0, import_node_schedule.scheduleJob)("*/5 * * * * *", () => {
     adapter.zenIobDeviceList.forEach(async (device) => {
       if (device.isZenSdkSupported && adapter.config.useZenSDK) {
@@ -48,14 +46,14 @@ const startZenSdkDataRefreshJob = async (adapter) => {
     });
   });
 };
-const startResetValuesJob = async (adapter) => {
+const startResetValuesJob = (adapter) => {
   adapter.resetValuesJob = (0, import_node_schedule.scheduleJob)("5 0 0 * * *", () => {
     adapter.zenIobDeviceList.forEach((device) => {
       device.resetValuesForDevice();
     });
   });
 };
-const startCalculationJob = async (adapter) => {
+const startCalculationJob = (adapter) => {
   adapter.calculationJob = (0, import_node_schedule.scheduleJob)("*/30 * * * * *", () => {
     adapter.zenIobDeviceList.forEach((device) => {
       if (device.productKey != "s3Xk4x") {
@@ -64,7 +62,7 @@ const startCalculationJob = async (adapter) => {
     });
   });
 };
-const startCheckStatesAndConnectionJob = async (adapter) => {
+const startCheckStatesAndConnectionJob = (adapter) => {
   const statesToReset = [
     "outputHomePower",
     "outputPackPower",
@@ -78,20 +76,14 @@ const startCheckStatesAndConnectionJob = async (adapter) => {
     "packPower"
   ];
   let refreshAccessTokenNeeded = false;
-  adapter.log.debug(
-    `[checkStatesJob] Starting check of states and connection!`
-  );
-  adapter.checkStatesJob = (0, import_node_schedule.scheduleJob)("*/5 * * * *", async () => {
+  adapter.log.debug(`[checkStatesJob] Starting check of states and connection!`);
+  adapter.checkStatesJob = (0, import_node_schedule.scheduleJob)("*/5 * * * *", () => {
     adapter.zenIobDeviceList.forEach(async (device) => {
       if (refreshAccessTokenNeeded) {
         return;
       }
-      const lastUpdate = await (adapter == null ? void 0 : adapter.getStateAsync(
-        device.productKey + "." + device.deviceKey + ".lastUpdate"
-      ));
-      const wifiState = await (adapter == null ? void 0 : adapter.getStateAsync(
-        device.productKey + "." + device.deviceKey + ".wifiState"
-      ));
+      const lastUpdate = await (adapter == null ? void 0 : adapter.getStateAsync(`${device.productKey}.${device.deviceKey}.lastUpdate`));
+      const wifiState = await (adapter == null ? void 0 : adapter.getStateAsync(`${device.productKey}.${device.deviceKey}.wifiState`));
       const fiveMinutesAgo = (Date.now() / 1e3 - 5 * 60) * 1e3;
       const tenMinutesAgo = (Date.now() / 1e3 - 10 * 60) * 1e3;
       if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < tenMinutesAgo && (wifiState == null ? void 0 : wifiState.val) == "Connected" && adapter.config.connectionMode == "authKey") {
@@ -115,21 +107,13 @@ const startCheckStatesAndConnectionJob = async (adapter) => {
             Number(lastUpdate.val)
           )}, checking for pseudo power values!`
         );
-        await statesToReset.forEach(async (stateName) => {
-          const exist = await adapter.getObjectAsync(
-            `${device.productKey}.${device.deviceKey}.${stateName}`
-          );
+        statesToReset.forEach(async (stateName) => {
+          const exist = await adapter.getObjectAsync(`${device.productKey}.${device.deviceKey}.${stateName}`);
           if (!exist) {
-            adapter.log.debug(
-              `[checkStatesJob] State ${stateName} does not exist for deviceKey ${device.deviceKey}!`
-            );
+            adapter.log.debug(`[checkStatesJob] State ${stateName} does not exist for deviceKey ${device.deviceKey}!`);
             return;
           }
-          await (adapter == null ? void 0 : adapter.setState(
-            device.productKey + "." + device.deviceKey + "." + stateName,
-            0,
-            true
-          ));
+          await (adapter == null ? void 0 : adapter.setState(`${device.productKey}.${device.deviceKey}.${stateName}`, 0, true));
         });
       }
     });

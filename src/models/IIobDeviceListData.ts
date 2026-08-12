@@ -1,5 +1,5 @@
-import { IZenIobDeviceDetails } from "./IZenIobDeviceDetails";
-import { IZenIobMqttData } from "./IZenIobMqttData";
+import type { IZenIobDeviceDetails } from "./IZenIobDeviceDetails";
+import type { IZenIobMqttData } from "./IZenIobMqttData";
 
 export interface IIobDeviceListData {
   deviceList: IZenIobDeviceDetails[];

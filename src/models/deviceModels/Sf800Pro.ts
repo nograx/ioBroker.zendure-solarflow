@@ -1,7 +1,7 @@
 import { solarflow800ProControlStates } from "../../constants/controlStates/solarflow800ProControlStates";
 import { sharedControlStates } from "../../constants/controlStates/sharedControlStates";
-import { ZendureSolarflow } from "../../main";
-import { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
+import type { ZendureSolarflow } from "../../main";
+import type { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
 import { ZenSdkIobDevice } from "./ZenSdkIobDevice";
 
 export class Sf800Pro extends ZenSdkIobDevice {
@@ -19,14 +19,7 @@ export class Sf800Pro extends ZenSdkIobDevice {
     _deviceName: string,
     _zenHaDeviceDetails?: IZenIobDeviceDetails,
   ) {
-    super(
-      _adapter,
-      _productKey,
-      _deviceKey,
-      _productName,
-      _deviceName,
-      _zenHaDeviceDetails,
-    );
+    super(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails);
   }
 
   public async setAcMode(acMode: number): Promise<void> {
@@ -35,9 +28,7 @@ export class Sf800Pro extends ZenSdkIobDevice {
         this.updateProperty("acMode", acMode);
 
         // Check if device is HUB, then check if smartMode is false - if so send a warning to log!
-        const smartMode = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.smartMode",
-        );
+        const smartMode = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.control.smartMode`);
 
         if (smartMode && !smartMode.val) {
           this.adapter.log.warn(
@@ -45,9 +36,7 @@ export class Sf800Pro extends ZenSdkIobDevice {
           );
         }
       } else {
-        this.adapter.log.error(
-          `[setAcMode] AC mode must be a value between 0 and 3!`,
-        );
+        this.adapter.log.error(`[setAcMode] AC mode must be a value between 0 and 3!`);
       }
     }
   }

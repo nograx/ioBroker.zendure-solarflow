@@ -56,9 +56,10 @@ const _ZenIobDevice = class _ZenIobDevice {
     this.controlStates = [];
     this.zenSdkErrorCount = 0;
     this.zenSdkPausedUntil = 0;
+    // eslint-disable-next-line @typescript-eslint/require-await -- kept async, caller in processDeviceProperties.ts awaits this method
     this.addOrUpdatePackData = async (packData, isSolarFlow) => {
       if (this.adapter && this.productKey && this.deviceKey) {
-        await packData.forEach(async (x) => {
+        packData.forEach(async (x) => {
           var _a, _b, _c;
           if (x.sn && this.adapter) {
             let batType = "";
@@ -92,7 +93,7 @@ const _ZenIobDevice = class _ZenIobDevice {
                 `[addOrUpdatePackData] Added battery ${batType} with SN ${x.sn} on deviceKey ${this.deviceKey} to batteries array!`
               );
             }
-            const key = (this.productKey + "." + this.deviceKey + ".packData." + x.sn).replace(this.adapter.FORBIDDEN_CHARS, "");
+            const key = `${this.productKey}.${this.deviceKey}.packData.${x.sn}`.replace(this.adapter.FORBIDDEN_CHARS, "");
             await ((_a = this.adapter) == null ? void 0 : _a.extendObject(key, {
               type: "channel",
               common: { name: { de: batType, en: batType } },
@@ -101,8 +102,10 @@ const _ZenIobDevice = class _ZenIobDevice {
             const createPackState = async (fieldName) => {
               var _a2;
               const def = import_allStates.allStates[fieldName];
-              if (!def) return;
-              await ((_a2 = this.adapter) == null ? void 0 : _a2.extendObject(key + "." + fieldName, {
+              if (!def) {
+                return;
+              }
+              await ((_a2 = this.adapter) == null ? void 0 : _a2.extendObject(`${key}.${fieldName}`, {
                 type: "state",
                 common: {
                   name: { de: def.nameDe, en: def.nameEn },
@@ -118,18 +121,14 @@ const _ZenIobDevice = class _ZenIobDevice {
             };
             const touchLastUpdate = async (fieldName, newValue) => {
               var _a2, _b2, _c2;
-              const current = await ((_a2 = this.adapter) == null ? void 0 : _a2.getStateAsync(
-                key + "." + fieldName
-              ));
+              const current = await ((_a2 = this.adapter) == null ? void 0 : _a2.getStateAsync(`${key}.${fieldName}`));
               if ((current == null ? void 0 : current.val) && newValue != current.val) {
                 await ((_b2 = this.adapter) == null ? void 0 : _b2.setState(
                   `${this.productKey}.${this.deviceKey}.lastUpdate`,
                   (/* @__PURE__ */ new Date()).getTime(),
                   true
                 ));
-                const wifiState = await ((_c2 = this.adapter) == null ? void 0 : _c2.getStateAsync(
-                  `${this.productKey}.${this.deviceKey}.wifiState`
-                ));
+                const wifiState = await ((_c2 = this.adapter) == null ? void 0 : _c2.getStateAsync(`${this.productKey}.${this.deviceKey}.wifiState`));
                 if ((wifiState == null ? void 0 : wifiState.val) == "Disconnected") {
                   this.updateSolarFlowState("wifiState", 1);
                 }
@@ -138,7 +137,9 @@ const _ZenIobDevice = class _ZenIobDevice {
             const packStatesToSet = /* @__PURE__ */ new Map();
             packStatesToSet.set("model", batType);
             packStatesToSet.set("sn", x.sn);
-            if (x.socLevel) packStatesToSet.set("socLevel", x.socLevel);
+            if (x.socLevel) {
+              packStatesToSet.set("socLevel", x.socLevel);
+            }
             if (x.maxTemp) {
               const maxTempCelsius = x.maxTemp / 10 - 273.15;
               await touchLastUpdate("maxTemp", maxTempCelsius);
@@ -150,7 +151,7 @@ const _ZenIobDevice = class _ZenIobDevice {
               packStatesToSet.set("minVol", minVol);
             }
             if (x.batcur) {
-              await ((_b = this.adapter) == null ? void 0 : _b.extendObject(key + ".batcur", {
+              await ((_b = this.adapter) == null ? void 0 : _b.extendObject(`${key}.batcur`, {
                 type: "state",
                 common: {
                   name: "batcur",
@@ -178,19 +179,27 @@ const _ZenIobDevice = class _ZenIobDevice {
               const totalVol = x.totalVol / 100;
               await touchLastUpdate("totalVol", totalVol);
               packStatesToSet.set("totalVol", totalVol);
-              if (isSolarFlow) this.checkVoltage(totalVol);
+              if (isSolarFlow) {
+                this.checkVoltage(totalVol);
+              }
             }
-            if (x.soh) packStatesToSet.set("soh", x.soh / 10);
-            if (x.power) packStatesToSet.set("power", x.power);
+            if (x.soh) {
+              packStatesToSet.set("soh", x.soh / 10);
+            }
+            if (x.power) {
+              packStatesToSet.set("power", x.power);
+            }
             for (const [fieldName, value] of packStatesToSet) {
               await createPackState(fieldName);
-              await ((_c = this.adapter) == null ? void 0 : _c.setState(key + "." + fieldName, value, true));
+              await ((_c = this.adapter) == null ? void 0 : _c.setState(`${key}.${fieldName}`, value, true));
             }
             let found = false;
             Object.entries(x).forEach(([k, value]) => {
               var _a2;
               import_mqttSharedService.knownPackDataProperties.forEach((property) => {
-                if (property == k) found = true;
+                if (property == k) {
+                  found = true;
+                }
               });
               if (!found) {
                 (_a2 = this.adapter) == null ? void 0 : _a2.log.debug(
@@ -208,12 +217,8 @@ const _ZenIobDevice = class _ZenIobDevice {
         `[calculateSocAndEnergy] Calculating for: ${this.productKey}.${this.deviceKey} and stateKey ${stateKey}!`
       );
       let energyWhMax = void 0;
-      const minSoc = (_a = await this.adapter.getStateAsync(
-        `${this.productKey}.${this.deviceKey}.minSoc`
-      )) == null ? void 0 : _a.val;
-      const currentSoc = (_b = await this.adapter.getStateAsync(
-        `${this.productKey}.${this.deviceKey}.electricLevel`
-      )) == null ? void 0 : _b.val;
+      const minSoc = (_a = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.minSoc`)) == null ? void 0 : _a.val;
+      const currentSoc = (_b = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.electricLevel`)) == null ? void 0 : _b.val;
       if (currentSoc && minSoc && Number(currentSoc) < Number(minSoc)) {
         this.adapter.log.debug(
           `[calculateSocAndEnergy] Don't calculate, currentSoc (${Number(currentSoc)}) is lower than minSoc (${Number(minSoc)})!`
@@ -221,17 +226,15 @@ const _ZenIobDevice = class _ZenIobDevice {
         return;
       }
       const currentEnergyState = await ((_c = this.adapter) == null ? void 0 : _c.getStateAsync(
-        this.productKey + "." + this.deviceKey + ".calculations.energyWh"
+        `${this.productKey}.${this.deviceKey}.calculations.energyWh`
       ));
       const currentEnergyMaxState = await ((_d = this.adapter) == null ? void 0 : _d.getStateAsync(
-        this.productKey + "." + this.deviceKey + ".calculations.energyWhMax"
+        `${this.productKey}.${this.deviceKey}.calculations.energyWhMax`
       ));
       const lowVoltageBlock = await ((_e = this.adapter) == null ? void 0 : _e.getStateAsync(
-        this.productKey + "." + this.deviceKey + ".control.lowVoltageBlock"
+        `${this.productKey}.${this.deviceKey}.control.lowVoltageBlock`
       ));
-      const currentMaxValue = Number(
-        currentEnergyMaxState ? currentEnergyMaxState.val : 0
-      );
+      const currentMaxValue = Number(currentEnergyMaxState ? currentEnergyMaxState.val : 0);
       let currentEnergyWh = (currentEnergyState == null ? void 0 : currentEnergyState.val) ? Number(currentEnergyState == null ? void 0 : currentEnergyState.val) : 0;
       if (currentEnergyWh == null || currentEnergyWh == void 0 || currentEnergyWh <= 0) {
         currentEnergyWh = 0;
@@ -261,11 +264,7 @@ const _ZenIobDevice = class _ZenIobDevice {
         );
       }
       if (newEnergyWh > 0) {
-        (_f = this.adapter) == null ? void 0 : _f.setState(
-          `${this.productKey}.${this.deviceKey}.calculations.energyWh`,
-          newEnergyWh,
-          true
-        );
+        (_f = this.adapter) == null ? void 0 : _f.setState(`${this.productKey}.${this.deviceKey}.calculations.energyWh`, newEnergyWh, true);
         this.adapter.log.debug(
           `[calculateSocAndEnergy] set '${this.productKey}.${this.deviceKey}.calculations.energyWh' to ${newEnergyWh}!`
         );
@@ -287,32 +286,24 @@ const _ZenIobDevice = class _ZenIobDevice {
             `${this.productKey}.${this.deviceKey}.outputPackPower`
           ));
           const currentPackInputPower = await ((_j = this.adapter) == null ? void 0 : _j.getStateAsync(
-            this.productKey + "." + this.deviceKey + ".packInputPower"
+            `${this.productKey}.${this.deviceKey}.packInputPower`
           ));
           if (stateKey == "outputPack" && (currentOutputPackPower == null ? void 0 : currentOutputPackPower.val) != null && currentOutputPackPower != void 0) {
             const toCharge = currentMaxValue - newEnergyWh;
             const remainHoursAsDecimal = toCharge / Number(currentOutputPackPower.val);
             if (remainHoursAsDecimal < 48) {
-              const remainFormatted = (0, import_timeHelper.toHoursAndMinutes)(
-                Math.round(remainHoursAsDecimal * 60)
-              );
+              const remainFormatted = (0, import_timeHelper.toHoursAndMinutes)(Math.round(remainHoursAsDecimal * 60));
               await ((_k = this.adapter) == null ? void 0 : _k.setState(
                 `${this.productKey}.${this.deviceKey}.calculations.remainInputTime`,
                 remainFormatted,
                 true
               ));
             } else {
-              await ((_l = this.adapter) == null ? void 0 : _l.setState(
-                `${this.productKey}.${this.deviceKey}.calculations.remainInputTime`,
-                "",
-                true
-              ));
+              await ((_l = this.adapter) == null ? void 0 : _l.setState(`${this.productKey}.${this.deviceKey}.calculations.remainInputTime`, "", true));
             }
           } else if (stateKey == "packInput" && currentPackInputPower != null && currentPackInputPower != void 0) {
             const remainHoursAsDecimal = newEnergyWh / Number(currentPackInputPower.val);
-            const remainFormatted = (0, import_timeHelper.toHoursAndMinutes)(
-              Math.round(remainHoursAsDecimal * 60)
-            );
+            const remainFormatted = (0, import_timeHelper.toHoursAndMinutes)(Math.round(remainHoursAsDecimal * 60));
             if (remainHoursAsDecimal < 48) {
               await ((_m = this.adapter) == null ? void 0 : _m.setState(
                 `${this.productKey}.${this.deviceKey}.calculations.remainOutTime`,
@@ -320,26 +311,14 @@ const _ZenIobDevice = class _ZenIobDevice {
                 true
               ));
             } else {
-              await ((_n = this.adapter) == null ? void 0 : _n.setState(
-                `${this.productKey}.${this.deviceKey}.calculations.remainOutTime`,
-                "",
-                true
-              ));
+              await ((_n = this.adapter) == null ? void 0 : _n.setState(`${this.productKey}.${this.deviceKey}.calculations.remainOutTime`, "", true));
             }
           }
         }
       } else if (newEnergyWh <= 0 && stateKey == "outputPack") {
-        await ((_o = this.adapter) == null ? void 0 : _o.setState(
-          `${this.productKey}.${this.deviceKey}.calculations.remainInputTime`,
-          "",
-          true
-        ));
+        await ((_o = this.adapter) == null ? void 0 : _o.setState(`${this.productKey}.${this.deviceKey}.calculations.remainInputTime`, "", true));
       } else if (newEnergyWh <= 0 && stateKey == "packInput") {
-        await ((_p = this.adapter) == null ? void 0 : _p.setState(
-          `${this.productKey}.${this.deviceKey}.calculations.remainOutTime`,
-          "",
-          true
-        ));
+        await ((_p = this.adapter) == null ? void 0 : _p.setState(`${this.productKey}.${this.deviceKey}.calculations.remainOutTime`, "", true));
         const newEnergyWhPositive = Math.abs(newEnergyWh);
         if (energyWhMax && currentMaxValue + newEnergyWhPositive <= energyWhMax) {
           await ((_q = this.adapter) == null ? void 0 : _q.setState(
@@ -399,10 +378,7 @@ const _ZenIobDevice = class _ZenIobDevice {
       this.updateSolarFlowState("wifiState", 0);
     }
     if (zenIobDeviceDetails.productModel) {
-      this.updateSolarFlowState(
-        "productName",
-        zenIobDeviceDetails.productModel
-      );
+      this.updateSolarFlowState("productName", zenIobDeviceDetails.productModel);
     }
     if (zenIobDeviceDetails.ip) {
       this.ipAddress = zenIobDeviceDetails.ip;
@@ -416,38 +392,29 @@ const _ZenIobDevice = class _ZenIobDevice {
       this.updateSolarFlowState("name", zenIobDeviceDetails.deviceName);
     }
     if (zenIobDeviceDetails.protocol == "mqtt" && zenIobDeviceDetails.server && zenIobDeviceDetails.port) {
-      await ((_a = this.adapter) == null ? void 0 : _a.extendObject(
-        `${this.productKey}.${this.deviceKey}.mqttServer`,
-        {
-          type: "state",
-          common: {
-            name: {
-              de: "MQTT Server",
-              en: "MQTT Server"
-            },
-            type: "string",
-            desc: "MQTT Server",
-            role: "value",
-            read: true,
-            write: false,
-            unit: "",
-            states: {}
+      await ((_a = this.adapter) == null ? void 0 : _a.extendObject(`${this.productKey}.${this.deviceKey}.mqttServer`, {
+        type: "state",
+        common: {
+          name: {
+            de: "MQTT Server",
+            en: "MQTT Server"
           },
-          native: {}
-        }
-      ));
-      this.updateSolarFlowState(
-        "mqttServer",
-        zenIobDeviceDetails.server + ":" + zenIobDeviceDetails.port
-      );
+          type: "string",
+          desc: "MQTT Server",
+          role: "value",
+          read: true,
+          write: false,
+          unit: "",
+          states: {}
+        },
+        native: {}
+      }));
+      this.updateSolarFlowState("mqttServer", `${zenIobDeviceDetails.server}:${zenIobDeviceDetails.port}`);
     }
   }
   async createSolarFlowStates() {
     var _a, _b, _c, _d, _e, _f;
-    const productKey = this.productKey.replace(
-      this.adapter.FORBIDDEN_CHARS,
-      ""
-    );
+    const productKey = this.productKey.replace(this.adapter.FORBIDDEN_CHARS, "");
     const deviceKey = this.deviceKey.replace(this.adapter.FORBIDDEN_CHARS, "");
     this.adapter.log.debug(
       `[createSolarFlowStates] Creating or updating SolarFlow states for ${this.productName} (${productKey}/${deviceKey}) and name '${this.deviceName}'.`
@@ -462,7 +429,7 @@ const _ZenIobDevice = class _ZenIobDevice {
       },
       native: {}
     }));
-    await ((_b = this.adapter) == null ? void 0 : _b.extendObject(productKey + "." + deviceKey, {
+    await ((_b = this.adapter) == null ? void 0 : _b.extendObject(`${productKey}.${deviceKey}`, {
       type: "channel",
       common: {
         name: {
@@ -503,8 +470,8 @@ const _ZenIobDevice = class _ZenIobDevice {
       type: "channel",
       common: {
         name: {
-          de: "Steuerung f\xFCr Ger\xE4t " + deviceKey,
-          en: "Control for device " + deviceKey
+          de: `Steuerung f\xFCr Ger\xE4t ${deviceKey}`,
+          en: `Control for device ${deviceKey}`
         }
       },
       native: {}
@@ -536,24 +503,19 @@ const _ZenIobDevice = class _ZenIobDevice {
           await ((_c2 = this.adapter) == null ? void 0 : _c2.setState(stateId, state.def, true));
         }
       }
-      (_d2 = this.adapter) == null ? void 0 : _d2.subscribeStates(
-        `${productKey}.${deviceKey}.control.${state.title}`
-      );
+      (_d2 = this.adapter) == null ? void 0 : _d2.subscribeStates(`${productKey}.${deviceKey}.control.${state.title}`);
     });
     if (this.adapter.config.useCalculation) {
-      await ((_f = this.adapter) == null ? void 0 : _f.extendObject(
-        `${productKey}.${deviceKey}.calculations`,
-        {
-          type: "channel",
-          common: {
-            name: {
-              de: "Berechnungen f\xFCr Ger\xE4t " + deviceKey,
-              en: "Calculations for Device " + deviceKey
-            }
-          },
-          native: {}
-        }
-      ));
+      await ((_f = this.adapter) == null ? void 0 : _f.extendObject(`${productKey}.${deviceKey}.calculations`, {
+        type: "channel",
+        common: {
+          name: {
+            de: `Berechnungen f\xFCr Ger\xE4t ${deviceKey}`,
+            en: `Calculations for Device ${deviceKey}`
+          }
+        },
+        native: {}
+      }));
       await (0, import_createCalculationStates.createCalculationStates)(this.adapter, productKey, deviceKey);
     }
   }
@@ -566,9 +528,7 @@ const _ZenIobDevice = class _ZenIobDevice {
       );
       return Promise.resolve(false);
     }
-    this.adapter.log.debug(
-      `[getZenSdkProperties] Getting properties with zenSDK for device ${this.deviceKey}!`
-    );
+    this.adapter.log.debug(`[getZenSdkProperties] Getting properties with zenSDK for device ${this.deviceKey}!`);
     if (this.ipAddress) {
       const headers = {
         "Content-Type": "application/json"
@@ -586,11 +546,7 @@ const _ZenIobDevice = class _ZenIobDevice {
         );
         if (data.properties) {
           (0, import_processDeviceProperties.processDeviceProperties)(this, data.properties, true);
-          await ((_a = this.adapter) == null ? void 0 : _a.setState(
-            `${this.productKey}.${this.deviceKey}.lastUpdate`,
-            (/* @__PURE__ */ new Date()).getTime(),
-            true
-          ));
+          await ((_a = this.adapter) == null ? void 0 : _a.setState(`${this.productKey}.${this.deviceKey}.lastUpdate`, (/* @__PURE__ */ new Date()).getTime(), true));
           this.updateSolarFlowState("wifiState", 1);
         }
         if (data.packData) {
@@ -614,11 +570,8 @@ const _ZenIobDevice = class _ZenIobDevice {
         this.updateSolarFlowState("wifiState", 0);
         return false;
       });
-    } else {
-      this.adapter.log.error(
-        `[getZenSdkProperties] IP address is not defined for device ${this.deviceKey}!`
-      );
     }
+    this.adapter.log.error(`[getZenSdkProperties] IP address is not defined for device ${this.deviceKey}!`);
     return Promise.resolve(false);
   }
   async axiosPostWithRetry(url, data, config, maxRetries = 3) {
@@ -657,7 +610,7 @@ const _ZenIobDevice = class _ZenIobDevice {
           properties: JSON.parse(properties)
         },
         config
-      ).then(async (response) => {
+      ).then((response) => {
         this.adapter.log.debug(
           `[writeZenSdkProperties] Successfully wrote properties for device ${this.deviceKey} with zenSDK: ${properties} / status: ${response.status}`
         );
@@ -668,35 +621,22 @@ const _ZenIobDevice = class _ZenIobDevice {
         );
         return false;
       });
-    } else {
-      this.adapter.log.error(
-        `[writeZenSdkProperties] IP address is not defined for device ${this.deviceKey}!`
-      );
-      return Promise.resolve(false);
     }
+    this.adapter.log.error(`[writeZenSdkProperties] IP address is not defined for device ${this.deviceKey}!`);
+    return Promise.resolve(false);
   }
   writeMqttProperties(properties) {
     var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j;
     if (!this.iotTopic) {
-      this.adapter.log.error(
-        `[writeMqttProperties] IoT topic is not defined for device ${this.deviceKey}!`
-      );
+      this.adapter.log.error(`[writeMqttProperties] IoT topic is not defined for device ${this.deviceKey}!`);
       return false;
     }
     if (this.productKey && this.deviceKey) {
       this.messageId += 1;
       if (((_b = (_a = this.adapter) == null ? void 0 : _a.localMqttService) == null ? void 0 : _b.mqttClient) && (this.deviceConnectionMode == import_enums.DeviceConnectionMode.LocalMqtt || this.deviceConnectionMode == import_enums.DeviceConnectionMode.LocalMqttWithCloudRelay)) {
-        (_e = (_d = (_c = this.adapter) == null ? void 0 : _c.localMqttService) == null ? void 0 : _d.mqttClient) == null ? void 0 : _e.publish(
-          this.iotTopic,
-          properties,
-          { qos: 1 }
-        );
+        (_e = (_d = (_c = this.adapter) == null ? void 0 : _c.localMqttService) == null ? void 0 : _d.mqttClient) == null ? void 0 : _e.publish(this.iotTopic, properties, { qos: 1 });
       } else if ((_g = (_f = this.adapter) == null ? void 0 : _f.cloudMqttService) == null ? void 0 : _g.mqttClient) {
-        (_j = (_i = (_h = this.adapter) == null ? void 0 : _h.cloudMqttService) == null ? void 0 : _i.mqttClient) == null ? void 0 : _j.publish(
-          this.iotTopic,
-          properties,
-          { qos: 1 }
-        );
+        (_j = (_i = (_h = this.adapter) == null ? void 0 : _h.cloudMqttService) == null ? void 0 : _i.mqttClient) == null ? void 0 : _j.publish(this.iotTopic, properties, { qos: 1 });
       }
     }
     return true;
@@ -704,24 +644,14 @@ const _ZenIobDevice = class _ZenIobDevice {
   invokeMqttFunction(properties) {
     var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j;
     if (!this.functionTopic) {
-      this.adapter.log.error(
-        `[invokeMqttFunction] Function topic is not defined for device ${this.deviceKey}!`
-      );
+      this.adapter.log.error(`[invokeMqttFunction] Function topic is not defined for device ${this.deviceKey}!`);
       return;
     }
     if (this.productKey && this.deviceKey) {
       if (((_b = (_a = this.adapter) == null ? void 0 : _a.localMqttService) == null ? void 0 : _b.mqttClient) && (this.deviceConnectionMode == import_enums.DeviceConnectionMode.LocalMqtt || this.deviceConnectionMode == import_enums.DeviceConnectionMode.LocalMqttWithCloudRelay)) {
-        (_e = (_d = (_c = this.adapter) == null ? void 0 : _c.localMqttService) == null ? void 0 : _d.mqttClient) == null ? void 0 : _e.publish(
-          this.functionTopic,
-          properties,
-          { qos: 1 }
-        );
+        (_e = (_d = (_c = this.adapter) == null ? void 0 : _c.localMqttService) == null ? void 0 : _d.mqttClient) == null ? void 0 : _e.publish(this.functionTopic, properties, { qos: 1 });
       } else if ((_g = (_f = this.adapter) == null ? void 0 : _f.cloudMqttService) == null ? void 0 : _g.mqttClient) {
-        (_j = (_i = (_h = this.adapter) == null ? void 0 : _h.cloudMqttService) == null ? void 0 : _i.mqttClient) == null ? void 0 : _j.publish(
-          this.functionTopic,
-          properties,
-          { qos: 1 }
-        );
+        (_j = (_i = (_h = this.adapter) == null ? void 0 : _h.cloudMqttService) == null ? void 0 : _i.mqttClient) == null ? void 0 : _j.publish(this.functionTopic, properties, { qos: 1 });
       }
     }
   }
@@ -730,32 +660,19 @@ const _ZenIobDevice = class _ZenIobDevice {
     const reportTopic = `/${this.productKey}/${this.deviceKey}/#`;
     if (this.adapter) {
       if ((_b = (_a = this.adapter) == null ? void 0 : _a.cloudMqttService) == null ? void 0 : _b.mqttClient) {
-        this.adapter.log.debug(
-          `[subscribeReportTopic] Subscribing to MQTT Topic: ${reportTopic} (Cloud)`
-        );
-        (_e = (_d = (_c = this.adapter) == null ? void 0 : _c.cloudMqttService) == null ? void 0 : _d.mqttClient) == null ? void 0 : _e.subscribe(
-          reportTopic,
-          import_mqttSharedService.onSubscribeReportTopic
-        );
+        this.adapter.log.debug(`[subscribeReportTopic] Subscribing to MQTT Topic: ${reportTopic} (Cloud)`);
+        (_e = (_d = (_c = this.adapter) == null ? void 0 : _c.cloudMqttService) == null ? void 0 : _d.mqttClient) == null ? void 0 : _e.subscribe(reportTopic, import_mqttSharedService.onSubscribeReportTopic);
       }
       if ((_g = (_f = this.adapter) == null ? void 0 : _f.localMqttService) == null ? void 0 : _g.mqttClient) {
-        this.adapter.log.debug(
-          `[subscribeReportTopic] Subscribing to MQTT Topic: ${reportTopic} (Local)`
-        );
-        (_j = (_i = (_h = this.adapter) == null ? void 0 : _h.localMqttService) == null ? void 0 : _i.mqttClient) == null ? void 0 : _j.subscribe(
-          reportTopic,
-          import_mqttSharedService.onSubscribeReportTopic
-        );
+        this.adapter.log.debug(`[subscribeReportTopic] Subscribing to MQTT Topic: ${reportTopic} (Local)`);
+        (_j = (_i = (_h = this.adapter) == null ? void 0 : _h.localMqttService) == null ? void 0 : _i.mqttClient) == null ? void 0 : _j.subscribe(reportTopic, import_mqttSharedService.onSubscribeReportTopic);
       }
       this.adapter.log.debug(
         `[subscribeReportTopic] Setting connectionMode for device ${this.deviceKey}, relayMqttToCloud=${this.adapter.config.relayMqttToCloud}!`
       );
       if (this && ((_l = (_k = this.adapter) == null ? void 0 : _k.localMqttService) == null ? void 0 : _l.mqttClient) && this.adapter.config.relayMqttToCloud) {
         this.deviceConnectionMode = import_enums.DeviceConnectionMode.LocalMqttWithCloudRelay;
-        this.updateSolarFlowState(
-          "connectionMode",
-          "Local MQTT with Cloud Relay"
-        );
+        this.updateSolarFlowState("connectionMode", "Local MQTT with Cloud Relay");
         (_m = this.adapter) == null ? void 0 : _m.log.debug(
           `[subscribeReportTopic] Set connectionMode to 'Local MQTT with Cloud Relay' for device ${this.deviceKey}`
         );
@@ -781,45 +698,32 @@ const _ZenIobDevice = class _ZenIobDevice {
     const iotTopic = `iot/${this.productKey}/${this.deviceKey}/#`;
     if (this.adapter) {
       if ((_b = (_a = this.adapter) == null ? void 0 : _a.cloudMqttService) == null ? void 0 : _b.mqttClient) {
-        (_c = this.adapter) == null ? void 0 : _c.log.debug(
-          `[subscribeIotTopic] Subscribing to MQTT Topic: '${iotTopic}' (Cloud)`
-        );
-        (_e = (_d = this.adapter) == null ? void 0 : _d.cloudMqttService) == null ? void 0 : _e.mqttClient.subscribe(
-          iotTopic,
-          (error) => {
-            (0, import_mqttSharedService.onSubscribeIotTopic)(error, this.productKey, this.deviceKey);
-          }
-        );
+        (_c = this.adapter) == null ? void 0 : _c.log.debug(`[subscribeIotTopic] Subscribing to MQTT Topic: '${iotTopic}' (Cloud)`);
+        (_e = (_d = this.adapter) == null ? void 0 : _d.cloudMqttService) == null ? void 0 : _e.mqttClient.subscribe(iotTopic, (error) => {
+          (0, import_mqttSharedService.onSubscribeIotTopic)(error, this.productKey, this.deviceKey);
+        });
       }
       if ((_g = (_f = this.adapter) == null ? void 0 : _f.localMqttService) == null ? void 0 : _g.mqttClient) {
-        (_h = this.adapter) == null ? void 0 : _h.log.debug(
-          `[subscribeIotTopic] Subscribing to MQTT Topic: '${iotTopic}' (Local)`
-        );
-        (_j = (_i = this.adapter) == null ? void 0 : _i.localMqttService) == null ? void 0 : _j.mqttClient.subscribe(
-          iotTopic,
-          (error) => {
-            (0, import_mqttSharedService.onSubscribeIotTopic)(error, this.productKey, this.deviceKey);
-          }
-        );
+        (_h = this.adapter) == null ? void 0 : _h.log.debug(`[subscribeIotTopic] Subscribing to MQTT Topic: '${iotTopic}' (Local)`);
+        (_j = (_i = this.adapter) == null ? void 0 : _i.localMqttService) == null ? void 0 : _j.mqttClient.subscribe(iotTopic, (error) => {
+          (0, import_mqttSharedService.onSubscribeIotTopic)(error, this.productKey, this.deviceKey);
+        });
       }
     }
   }
   async updateProperty(property, value) {
     if (this.isZenSdkSupported && this.adapter.config.useZenSDK) {
-      const setPropertyContent = { [property]: value };
+      const setPropertyContent2 = { [property]: value };
       this.adapter.log.debug(
         `[updateProperty] Updating property ${property} with value ${value} for device ${this.deviceKey} using zenSDK!`
       );
-      return await this.writeZenSdkProperties(
-        JSON.stringify(setPropertyContent)
-      );
-    } else {
-      const setPropertyContent = { properties: { [property]: value } };
-      this.adapter.log.debug(
-        `[updateProperty] Updating property ${property} with value ${value} for device ${this.deviceKey} using MQTT!`
-      );
-      return this.writeMqttProperties(JSON.stringify(setPropertyContent));
+      return await this.writeZenSdkProperties(JSON.stringify(setPropertyContent2));
     }
+    const setPropertyContent = { properties: { [property]: value } };
+    this.adapter.log.debug(
+      `[updateProperty] Updating property ${property} with value ${value} for device ${this.deviceKey} using MQTT!`
+    );
+    return this.writeMqttProperties(JSON.stringify(setPropertyContent));
   }
   setDeviceAutomationInOutLimit(limit) {
     var _a;
@@ -830,23 +734,17 @@ const _ZenIobDevice = class _ZenIobDevice {
   }
   setAcMode(acMode) {
     var _a;
-    (_a = this.adapter) == null ? void 0 : _a.log.error(
-      `[setAcMode] Method setAcMode (set to ${acMode}) not defined in base class!`
-    );
+    (_a = this.adapter) == null ? void 0 : _a.log.error(`[setAcMode] Method setAcMode (set to ${acMode}) not defined in base class!`);
     return;
   }
   setDcSwitch(dcSwitch) {
     var _a;
-    (_a = this.adapter) == null ? void 0 : _a.log.error(
-      `[setDcSwitch] Method setDcSwitch (set to ${dcSwitch}) not defined in base class!`
-    );
+    (_a = this.adapter) == null ? void 0 : _a.log.error(`[setDcSwitch] Method setDcSwitch (set to ${dcSwitch}) not defined in base class!`);
     return;
   }
   setAcSwitch(acSwitch) {
     var _a;
-    (_a = this.adapter) == null ? void 0 : _a.log.error(
-      `[setAcSwitch] Method setAcSwitch (set to ${acSwitch}) not defined in base class!`
-    );
+    (_a = this.adapter) == null ? void 0 : _a.log.error(`[setAcSwitch] Method setAcSwitch (set to ${acSwitch}) not defined in base class!`);
     return;
   }
   setHubState(hubState) {
@@ -870,7 +768,9 @@ const _ZenIobDevice = class _ZenIobDevice {
   }
   /**
    * Will set the discharge limit (minSoc)
+   *
    * @param socSet the desired minimum soc
+   * @param minSoc
    * @returns void
    */
   setDischargeLimit(minSoc) {
@@ -878,14 +778,13 @@ const _ZenIobDevice = class _ZenIobDevice {
       if (minSoc >= 0 && minSoc <= 50) {
         this.updateProperty("minSoc", minSoc * 10);
       } else {
-        this.adapter.log.debug(
-          `[setDischargeLimit] Discharge limit is not in range 0<>50!`
-        );
+        this.adapter.log.debug(`[setDischargeLimit] Discharge limit is not in range 0<>50!`);
       }
     }
   }
   /**
    * Will set the maximum charge limit
+   *
    * @param socSet the desired max SOC
    * @returns void
    */
@@ -894,23 +793,20 @@ const _ZenIobDevice = class _ZenIobDevice {
       if (socSet >= 40 && socSet <= 100) {
         this.updateProperty("socSet", socSet * 10);
       } else {
-        this.adapter.log.debug(
-          `[setChargeLimit] Charge limit is not in range 40<>100!`
-        );
+        this.adapter.log.debug(`[setChargeLimit] Charge limit is not in range 40<>100!`);
       }
     }
   }
   /**
    * Will set the 'energy plan'
+   *
    * @param autoModel autoModel value, like 8 for smart matching
    * @returns void
    */
   setAutoModel(autoModel) {
     if (this.isZenSdkSupported && this.adapter.config.useZenSDK) {
       if (autoModel != 0) {
-        this.adapter.log.warn(
-          `[setAutoModel] Can't set autoModel to a value other than 0 when using zenSDK!`
-        );
+        this.adapter.log.warn(`[setAutoModel] Can't set autoModel to a value other than 0 when using zenSDK!`);
       }
       this.updateProperty("autoModel", 0);
       return;
@@ -948,22 +844,16 @@ const _ZenIobDevice = class _ZenIobDevice {
           };
           break;
       }
-      this.adapter.log.debug(
-        `[setAutoModel] Setting autoModel for device key ${this.deviceKey} to ${autoModel}!`
-      );
+      this.adapter.log.debug(`[setAutoModel] Setting autoModel for device key ${this.deviceKey} to ${autoModel}!`);
       this.writeMqttProperties(JSON.stringify(setAutoModelContent));
     }
   }
   async setOutputLimit(limit) {
     var _a, _b;
     if (this.productKey && this.deviceKey) {
-      const autoModel = (_a = await this.adapter.getStateAsync(
-        this.productKey + "." + this.deviceKey + ".autoModel"
-      )) == null ? void 0 : _a.val;
+      const autoModel = (_a = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.autoModel`)) == null ? void 0 : _a.val;
       if (autoModel != 0) {
-        this.adapter.log.warn(
-          "Operation mode (autoModel) is not set to '0', we can't set the output limit!"
-        );
+        this.adapter.log.warn("Operation mode (autoModel) is not set to '0', we can't set the output limit!");
         return;
       }
       if (limit) {
@@ -987,21 +877,19 @@ const _ZenIobDevice = class _ZenIobDevice {
       }
       if (this.adapter.config.useLowVoltageBlock) {
         const lowVoltageBlockState = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.lowVoltageBlock"
+          `${this.productKey}.${this.deviceKey}.control.lowVoltageBlock`
         );
         if (lowVoltageBlockState && lowVoltageBlockState.val && lowVoltageBlockState.val == true) {
           limit = 0;
         }
         const fullChargeNeeded = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.fullChargeNeeded"
+          `${this.productKey}.${this.deviceKey}.control.fullChargeNeeded`
         );
         if (fullChargeNeeded && fullChargeNeeded.val && fullChargeNeeded.val == true) {
           limit = 0;
         }
       }
-      const currentLimit = (_b = await this.adapter.getStateAsync(
-        this.productKey + "." + this.deviceKey + ".outputLimit"
-      )) == null ? void 0 : _b.val;
+      const currentLimit = (_b = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.outputLimit`)) == null ? void 0 : _b.val;
       if (currentLimit != null && currentLimit != void 0) {
         if (currentLimit != limit) {
           const timestamp = /* @__PURE__ */ new Date();
@@ -1014,9 +902,7 @@ const _ZenIobDevice = class _ZenIobDevice {
   setInputLimit(limit) {
     if (this.productKey && this.deviceKey) {
       if (limit < 0) {
-        this.adapter.log.debug(
-          `[setInputLimit] limit ${limit} is negative, converting to positive!`
-        );
+        this.adapter.log.debug(`[setInputLimit] limit ${limit} is negative, converting to positive!`);
         limit = Math.abs(limit);
       }
       if (limit) {
@@ -1061,17 +947,9 @@ const _ZenIobDevice = class _ZenIobDevice {
       const topic = `iot/${this.productKey}/${this.deviceKey}/properties/read`;
       this.messageId += 1;
       if ((_b = (_a = this.adapter) == null ? void 0 : _a.localMqttService) == null ? void 0 : _b.mqttClient) {
-        (_e = (_d = (_c = this.adapter) == null ? void 0 : _c.localMqttService) == null ? void 0 : _d.mqttClient) == null ? void 0 : _e.publish(
-          topic,
-          JSON.stringify(getAllContent),
-          { qos: 1 }
-        );
+        (_e = (_d = (_c = this.adapter) == null ? void 0 : _c.localMqttService) == null ? void 0 : _d.mqttClient) == null ? void 0 : _e.publish(topic, JSON.stringify(getAllContent), { qos: 1 });
       } else if ((_g = (_f = this.adapter) == null ? void 0 : _f.cloudMqttService) == null ? void 0 : _g.mqttClient) {
-        (_j = (_i = (_h = this.adapter) == null ? void 0 : _h.cloudMqttService) == null ? void 0 : _i.mqttClient) == null ? void 0 : _j.publish(
-          topic,
-          JSON.stringify(getAllContent),
-          { qos: 1 }
-        );
+        (_j = (_i = (_h = this.adapter) == null ? void 0 : _h.cloudMqttService) == null ? void 0 : _i.mqttClient) == null ? void 0 : _j.publish(topic, JSON.stringify(getAllContent), { qos: 1 });
       }
     }
   }
@@ -1080,22 +958,14 @@ const _ZenIobDevice = class _ZenIobDevice {
     const stateId = `${this.productKey}.${this.deviceKey}.${state}`;
     const obj = await ((_a = this.adapter) == null ? void 0 : _a.getObjectAsync(stateId));
     if (!obj) {
-      this.adapter.log.debug(
-        `[updateSolarFlowState] state ${stateId} not found, skipping update`
-      );
+      this.adapter.log.debug(`[updateSolarFlowState] state ${stateId} not found, skipping update`);
       return;
     }
     const currentValue = await this.adapter.getStateAsync(stateId);
     await ((_b = this.adapter) == null ? void 0 : _b.setState(stateId, val, true));
     if ((currentValue == null ? void 0 : currentValue.val) != val && state != "wifiState") {
-      await ((_c = this.adapter) == null ? void 0 : _c.setState(
-        `${this.productKey}.${this.deviceKey}.lastUpdate`,
-        (/* @__PURE__ */ new Date()).getTime(),
-        true
-      ));
-      const currentWifiState = await this.adapter.getStateAsync(
-        `${this.productKey}.${this.deviceKey}.wifiState`
-      );
+      await ((_c = this.adapter) == null ? void 0 : _c.setState(`${this.productKey}.${this.deviceKey}.lastUpdate`, (/* @__PURE__ */ new Date()).getTime(), true));
+      const currentWifiState = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.wifiState`);
       if (currentWifiState && currentWifiState.val == "Disconnected") {
         this.updateSolarFlowState("wifiState", 1);
       }
@@ -1103,15 +973,9 @@ const _ZenIobDevice = class _ZenIobDevice {
   }
   async updateSolarFlowControlState(state, val) {
     var _a, _b;
-    const stateExist = await ((_a = this.adapter) == null ? void 0 : _a.objectExists(
-      `${this.productKey}.${this.deviceKey}.control.${state}`
-    ));
+    const stateExist = await ((_a = this.adapter) == null ? void 0 : _a.objectExists(`${this.productKey}.${this.deviceKey}.control.${state}`));
     if (stateExist) {
-      await ((_b = this.adapter) == null ? void 0 : _b.setState(
-        `${this.productKey}.${this.deviceKey}.control.${state}`,
-        val,
-        true
-      ));
+      await ((_b = this.adapter) == null ? void 0 : _b.setState(`${this.productKey}.${this.deviceKey}.control.${state}`, val, true));
     }
   }
   async checkVoltage(voltage) {
@@ -1121,38 +985,24 @@ const _ZenIobDevice = class _ZenIobDevice {
         this.setSocToZero();
       }
       if (this.adapter.config.useLowVoltageBlock) {
-        await ((_a = this.adapter) == null ? void 0 : _a.setState(
-          `${this.productKey}.${this.deviceKey}.control.lowVoltageBlock`,
-          true,
-          true
-        ));
-        const autoModel = (_b = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".autoModel"
-        )) == null ? void 0 : _b.val;
+        await ((_a = this.adapter) == null ? void 0 : _a.setState(`${this.productKey}.${this.deviceKey}.control.lowVoltageBlock`, true, true));
+        const autoModel = (_b = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.autoModel`)) == null ? void 0 : _b.val;
         if (autoModel == 8) {
           this.setDeviceAutomationInOutLimit(0);
         } else {
           this.setOutputLimit(0);
         }
         if (this.adapter.config.forceShutdownOnLowVoltage) {
-          const currentSoc = await this.adapter.getStateAsync(
-            `${this.productKey}.${this.deviceKey}.electricLevel`
-          );
+          const currentSoc = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.electricLevel`);
           if (currentSoc && Number(currentSoc.val) > 50) {
             if (this.adapter.config.fullChargeIfNeeded) {
-              await ((_c = this.adapter) == null ? void 0 : _c.setState(
-                `${this.productKey}.${this.deviceKey}.control.fullChargeNeeded`,
-                true,
-                true
-              ));
+              await ((_c = this.adapter) == null ? void 0 : _c.setState(`${this.productKey}.${this.deviceKey}.control.fullChargeNeeded`, true, true));
             }
           } else {
             if (currentSoc && currentSoc.val) {
               this.setDischargeLimit(Number(currentSoc.val));
             }
-            const hubState = await this.adapter.getStateAsync(
-              `${this.productKey}.${this.deviceKey}.hubState`
-            );
+            const hubState = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.hubState`);
             if (!hubState || Number(hubState.val) != 1) {
               this.adapter.log.warn(
                 `[checkVoltage] hubState is not set to 'Stop output and shut down', device will NOT go offline!`
@@ -1166,15 +1016,9 @@ const _ZenIobDevice = class _ZenIobDevice {
         `${this.productKey}.${this.deviceKey}.control.lowVoltageBlock`
       );
       if (lowVoltageBlock && lowVoltageBlock.val == true) {
-        await ((_d = this.adapter) == null ? void 0 : _d.setState(
-          `${this.productKey}.${this.deviceKey}.control.lowVoltageBlock`,
-          false,
-          true
-        ));
+        await ((_d = this.adapter) == null ? void 0 : _d.setState(`${this.productKey}.${this.deviceKey}.control.lowVoltageBlock`, false, true));
         if (this.adapter.config.useLowVoltageBlock && this.adapter.config.forceShutdownOnLowVoltage) {
-          this.setDischargeLimit(
-            this.adapter.config.dischargeLimit ? this.adapter.config.dischargeLimit : 5
-          );
+          this.setDischargeLimit(this.adapter.config.dischargeLimit ? this.adapter.config.dischargeLimit : 5);
         }
       }
     }
@@ -1183,7 +1027,6 @@ const _ZenIobDevice = class _ZenIobDevice {
    * Calculates the energy for all items in 'calculationStateKeys'.
    *
    * @returns Promise<void>
-   *
    * @beta
    */
   calculateEnergy() {
@@ -1204,18 +1047,14 @@ const _ZenIobDevice = class _ZenIobDevice {
           stateNamePower = `${this.productKey}.${this.deviceKey}.pvPower2`;
           break;
         case "pvPower3":
-          if (await this.adapter.getObjectAsync(
-            `${this.productKey}.${this.deviceKey}.pvPower3`
-          )) {
+          if (await this.adapter.getObjectAsync(`${this.productKey}.${this.deviceKey}.pvPower3`)) {
             stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv3EnergyTodayWh`;
             stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv3EnergyTodaykWh`;
             stateNamePower = `${this.productKey}.${this.deviceKey}.pvPower3`;
           }
           break;
         case "pvPower4":
-          if (await this.adapter.getObjectAsync(
-            `${this.productKey}.${this.deviceKey}.pvPower4`
-          )) {
+          if (await this.adapter.getObjectAsync(`${this.productKey}.${this.deviceKey}.pvPower4`)) {
             stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv4EnergyTodayWh`;
             stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv4EnergyTodaykWh`;
             stateNamePower = `${this.productKey}.${this.deviceKey}.pvPower4`;
@@ -1228,9 +1067,7 @@ const _ZenIobDevice = class _ZenIobDevice {
           break;
       }
       if (stateNamePower != "") {
-        this.adapter.log.debug(
-          `[calculateEnergy] No stateNamePower found for ${stateKey}!`
-        );
+        this.adapter.log.debug(`[calculateEnergy] No stateNamePower found for ${stateKey}!`);
         const currentPowerState = await ((_a = this.adapter) == null ? void 0 : _a.getStateAsync(stateNamePower));
         const currentEnergyState = await ((_b = this.adapter) == null ? void 0 : _b.getStateAsync(stateNameEnergyWh));
         if (!(currentEnergyState == null ? void 0 : currentEnergyState.val) || (currentEnergyState == null ? void 0 : currentEnergyState.val) == 0) {
@@ -1243,11 +1080,7 @@ const _ZenIobDevice = class _ZenIobDevice {
             newEnergyValue = 0;
           }
           await ((_d = this.adapter) == null ? void 0 : _d.setState(stateNameEnergyWh, newEnergyValue, true));
-          await ((_e = this.adapter) == null ? void 0 : _e.setState(
-            stateNameEnergykWh,
-            Number((newEnergyValue / 1e3).toFixed(2)),
-            true
-          ));
+          await ((_e = this.adapter) == null ? void 0 : _e.setState(stateNameEnergykWh, Number((newEnergyValue / 1e3).toFixed(2)), true));
           if ((stateKey == "outputPack" || stateKey == "packInput") && addEnergyValue > 0) {
             await this.calculateSocAndEnergy(stateKey, addEnergyValue);
           } else {
@@ -1258,11 +1091,7 @@ const _ZenIobDevice = class _ZenIobDevice {
                 true
               ));
             } else if (stateKey == "packInput") {
-              await ((_g = this.adapter) == null ? void 0 : _g.setState(
-                `${this.productKey}.${this.deviceKey}.calculations.remainOutTime`,
-                "",
-                true
-              ));
+              await ((_g = this.adapter) == null ? void 0 : _g.setState(`${this.productKey}.${this.deviceKey}.calculations.remainOutTime`, "", true));
             }
           }
         } else if (currentPowerState && currentEnergyState) {
@@ -1274,11 +1103,7 @@ const _ZenIobDevice = class _ZenIobDevice {
   }
   async setSocToZero() {
     var _a, _b, _c;
-    await ((_a = this.adapter) == null ? void 0 : _a.setState(
-      `${this.productKey}.${this.deviceKey}.calculations.soc`,
-      0,
-      true
-    ));
+    await ((_a = this.adapter) == null ? void 0 : _a.setState(`${this.productKey}.${this.deviceKey}.calculations.soc`, 0, true));
     const energyWhState = await this.adapter.getStateAsync(
       `${this.productKey}.${this.deviceKey}.calculations.energyWh`
     );
@@ -1286,21 +1111,13 @@ const _ZenIobDevice = class _ZenIobDevice {
       `${this.productKey}.${this.deviceKey}.calculations.energyWhMax`
     );
     const newMax = Number(energyWhMaxState == null ? void 0 : energyWhMaxState.val) - Number(energyWhState == null ? void 0 : energyWhState.val);
-    await ((_b = this.adapter) == null ? void 0 : _b.setState(
-      `${this.productKey}.${this.deviceKey}.calculations.energyWhMax`,
-      newMax,
-      true
-    ));
-    await ((_c = this.adapter) == null ? void 0 : _c.setState(
-      `${this.productKey}.${this.deviceKey}.calculations.energyWh`,
-      0,
-      true
-    ));
+    await ((_b = this.adapter) == null ? void 0 : _b.setState(`${this.productKey}.${this.deviceKey}.calculations.energyWhMax`, newMax, true));
+    await ((_c = this.adapter) == null ? void 0 : _c.setState(`${this.productKey}.${this.deviceKey}.calculations.energyWh`, 0, true));
   }
   async setEnergyWhMax() {
     var _a, _b;
     const currentEnergyState = await ((_a = this.adapter) == null ? void 0 : _a.getStateAsync(
-      this.productKey + "." + this.deviceKey + ".calculations.energyWh"
+      `${this.productKey}.${this.deviceKey}.calculations.energyWh`
     ));
     if (currentEnergyState) {
       await ((_b = this.adapter) == null ? void 0 : _b.setState(
@@ -1325,9 +1142,7 @@ const _ZenIobDevice = class _ZenIobDevice {
           stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv2EnergyTodaykWh`;
           break;
         case "pvPower3":
-          if (await this.adapter.getObjectAsync(
-            `${this.productKey}.${this.deviceKey}.pvPower3`
-          )) {
+          if (await this.adapter.getObjectAsync(`${this.productKey}.${this.deviceKey}.pvPower3`)) {
             stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv3EnergyTodayWh`;
             stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv3EnergyTodaykWh`;
           } else {
@@ -1335,9 +1150,7 @@ const _ZenIobDevice = class _ZenIobDevice {
           }
           break;
         case "pvPower4":
-          if (await this.adapter.getObjectAsync(
-            `${this.productKey}.${this.deviceKey}.pvPower4`
-          )) {
+          if (await this.adapter.getObjectAsync(`${this.productKey}.${this.deviceKey}.pvPower4`)) {
             stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv4EnergyTodayWh`;
             stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv4EnergyTodaykWh`;
           } else {

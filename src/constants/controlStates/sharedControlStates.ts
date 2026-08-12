@@ -1,4 +1,4 @@
-import { ISolarflowState } from "../../models/ISolarflowState";
+import type { ISolarflowState } from "../../models/ISolarflowState";
 
 // Control states that are identical across all device models
 export const sharedControlStates: ISolarflowState[] = [

@@ -26,14 +26,7 @@ var import_sharedControlStates = require("../../constants/controlStates/sharedCo
 var import_ZenSdkIobDevice = require("./ZenSdkIobDevice");
 class Sf2400AcPlus extends import_ZenSdkIobDevice.ZenSdkIobDevice {
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {
-    super(
-      _adapter,
-      _productKey,
-      _deviceKey,
-      _productName,
-      _deviceName,
-      _zenHaDeviceDetails
-    );
+    super(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails);
     this.maxInputLimit = 2400;
     this.maxOutputLimit = 2400;
     this.isZenSdkSupported = true;
@@ -43,18 +36,14 @@ class Sf2400AcPlus extends import_ZenSdkIobDevice.ZenSdkIobDevice {
     if (this.productKey && this.deviceKey) {
       if (acMode >= 0 && acMode <= 3) {
         this.updateProperty("acMode", acMode);
-        const smartMode = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.smartMode"
-        );
+        const smartMode = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.control.smartMode`);
         if (smartMode && !smartMode.val) {
           this.adapter.log.warn(
             `[setAcMode] AC mode was switched and smartMode is false - changes will be written to flash memory. In the worst case, the device may break or changes may no longer be saved!`
           );
         }
       } else {
-        this.adapter.log.error(
-          `[setAcMode] AC mode must be a value between 0 and 3!`
-        );
+        this.adapter.log.error(`[setAcMode] AC mode must be a value between 0 and 3!`);
       }
     }
   }

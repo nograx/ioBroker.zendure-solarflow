@@ -1,8 +1,8 @@
 import { hubControlStates } from "../../constants/controlStates/hubControlStates";
 import { sharedControlStates } from "../../constants/controlStates/sharedControlStates";
-import { ZendureSolarflow } from "../../main";
-import { IDeviceAutomationPayload } from "../IDeviceAutomationPayload";
-import { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
+import type { ZendureSolarflow } from "../../main";
+import type { IDeviceAutomationPayload } from "../IDeviceAutomationPayload";
+import type { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
 import { ZenIobDevice } from "./ZenIobDevice";
 
 export class SfHub2000 extends ZenIobDevice {
@@ -38,9 +38,7 @@ export class SfHub2000 extends ZenIobDevice {
         this.updateProperty("acMode", acMode);
 
         // Check if device is HUB, then check if smartMode is false - if so send a warning to log!
-        const smartMode = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.smartMode",
-        );
+        const smartMode = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.control.smartMode`);
 
         if (smartMode && !smartMode.val) {
           this.adapter.log.warn(
@@ -48,9 +46,7 @@ export class SfHub2000 extends ZenIobDevice {
           );
         }
       } else {
-        this.adapter.log.error(
-          `[setAcMode] AC mode must be a value between 0 and 3!`,
-        );
+        this.adapter.log.error(`[setAcMode] AC mode must be a value between 0 and 3!`);
       }
     }
   }
@@ -65,9 +61,7 @@ export class SfHub2000 extends ZenIobDevice {
     limit: number, // can be negative, negative will trigger charging mode
   ): Promise<void> {
     if (this.productKey && this.deviceKey) {
-      this.adapter.log.debug(
-        `[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`,
-      );
+      this.adapter.log.debug(`[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`);
 
       if (limit) {
         limit = Math.round(limit);
@@ -77,27 +71,17 @@ export class SfHub2000 extends ZenIobDevice {
 
       if (this.adapter.config.useLowVoltageBlock) {
         const lowVoltageBlockState = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.lowVoltageBlock",
+          `${this.productKey}.${this.deviceKey}.control.lowVoltageBlock`,
         );
-        if (
-          lowVoltageBlockState &&
-          lowVoltageBlockState.val &&
-          lowVoltageBlockState.val == true &&
-          limit > 0
-        ) {
+        if (lowVoltageBlockState && lowVoltageBlockState.val && lowVoltageBlockState.val == true && limit > 0) {
           limit = 0;
         }
 
         const fullChargeNeeded = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.fullChargeNeeded",
+          `${this.productKey}.${this.deviceKey}.control.fullChargeNeeded`,
         );
 
-        if (
-          fullChargeNeeded &&
-          fullChargeNeeded.val &&
-          fullChargeNeeded.val == true &&
-          limit > 0
-        ) {
+        if (fullChargeNeeded && fullChargeNeeded.val && fullChargeNeeded.val == true && limit > 0) {
           limit = 0;
         }
       }
@@ -115,14 +99,7 @@ export class SfHub2000 extends ZenIobDevice {
         limit = this.maxOutputLimit;
       }
 
-      if (
-        limit > 0 &&
-        limit < 100 &&
-        limit != 90 &&
-        limit != 60 &&
-        limit != 30 &&
-        limit != 0
-      ) {
+      if (limit > 0 && limit < 100 && limit != 90 && limit != 60 && limit != 30 && limit != 0) {
         // NUR Solarflow HUB: Das Limit kann unter 100 nur in 30er Schritten gesetzt werden, dH. 30/60/90/100, wir rechnen das also um
         if (limit < 100 && limit > 90) {
           limit = 90;

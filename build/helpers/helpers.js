@@ -36,9 +36,7 @@ var import_SfHub2000 = require("../models/deviceModels/SfHub2000");
 const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetails) => {
   switch (_productKey.toLowerCase()) {
     case "73bktv":
-      _adapter.log.debug(
-        `[onReady] Creating deviceModel HUB 1200 ${_productKey}`
-      );
+      _adapter.log.debug(`[onReady] Creating deviceModel HUB 1200 ${_productKey}`);
       return new import_SfHub1200.SfHub1200(
         _adapter,
         _productKey,
@@ -48,9 +46,7 @@ const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetail
         _zenHaDeviceDetails
       );
     case "a8yh63":
-      _adapter.log.debug(
-        `[onReady] Creating deviceModel HUB 2000 ${_productKey}`
-      );
+      _adapter.log.debug(`[onReady] Creating deviceModel HUB 2000 ${_productKey}`);
       return new import_SfHub2000.SfHub2000(
         _adapter,
         _productKey,
@@ -60,9 +56,7 @@ const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetail
         _zenHaDeviceDetails
       );
     case "ywf7hv":
-      _adapter.log.debug(
-        `[onReady] Creating deviceModel AIO 2400 ${_productKey}`
-      );
+      _adapter.log.debug(`[onReady] Creating deviceModel AIO 2400 ${_productKey}`);
       return new import_Aio2400.Aio2400(
         _adapter,
         _productKey,
@@ -74,9 +68,7 @@ const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetail
     case "ja72u0ha":
     case "b3dxda":
     case "gda3tb":
-      _adapter.log.debug(
-        `[onReady] Creating deviceModel Hyper 2000 ${_productKey}`
-      );
+      _adapter.log.debug(`[onReady] Creating deviceModel Hyper 2000 ${_productKey}`);
       return new import_Hyper2000.Hyper2000(
         _adapter,
         _productKey,
@@ -86,9 +78,7 @@ const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetail
         _zenHaDeviceDetails
       );
     case "8bm93h":
-      _adapter.log.debug(
-        `[onReady] Creating deviceModel ACE 1500 ${_productKey}`
-      );
+      _adapter.log.debug(`[onReady] Creating deviceModel ACE 1500 ${_productKey}`);
       return new import_Ace1500.Ace1500(
         _adapter,
         _productKey,
@@ -99,9 +89,7 @@ const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetail
       );
     case "64174u":
     case "65174u":
-      _adapter.log.debug(
-        `[onReady] Creating deviceModel Solarflow 1600 AC+ ${_productKey}`
-      );
+      _adapter.log.debug(`[onReady] Creating deviceModel Solarflow 1600 AC+ ${_productKey}`);
       return new import_Sf1600AcPlus.Sf1600AcPlus(
         _adapter,
         _productKey,
@@ -111,9 +99,7 @@ const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetail
         _zenHaDeviceDetails
       );
     case "5fg27j":
-      _adapter.log.debug(
-        `[onReady] Creating deviceModel SF 2400 AC+ ${_productKey}`
-      );
+      _adapter.log.debug(`[onReady] Creating deviceModel SF 2400 AC+ ${_productKey}`);
       return new import_Sf2400AcPlus.Sf2400AcPlus(
         _adapter,
         _productKey,
@@ -123,9 +109,7 @@ const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetail
         _zenHaDeviceDetails
       );
     case "bc8b7f":
-      _adapter.log.debug(
-        `[onReady] Creating deviceModel SF 2400 AC ${_productKey}`
-      );
+      _adapter.log.debug(`[onReady] Creating deviceModel SF 2400 AC ${_productKey}`);
       return new import_Sf2400Ac.Sf2400Ac(
         _adapter,
         _productKey,
@@ -135,9 +119,7 @@ const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetail
         _zenHaDeviceDetails
       );
     case "2qe7c9":
-      _adapter.log.debug(
-        `[onReady] Creating deviceModel SF 2400 Pro ${_productKey}`
-      );
+      _adapter.log.debug(`[onReady] Creating deviceModel SF 2400 Pro ${_productKey}`);
       return new import_Sf2400Pro.Sf2400Pro(
         _adapter,
         _productKey,
@@ -147,9 +129,7 @@ const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetail
         _zenHaDeviceDetails
       );
     case "a4ss5p":
-      _adapter.log.debug(
-        `[onReady] Creating deviceModel SF 800 ${_productKey}`
-      );
+      _adapter.log.debug(`[onReady] Creating deviceModel SF 800 ${_productKey}`);
       return new import_Sf800.Sf800(
         _adapter,
         _productKey,
@@ -159,9 +139,7 @@ const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetail
         _zenHaDeviceDetails
       );
     case "b1nhmc":
-      _adapter.log.debug(
-        `[onReady] Creating deviceModel SF 800 ${_productKey}`
-      );
+      _adapter.log.debug(`[onReady] Creating deviceModel SF 800 ${_productKey}`);
       return new import_Sf800.Sf800(
         _adapter,
         _productKey,
@@ -171,9 +149,7 @@ const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetail
         _zenHaDeviceDetails
       );
     case "r3mn8u":
-      _adapter.log.debug(
-        `[onReady] Creating deviceModel SF 800 Pro ${_productKey}`
-      );
+      _adapter.log.debug(`[onReady] Creating deviceModel SF 800 Pro ${_productKey}`);
       return new import_Sf800Pro.Sf800Pro(
         _adapter,
         _productKey,
@@ -183,9 +159,7 @@ const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetail
         _zenHaDeviceDetails
       );
     case "nvyeqm":
-      _adapter.log.debug(
-        `[onReady] Creating deviceModel SF 800 Pro 2 ${_productKey}`
-      );
+      _adapter.log.debug(`[onReady] Creating deviceModel SF 800 Pro 2 ${_productKey}`);
       return new import_Sf800Pro.Sf800Pro(
         _adapter,
         _productKey,
@@ -195,9 +169,7 @@ const createDeviceModel = (_adapter, _productKey, _deviceKey, _zenHaDeviceDetail
         _zenHaDeviceDetails
       );
     case "8n77v3":
-      _adapter.log.debug(
-        `[onReady] Creating deviceModel SF 800 Plus ${_productKey}`
-      );
+      _adapter.log.debug(`[onReady] Creating deviceModel SF 800 Plus ${_productKey}`);
       return new import_Sf800Plus.Sf800Plus(
         _adapter,
         _productKey,

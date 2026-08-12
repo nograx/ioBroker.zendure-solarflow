@@ -1,16 +1,12 @@
-import axios, { AxiosRequestConfig } from "axios";
+import type { AxiosRequestConfig } from "axios";
+import axios from "axios";
 import { iobKey } from "../constants/sensorStates/constants";
-import { ZendureSolarflow } from "../main";
+import type { ZendureSolarflow } from "../main";
 import * as crypto from "node:crypto";
-import { IIobDeviceListData } from "../models/IIobDeviceListData";
+import type { IIobDeviceListData } from "../models/IIobDeviceListData";
 
-export const zenLogin = async (
-  adapter: ZendureSolarflow,
-): Promise<string | IIobDeviceListData | undefined> => {
-  const decodedAuthCloudKey = Buffer.from(
-    adapter.config.authorizationCloudKey,
-    "base64",
-  ).toString("utf-8");
+export const zenLogin = async (adapter: ZendureSolarflow): Promise<string | IIobDeviceListData | undefined> => {
+  const decodedAuthCloudKey = Buffer.from(adapter.config.authorizationCloudKey, "base64").toString("utf-8");
 
   const lastDot = decodedAuthCloudKey.lastIndexOf(".");
   if (lastDot === -1) {
@@ -69,34 +65,25 @@ export const zenLogin = async (
       const data = await response.data;
 
       if (data?.data) {
-        adapter.log.debug(
-          `[zenLogin] deviceList Response: ${JSON.stringify(data, null, 2)}`,
-        );
+        adapter.log.debug(`[zenLogin] deviceList Response: ${JSON.stringify(data, null, 2)}`);
 
         return data.data;
-      } else {
-        adapter.log.error(`[zenLogin] deviceList response is empty!`);
-        return null;
       }
+      adapter.log.error(`[zenLogin] deviceList response is empty!`);
+      return null;
     })
-    .catch(async function (error) {
+    .catch(function (error) {
       if (error.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
-        adapter.log.error(
-          `[zenLogin] Response data: ${JSON.stringify(error.response.data, null, 2)}`,
-        );
+        adapter.log.error(`[zenLogin] Response data: ${JSON.stringify(error.response.data, null, 2)}`);
         adapter.log.error(`[zenLogin] status: ${error.response.status}`);
-        adapter.log.error(
-          `[zenLogin] headers: ${JSON.stringify(error.response.headers, null, 2)}`,
-        );
+        adapter.log.error(`[zenLogin] headers: ${JSON.stringify(error.response.headers, null, 2)}`);
       } else if (error.request) {
         // The request was made but no response was received
         // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
         // http.ClientRequest in node.js
-        adapter.log.error(
-          `[zenLogin] Request data: ${JSON.stringify(error.request, null, 2)}`,
-        );
+        adapter.log.error(`[zenLogin] Request data: ${JSON.stringify(error.request, null, 2)}`);
       } else {
         // Something happened in setting up the request that triggered an Error
         adapter.log.error(`[zenLogin] Error: ${error.message}`);

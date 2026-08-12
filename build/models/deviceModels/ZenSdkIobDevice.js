@@ -38,9 +38,7 @@ class ZenSdkIobDevice extends import_ZenIobDevice.ZenIobDevice {
   }
   async setDeviceAutomationInOutLimit(limit) {
     if (this.productKey && this.deviceKey) {
-      this.adapter.log.debug(
-        `[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`
-      );
+      this.adapter.log.debug(`[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`);
       if (limit) {
         limit = Math.round(limit);
       } else {
@@ -48,13 +46,13 @@ class ZenSdkIobDevice extends import_ZenIobDevice.ZenIobDevice {
       }
       if (this.adapter.config.useLowVoltageBlock) {
         const lowVoltageBlockState = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.lowVoltageBlock"
+          `${this.productKey}.${this.deviceKey}.control.lowVoltageBlock`
         );
         if (lowVoltageBlockState && lowVoltageBlockState.val && lowVoltageBlockState.val == true && limit > 0) {
           limit = 0;
         }
         const fullChargeNeeded = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.fullChargeNeeded"
+          `${this.productKey}.${this.deviceKey}.control.fullChargeNeeded`
         );
         if (fullChargeNeeded && fullChargeNeeded.val && fullChargeNeeded.val == true && limit > 0) {
           limit = 0;
@@ -75,18 +73,10 @@ class ZenSdkIobDevice extends import_ZenIobDevice.ZenIobDevice {
         this.adapter.log.debug(
           `[setDeviceAutomationInOutLimit] Using zenSDK to set input/outputlimit in combination with acMode and smartMode!`
         );
-        const currentSmartMode = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".smartMode"
-        );
-        const currentAcMode = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".acMode"
-        );
-        const currentInputLimit = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".inputLimit"
-        );
-        const currentOutputLimit = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".outputLimit"
-        );
+        const currentSmartMode = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.smartMode`);
+        const currentAcMode = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.acMode`);
+        const currentInputLimit = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.inputLimit`);
+        const currentOutputLimit = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.outputLimit`);
         const results = [];
         if (limit < 0) {
           if (currentAcMode && currentAcMode.val != 1) {
@@ -99,9 +89,7 @@ class ZenSdkIobDevice extends import_ZenIobDevice.ZenIobDevice {
             results.push(await this.updateProperty("outputLimit", 0));
           }
           if (currentInputLimit && currentInputLimit.val != Math.abs(limit)) {
-            results.push(
-              await this.updateProperty("inputLimit", Math.abs(limit))
-            );
+            results.push(await this.updateProperty("inputLimit", Math.abs(limit)));
           }
         } else if (limit > 0) {
           if (currentAcMode && currentAcMode.val != 2) {
@@ -136,10 +124,7 @@ class ZenSdkIobDevice extends import_ZenIobDevice.ZenIobDevice {
         }
         const success = results.every((result) => result === true);
         if (success) {
-          this == null ? void 0 : this.updateSolarFlowControlState(
-            "setDeviceAutomationInOutLimit",
-            limit
-          );
+          this == null ? void 0 : this.updateSolarFlowControlState("setDeviceAutomationInOutLimit", limit);
         }
       } else {
         this.adapter.log.debug(

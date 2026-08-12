@@ -1,8 +1,8 @@
 import { aceControlStates } from "../../constants/controlStates/aceControlStates";
 import { sharedControlStates } from "../../constants/controlStates/sharedControlStates";
-import { ZendureSolarflow } from "../../main";
-import { IDeviceAutomationPayload } from "../IDeviceAutomationPayload";
-import { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
+import type { ZendureSolarflow } from "../../main";
+import type { IDeviceAutomationPayload } from "../IDeviceAutomationPayload";
+import type { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
 import { ZenIobDevice } from "./ZenIobDevice";
 
 export class Ace1500 extends ZenIobDevice {
@@ -42,13 +42,11 @@ export class Ace1500 extends ZenIobDevice {
     }
   }
 
-  public async setDeviceAutomationInOutLimit(
+  public setDeviceAutomationInOutLimit(
     limit: number, // can be negative, negative will trigger charging mode
-  ): Promise<void> {
+  ): void {
     if (this.productKey && this.deviceKey) {
-      this.adapter.log.debug(
-        `[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`,
-      );
+      this.adapter.log.debug(`[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`);
 
       if (limit) {
         limit = Math.round(limit);
@@ -57,9 +55,7 @@ export class Ace1500 extends ZenIobDevice {
       }
 
       if (limit > 0) {
-        this.adapter.log.error(
-          `[setDeviceAutomationInOutLimit] ACE 1500 can not feed in!`,
-        );
+        this.adapter.log.error(`[setDeviceAutomationInOutLimit] ACE 1500 can not feed in!`);
       }
 
       // Convert maxInputLimit to negative value and compare to limit

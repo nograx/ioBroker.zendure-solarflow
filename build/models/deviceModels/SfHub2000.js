@@ -44,18 +44,14 @@ class SfHub2000 extends import_ZenIobDevice.ZenIobDevice {
     if (this.productKey && this.deviceKey) {
       if (acMode >= 0 && acMode <= 3) {
         this.updateProperty("acMode", acMode);
-        const smartMode = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.smartMode"
-        );
+        const smartMode = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.control.smartMode`);
         if (smartMode && !smartMode.val) {
           this.adapter.log.warn(
             `[setAcMode] AC mode was switched and smartMode is false - changes will be written to flash memory. In the worst case, the device may break or changes may no longer be saved!`
           );
         }
       } else {
-        this.adapter.log.error(
-          `[setAcMode] AC mode must be a value between 0 and 3!`
-        );
+        this.adapter.log.error(`[setAcMode] AC mode must be a value between 0 and 3!`);
       }
     }
   }
@@ -66,9 +62,7 @@ class SfHub2000 extends import_ZenIobDevice.ZenIobDevice {
   }
   async setDeviceAutomationInOutLimit(limit) {
     if (this.productKey && this.deviceKey) {
-      this.adapter.log.debug(
-        `[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`
-      );
+      this.adapter.log.debug(`[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`);
       if (limit) {
         limit = Math.round(limit);
       } else {
@@ -76,13 +70,13 @@ class SfHub2000 extends import_ZenIobDevice.ZenIobDevice {
       }
       if (this.adapter.config.useLowVoltageBlock) {
         const lowVoltageBlockState = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.lowVoltageBlock"
+          `${this.productKey}.${this.deviceKey}.control.lowVoltageBlock`
         );
         if (lowVoltageBlockState && lowVoltageBlockState.val && lowVoltageBlockState.val == true && limit > 0) {
           limit = 0;
         }
         const fullChargeNeeded = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.fullChargeNeeded"
+          `${this.productKey}.${this.deviceKey}.control.fullChargeNeeded`
         );
         if (fullChargeNeeded && fullChargeNeeded.val && fullChargeNeeded.val == true && limit > 0) {
           limit = 0;

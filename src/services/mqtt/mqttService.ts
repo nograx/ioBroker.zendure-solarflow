@@ -1,5 +1,5 @@
 import mqtt from "mqtt";
-import { ZendureSolarflow } from "../../main";
+import type { ZendureSolarflow } from "../../main";
 import {
   initAdapter,
   onConnected,
@@ -9,11 +9,7 @@ import {
   onMessageLocal,
   onReconnected,
 } from "./mqttSharedService";
-import {
-  startCalculationJob,
-  startCheckStatesAndConnectionJob,
-  startResetValuesJob,
-} from "../jobSchedule";
+import { startCalculationJob, startCheckStatesAndConnectionJob, startResetValuesJob } from "../jobSchedule";
 
 /**
  * Base class encapsulating common MQTT client setup and job scheduling.
@@ -31,12 +27,12 @@ export abstract class MqttService {
   /**
    * Helper used by subclasses to wire up a client once options and URL are known.
    * Returns true when the client was successfully created and listeners attached.
+   *
+   * @param opts
+   * @param url
+   * @param isLocal
    */
-  protected connectWithOptions(
-    opts: mqtt.IClientOptions,
-    url: string,
-    isLocal: boolean,
-  ): boolean {
+  protected connectWithOptions(opts: mqtt.IClientOptions, url: string, isLocal: boolean): boolean {
     if (!mqtt) {
       this.adapter.log.error("[MqttService] mqtt dependency missing");
       return false;

@@ -56,37 +56,32 @@ const createControlStates = async (adapter, productKey, deviceKey, productName) 
     type: "channel",
     common: {
       name: {
-        de: "Steuerung f\xFCr Ger\xE4t " + deviceKey,
-        en: "Control for device " + deviceKey
+        de: `Steuerung f\xFCr Ger\xE4t ${deviceKey}`,
+        en: `Control for device ${deviceKey}`
       }
     },
     native: {}
   }));
   const controlStateDefinitions = getControlStateDefinition(productName);
   controlStateDefinitions.forEach(async (state) => {
-    await (adapter == null ? void 0 : adapter.extendObject(
-      `${productKey}.${deviceKey}.control.${state.title}`,
-      {
-        type: "state",
-        common: {
-          name: {
-            de: state.nameDe,
-            en: state.nameEn
-          },
-          type: state.type,
-          desc: state.title,
-          role: state.role,
-          read: true,
-          write: true,
-          unit: state.unit,
-          states: state.states
+    await (adapter == null ? void 0 : adapter.extendObject(`${productKey}.${deviceKey}.control.${state.title}`, {
+      type: "state",
+      common: {
+        name: {
+          de: state.nameDe,
+          en: state.nameEn
         },
-        native: {}
-      }
-    ));
-    adapter == null ? void 0 : adapter.subscribeStates(
-      `${productKey}.${deviceKey}.control.${state.title}`
-    );
+        type: state.type,
+        desc: state.title,
+        role: state.role,
+        read: true,
+        write: true,
+        unit: state.unit,
+        states: state.states
+      },
+      native: {}
+    }));
+    adapter == null ? void 0 : adapter.subscribeStates(`${productKey}.${deviceKey}.control.${state.title}`);
   });
 };
 // Annotate the CommonJS export names for ESM import in node:

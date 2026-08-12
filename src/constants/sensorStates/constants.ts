@@ -1,4 +1,4 @@
-export const iobKey: string = "C*dafwArEOXK";
+export const iobKey = "C*dafwArEOXK";
 
 export const calculationStateKeys = [
   "packInput",

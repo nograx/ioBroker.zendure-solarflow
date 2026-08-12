@@ -1,4 +1,3 @@
-
 import { ac2400ControlStates } from "../constants/controlStates/ac2400ControlStates";
 import { aceControlStates } from "../constants/controlStates/aceControlStates";
 import { aioControlStates } from "../constants/controlStates/aioControlStates";
@@ -6,12 +5,10 @@ import { hubControlStates } from "../constants/controlStates/hubControlStates";
 import { hyperControlStates } from "../constants/controlStates/hyperControlStates";
 import { solarflow800ControlStates } from "../constants/controlStates/solarflow800ControlStates";
 import { solarflow800ProControlStates } from "../constants/controlStates/solarflow800ProControlStates";
-import { ZendureSolarflow } from "../main";
-import { ISolarflowState } from "../models/ISolarflowState";
+import type { ZendureSolarflow } from "../main";
+import type { ISolarflowState } from "../models/ISolarflowState";
 
-export const getControlStateDefinition = (
-  productName: string,
-): ISolarflowState[] => {
+export const getControlStateDefinition = (productName: string): ISolarflowState[] => {
   switch (productName.toLocaleLowerCase()) {
     case "hyper 2000":
       return hyperControlStates;
@@ -45,8 +42,8 @@ export const createControlStates = async (
     type: "channel",
     common: {
       name: {
-        de: "Steuerung für Gerät " + deviceKey,
-        en: "Control for device " + deviceKey,
+        de: `Steuerung für Gerät ${deviceKey}`,
+        en: `Control for device ${deviceKey}`,
       },
     },
     native: {},
@@ -55,30 +52,25 @@ export const createControlStates = async (
   const controlStateDefinitions = getControlStateDefinition(productName);
 
   controlStateDefinitions.forEach(async (state: ISolarflowState) => {
-    await adapter?.extendObject(
-      `${productKey}.${deviceKey}.control.${state.title}`,
-      {
-        type: "state",
-        common: {
-          name: {
-            de: state.nameDe,
-            en: state.nameEn,
-          },
-          type: state.type,
-          desc: state.title,
-          role: state.role,
-          read: true,
-          write: true,
-          unit: state.unit,
-          states: state.states,
+    await adapter?.extendObject(`${productKey}.${deviceKey}.control.${state.title}`, {
+      type: "state",
+      common: {
+        name: {
+          de: state.nameDe,
+          en: state.nameEn,
         },
-        native: {},
+        type: state.type,
+        desc: state.title,
+        role: state.role,
+        read: true,
+        write: true,
+        unit: state.unit,
+        states: state.states,
       },
-    );
+      native: {},
+    });
 
     // Subscribe to state
-    adapter?.subscribeStates(
-      `${productKey}.${deviceKey}.control.${state.title}`,
-    );
+    adapter?.subscribeStates(`${productKey}.${deviceKey}.control.${state.title}`);
   });
 };

@@ -1,8 +1,8 @@
 import { aioControlStates } from "../../constants/controlStates/aioControlStates";
 import { sharedControlStates } from "../../constants/controlStates/sharedControlStates";
-import { ZendureSolarflow } from "../../main";
-import { IDeviceAutomationPayload } from "../IDeviceAutomationPayload";
-import { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
+import type { ZendureSolarflow } from "../../main";
+import type { IDeviceAutomationPayload } from "../IDeviceAutomationPayload";
+import type { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
 import { ZenIobDevice } from "./ZenIobDevice";
 
 export class Aio2400 extends ZenIobDevice {
@@ -34,9 +34,7 @@ export class Aio2400 extends ZenIobDevice {
     limit: number, // can be negative, negative will trigger charging mode
   ): Promise<void> {
     if (this.productKey && this.deviceKey) {
-      this.adapter.log.debug(
-        `[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`,
-      );
+      this.adapter.log.debug(`[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`);
 
       if (limit) {
         limit = Math.round(limit);
@@ -46,49 +44,30 @@ export class Aio2400 extends ZenIobDevice {
 
       if (this.adapter.config.useLowVoltageBlock) {
         const lowVoltageBlockState = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.lowVoltageBlock",
+          `${this.productKey}.${this.deviceKey}.control.lowVoltageBlock`,
         );
-        if (
-          lowVoltageBlockState &&
-          lowVoltageBlockState.val &&
-          lowVoltageBlockState.val == true &&
-          limit > 0
-        ) {
+        if (lowVoltageBlockState && lowVoltageBlockState.val && lowVoltageBlockState.val == true && limit > 0) {
           limit = 0;
         }
 
         const fullChargeNeeded = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.fullChargeNeeded",
+          `${this.productKey}.${this.deviceKey}.control.fullChargeNeeded`,
         );
 
-        if (
-          fullChargeNeeded &&
-          fullChargeNeeded.val &&
-          fullChargeNeeded.val == true &&
-          limit > 0
-        ) {
+        if (fullChargeNeeded && fullChargeNeeded.val && fullChargeNeeded.val == true && limit > 0) {
           limit = 0;
         }
       }
 
       if (limit < 0) {
-        this.adapter.log.debug(
-          `[setDeviceAutomationInOutLimit] AIO 2400 can not charge by AC!`,
-        );
+        this.adapter.log.debug(`[setDeviceAutomationInOutLimit] AIO 2400 can not charge by AC!`);
         return;
-      } else {
-        if (limit > this.maxOutputLimit) {
-          limit = this.maxOutputLimit;
-        }
+      }
+      if (limit > this.maxOutputLimit) {
+        limit = this.maxOutputLimit;
       }
 
-      if (
-        limit < 100 &&
-        limit != 90 &&
-        limit != 60 &&
-        limit != 30 &&
-        limit != 0
-      ) {
+      if (limit < 100 && limit != 90 && limit != 60 && limit != 30 && limit != 0) {
         // NUR Solarflow HUB: Das Limit kann unter 100 nur in 30er Schritten gesetzt werden, dH. 30/60/90/100, wir rechnen das also um
         if (limit < 100 && limit > 90) {
           limit = 90;
