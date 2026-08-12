@@ -223,6 +223,26 @@ export class ZenIobDevice {
       native: {},
     });
 
+    // Create lastUpdate state manually, as it is never published via
+    // /properties/report or MQTT and would otherwise never be created
+    const lastUpdateState = allStates.lastUpdate;
+    await this.adapter?.extendObject(`${productKey}.${deviceKey}.lastUpdate`, {
+      type: "state",
+      common: {
+        name: {
+          de: lastUpdateState.nameDe,
+          en: lastUpdateState.nameEn,
+        },
+        type: lastUpdateState.type,
+        desc: lastUpdateState.title,
+        role: lastUpdateState.role,
+        read: true,
+        write: false,
+        unit: lastUpdateState.unit,
+      },
+      native: {},
+    });
+
     // Create pack data folder
     await this.adapter?.extendObject(`${productKey}.${deviceKey}.packData`, {
       type: "channel",
@@ -248,26 +268,33 @@ export class ZenIobDevice {
     });
 
     this.controlStates.forEach(async (state: ISolarflowState) => {
-      await this.adapter?.extendObject(
-        `${productKey}.${deviceKey}.control.${state.title}`,
-        {
-          type: "state",
-          common: {
-            name: {
-              de: state.nameDe,
-              en: state.nameEn,
-            },
-            type: state.type,
-            desc: state.title,
-            role: state.role,
-            read: true,
-            write: true,
-            unit: state.unit,
-            states: state.states,
+      const stateId = `${productKey}.${deviceKey}.control.${state.title}`;
+
+      await this.adapter?.extendObject(stateId, {
+        type: "state",
+        common: {
+          name: {
+            de: state.nameDe,
+            en: state.nameEn,
           },
-          native: {},
+          type: state.type,
+          desc: state.title,
+          role: state.role,
+          read: true,
+          write: true,
+          unit: state.unit,
+          states: state.states,
+          def: state.def,
         },
-      );
+        native: {},
+      });
+
+      if (state.def !== undefined) {
+        const current = await this.adapter?.getStateAsync(stateId);
+        if (!current || current.val === null || current.val === undefined) {
+          await this.adapter?.setState(stateId, state.def, true);
+        }
+      }
 
       // Subscribe to states to respond to changes
       this.adapter?.subscribeStates(

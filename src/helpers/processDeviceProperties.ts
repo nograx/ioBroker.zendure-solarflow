@@ -50,6 +50,9 @@ const handledMqttKeys = new Set<string>([
   "batteryElectric",
 ]);
 
+// MQTT property keys that are known noise and should never become states
+const ignoredMqttKeys = new Set<string>(["0", "getAll"]);
+
 const ensureState = async (
   device: ZenIobDevice,
   stateTitle: string,
@@ -391,7 +394,7 @@ export const processDeviceProperties = async (
 
   // Fallback: for any MQTT property not explicitly handled above, create a state and store the raw value
   for (const [key, value] of Object.entries(properties)) {
-    if (handledMqttKeys.has(key)) continue;
+    if (handledMqttKeys.has(key) || ignoredMqttKeys.has(key)) continue;
     if (value == null || typeof value === "object") continue;
 
     const rawValue = value as number | string | boolean;

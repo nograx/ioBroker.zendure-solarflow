@@ -66,6 +66,7 @@ const handledMqttKeys = /* @__PURE__ */ new Set([
   "hubState",
   "batteryElectric"
 ]);
+const ignoredMqttKeys = /* @__PURE__ */ new Set(["0", "getAll"]);
 const ensureState = async (device, stateTitle, rawValue) => {
   var _a;
   const deviceId = `${device.productKey}.${device.deviceKey}`;
@@ -309,7 +310,7 @@ const processDeviceProperties = async (device, properties, isSolarFlow) => {
     device.updateSolarFlowControlState(key, value);
   }
   for (const [key, value] of Object.entries(properties)) {
-    if (handledMqttKeys.has(key)) continue;
+    if (handledMqttKeys.has(key) || ignoredMqttKeys.has(key)) continue;
     if (value == null || typeof value === "object") continue;
     const rawValue = value;
     await ensureState(device, key, rawValue);

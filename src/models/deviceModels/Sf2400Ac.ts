@@ -1,4 +1,5 @@
 import { ac2400ControlStates } from "../../constants/controlStates/ac2400ControlStates";
+import { sharedControlStates } from "../../constants/controlStates/sharedControlStates";
 import { ZendureSolarflow } from "../../main";
 import { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
 import { ZenSdkIobDevice } from "./ZenSdkIobDevice";
@@ -8,7 +9,7 @@ export class Sf2400Ac extends ZenSdkIobDevice {
   maxOutputLimit = 2400;
   isZenSdkSupported = true;
 
-controlStates = ac2400ControlStates;
+  controlStates = [...sharedControlStates, ...ac2400ControlStates];
 
   public constructor(
     _adapter: ZendureSolarflow,

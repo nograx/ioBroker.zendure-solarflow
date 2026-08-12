@@ -11,4 +11,5 @@ export interface ISolarflowState {
   type: ioBroker.CommonType; // Datentyp
   unit?: string;
   states?: string | string[] | Record<string, string> | undefined;
+  def?: number | string | boolean; // Standardwert
 }

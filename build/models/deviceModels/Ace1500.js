@@ -22,6 +22,7 @@ __export(Ace1500_exports, {
 });
 module.exports = __toCommonJS(Ace1500_exports);
 var import_aceControlStates = require("../../constants/controlStates/aceControlStates");
+var import_sharedControlStates = require("../../constants/controlStates/sharedControlStates");
 var import_ZenIobDevice = require("./ZenIobDevice");
 class Ace1500 extends import_ZenIobDevice.ZenIobDevice {
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {
@@ -37,7 +38,7 @@ class Ace1500 extends import_ZenIobDevice.ZenIobDevice {
     );
     this.maxInputLimit = 900;
     this.maxOutputLimit = 900;
-    this.controlStates = import_aceControlStates.aceControlStates;
+    this.controlStates = [...import_sharedControlStates.sharedControlStates, ...import_aceControlStates.aceControlStates];
   }
   setDcSwitch(dcSwitch) {
     if (this.productKey && this.deviceKey) {

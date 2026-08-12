@@ -443,7 +443,7 @@ const _ZenIobDevice = class _ZenIobDevice {
     }
   }
   async createSolarFlowStates() {
-    var _a, _b, _c, _d, _e;
+    var _a, _b, _c, _d, _e, _f;
     const productKey = this.productKey.replace(
       this.adapter.FORBIDDEN_CHARS,
       ""
@@ -472,7 +472,24 @@ const _ZenIobDevice = class _ZenIobDevice {
       },
       native: {}
     }));
-    await ((_c = this.adapter) == null ? void 0 : _c.extendObject(`${productKey}.${deviceKey}.packData`, {
+    const lastUpdateState = import_allStates.allStates.lastUpdate;
+    await ((_c = this.adapter) == null ? void 0 : _c.extendObject(`${productKey}.${deviceKey}.lastUpdate`, {
+      type: "state",
+      common: {
+        name: {
+          de: lastUpdateState.nameDe,
+          en: lastUpdateState.nameEn
+        },
+        type: lastUpdateState.type,
+        desc: lastUpdateState.title,
+        role: lastUpdateState.role,
+        read: true,
+        write: false,
+        unit: lastUpdateState.unit
+      },
+      native: {}
+    }));
+    await ((_d = this.adapter) == null ? void 0 : _d.extendObject(`${productKey}.${deviceKey}.packData`, {
       type: "channel",
       common: {
         name: {
@@ -482,7 +499,7 @@ const _ZenIobDevice = class _ZenIobDevice {
       },
       native: {}
     }));
-    await ((_d = this.adapter) == null ? void 0 : _d.extendObject(`${productKey}.${deviceKey}.control`, {
+    await ((_e = this.adapter) == null ? void 0 : _e.extendObject(`${productKey}.${deviceKey}.control`, {
       type: "channel",
       common: {
         name: {
@@ -493,33 +510,38 @@ const _ZenIobDevice = class _ZenIobDevice {
       native: {}
     }));
     this.controlStates.forEach(async (state) => {
-      var _a2, _b2;
-      await ((_a2 = this.adapter) == null ? void 0 : _a2.extendObject(
-        `${productKey}.${deviceKey}.control.${state.title}`,
-        {
-          type: "state",
-          common: {
-            name: {
-              de: state.nameDe,
-              en: state.nameEn
-            },
-            type: state.type,
-            desc: state.title,
-            role: state.role,
-            read: true,
-            write: true,
-            unit: state.unit,
-            states: state.states
+      var _a2, _b2, _c2, _d2;
+      const stateId = `${productKey}.${deviceKey}.control.${state.title}`;
+      await ((_a2 = this.adapter) == null ? void 0 : _a2.extendObject(stateId, {
+        type: "state",
+        common: {
+          name: {
+            de: state.nameDe,
+            en: state.nameEn
           },
-          native: {}
+          type: state.type,
+          desc: state.title,
+          role: state.role,
+          read: true,
+          write: true,
+          unit: state.unit,
+          states: state.states,
+          def: state.def
+        },
+        native: {}
+      }));
+      if (state.def !== void 0) {
+        const current = await ((_b2 = this.adapter) == null ? void 0 : _b2.getStateAsync(stateId));
+        if (!current || current.val === null || current.val === void 0) {
+          await ((_c2 = this.adapter) == null ? void 0 : _c2.setState(stateId, state.def, true));
         }
-      ));
-      (_b2 = this.adapter) == null ? void 0 : _b2.subscribeStates(
+      }
+      (_d2 = this.adapter) == null ? void 0 : _d2.subscribeStates(
         `${productKey}.${deviceKey}.control.${state.title}`
       );
     });
     if (this.adapter.config.useCalculation) {
-      await ((_e = this.adapter) == null ? void 0 : _e.extendObject(
+      await ((_f = this.adapter) == null ? void 0 : _f.extendObject(
         `${productKey}.${deviceKey}.calculations`,
         {
           type: "channel",

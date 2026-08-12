@@ -22,6 +22,7 @@ __export(SfHub1200_exports, {
 });
 module.exports = __toCommonJS(SfHub1200_exports);
 var import_hubControlStates = require("../../constants/controlStates/hubControlStates");
+var import_sharedControlStates = require("../../constants/controlStates/sharedControlStates");
 var import_ZenIobDevice = require("./ZenIobDevice");
 class SfHub1200 extends import_ZenIobDevice.ZenIobDevice {
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {
@@ -37,7 +38,7 @@ class SfHub1200 extends import_ZenIobDevice.ZenIobDevice {
     );
     this.maxInputLimit = 900;
     this.maxOutputLimit = 1200;
-    this.controlStates = import_hubControlStates.hubControlStates;
+    this.controlStates = [...import_sharedControlStates.sharedControlStates, ...import_hubControlStates.hubControlStates];
   }
   async setAcMode(acMode) {
     if (this.productKey && this.deviceKey) {

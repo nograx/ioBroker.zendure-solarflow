@@ -22,6 +22,7 @@ __export(Sf2400Pro_exports, {
 });
 module.exports = __toCommonJS(Sf2400Pro_exports);
 var import_solarflow2400ProControlStates = require("../../constants/controlStates/solarflow2400ProControlStates");
+var import_sharedControlStates = require("../../constants/controlStates/sharedControlStates");
 var import_ZenSdkIobDevice = require("./ZenSdkIobDevice");
 class Sf2400Pro extends import_ZenSdkIobDevice.ZenSdkIobDevice {
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {
@@ -36,7 +37,7 @@ class Sf2400Pro extends import_ZenSdkIobDevice.ZenSdkIobDevice {
     this.maxInputLimit = 2400;
     this.maxOutputLimit = 2400;
     this.isZenSdkSupported = true;
-    this.controlStates = import_solarflow2400ProControlStates.solarflow2400ProControlStates;
+    this.controlStates = [...import_sharedControlStates.sharedControlStates, ...import_solarflow2400ProControlStates.solarflow2400ProControlStates];
   }
   async setAcMode(acMode) {
     if (this.productKey && this.deviceKey) {
