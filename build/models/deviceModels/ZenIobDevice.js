@@ -40,295 +40,31 @@ var import_enums = require("../../helpers/enums");
 var import_axios = __toESM(require("axios"));
 var import_processDeviceProperties = require("../../helpers/processDeviceProperties");
 var import_allStates = require("../../constants/sensorStates/allStates");
-const _ZenIobDevice = class _ZenIobDevice {
+class ZenIobDevice {
+  zenIobDeviceDetails;
+  adapter;
+  deviceConnectionMode = void 0;
+  productKey;
+  deviceKey;
+  snNumber = void 0;
+  productName;
+  deviceName;
+  ipAddress = void 0;
+  messageId = 0;
+  batteries = [];
+  iotTopic = void 0;
+  functionTopic = void 0;
+  password = "";
+  isZenSdkSupported;
+  // No initializer - let derived classes set this
+  maxInputLimit = 0;
+  maxOutputLimit = 0;
+  controlStates = [];
+  zenSdkErrorCount = 0;
+  zenSdkPausedUntil = 0;
+  static ZEN_SDK_MAX_ERROR_LOGS = 5;
+  static ZEN_SDK_PAUSE_DURATION_MS = 10 * 60 * 1e3;
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, isZenSdkSupported, _zenIobDeviceDetails) {
-    this.deviceConnectionMode = void 0;
-    this.snNumber = void 0;
-    this.ipAddress = void 0;
-    this.messageId = 0;
-    this.batteries = [];
-    this.iotTopic = void 0;
-    this.functionTopic = void 0;
-    this.password = "";
-    // No initializer - let derived classes set this
-    this.maxInputLimit = 0;
-    this.maxOutputLimit = 0;
-    this.controlStates = [];
-    this.zenSdkErrorCount = 0;
-    this.zenSdkPausedUntil = 0;
-    // eslint-disable-next-line @typescript-eslint/require-await -- kept async, caller in processDeviceProperties.ts awaits this method
-    this.addOrUpdatePackData = async (packData, isSolarFlow) => {
-      if (this.adapter && this.productKey && this.deviceKey) {
-        packData.forEach(async (x) => {
-          var _a, _b, _c;
-          if (x.sn && this.adapter) {
-            let batType = "";
-            if (this.productKey == "yWF7hV") {
-              batType = "AIO2400";
-            } else if (x.sn.startsWith("A")) {
-              batType = "AB1000";
-            } else if (x.sn.startsWith("B")) {
-              batType = "AB1000S";
-            } else if (x.sn.startsWith("C")) {
-              if (x.sn[1] === "O" && x.sn[2] === "4") {
-                batType = "I1920";
-              }
-              if (x.sn[3] == "F") {
-                batType = "AB2000S";
-              } else if (x.sn[3] == "E") {
-                batType = "AB2000X";
-              } else {
-                batType = "AB2000";
-              }
-            } else if (x.sn.startsWith("F")) {
-              batType = "AB3000X";
-            } else if (x.sn.startsWith("G")) {
-              batType = "AB3000L";
-            } else if (x.sn.startsWith("J")) {
-              batType = "I2400";
-            }
-            if (!this.batteries.some((y) => y.packSn == x.sn)) {
-              this.batteries.push({ packSn: x.sn, type: batType });
-              this.adapter.log.debug(
-                `[addOrUpdatePackData] Added battery ${batType} with SN ${x.sn} on deviceKey ${this.deviceKey} to batteries array!`
-              );
-            }
-            const key = `${this.productKey}.${this.deviceKey}.packData.${x.sn}`.replace(this.adapter.FORBIDDEN_CHARS, "");
-            await ((_a = this.adapter) == null ? void 0 : _a.extendObject(key, {
-              type: "channel",
-              common: { name: { de: batType, en: batType } },
-              native: {}
-            }));
-            const createPackState = async (fieldName) => {
-              var _a2;
-              const def = import_allStates.allStates[fieldName];
-              if (!def) {
-                return;
-              }
-              await ((_a2 = this.adapter) == null ? void 0 : _a2.extendObject(`${key}.${fieldName}`, {
-                type: "state",
-                common: {
-                  name: { de: def.nameDe, en: def.nameEn },
-                  type: def.type,
-                  desc: def.title,
-                  role: def.role,
-                  read: true,
-                  write: false,
-                  unit: def.unit
-                },
-                native: {}
-              }));
-            };
-            const touchLastUpdate = async (fieldName, newValue) => {
-              var _a2, _b2, _c2;
-              const current = await ((_a2 = this.adapter) == null ? void 0 : _a2.getStateAsync(`${key}.${fieldName}`));
-              if ((current == null ? void 0 : current.val) && newValue != current.val) {
-                await ((_b2 = this.adapter) == null ? void 0 : _b2.setState(
-                  `${this.productKey}.${this.deviceKey}.lastUpdate`,
-                  (/* @__PURE__ */ new Date()).getTime(),
-                  true
-                ));
-                const wifiState = await ((_c2 = this.adapter) == null ? void 0 : _c2.getStateAsync(`${this.productKey}.${this.deviceKey}.wifiState`));
-                if ((wifiState == null ? void 0 : wifiState.val) == "Disconnected") {
-                  this.updateSolarFlowState("wifiState", 1);
-                }
-              }
-            };
-            const packStatesToSet = /* @__PURE__ */ new Map();
-            packStatesToSet.set("model", batType);
-            packStatesToSet.set("sn", x.sn);
-            if (x.socLevel) {
-              packStatesToSet.set("socLevel", x.socLevel);
-            }
-            if (x.maxTemp) {
-              const maxTempCelsius = x.maxTemp / 10 - 273.15;
-              await touchLastUpdate("maxTemp", maxTempCelsius);
-              packStatesToSet.set("maxTemp", maxTempCelsius);
-            }
-            if (x.minVol) {
-              const minVol = x.minVol / 100;
-              await touchLastUpdate("minVol", minVol);
-              packStatesToSet.set("minVol", minVol);
-            }
-            if (x.batcur) {
-              await ((_b = this.adapter) == null ? void 0 : _b.extendObject(`${key}.batcur`, {
-                type: "state",
-                common: {
-                  name: "batcur",
-                  type: "number",
-                  desc: "batcur",
-                  role: "value",
-                  read: true,
-                  write: false,
-                  unit: "A"
-                },
-                native: {}
-              }));
-              let batcur = 0;
-              if (x.batcur > 32767) {
-                batcur -= 65536;
-              }
-              packStatesToSet.set("batcur", batcur / 10);
-            }
-            if (x.maxVol) {
-              const maxVol = x.maxVol / 100;
-              await touchLastUpdate("maxVol", maxVol);
-              packStatesToSet.set("maxVol", maxVol);
-            }
-            if (x.totalVol) {
-              const totalVol = x.totalVol / 100;
-              await touchLastUpdate("totalVol", totalVol);
-              packStatesToSet.set("totalVol", totalVol);
-              if (isSolarFlow) {
-                this.checkVoltage(totalVol);
-              }
-            }
-            if (x.soh) {
-              packStatesToSet.set("soh", x.soh / 10);
-            }
-            if (x.power) {
-              packStatesToSet.set("power", x.power);
-            }
-            for (const [fieldName, value] of packStatesToSet) {
-              await createPackState(fieldName);
-              await ((_c = this.adapter) == null ? void 0 : _c.setState(`${key}.${fieldName}`, value, true));
-            }
-            let found = false;
-            Object.entries(x).forEach(([k, value]) => {
-              var _a2;
-              import_mqttSharedService.knownPackDataProperties.forEach((property) => {
-                if (property == k) {
-                  found = true;
-                }
-              });
-              if (!found) {
-                (_a2 = this.adapter) == null ? void 0 : _a2.log.debug(
-                  `[addOrUpdatePackData] ${k} with value ${value} is a UNKNOWN PackData Mqtt Property!`
-                );
-              }
-            });
-          }
-        });
-      }
-    };
-    this.calculateSocAndEnergy = async (stateKey, value) => {
-      var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q;
-      this.adapter.log.debug(
-        `[calculateSocAndEnergy] Calculating for: ${this.productKey}.${this.deviceKey} and stateKey ${stateKey}!`
-      );
-      let energyWhMax = void 0;
-      const minSoc = (_a = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.minSoc`)) == null ? void 0 : _a.val;
-      const currentSoc = (_b = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.electricLevel`)) == null ? void 0 : _b.val;
-      if (currentSoc && minSoc && Number(currentSoc) < Number(minSoc)) {
-        this.adapter.log.debug(
-          `[calculateSocAndEnergy] Don't calculate, currentSoc (${Number(currentSoc)}) is lower than minSoc (${Number(minSoc)})!`
-        );
-        return;
-      }
-      const currentEnergyState = await ((_c = this.adapter) == null ? void 0 : _c.getStateAsync(
-        `${this.productKey}.${this.deviceKey}.calculations.energyWh`
-      ));
-      const currentEnergyMaxState = await ((_d = this.adapter) == null ? void 0 : _d.getStateAsync(
-        `${this.productKey}.${this.deviceKey}.calculations.energyWhMax`
-      ));
-      const lowVoltageBlock = await ((_e = this.adapter) == null ? void 0 : _e.getStateAsync(
-        `${this.productKey}.${this.deviceKey}.control.lowVoltageBlock`
-      ));
-      const currentMaxValue = Number(currentEnergyMaxState ? currentEnergyMaxState.val : 0);
-      let currentEnergyWh = (currentEnergyState == null ? void 0 : currentEnergyState.val) ? Number(currentEnergyState == null ? void 0 : currentEnergyState.val) : 0;
-      if (currentEnergyWh == null || currentEnergyWh == void 0 || currentEnergyWh <= 0) {
-        currentEnergyWh = 0;
-      }
-      if (this.productKey == "yWF7hV") {
-        energyWhMax = 2400;
-      } else {
-        for (let i = 0; i < this.batteries.length; i++) {
-          if (this.batteries[i].type.includes("AB1000")) {
-            energyWhMax = (energyWhMax ? energyWhMax : 0) + 960;
-          } else if (this.batteries[i].type.includes("AB2000")) {
-            energyWhMax = (energyWhMax ? energyWhMax : 0) + 1920;
-          } else if (this.batteries[i].type.includes("AB3000")) {
-            energyWhMax = (energyWhMax ? energyWhMax : 0) + 2880;
-          } else if (this.batteries[i].type.includes("I2400")) {
-            energyWhMax = (energyWhMax ? energyWhMax : 0) + 2400;
-          } else if (this.batteries[i].type.includes("I1920")) {
-            energyWhMax = (energyWhMax ? energyWhMax : 0) + 1920;
-          }
-        }
-      }
-      let newEnergyWh = stateKey == "outputPack" ? currentEnergyWh + value : currentEnergyWh - value;
-      if (stateKey == "outputPack" && energyWhMax != void 0 && newEnergyWh > energyWhMax) {
-        newEnergyWh = energyWhMax;
-        this.adapter.log.debug(
-          `[calculateSocAndEnergy] newEnergyWh (${newEnergyWh}) is greater than energyWhMax (${energyWhMax}), don't extend value!`
-        );
-      }
-      if (newEnergyWh > 0) {
-        (_f = this.adapter) == null ? void 0 : _f.setState(`${this.productKey}.${this.deviceKey}.calculations.energyWh`, newEnergyWh, true);
-        this.adapter.log.debug(
-          `[calculateSocAndEnergy] set '${this.productKey}.${this.deviceKey}.calculations.energyWh' to ${newEnergyWh}!`
-        );
-        if (currentEnergyMaxState) {
-          const soc = Number((newEnergyWh / currentMaxValue * 100).toFixed(1));
-          await ((_g = this.adapter) == null ? void 0 : _g.setState(
-            `${this.productKey}.${this.deviceKey}.calculations.soc`,
-            soc > 100 ? 100 : soc,
-            true
-          ));
-          if (newEnergyWh > currentMaxValue && !(lowVoltageBlock == null ? void 0 : lowVoltageBlock.val)) {
-            await ((_h = this.adapter) == null ? void 0 : _h.setState(
-              `${this.productKey}.${this.deviceKey}.calculations.energyWhMax`,
-              newEnergyWh,
-              true
-            ));
-          }
-          const currentOutputPackPower = await ((_i = this.adapter) == null ? void 0 : _i.getStateAsync(
-            `${this.productKey}.${this.deviceKey}.outputPackPower`
-          ));
-          const currentPackInputPower = await ((_j = this.adapter) == null ? void 0 : _j.getStateAsync(
-            `${this.productKey}.${this.deviceKey}.packInputPower`
-          ));
-          if (stateKey == "outputPack" && (currentOutputPackPower == null ? void 0 : currentOutputPackPower.val) != null && currentOutputPackPower != void 0) {
-            const toCharge = currentMaxValue - newEnergyWh;
-            const remainHoursAsDecimal = toCharge / Number(currentOutputPackPower.val);
-            if (remainHoursAsDecimal < 48) {
-              const remainFormatted = (0, import_timeHelper.toHoursAndMinutes)(Math.round(remainHoursAsDecimal * 60));
-              await ((_k = this.adapter) == null ? void 0 : _k.setState(
-                `${this.productKey}.${this.deviceKey}.calculations.remainInputTime`,
-                remainFormatted,
-                true
-              ));
-            } else {
-              await ((_l = this.adapter) == null ? void 0 : _l.setState(`${this.productKey}.${this.deviceKey}.calculations.remainInputTime`, "", true));
-            }
-          } else if (stateKey == "packInput" && currentPackInputPower != null && currentPackInputPower != void 0) {
-            const remainHoursAsDecimal = newEnergyWh / Number(currentPackInputPower.val);
-            const remainFormatted = (0, import_timeHelper.toHoursAndMinutes)(Math.round(remainHoursAsDecimal * 60));
-            if (remainHoursAsDecimal < 48) {
-              await ((_m = this.adapter) == null ? void 0 : _m.setState(
-                `${this.productKey}.${this.deviceKey}.calculations.remainOutTime`,
-                remainFormatted,
-                true
-              ));
-            } else {
-              await ((_n = this.adapter) == null ? void 0 : _n.setState(`${this.productKey}.${this.deviceKey}.calculations.remainOutTime`, "", true));
-            }
-          }
-        }
-      } else if (newEnergyWh <= 0 && stateKey == "outputPack") {
-        await ((_o = this.adapter) == null ? void 0 : _o.setState(`${this.productKey}.${this.deviceKey}.calculations.remainInputTime`, "", true));
-      } else if (newEnergyWh <= 0 && stateKey == "packInput") {
-        await ((_p = this.adapter) == null ? void 0 : _p.setState(`${this.productKey}.${this.deviceKey}.calculations.remainOutTime`, "", true));
-        const newEnergyWhPositive = Math.abs(newEnergyWh);
-        if (energyWhMax && currentMaxValue + newEnergyWhPositive <= energyWhMax) {
-          await ((_q = this.adapter) == null ? void 0 : _q.setState(
-            `${this.productKey}.${this.deviceKey}.calculations.energyWhMax`,
-            currentMaxValue + newEnergyWhPositive,
-            true
-          ));
-        }
-      }
-    };
     this.zenIobDeviceDetails = _zenIobDeviceDetails;
     this.adapter = _adapter;
     this.productKey = _productKey;
@@ -555,16 +291,16 @@ const _ZenIobDevice = class _ZenIobDevice {
         return true;
       }).catch((error) => {
         this.zenSdkErrorCount++;
-        if (this.zenSdkErrorCount <= _ZenIobDevice.ZEN_SDK_MAX_ERROR_LOGS) {
+        if (this.zenSdkErrorCount <= ZenIobDevice.ZEN_SDK_MAX_ERROR_LOGS) {
           this.adapter.log.error(
             `[getZenSdkProperties] Error getting properties for device ${this.deviceKey} with zenSDK: ${error}`
           );
         }
-        if (this.zenSdkErrorCount >= _ZenIobDevice.ZEN_SDK_MAX_ERROR_LOGS) {
+        if (this.zenSdkErrorCount >= ZenIobDevice.ZEN_SDK_MAX_ERROR_LOGS) {
           this.adapter.log.warn(
-            `[getZenSdkProperties] Reached ${_ZenIobDevice.ZEN_SDK_MAX_ERROR_LOGS} consecutive errors for device ${this.deviceKey}, pausing zenSDK polling for ${_ZenIobDevice.ZEN_SDK_PAUSE_DURATION_MS / 6e4} minutes!`
+            `[getZenSdkProperties] Reached ${ZenIobDevice.ZEN_SDK_MAX_ERROR_LOGS} consecutive errors for device ${this.deviceKey}, pausing zenSDK polling for ${ZenIobDevice.ZEN_SDK_PAUSE_DURATION_MS / 6e4} minutes!`
           );
-          this.zenSdkPausedUntil = Date.now() + _ZenIobDevice.ZEN_SDK_PAUSE_DURATION_MS;
+          this.zenSdkPausedUntil = Date.now() + ZenIobDevice.ZEN_SDK_PAUSE_DURATION_MS;
           this.zenSdkErrorCount = 0;
         }
         this.updateSolarFlowState("wifiState", 0);
@@ -978,6 +714,161 @@ const _ZenIobDevice = class _ZenIobDevice {
       await ((_b = this.adapter) == null ? void 0 : _b.setState(`${this.productKey}.${this.deviceKey}.control.${state}`, val, true));
     }
   }
+  // eslint-disable-next-line @typescript-eslint/require-await -- kept async, caller in processDeviceProperties.ts awaits this method
+  addOrUpdatePackData = async (packData, isSolarFlow) => {
+    if (this.adapter && this.productKey && this.deviceKey) {
+      packData.forEach(async (x) => {
+        var _a, _b, _c;
+        if (x.sn && this.adapter) {
+          let batType = "";
+          if (this.productKey == "yWF7hV") {
+            batType = "AIO2400";
+          } else if (x.sn.startsWith("A")) {
+            batType = "AB1000";
+          } else if (x.sn.startsWith("B")) {
+            batType = "AB1000S";
+          } else if (x.sn.startsWith("C")) {
+            if (x.sn[1] === "O" && x.sn[2] === "4") {
+              batType = "I1920";
+            }
+            if (x.sn[3] == "F") {
+              batType = "AB2000S";
+            } else if (x.sn[3] == "E") {
+              batType = "AB2000X";
+            } else {
+              batType = "AB2000";
+            }
+          } else if (x.sn.startsWith("F")) {
+            batType = "AB3000X";
+          } else if (x.sn.startsWith("G")) {
+            batType = "AB3000L";
+          } else if (x.sn.startsWith("J")) {
+            batType = "I2400";
+          }
+          if (!this.batteries.some((y) => y.packSn == x.sn)) {
+            this.batteries.push({ packSn: x.sn, type: batType });
+            this.adapter.log.debug(
+              `[addOrUpdatePackData] Added battery ${batType} with SN ${x.sn} on deviceKey ${this.deviceKey} to batteries array!`
+            );
+          }
+          const key = `${this.productKey}.${this.deviceKey}.packData.${x.sn}`.replace(this.adapter.FORBIDDEN_CHARS, "");
+          await ((_a = this.adapter) == null ? void 0 : _a.extendObject(key, {
+            type: "channel",
+            common: { name: { de: batType, en: batType } },
+            native: {}
+          }));
+          const createPackState = async (fieldName) => {
+            var _a2;
+            const def = import_allStates.allStates[fieldName];
+            if (!def) {
+              return;
+            }
+            await ((_a2 = this.adapter) == null ? void 0 : _a2.extendObject(`${key}.${fieldName}`, {
+              type: "state",
+              common: {
+                name: { de: def.nameDe, en: def.nameEn },
+                type: def.type,
+                desc: def.title,
+                role: def.role,
+                read: true,
+                write: false,
+                unit: def.unit
+              },
+              native: {}
+            }));
+          };
+          const touchLastUpdate = async (fieldName, newValue) => {
+            var _a2, _b2, _c2;
+            const current = await ((_a2 = this.adapter) == null ? void 0 : _a2.getStateAsync(`${key}.${fieldName}`));
+            if ((current == null ? void 0 : current.val) && newValue != current.val) {
+              await ((_b2 = this.adapter) == null ? void 0 : _b2.setState(
+                `${this.productKey}.${this.deviceKey}.lastUpdate`,
+                (/* @__PURE__ */ new Date()).getTime(),
+                true
+              ));
+              const wifiState = await ((_c2 = this.adapter) == null ? void 0 : _c2.getStateAsync(`${this.productKey}.${this.deviceKey}.wifiState`));
+              if ((wifiState == null ? void 0 : wifiState.val) == "Disconnected") {
+                this.updateSolarFlowState("wifiState", 1);
+              }
+            }
+          };
+          const packStatesToSet = /* @__PURE__ */ new Map();
+          packStatesToSet.set("model", batType);
+          packStatesToSet.set("sn", x.sn);
+          if (x.socLevel) {
+            packStatesToSet.set("socLevel", x.socLevel);
+          }
+          if (x.maxTemp) {
+            const maxTempCelsius = x.maxTemp / 10 - 273.15;
+            await touchLastUpdate("maxTemp", maxTempCelsius);
+            packStatesToSet.set("maxTemp", maxTempCelsius);
+          }
+          if (x.minVol) {
+            const minVol = x.minVol / 100;
+            await touchLastUpdate("minVol", minVol);
+            packStatesToSet.set("minVol", minVol);
+          }
+          if (x.batcur) {
+            await ((_b = this.adapter) == null ? void 0 : _b.extendObject(`${key}.batcur`, {
+              type: "state",
+              common: {
+                name: "batcur",
+                type: "number",
+                desc: "batcur",
+                role: "value",
+                read: true,
+                write: false,
+                unit: "A"
+              },
+              native: {}
+            }));
+            let batcur = 0;
+            if (x.batcur > 32767) {
+              batcur -= 65536;
+            }
+            packStatesToSet.set("batcur", batcur / 10);
+          }
+          if (x.maxVol) {
+            const maxVol = x.maxVol / 100;
+            await touchLastUpdate("maxVol", maxVol);
+            packStatesToSet.set("maxVol", maxVol);
+          }
+          if (x.totalVol) {
+            const totalVol = x.totalVol / 100;
+            await touchLastUpdate("totalVol", totalVol);
+            packStatesToSet.set("totalVol", totalVol);
+            if (isSolarFlow) {
+              this.checkVoltage(totalVol);
+            }
+          }
+          if (x.soh) {
+            packStatesToSet.set("soh", x.soh / 10);
+          }
+          if (x.power) {
+            packStatesToSet.set("power", x.power);
+          }
+          for (const [fieldName, value] of packStatesToSet) {
+            await createPackState(fieldName);
+            await ((_c = this.adapter) == null ? void 0 : _c.setState(`${key}.${fieldName}`, value, true));
+          }
+          let found = false;
+          Object.entries(x).forEach(([k, value]) => {
+            var _a2;
+            import_mqttSharedService.knownPackDataProperties.forEach((property) => {
+              if (property == k) {
+                found = true;
+              }
+            });
+            if (!found) {
+              (_a2 = this.adapter) == null ? void 0 : _a2.log.debug(
+                `[addOrUpdatePackData] ${k} with value ${value} is a UNKNOWN PackData Mqtt Property!`
+              );
+            }
+          });
+        }
+      });
+    }
+  };
   async checkVoltage(voltage) {
     var _a, _b, _c, _d;
     if (voltage < 46.1) {
@@ -1101,6 +992,124 @@ const _ZenIobDevice = class _ZenIobDevice {
       }
     });
   }
+  calculateSocAndEnergy = async (stateKey, value) => {
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q;
+    this.adapter.log.debug(
+      `[calculateSocAndEnergy] Calculating for: ${this.productKey}.${this.deviceKey} and stateKey ${stateKey}!`
+    );
+    let energyWhMax = void 0;
+    const minSoc = (_a = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.minSoc`)) == null ? void 0 : _a.val;
+    const currentSoc = (_b = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.electricLevel`)) == null ? void 0 : _b.val;
+    if (currentSoc && minSoc && Number(currentSoc) < Number(minSoc)) {
+      this.adapter.log.debug(
+        `[calculateSocAndEnergy] Don't calculate, currentSoc (${Number(currentSoc)}) is lower than minSoc (${Number(minSoc)})!`
+      );
+      return;
+    }
+    const currentEnergyState = await ((_c = this.adapter) == null ? void 0 : _c.getStateAsync(
+      `${this.productKey}.${this.deviceKey}.calculations.energyWh`
+    ));
+    const currentEnergyMaxState = await ((_d = this.adapter) == null ? void 0 : _d.getStateAsync(
+      `${this.productKey}.${this.deviceKey}.calculations.energyWhMax`
+    ));
+    const lowVoltageBlock = await ((_e = this.adapter) == null ? void 0 : _e.getStateAsync(
+      `${this.productKey}.${this.deviceKey}.control.lowVoltageBlock`
+    ));
+    const currentMaxValue = Number(currentEnergyMaxState ? currentEnergyMaxState.val : 0);
+    let currentEnergyWh = (currentEnergyState == null ? void 0 : currentEnergyState.val) ? Number(currentEnergyState == null ? void 0 : currentEnergyState.val) : 0;
+    if (currentEnergyWh == null || currentEnergyWh == void 0 || currentEnergyWh <= 0) {
+      currentEnergyWh = 0;
+    }
+    if (this.productKey == "yWF7hV") {
+      energyWhMax = 2400;
+    } else {
+      for (let i = 0; i < this.batteries.length; i++) {
+        if (this.batteries[i].type.includes("AB1000")) {
+          energyWhMax = (energyWhMax ? energyWhMax : 0) + 960;
+        } else if (this.batteries[i].type.includes("AB2000")) {
+          energyWhMax = (energyWhMax ? energyWhMax : 0) + 1920;
+        } else if (this.batteries[i].type.includes("AB3000")) {
+          energyWhMax = (energyWhMax ? energyWhMax : 0) + 2880;
+        } else if (this.batteries[i].type.includes("I2400")) {
+          energyWhMax = (energyWhMax ? energyWhMax : 0) + 2400;
+        } else if (this.batteries[i].type.includes("I1920")) {
+          energyWhMax = (energyWhMax ? energyWhMax : 0) + 1920;
+        }
+      }
+    }
+    let newEnergyWh = stateKey == "outputPack" ? currentEnergyWh + value : currentEnergyWh - value;
+    if (stateKey == "outputPack" && energyWhMax != void 0 && newEnergyWh > energyWhMax) {
+      newEnergyWh = energyWhMax;
+      this.adapter.log.debug(
+        `[calculateSocAndEnergy] newEnergyWh (${newEnergyWh}) is greater than energyWhMax (${energyWhMax}), don't extend value!`
+      );
+    }
+    if (newEnergyWh > 0) {
+      (_f = this.adapter) == null ? void 0 : _f.setState(`${this.productKey}.${this.deviceKey}.calculations.energyWh`, newEnergyWh, true);
+      this.adapter.log.debug(
+        `[calculateSocAndEnergy] set '${this.productKey}.${this.deviceKey}.calculations.energyWh' to ${newEnergyWh}!`
+      );
+      if (currentEnergyMaxState) {
+        const soc = Number((newEnergyWh / currentMaxValue * 100).toFixed(1));
+        await ((_g = this.adapter) == null ? void 0 : _g.setState(
+          `${this.productKey}.${this.deviceKey}.calculations.soc`,
+          soc > 100 ? 100 : soc,
+          true
+        ));
+        if (newEnergyWh > currentMaxValue && !(lowVoltageBlock == null ? void 0 : lowVoltageBlock.val)) {
+          await ((_h = this.adapter) == null ? void 0 : _h.setState(
+            `${this.productKey}.${this.deviceKey}.calculations.energyWhMax`,
+            newEnergyWh,
+            true
+          ));
+        }
+        const currentOutputPackPower = await ((_i = this.adapter) == null ? void 0 : _i.getStateAsync(
+          `${this.productKey}.${this.deviceKey}.outputPackPower`
+        ));
+        const currentPackInputPower = await ((_j = this.adapter) == null ? void 0 : _j.getStateAsync(
+          `${this.productKey}.${this.deviceKey}.packInputPower`
+        ));
+        if (stateKey == "outputPack" && (currentOutputPackPower == null ? void 0 : currentOutputPackPower.val) != null && currentOutputPackPower != void 0) {
+          const toCharge = currentMaxValue - newEnergyWh;
+          const remainHoursAsDecimal = toCharge / Number(currentOutputPackPower.val);
+          if (remainHoursAsDecimal < 48) {
+            const remainFormatted = (0, import_timeHelper.toHoursAndMinutes)(Math.round(remainHoursAsDecimal * 60));
+            await ((_k = this.adapter) == null ? void 0 : _k.setState(
+              `${this.productKey}.${this.deviceKey}.calculations.remainInputTime`,
+              remainFormatted,
+              true
+            ));
+          } else {
+            await ((_l = this.adapter) == null ? void 0 : _l.setState(`${this.productKey}.${this.deviceKey}.calculations.remainInputTime`, "", true));
+          }
+        } else if (stateKey == "packInput" && currentPackInputPower != null && currentPackInputPower != void 0) {
+          const remainHoursAsDecimal = newEnergyWh / Number(currentPackInputPower.val);
+          const remainFormatted = (0, import_timeHelper.toHoursAndMinutes)(Math.round(remainHoursAsDecimal * 60));
+          if (remainHoursAsDecimal < 48) {
+            await ((_m = this.adapter) == null ? void 0 : _m.setState(
+              `${this.productKey}.${this.deviceKey}.calculations.remainOutTime`,
+              remainFormatted,
+              true
+            ));
+          } else {
+            await ((_n = this.adapter) == null ? void 0 : _n.setState(`${this.productKey}.${this.deviceKey}.calculations.remainOutTime`, "", true));
+          }
+        }
+      }
+    } else if (newEnergyWh <= 0 && stateKey == "outputPack") {
+      await ((_o = this.adapter) == null ? void 0 : _o.setState(`${this.productKey}.${this.deviceKey}.calculations.remainInputTime`, "", true));
+    } else if (newEnergyWh <= 0 && stateKey == "packInput") {
+      await ((_p = this.adapter) == null ? void 0 : _p.setState(`${this.productKey}.${this.deviceKey}.calculations.remainOutTime`, "", true));
+      const newEnergyWhPositive = Math.abs(newEnergyWh);
+      if (energyWhMax && currentMaxValue + newEnergyWhPositive <= energyWhMax) {
+        await ((_q = this.adapter) == null ? void 0 : _q.setState(
+          `${this.productKey}.${this.deviceKey}.calculations.energyWhMax`,
+          currentMaxValue + newEnergyWhPositive,
+          true
+        ));
+      }
+    }
+  };
   async setSocToZero() {
     var _a, _b, _c;
     await ((_a = this.adapter) == null ? void 0 : _a.setState(`${this.productKey}.${this.deviceKey}.calculations.soc`, 0, true));
@@ -1168,10 +1177,7 @@ const _ZenIobDevice = class _ZenIobDevice {
       }
     });
   }
-};
-_ZenIobDevice.ZEN_SDK_MAX_ERROR_LOGS = 5;
-_ZenIobDevice.ZEN_SDK_PAUSE_DURATION_MS = 10 * 60 * 1e3;
-let ZenIobDevice = _ZenIobDevice;
+}
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   ZenIobDevice

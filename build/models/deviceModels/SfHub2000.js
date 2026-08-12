@@ -25,6 +25,9 @@ var import_hubControlStates = require("../../constants/controlStates/hubControlS
 var import_sharedControlStates = require("../../constants/controlStates/sharedControlStates");
 var import_ZenIobDevice = require("./ZenIobDevice");
 class SfHub2000 extends import_ZenIobDevice.ZenIobDevice {
+  maxInputLimit = 900;
+  maxOutputLimit = 1200;
+  controlStates = [...import_sharedControlStates.sharedControlStates, ...import_hubControlStates.hubControlStates];
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {
     super(
       _adapter,
@@ -36,9 +39,6 @@ class SfHub2000 extends import_ZenIobDevice.ZenIobDevice {
       // zenSDK not supported
       _zenHaDeviceDetails
     );
-    this.maxInputLimit = 900;
-    this.maxOutputLimit = 1200;
-    this.controlStates = [...import_sharedControlStates.sharedControlStates, ...import_hubControlStates.hubControlStates];
   }
   async setAcMode(acMode) {
     if (this.productKey && this.deviceKey) {

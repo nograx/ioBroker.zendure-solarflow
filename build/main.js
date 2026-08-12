@@ -44,22 +44,22 @@ class ZendureSolarflow extends utils.Adapter {
       ...options,
       name: "zendure-solarflow"
     });
-    this.zenIobDeviceList = [];
-    // All found devices for this instance will be in this array
-    this.mqttSettings = void 0;
-    this.lastLogin = void 0;
-    this.localMqttService = void 0;
-    this.cloudMqttService = void 0;
-    this.resetValuesJob = void 0;
-    this.checkStatesJob = void 0;
-    this.calculationJob = void 0;
-    this.zenSdkDataRefreshJob = void 0;
-    this.refreshAccessTokenInterval = void 0;
-    this.retryTimeout = void 0;
     this.on("ready", this.onReady.bind(this));
     this.on("stateChange", this.onStateChange.bind(this));
     this.on("unload", this.onUnload.bind(this));
   }
+  zenIobDeviceList = [];
+  // All found devices for this instance will be in this array
+  mqttSettings = void 0;
+  lastLogin = void 0;
+  localMqttService = void 0;
+  cloudMqttService = void 0;
+  resetValuesJob = void 0;
+  checkStatesJob = void 0;
+  calculationJob = void 0;
+  zenSdkDataRefreshJob = void 0;
+  refreshAccessTokenInterval = void 0;
+  retryTimeout = void 0;
   /**
    * Is called when databases are connected and adapter received configuration.
    */

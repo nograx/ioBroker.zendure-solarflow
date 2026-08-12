@@ -25,6 +25,9 @@ var import_aioControlStates = require("../../constants/controlStates/aioControlS
 var import_sharedControlStates = require("../../constants/controlStates/sharedControlStates");
 var import_ZenIobDevice = require("./ZenIobDevice");
 class Aio2400 extends import_ZenIobDevice.ZenIobDevice {
+  maxInputLimit = 0;
+  maxOutputLimit = 1200;
+  controlStates = [...import_sharedControlStates.sharedControlStates, ...import_aioControlStates.aioControlStates];
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {
     super(
       _adapter,
@@ -36,9 +39,6 @@ class Aio2400 extends import_ZenIobDevice.ZenIobDevice {
       // zenSDK not supported
       _zenHaDeviceDetails
     );
-    this.maxInputLimit = 0;
-    this.maxOutputLimit = 1200;
-    this.controlStates = [...import_sharedControlStates.sharedControlStates, ...import_aioControlStates.aioControlStates];
   }
   async setDeviceAutomationInOutLimit(limit) {
     if (this.productKey && this.deviceKey) {

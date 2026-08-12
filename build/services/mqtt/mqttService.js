@@ -35,6 +35,8 @@ var import_mqtt = __toESM(require("mqtt"));
 var import_mqttSharedService = require("./mqttSharedService");
 var import_jobSchedule = require("../jobSchedule");
 class MqttService {
+  adapter;
+  mqttClient;
   constructor(adapter) {
     this.adapter = adapter;
     (0, import_mqttSharedService.initAdapter)(adapter);

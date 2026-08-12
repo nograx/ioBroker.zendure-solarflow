@@ -25,6 +25,9 @@ var import_hyperControlStates = require("../../constants/controlStates/hyperCont
 var import_sharedControlStates = require("../../constants/controlStates/sharedControlStates");
 var import_ZenIobDevice = require("./ZenIobDevice");
 class Hyper2000 extends import_ZenIobDevice.ZenIobDevice {
+  maxInputLimit = 1200;
+  maxOutputLimit = 1200;
+  controlStates = [...import_sharedControlStates.sharedControlStates, ...import_hyperControlStates.hyperControlStates];
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {
     super(
       _adapter,
@@ -36,9 +39,6 @@ class Hyper2000 extends import_ZenIobDevice.ZenIobDevice {
       // zenSDK not supported
       _zenHaDeviceDetails
     );
-    this.maxInputLimit = 1200;
-    this.maxOutputLimit = 1200;
-    this.controlStates = [...import_sharedControlStates.sharedControlStates, ...import_hyperControlStates.hyperControlStates];
   }
   setAcMode(acMode) {
     if (this.productKey && this.deviceKey) {

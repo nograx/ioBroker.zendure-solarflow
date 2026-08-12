@@ -25,12 +25,12 @@ var import_ac2400ControlStates = require("../../constants/controlStates/ac2400Co
 var import_sharedControlStates = require("../../constants/controlStates/sharedControlStates");
 var import_ZenSdkIobDevice = require("./ZenSdkIobDevice");
 class Sf2400Ac extends import_ZenSdkIobDevice.ZenSdkIobDevice {
+  maxInputLimit = 2400;
+  maxOutputLimit = 2400;
+  isZenSdkSupported = true;
+  controlStates = [...import_sharedControlStates.sharedControlStates, ...import_ac2400ControlStates.ac2400ControlStates];
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {
     super(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails);
-    this.maxInputLimit = 2400;
-    this.maxOutputLimit = 2400;
-    this.isZenSdkSupported = true;
-    this.controlStates = [...import_sharedControlStates.sharedControlStates, ...import_ac2400ControlStates.ac2400ControlStates];
   }
   async setAcMode(acMode) {
     if (this.productKey && this.deviceKey) {

@@ -22,6 +22,7 @@ __export(fileHelper_exports, {
 });
 module.exports = __toCommonJS(fileHelper_exports);
 class FileHelper {
+  adapter;
   constructor(_adapter) {
     this.adapter = _adapter;
   }
