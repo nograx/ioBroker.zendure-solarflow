@@ -22,7 +22,7 @@ __export(Hyper2000_exports, {
 });
 module.exports = __toCommonJS(Hyper2000_exports);
 var import_hyperControlStates = require("../../constants/controlStates/hyperControlStates");
-var import_hyperStates = require("../../constants/sensorStates/hyperStates");
+var import_sharedControlStates = require("../../constants/controlStates/sharedControlStates");
 var import_ZenIobDevice = require("./ZenIobDevice");
 class Hyper2000 extends import_ZenIobDevice.ZenIobDevice {
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {
@@ -38,8 +38,7 @@ class Hyper2000 extends import_ZenIobDevice.ZenIobDevice {
     );
     this.maxInputLimit = 1200;
     this.maxOutputLimit = 1200;
-    this.states = import_hyperStates.hyperStates;
-    this.controlStates = import_hyperControlStates.hyperControlStates;
+    this.controlStates = [...import_sharedControlStates.sharedControlStates, ...import_hyperControlStates.hyperControlStates];
   }
   async setAcMode(acMode) {
     if (this.productKey && this.deviceKey) {

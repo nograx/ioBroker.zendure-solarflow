@@ -23,50 +23,10 @@ __export(solarflow800PlusControlStates_exports, {
 module.exports = __toCommonJS(solarflow800PlusControlStates_exports);
 const solarflow800PlusControlStates = [
   {
-    nameDe: "Energieplan-Einstellung",
-    nameEn: "Energyplan",
-    type: "number",
-    title: "autoModel",
-    role: "value",
-    read: true,
-    write: true,
-    states: {
-      0: "Nothing",
-      6: "Battery priority mode",
-      7: "Appointment mode",
-      8: "Smart Matching Mode",
-      9: "Smart CT Mode",
-      10: "Electricity Price"
-    }
-  },
-  {
-    nameDe: "Setzen des Lade-Limits",
-    nameEn: "Control of the charge limit",
-    title: "chargeLimit",
-    type: "number",
-    role: "value.battery",
-    read: true,
-    write: true,
-    min: 40,
-    max: 100,
-    unit: "%"
-  },
-  {
-    nameDe: "Setzen des Entlade-Limits",
-    nameEn: "Control of the discharge limit",
-    type: "number",
-    title: "dischargeLimit",
-    role: "value.battery",
-    read: true,
-    write: true,
-    min: 0,
-    max: 50,
-    unit: "%"
-  },
-  {
     nameDe: "Sounds am HUB aktivieren",
     nameEn: "Enable buzzer on HUB",
     type: "boolean",
+    def: false,
     title: "buzzerSwitch",
     role: "switch",
     read: true,
@@ -76,6 +36,7 @@ const solarflow800PlusControlStates = [
     nameDe: "Einzustellende Ausgangsleistung",
     nameEn: "Control of the output limit",
     type: "number",
+    def: 0,
     title: "setOutputLimit",
     role: "value.power",
     read: true,
@@ -88,6 +49,7 @@ const solarflow800PlusControlStates = [
     nameDe: "Einstellung des Bypass Modus",
     nameEn: "Setting of bypass mode",
     type: "number",
+    def: 0,
     title: "passMode",
     role: "switch",
     read: true,
@@ -102,30 +64,17 @@ const solarflow800PlusControlStates = [
     nameDe: "Am n\xE4chsten Tag Bypass auf Automatik",
     nameEn: "Automatic recovery of bypass",
     type: "boolean",
+    def: false,
     title: "autoRecover",
     role: "switch",
     read: true,
     write: true
   },
   {
-    nameDe: "Verhalten wenn minimale reservierte Ladung erreicht",
-    nameEn: "Behavior when minimum reserved charge is reached",
-    type: "number",
-    title: "hubState",
-    role: "value",
-    read: true,
-    write: true,
-    min: 0,
-    max: 1,
-    states: {
-      0: "Stop output and standby",
-      1: "Stop output and shut down"
-    }
-  },
-  {
     nameDe: "Einzustellende Eingangsleistung",
     nameEn: "Control of the input limit",
     type: "number",
+    def: 0,
     title: "setInputLimit",
     role: "value.power",
     read: true,
@@ -139,6 +88,7 @@ const solarflow800PlusControlStates = [
     nameDe: "AC Schalter",
     nameEn: "AC switch",
     type: "boolean",
+    def: false,
     title: "acSwitch",
     role: "switch",
     read: true,
@@ -148,6 +98,7 @@ const solarflow800PlusControlStates = [
     nameDe: "AC Modus",
     nameEn: "AC mode",
     type: "number",
+    def: 0,
     title: "acMode",
     role: "switch",
     min: 0,
@@ -162,38 +113,23 @@ const solarflow800PlusControlStates = [
     }
   },
   {
-    nameDe: "Niedrige Batteriespannung erkannt",
-    nameEn: "Low Voltage on battery detected",
-    type: "boolean",
-    title: "lowVoltageBlock",
-    role: "indicator.lowbat",
-    read: true,
-    write: false
-  },
-  {
-    nameDe: "Auf 100% laden, Akku muss kalibriert werden!",
-    nameEn: "Charge to 100%, battery needs to be calibrated",
-    type: "boolean",
-    title: "fullChargeNeeded",
-    role: "indicator.lowbat",
-    read: true,
-    write: false
-  },
-  {
     nameDe: "Ger\xE4te Automation Limit (negativ = Laden, positiv = Einspeisen)",
     nameEn: "Device Automation Limit (negative = charging, positive = feed in)",
     type: "number",
+    def: 0,
     title: "setDeviceAutomationInOutLimit",
     role: "value.power",
     read: true,
     write: true,
-    min: 0,
+    min: -1e3,
+    max: 800,
     unit: "W"
   },
   {
     nameDe: "Smart Mode",
     nameEn: "Smart Mode",
     type: "boolean",
+    def: false,
     title: "smartMode",
     role: "switch",
     read: true,

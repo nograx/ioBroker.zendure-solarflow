@@ -39,6 +39,7 @@ var import_mqttSharedService = require("../../services/mqtt/mqttSharedService");
 var import_enums = require("../../helpers/enums");
 var import_axios = __toESM(require("axios"));
 var import_processDeviceProperties = require("../../helpers/processDeviceProperties");
+var import_allStates = require("../../constants/sensorStates/allStates");
 const _ZenIobDevice = class _ZenIobDevice {
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, isZenSdkSupported, _zenIobDeviceDetails) {
     this.deviceConnectionMode = void 0;
@@ -52,14 +53,13 @@ const _ZenIobDevice = class _ZenIobDevice {
     // No initializer - let derived classes set this
     this.maxInputLimit = 0;
     this.maxOutputLimit = 0;
-    this.states = [];
     this.controlStates = [];
     this.zenSdkErrorCount = 0;
     this.zenSdkPausedUntil = 0;
     this.addOrUpdatePackData = async (packData, isSolarFlow) => {
       if (this.adapter && this.productKey && this.deviceKey) {
         await packData.forEach(async (x) => {
-          var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C;
+          var _a, _b, _c;
           if (x.sn && this.adapter) {
             let batType = "";
             if (this.productKey == "yWF7hV") {
@@ -87,10 +87,7 @@ const _ZenIobDevice = class _ZenIobDevice {
               batType = "I2400";
             }
             if (!this.batteries.some((y) => y.packSn == x.sn)) {
-              this.batteries.push({
-                packSn: x.sn,
-                type: batType
-              });
+              this.batteries.push({ packSn: x.sn, type: batType });
               this.adapter.log.debug(
                 `[addOrUpdatePackData] Added battery ${batType} with SN ${x.sn} on deviceKey ${this.deviceKey} to batteries array!`
               );
@@ -98,140 +95,62 @@ const _ZenIobDevice = class _ZenIobDevice {
             const key = (this.productKey + "." + this.deviceKey + ".packData." + x.sn).replace(this.adapter.FORBIDDEN_CHARS, "");
             await ((_a = this.adapter) == null ? void 0 : _a.extendObject(key, {
               type: "channel",
-              common: {
-                name: {
-                  de: batType,
-                  en: batType
-                }
-              },
+              common: { name: { de: batType, en: batType } },
               native: {}
             }));
-            await ((_b = this.adapter) == null ? void 0 : _b.extendObject(key + ".model", {
-              type: "state",
-              common: {
-                name: {
-                  de: "Batterietyp",
-                  en: "Battery type"
-                },
-                type: "string",
-                desc: "model",
-                role: "value",
-                read: true,
-                write: false
-              },
-              native: {}
-            }));
-            await ((_c = this.adapter) == null ? void 0 : _c.setState(key + ".model", batType, true));
-            await ((_d = this.adapter) == null ? void 0 : _d.extendObject(key + ".sn", {
-              type: "state",
-              common: {
-                name: {
-                  de: "Seriennummer",
-                  en: "Serial id"
-                },
-                type: "string",
-                desc: "Serial ID",
-                role: "value",
-                read: true,
-                write: false
-              },
-              native: {}
-            }));
-            await ((_e = this.adapter) == null ? void 0 : _e.setState(key + ".sn", x.sn, true));
-            if (x.socLevel) {
-              await ((_f = this.adapter) == null ? void 0 : _f.extendObject(key + ".socLevel", {
+            const createPackState = async (fieldName) => {
+              var _a2;
+              const def = import_allStates.allStates[fieldName];
+              if (!def) return;
+              await ((_a2 = this.adapter) == null ? void 0 : _a2.extendObject(key + "." + fieldName, {
                 type: "state",
                 common: {
-                  name: {
-                    de: "SOC der Batterie",
-                    en: "soc of battery"
-                  },
-                  type: "number",
-                  desc: "SOC Level",
-                  role: "value",
+                  name: { de: def.nameDe, en: def.nameEn },
+                  type: def.type,
+                  desc: def.title,
+                  role: def.role,
                   read: true,
                   write: false,
-                  unit: "%"
+                  unit: def.unit
                 },
                 native: {}
               }));
-              await ((_g = this.adapter) == null ? void 0 : _g.setState(key + ".socLevel", x.socLevel, true));
-            }
-            if (x.maxTemp) {
-              const maxTempCelsius = x.maxTemp / 10 - 273.15;
-              const maxTempState = await ((_h = this.adapter) == null ? void 0 : _h.getStateAsync(
-                key + ".maxTemp"
+            };
+            const touchLastUpdate = async (fieldName, newValue) => {
+              var _a2, _b2, _c2;
+              const current = await ((_a2 = this.adapter) == null ? void 0 : _a2.getStateAsync(
+                key + "." + fieldName
               ));
-              if (maxTempState && maxTempState.val && maxTempCelsius != maxTempState.val) {
-                await ((_i = this.adapter) == null ? void 0 : _i.setState(
+              if ((current == null ? void 0 : current.val) && newValue != current.val) {
+                await ((_b2 = this.adapter) == null ? void 0 : _b2.setState(
                   `${this.productKey}.${this.deviceKey}.lastUpdate`,
                   (/* @__PURE__ */ new Date()).getTime(),
                   true
                 ));
-                const currentWifiState = await this.adapter.getStateAsync(
+                const wifiState = await ((_c2 = this.adapter) == null ? void 0 : _c2.getStateAsync(
                   `${this.productKey}.${this.deviceKey}.wifiState`
-                );
-                if (currentWifiState && currentWifiState.val == "Disconnected") {
-                  this.updateSolarFlowState("wifiState", "Connected");
+                ));
+                if ((wifiState == null ? void 0 : wifiState.val) == "Disconnected") {
+                  this.updateSolarFlowState("wifiState", 1);
                 }
               }
-              await ((_j = this.adapter) == null ? void 0 : _j.extendObject(key + ".maxTemp", {
-                type: "state",
-                common: {
-                  name: {
-                    de: "Max. Temperatur der Batterie",
-                    en: "max temp. of battery"
-                  },
-                  type: "number",
-                  desc: "Max. Temp",
-                  role: "value",
-                  read: true,
-                  write: false,
-                  unit: "\xB0C"
-                },
-                native: {}
-              }));
-              await ((_k = this.adapter) == null ? void 0 : _k.setState(
-                key + ".maxTemp",
-                maxTempCelsius,
-                true
-              ));
+            };
+            const packStatesToSet = /* @__PURE__ */ new Map();
+            packStatesToSet.set("model", batType);
+            packStatesToSet.set("sn", x.sn);
+            if (x.socLevel) packStatesToSet.set("socLevel", x.socLevel);
+            if (x.maxTemp) {
+              const maxTempCelsius = x.maxTemp / 10 - 273.15;
+              await touchLastUpdate("maxTemp", maxTempCelsius);
+              packStatesToSet.set("maxTemp", maxTempCelsius);
             }
             if (x.minVol) {
               const minVol = x.minVol / 100;
-              const minVolState = await ((_l = this.adapter) == null ? void 0 : _l.getStateAsync(
-                key + ".minVol"
-              ));
-              if (minVolState && minVolState.val && minVol != minVolState.val) {
-                await ((_m = this.adapter) == null ? void 0 : _m.setState(
-                  `${this.productKey}.${this.deviceKey}.lastUpdate`,
-                  (/* @__PURE__ */ new Date()).getTime(),
-                  true
-                ));
-                const currentWifiState = await this.adapter.getStateAsync(
-                  `${this.productKey}.${this.deviceKey}.wifiState`
-                );
-                if (currentWifiState && currentWifiState.val == "Disconnected") {
-                  this.updateSolarFlowState("wifiState", "Connected");
-                }
-              }
-              await ((_n = this.adapter) == null ? void 0 : _n.extendObject(key + ".minVol", {
-                type: "state",
-                common: {
-                  name: "minVol",
-                  type: "number",
-                  desc: "minVol",
-                  role: "value",
-                  read: true,
-                  write: false,
-                  unit: "V"
-                },
-                native: {}
-              }));
-              await ((_o = this.adapter) == null ? void 0 : _o.setState(key + ".minVol", minVol, true));
+              await touchLastUpdate("minVol", minVol);
+              packStatesToSet.set("minVol", minVol);
             }
             if (x.batcur) {
-              await ((_p = this.adapter) == null ? void 0 : _p.extendObject(key + ".batcur", {
+              await ((_b = this.adapter) == null ? void 0 : _b.extendObject(key + ".batcur", {
                 type: "state",
                 common: {
                   name: "batcur",
@@ -244,132 +163,38 @@ const _ZenIobDevice = class _ZenIobDevice {
                 },
                 native: {}
               }));
-              let batcur = x.batcur;
+              let batcur = 0;
               if (x.batcur > 32767) {
                 batcur -= 65536;
               }
-              batcur = batcur / 10;
-              await ((_q = this.adapter) == null ? void 0 : _q.setState(key + ".batcur", batcur, true));
+              packStatesToSet.set("batcur", batcur / 10);
             }
             if (x.maxVol) {
               const maxVol = x.maxVol / 100;
-              const maxVolState = await ((_r = this.adapter) == null ? void 0 : _r.getStateAsync(
-                key + ".maxVol"
-              ));
-              if (maxVolState && maxVolState.val && maxVol != maxVolState.val) {
-                await ((_s = this.adapter) == null ? void 0 : _s.setState(
-                  `${this.productKey}.${this.deviceKey}.lastUpdate`,
-                  (/* @__PURE__ */ new Date()).getTime(),
-                  true
-                ));
-                const currentWifiState = await this.adapter.getStateAsync(
-                  `${this.productKey}.${this.deviceKey}.wifiState`
-                );
-                if (currentWifiState && currentWifiState.val == "Disconnected") {
-                  this.updateSolarFlowState("wifiState", "Connected");
-                }
-              }
-              await ((_t = this.adapter) == null ? void 0 : _t.extendObject(key + ".maxVol", {
-                type: "state",
-                common: {
-                  name: "maxVol",
-                  type: "number",
-                  desc: "maxVol",
-                  role: "value",
-                  read: true,
-                  write: false,
-                  unit: "V"
-                },
-                native: {}
-              }));
-              await ((_u = this.adapter) == null ? void 0 : _u.setState(key + ".maxVol", maxVol, true));
+              await touchLastUpdate("maxVol", maxVol);
+              packStatesToSet.set("maxVol", maxVol);
             }
             if (x.totalVol) {
               const totalVol = x.totalVol / 100;
-              const totalVolState = await ((_v = this.adapter) == null ? void 0 : _v.getStateAsync(
-                key + ".totalVol"
-              ));
-              if (totalVolState && totalVolState.val && totalVol != totalVolState.val) {
-                await ((_w = this.adapter) == null ? void 0 : _w.setState(
-                  `${this.productKey}.${this.deviceKey}.lastUpdate`,
-                  (/* @__PURE__ */ new Date()).getTime(),
-                  true
-                ));
-                const currentWifiState = await this.adapter.getStateAsync(
-                  `${this.productKey}.${this.deviceKey}.wifiState`
-                );
-                if (currentWifiState && currentWifiState.val == "Disconnected") {
-                  this.updateSolarFlowState("wifiState", "Connected");
-                }
-              }
-              await ((_x = this.adapter) == null ? void 0 : _x.extendObject(key + ".totalVol", {
-                type: "state",
-                common: {
-                  name: "totalVol",
-                  type: "number",
-                  desc: "totalVol",
-                  role: "value",
-                  read: true,
-                  write: false,
-                  unit: "V"
-                },
-                native: {}
-              }));
-              await ((_y = this.adapter) == null ? void 0 : _y.setState(key + ".totalVol", totalVol, true));
-              if (isSolarFlow) {
-                this.checkVoltage(totalVol);
-              }
+              await touchLastUpdate("totalVol", totalVol);
+              packStatesToSet.set("totalVol", totalVol);
+              if (isSolarFlow) this.checkVoltage(totalVol);
             }
-            if (x.soh) {
-              await ((_z = this.adapter) == null ? void 0 : _z.extendObject(key + ".soh", {
-                type: "state",
-                common: {
-                  name: {
-                    de: "Gesundheitszustand",
-                    en: "State of Health"
-                  },
-                  type: "number",
-                  desc: "State of Health",
-                  role: "value",
-                  read: true,
-                  write: false,
-                  unit: "%"
-                },
-                native: {}
-              }));
-              await ((_A = this.adapter) == null ? void 0 : _A.setState(key + ".soh", x.soh / 10, true));
-            }
-            if (x.power) {
-              await ((_B = this.adapter) == null ? void 0 : _B.extendObject(key + ".power", {
-                type: "state",
-                common: {
-                  name: {
-                    de: "Energie",
-                    en: "Power"
-                  },
-                  type: "number",
-                  desc: "Power",
-                  read: true,
-                  write: false,
-                  role: "value.power",
-                  unit: "W"
-                },
-                native: {}
-              }));
-              await ((_C = this.adapter) == null ? void 0 : _C.setState(key + ".power", x.power, true));
+            if (x.soh) packStatesToSet.set("soh", x.soh / 10);
+            if (x.power) packStatesToSet.set("power", x.power);
+            for (const [fieldName, value] of packStatesToSet) {
+              await createPackState(fieldName);
+              await ((_c = this.adapter) == null ? void 0 : _c.setState(key + "." + fieldName, value, true));
             }
             let found = false;
-            Object.entries(x).forEach(([key2, value]) => {
+            Object.entries(x).forEach(([k, value]) => {
               var _a2;
               import_mqttSharedService.knownPackDataProperties.forEach((property) => {
-                if (property == key2) {
-                  found = true;
-                }
+                if (property == k) found = true;
               });
-              if (found) {
-              } else {
+              if (!found) {
                 (_a2 = this.adapter) == null ? void 0 : _a2.log.debug(
-                  `[addOrUpdatePackData] ${key2} with value ${value} is a UNKNOWN PackData Mqtt Property!`
+                  `[addOrUpdatePackData] ${k} with value ${value} is a UNKNOWN PackData Mqtt Property!`
                 );
               }
             });
@@ -547,12 +372,12 @@ const _ZenIobDevice = class _ZenIobDevice {
         if (success) {
           this.deviceConnectionMode = import_enums.DeviceConnectionMode.zenSDK;
           this.updateSolarFlowState("connectionMode", "zenSDK");
-          this.updateSolarFlowState("wifiState", "Connected");
+          this.updateSolarFlowState("wifiState", 1);
         } else {
-          this.updateSolarFlowState("wifiState", "Disconnected");
+          this.updateSolarFlowState("wifiState", 0);
         }
       }).catch(() => {
-        this.updateSolarFlowState("wifiState", "Disconnected");
+        this.updateSolarFlowState("wifiState", 0);
         this.setupMqttConnection();
       });
     } else {
@@ -569,9 +394,9 @@ const _ZenIobDevice = class _ZenIobDevice {
   async updateSolarFlowStatesFromDeviceDetails(zenIobDeviceDetails) {
     var _a;
     if (zenIobDeviceDetails == null ? void 0 : zenIobDeviceDetails.online) {
-      this.updateSolarFlowState("wifiState", "Connected");
+      this.updateSolarFlowState("wifiState", 1);
     } else if ((zenIobDeviceDetails == null ? void 0 : zenIobDeviceDetails.online) == false) {
-      this.updateSolarFlowState("wifiState", "Disconnected");
+      this.updateSolarFlowState("wifiState", 0);
     }
     if (zenIobDeviceDetails.productModel) {
       this.updateSolarFlowState(
@@ -618,7 +443,7 @@ const _ZenIobDevice = class _ZenIobDevice {
     }
   }
   async createSolarFlowStates() {
-    var _a, _b, _c, _d, _e;
+    var _a, _b, _c, _d, _e, _f;
     const productKey = this.productKey.replace(
       this.adapter.FORBIDDEN_CHARS,
       ""
@@ -647,7 +472,24 @@ const _ZenIobDevice = class _ZenIobDevice {
       },
       native: {}
     }));
-    await ((_c = this.adapter) == null ? void 0 : _c.extendObject(`${productKey}.${deviceKey}.packData`, {
+    const lastUpdateState = import_allStates.allStates.lastUpdate;
+    await ((_c = this.adapter) == null ? void 0 : _c.extendObject(`${productKey}.${deviceKey}.lastUpdate`, {
+      type: "state",
+      common: {
+        name: {
+          de: lastUpdateState.nameDe,
+          en: lastUpdateState.nameEn
+        },
+        type: lastUpdateState.type,
+        desc: lastUpdateState.title,
+        role: lastUpdateState.role,
+        read: true,
+        write: false,
+        unit: lastUpdateState.unit
+      },
+      native: {}
+    }));
+    await ((_d = this.adapter) == null ? void 0 : _d.extendObject(`${productKey}.${deviceKey}.packData`, {
       type: "channel",
       common: {
         name: {
@@ -657,30 +499,7 @@ const _ZenIobDevice = class _ZenIobDevice {
       },
       native: {}
     }));
-    this.states.forEach(async (state) => {
-      var _a2;
-      await ((_a2 = this.adapter) == null ? void 0 : _a2.extendObject(
-        `${productKey}.${deviceKey}.${state.title}`,
-        {
-          type: "state",
-          common: {
-            name: {
-              de: state.nameDe,
-              en: state.nameEn
-            },
-            type: state.type,
-            desc: state.title,
-            role: state.role,
-            read: true,
-            write: false,
-            unit: state.unit,
-            states: state.states
-          },
-          native: {}
-        }
-      ));
-    });
-    await ((_d = this.adapter) == null ? void 0 : _d.extendObject(`${productKey}.${deviceKey}.control`, {
+    await ((_e = this.adapter) == null ? void 0 : _e.extendObject(`${productKey}.${deviceKey}.control`, {
       type: "channel",
       common: {
         name: {
@@ -691,33 +510,38 @@ const _ZenIobDevice = class _ZenIobDevice {
       native: {}
     }));
     this.controlStates.forEach(async (state) => {
-      var _a2, _b2;
-      await ((_a2 = this.adapter) == null ? void 0 : _a2.extendObject(
-        `${productKey}.${deviceKey}.control.${state.title}`,
-        {
-          type: "state",
-          common: {
-            name: {
-              de: state.nameDe,
-              en: state.nameEn
-            },
-            type: state.type,
-            desc: state.title,
-            role: state.role,
-            read: true,
-            write: true,
-            unit: state.unit,
-            states: state.states
+      var _a2, _b2, _c2, _d2;
+      const stateId = `${productKey}.${deviceKey}.control.${state.title}`;
+      await ((_a2 = this.adapter) == null ? void 0 : _a2.extendObject(stateId, {
+        type: "state",
+        common: {
+          name: {
+            de: state.nameDe,
+            en: state.nameEn
           },
-          native: {}
+          type: state.type,
+          desc: state.title,
+          role: state.role,
+          read: true,
+          write: true,
+          unit: state.unit,
+          states: state.states,
+          def: state.def
+        },
+        native: {}
+      }));
+      if (state.def !== void 0) {
+        const current = await ((_b2 = this.adapter) == null ? void 0 : _b2.getStateAsync(stateId));
+        if (!current || current.val === null || current.val === void 0) {
+          await ((_c2 = this.adapter) == null ? void 0 : _c2.setState(stateId, state.def, true));
         }
-      ));
-      (_b2 = this.adapter) == null ? void 0 : _b2.subscribeStates(
+      }
+      (_d2 = this.adapter) == null ? void 0 : _d2.subscribeStates(
         `${productKey}.${deviceKey}.control.${state.title}`
       );
     });
     if (this.adapter.config.useCalculation) {
-      await ((_e = this.adapter) == null ? void 0 : _e.extendObject(
+      await ((_f = this.adapter) == null ? void 0 : _f.extendObject(
         `${productKey}.${deviceKey}.calculations`,
         {
           type: "channel",
@@ -767,7 +591,7 @@ const _ZenIobDevice = class _ZenIobDevice {
             (/* @__PURE__ */ new Date()).getTime(),
             true
           ));
-          this.updateSolarFlowState("wifiState", "Connected");
+          this.updateSolarFlowState("wifiState", 1);
         }
         if (data.packData) {
           this.addOrUpdatePackData(data.packData, true);
@@ -787,7 +611,7 @@ const _ZenIobDevice = class _ZenIobDevice {
           this.zenSdkPausedUntil = Date.now() + _ZenIobDevice.ZEN_SDK_PAUSE_DURATION_MS;
           this.zenSdkErrorCount = 0;
         }
-        this.updateSolarFlowState("wifiState", "Disconnected");
+        this.updateSolarFlowState("wifiState", 0);
         return false;
       });
     } else {
@@ -1273,7 +1097,7 @@ const _ZenIobDevice = class _ZenIobDevice {
         `${this.productKey}.${this.deviceKey}.wifiState`
       );
       if (currentWifiState && currentWifiState.val == "Disconnected") {
-        this.updateSolarFlowState("wifiState", "Connected");
+        this.updateSolarFlowState("wifiState", 1);
       }
     }
   }
@@ -1380,20 +1204,18 @@ const _ZenIobDevice = class _ZenIobDevice {
           stateNamePower = `${this.productKey}.${this.deviceKey}.pvPower2`;
           break;
         case "pvPower3":
-          const pvPower3StateDef = this.states.find(
-            (x) => x.title == "pvPower3"
-          );
-          if (pvPower3StateDef) {
+          if (await this.adapter.getObjectAsync(
+            `${this.productKey}.${this.deviceKey}.pvPower3`
+          )) {
             stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv3EnergyTodayWh`;
             stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv3EnergyTodaykWh`;
             stateNamePower = `${this.productKey}.${this.deviceKey}.pvPower3`;
           }
           break;
         case "pvPower4":
-          const pvPower4StateDef = this.states.find(
-            (x) => x.title == "pvPower4"
-          );
-          if (pvPower4StateDef) {
+          if (await this.adapter.getObjectAsync(
+            `${this.productKey}.${this.deviceKey}.pvPower4`
+          )) {
             stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv4EnergyTodayWh`;
             stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv4EnergyTodaykWh`;
             stateNamePower = `${this.productKey}.${this.deviceKey}.pvPower4`;
@@ -1503,7 +1325,9 @@ const _ZenIobDevice = class _ZenIobDevice {
           stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv2EnergyTodaykWh`;
           break;
         case "pvPower3":
-          if (this.states.find((x) => x.title == "pvPower3")) {
+          if (await this.adapter.getObjectAsync(
+            `${this.productKey}.${this.deviceKey}.pvPower3`
+          )) {
             stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv3EnergyTodayWh`;
             stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv3EnergyTodaykWh`;
           } else {
@@ -1511,7 +1335,9 @@ const _ZenIobDevice = class _ZenIobDevice {
           }
           break;
         case "pvPower4":
-          if (this.states.find((x) => x.title == "pvPower4")) {
+          if (await this.adapter.getObjectAsync(
+            `${this.productKey}.${this.deviceKey}.pvPower4`
+          )) {
             stateNameEnergyWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv4EnergyTodayWh`;
             stateNameEnergykWh = `${this.productKey}.${this.deviceKey}.calculations.solarInputPv4EnergyTodaykWh`;
           } else {

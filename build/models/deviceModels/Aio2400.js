@@ -22,7 +22,7 @@ __export(Aio2400_exports, {
 });
 module.exports = __toCommonJS(Aio2400_exports);
 var import_aioControlStates = require("../../constants/controlStates/aioControlStates");
-var import_aioStates = require("../../constants/sensorStates/aioStates");
+var import_sharedControlStates = require("../../constants/controlStates/sharedControlStates");
 var import_ZenIobDevice = require("./ZenIobDevice");
 class Aio2400 extends import_ZenIobDevice.ZenIobDevice {
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {
@@ -38,8 +38,7 @@ class Aio2400 extends import_ZenIobDevice.ZenIobDevice {
     );
     this.maxInputLimit = 0;
     this.maxOutputLimit = 1200;
-    this.states = import_aioStates.aioStates;
-    this.controlStates = import_aioControlStates.aioControlStates;
+    this.controlStates = [...import_sharedControlStates.sharedControlStates, ...import_aioControlStates.aioControlStates];
   }
   async setDeviceAutomationInOutLimit(limit) {
     if (this.productKey && this.deviceKey) {

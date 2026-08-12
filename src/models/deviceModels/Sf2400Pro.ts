@@ -1,5 +1,5 @@
 import { solarflow2400ProControlStates } from "../../constants/controlStates/solarflow2400ProControlStates";
-import { solarflow2400ProStates } from "../../constants/sensorStates/solarflow2400ProStates";
+import { sharedControlStates } from "../../constants/controlStates/sharedControlStates";
 import { ZendureSolarflow } from "../../main";
 import { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
 import { ZenSdkIobDevice } from "./ZenSdkIobDevice";
@@ -9,8 +9,7 @@ export class Sf2400Pro extends ZenSdkIobDevice {
   maxOutputLimit = 2400;
   isZenSdkSupported = true;
 
-  states = solarflow2400ProStates;
-  controlStates = solarflow2400ProControlStates;
+  controlStates = [...sharedControlStates, ...solarflow2400ProControlStates];
 
   public constructor(
     _adapter: ZendureSolarflow,

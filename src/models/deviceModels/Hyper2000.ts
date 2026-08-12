@@ -1,5 +1,5 @@
 import { hyperControlStates } from "../../constants/controlStates/hyperControlStates";
-import { hyperStates } from "../../constants/sensorStates/hyperStates";
+import { sharedControlStates } from "../../constants/controlStates/sharedControlStates";
 import { ZendureSolarflow } from "../../main";
 import { IDeviceAutomationPayload } from "../IDeviceAutomationPayload";
 import { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
@@ -9,8 +9,7 @@ export class Hyper2000 extends ZenIobDevice {
   maxInputLimit = 1200;
   maxOutputLimit = 1200;
 
-  states = hyperStates;
-  controlStates = hyperControlStates;
+  controlStates = [...sharedControlStates, ...hyperControlStates];
 
   public constructor(
     _adapter: ZendureSolarflow,
