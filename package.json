@@ -22,7 +22,6 @@
   },
   "dependencies": {
     "@iobroker/adapter-core": "^3.4.3",
-    "@mui/styles": "^6.4.8",
     "axios": "^1.16.1",
     "mqtt": "^5.15.2",
     "node-schedule": "^2.1.1"
