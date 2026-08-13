@@ -23,8 +23,6 @@
   "localMqttSSL": "Utiliser SSL (port 8883)",
   "localMqttUrl": "URL / IP du serveur MQTT local",
   "masterSwitch": "État de l'appareil (activé/éteint)",
-  "option1": "Option 1",
-  "option2": "Option 2",
   "outputHomePower": "Puissance actuelle vers l'onduleur",
   "outputLimit": "Max. puissance autorisée à l'onduleur (W)",
   "outputPackPower": "Puissance actuelle de la batterie (W)",
@@ -53,6 +51,5 @@
   "useRestart": "Utilisez le redémarrage de l'adaptateur toutes les 3 heures pour actualiser le jeton d'accès",
   "useZenSDK": "Utilisez zenSDK (si pris en charge par l'appareil)",
   "userName": "Nom d'utilisateur",
-  "usrPwd": "Nom d'utilisateur et mot de passe",
-  "zendure-solarflow adapter settings": "Paramètres d'adaptateur pour zendure-solarflow"
+  "usrPwd": "Nom d'utilisateur et mot de passe"
 }

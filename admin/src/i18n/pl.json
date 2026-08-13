@@ -23,8 +23,6 @@
   "localMqttSSL": "Użyj protokołu SSL (port 8883)",
   "localMqttUrl": "Lokalny adres URL/IP serwera MQTT",
   "masterSwitch": "Stan urządzenia (wł./wył.)",
-  "option1": "opcja 1",
-  "option2": "Opcja 2",
   "outputHomePower": "Aktualne zasilanie falownika",
   "outputLimit": "Maks. dopuszczalna moc falownika (W)",
   "outputPackPower": "Aktualna moc z akumulatora (W)",
@@ -53,6 +51,5 @@
   "useRestart": "Użyj restartu adaptera co 3 godziny, aby odświeżyć token dostępu",
   "useZenSDK": "Użyj zenSDK (jeśli jest obsługiwane przez urządzenie)",
   "userName": "Nazwa użytkownika",
-  "usrPwd": "Nazwa użytkownika i hasło",
-  "zendure-solarflow adapter settings": "Ustawienia adaptera dla zendure-solarflow"
+  "usrPwd": "Nazwa użytkownika i hasło"
 }

@@ -23,8 +23,6 @@
   "localMqttSSL": "Utilice SSL (puerto 8883)",
   "localMqttUrl": "URL/IP del servidor MQTT local",
   "masterSwitch": "Estado del dispositivo (encendido/apagado)",
-  "option1": "Opción 1",
-  "option2": "opcion 2",
   "outputHomePower": "Potencia actual al inversor",
   "outputLimit": "Máx. potencia permitida al inversor (W)",
   "outputPackPower": "Potencia actual de la batería (W)",
@@ -53,6 +51,5 @@
   "useRestart": "Use el reinicio del adaptador cada 3 horas para actualizar el token de acceso",
   "useZenSDK": "Utilice zenSDK (si el dispositivo lo admite)",
   "userName": "Nombre de usuario",
-  "usrPwd": "Nombre de usuario y contraseña",
-  "zendure-solarflow adapter settings": "Ajustes del adaptador para zendure-solarflow"
+  "usrPwd": "Nombre de usuario y contraseña"
 }

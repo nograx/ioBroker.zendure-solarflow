@@ -23,8 +23,6 @@
   "localMqttSSL": "使用 SSL（端口 8883）",
   "localMqttUrl": "本地MQTT服务器URL/IP",
   "masterSwitch": "设备状态（开/关）",
-  "option1": "选项1",
-  "option2": "选项2",
   "outputHomePower": "逆变器当前功率",
   "outputLimit": "最大限度。逆变器允许功率（W）",
   "outputPackPower": "电池当前功率 (W)",
@@ -53,6 +51,5 @@
   "useRestart": "每3小时使用重新启动适配器来刷新访问令牌",
   "useZenSDK": "使用zenSDK（如果设备支持）",
   "userName": "用户名",
-  "usrPwd": "用户名和密码",
-  "zendure-solarflow adapter settings": "zendure-solarflow的适配器设置"
+  "usrPwd": "用户名和密码"
 }
