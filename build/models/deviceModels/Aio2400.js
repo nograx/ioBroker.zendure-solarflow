@@ -25,6 +25,9 @@ var import_aioControlStates = require("../../constants/controlStates/aioControlS
 var import_sharedControlStates = require("../../constants/controlStates/sharedControlStates");
 var import_ZenIobDevice = require("./ZenIobDevice");
 class Aio2400 extends import_ZenIobDevice.ZenIobDevice {
+  maxInputLimit = 0;
+  maxOutputLimit = 1200;
+  controlStates = [...import_sharedControlStates.sharedControlStates, ...import_aioControlStates.aioControlStates];
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {
     super(
       _adapter,
@@ -36,15 +39,10 @@ class Aio2400 extends import_ZenIobDevice.ZenIobDevice {
       // zenSDK not supported
       _zenHaDeviceDetails
     );
-    this.maxInputLimit = 0;
-    this.maxOutputLimit = 1200;
-    this.controlStates = [...import_sharedControlStates.sharedControlStates, ...import_aioControlStates.aioControlStates];
   }
   async setDeviceAutomationInOutLimit(limit) {
     if (this.productKey && this.deviceKey) {
-      this.adapter.log.debug(
-        `[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`
-      );
+      this.adapter.log.debug(`[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`);
       if (limit) {
         limit = Math.round(limit);
       } else {
@@ -52,27 +50,24 @@ class Aio2400 extends import_ZenIobDevice.ZenIobDevice {
       }
       if (this.adapter.config.useLowVoltageBlock) {
         const lowVoltageBlockState = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.lowVoltageBlock"
+          `${this.productKey}.${this.deviceKey}.control.lowVoltageBlock`
         );
         if (lowVoltageBlockState && lowVoltageBlockState.val && lowVoltageBlockState.val == true && limit > 0) {
           limit = 0;
         }
         const fullChargeNeeded = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.fullChargeNeeded"
+          `${this.productKey}.${this.deviceKey}.control.fullChargeNeeded`
         );
         if (fullChargeNeeded && fullChargeNeeded.val && fullChargeNeeded.val == true && limit > 0) {
           limit = 0;
         }
       }
       if (limit < 0) {
-        this.adapter.log.debug(
-          `[setDeviceAutomationInOutLimit] AIO 2400 can not charge by AC!`
-        );
+        this.adapter.log.debug(`[setDeviceAutomationInOutLimit] AIO 2400 can not charge by AC!`);
         return;
-      } else {
-        if (limit > this.maxOutputLimit) {
-          limit = this.maxOutputLimit;
-        }
+      }
+      if (limit > this.maxOutputLimit) {
+        limit = this.maxOutputLimit;
       }
       if (limit < 100 && limit != 90 && limit != 60 && limit != 30 && limit != 0) {
         if (limit < 100 && limit > 90) {

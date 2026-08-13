@@ -25,36 +25,25 @@ var import_solarflow800ControlStates = require("../../constants/controlStates/so
 var import_sharedControlStates = require("../../constants/controlStates/sharedControlStates");
 var import_ZenSdkIobDevice = require("./ZenSdkIobDevice");
 class Sf800 extends import_ZenSdkIobDevice.ZenSdkIobDevice {
+  maxInputLimit = 800;
+  maxOutputLimit = 800;
+  isZenSdkSupported = true;
+  controlStates = [...import_sharedControlStates.sharedControlStates, ...import_solarflow800ControlStates.solarflow800ControlStates];
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {
-    super(
-      _adapter,
-      _productKey,
-      _deviceKey,
-      _productName,
-      _deviceName,
-      _zenHaDeviceDetails
-    );
-    this.maxInputLimit = 800;
-    this.maxOutputLimit = 800;
-    this.isZenSdkSupported = true;
-    this.controlStates = [...import_sharedControlStates.sharedControlStates, ...import_solarflow800ControlStates.solarflow800ControlStates];
+    super(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails);
   }
   async setAcMode(acMode) {
     if (this.productKey && this.deviceKey) {
       if (acMode >= 0 && acMode <= 3) {
         this.updateProperty("acMode", acMode);
-        const smartMode = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.smartMode"
-        );
+        const smartMode = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.control.smartMode`);
         if (smartMode && !smartMode.val) {
           this.adapter.log.warn(
             `[setAcMode] AC mode was switched and smartMode is false - changes will be written to flash memory. In the worst case, the device may break or changes may no longer be saved!`
           );
         }
       } else {
-        this.adapter.log.error(
-          `[setAcMode] AC mode must be a value between 0 and 3!`
-        );
+        this.adapter.log.error(`[setAcMode] AC mode must be a value between 0 and 3!`);
       }
     }
   }

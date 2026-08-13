@@ -1,5 +1,5 @@
-import mqtt from "mqtt";
-import { ZendureSolarflow } from "../../main";
+import type mqtt from "mqtt";
+import type { ZendureSolarflow } from "../../main";
 import { MqttService } from "./mqttService";
 
 export class LocalMqttService extends MqttService {
@@ -14,10 +14,8 @@ export class LocalMqttService extends MqttService {
     }
 
     const opts: mqtt.IClientOptions = {
-      clientId: "ioBroker.zendure-solarflow." + this.adapter.instance,
-      rejectUnauthorized: this.adapter.config.localMqttAcceptSelfSignedSSL
-        ? false
-        : true,
+      clientId: `ioBroker.zendure-solarflow.${this.adapter.instance}`,
+      rejectUnauthorized: this.adapter.config.localMqttAcceptSelfSignedSSL ? false : true,
     };
 
     const port = this.adapter.config.localMqttSSL ? 8883 : 1883;

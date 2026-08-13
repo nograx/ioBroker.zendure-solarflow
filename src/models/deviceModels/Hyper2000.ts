@@ -1,8 +1,8 @@
 import { hyperControlStates } from "../../constants/controlStates/hyperControlStates";
 import { sharedControlStates } from "../../constants/controlStates/sharedControlStates";
-import { ZendureSolarflow } from "../../main";
-import { IDeviceAutomationPayload } from "../IDeviceAutomationPayload";
-import { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
+import type { ZendureSolarflow } from "../../main";
+import type { IDeviceAutomationPayload } from "../IDeviceAutomationPayload";
+import type { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
 import { ZenIobDevice } from "./ZenIobDevice";
 
 export class Hyper2000 extends ZenIobDevice {
@@ -30,14 +30,12 @@ export class Hyper2000 extends ZenIobDevice {
     );
   }
 
-  public async setAcMode(acMode: number): Promise<void> {
+  public setAcMode(acMode: number): void {
     if (this.productKey && this.deviceKey) {
       if (acMode >= 0 && acMode <= 3) {
         this.updateProperty("acMode", acMode);
       } else {
-        this.adapter.log.error(
-          `[setAcMode] AC mode must be a value between 0 and 3!`,
-        );
+        this.adapter.log.error(`[setAcMode] AC mode must be a value between 0 and 3!`);
       }
     }
   }
@@ -52,9 +50,7 @@ export class Hyper2000 extends ZenIobDevice {
     limit: number, // can be negative, negative will trigger charging mode
   ): Promise<void> {
     if (this.productKey && this.deviceKey) {
-      this.adapter.log.debug(
-        `[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`,
-      );
+      this.adapter.log.debug(`[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`);
 
       if (limit) {
         limit = Math.round(limit);
@@ -64,27 +60,17 @@ export class Hyper2000 extends ZenIobDevice {
 
       if (this.adapter.config.useLowVoltageBlock) {
         const lowVoltageBlockState = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.lowVoltageBlock",
+          `${this.productKey}.${this.deviceKey}.control.lowVoltageBlock`,
         );
-        if (
-          lowVoltageBlockState &&
-          lowVoltageBlockState.val &&
-          lowVoltageBlockState.val == true &&
-          limit > 0
-        ) {
+        if (lowVoltageBlockState && lowVoltageBlockState.val && lowVoltageBlockState.val == true && limit > 0) {
           limit = 0;
         }
 
         const fullChargeNeeded = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.fullChargeNeeded",
+          `${this.productKey}.${this.deviceKey}.control.fullChargeNeeded`,
         );
 
-        if (
-          fullChargeNeeded &&
-          fullChargeNeeded.val &&
-          fullChargeNeeded.val == true &&
-          limit > 0
-        ) {
+        if (fullChargeNeeded && fullChargeNeeded.val && fullChargeNeeded.val == true && limit > 0) {
           limit = 0;
         }
       }
@@ -121,10 +107,7 @@ export class Hyper2000 extends ZenIobDevice {
               chargingType: 1,
               price: 2,
               chargingPower: Math.abs(limit),
-              prices: [
-                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                1, 1, 1,
-              ],
+              prices: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
               outPower: 0,
               freq: 0,
             },

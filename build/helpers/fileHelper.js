@@ -22,49 +22,40 @@ __export(fileHelper_exports, {
 });
 module.exports = __toCommonJS(fileHelper_exports);
 class FileHelper {
+  adapter;
   constructor(_adapter) {
     this.adapter = _adapter;
   }
   readDeviceListFromFile() {
     return new Promise((resolve, reject) => {
       var _a;
-      (_a = this.adapter) == null ? void 0 : _a.readFile(
-        this.adapter.name + ".admin",
-        "deviceList.json",
-        (err, data) => {
-          var _a2;
-          if (err) {
-            (_a2 = this.adapter) == null ? void 0 : _a2.log.error(
-              `[onReady] Error reading device list from file: ${err.message}`
-            );
-            reject(err);
-          } else {
-            try {
-              resolve(JSON.parse(data));
-            } catch (parseErr) {
-              reject(parseErr);
-            }
+      (_a = this.adapter) == null ? void 0 : _a.readFile(`${this.adapter.name}.admin`, "deviceList.json", (err, data) => {
+        var _a2;
+        if (err) {
+          (_a2 = this.adapter) == null ? void 0 : _a2.log.error(`[onReady] Error reading device list from file: ${err.message}`);
+          reject(err);
+        } else {
+          try {
+            resolve(JSON.parse(data));
+          } catch (parseErr) {
+            reject(parseErr instanceof Error ? parseErr : new Error(String(parseErr)));
           }
         }
-      );
+      });
     });
   }
   writeDeviceListToFile(deviceList) {
     var _a;
     (_a = this.adapter) == null ? void 0 : _a.writeFile(
-      this.adapter.name + ".admin",
+      `${this.adapter.name}.admin`,
       "deviceList.json",
       JSON.stringify(deviceList, null, 2),
       (err) => {
         var _a2, _b;
         if (err) {
-          (_a2 = this.adapter) == null ? void 0 : _a2.log.error(
-            `[onReady] Error saving device list to file: ${err.message}`
-          );
+          (_a2 = this.adapter) == null ? void 0 : _a2.log.error(`[onReady] Error saving device list to file: ${err.message}`);
         } else {
-          (_b = this.adapter) == null ? void 0 : _b.log.debug(
-            "[onReady] Device list saved to file 'deviceList.json'"
-          );
+          (_b = this.adapter) == null ? void 0 : _b.log.debug("[onReady] Device list saved to file 'deviceList.json'");
         }
       }
     );

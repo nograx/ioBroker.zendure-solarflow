@@ -1,4 +1,4 @@
-import { IPackData } from "./IPackData";
+import type { IPackData } from "./IPackData";
 
 export interface IMqttData {
   timestamp?: number;

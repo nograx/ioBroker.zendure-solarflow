@@ -1,13 +1,8 @@
 import React from "react";
 import { StyledEngineProvider, ThemeProvider } from "@mui/material";
 
-import {
-  GenericApp,
-  type IobTheme,
-  type GenericAppProps,
-  type GenericAppState,
-  GenericAppSettings,
-} from "@iobroker/adapter-react-v5";
+import { GenericApp } from "@iobroker/adapter-react-v5";
+import type { GenericAppSettings, IobTheme, GenericAppProps, GenericAppState } from "@iobroker/adapter-react-v5";
 import Settings from "./components/settings";
 import de from "./i18n/de.json";
 import en from "./i18n/en.json";
@@ -35,8 +30,7 @@ const styles: Record<string, any> = {
     color: theme.palette.mode === "dark" ? undefined : "#FFF !important",
   }),
   indicator: (theme: IobTheme): React.CSSProperties => ({
-    backgroundColor:
-      theme.palette.mode === "dark" ? theme.palette.secondary.main : "#FFF",
+    backgroundColor: theme.palette.mode === "dark" ? theme.palette.secondary.main : "#FFF",
   }),
 };
 
@@ -89,11 +83,7 @@ export default class App extends GenericApp<GenericAppProps, AppState> {
               color: this.state.theme.palette.text.primary,
             }}
           >
-            <div
-              style={
-                this.isIFrame ? styles.tabContentIFrame : styles.tabContent
-              }
-            >
+            <div style={this.isIFrame ? styles.tabContentIFrame : styles.tabContent}>
               <Settings
                 app={this}
                 native={this.state.native}

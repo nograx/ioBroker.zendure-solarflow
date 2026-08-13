@@ -1,15 +1,11 @@
 import { scheduleJob } from "node-schedule";
-import { ZendureSolarflow } from "../main";
+import type { ZendureSolarflow } from "../main";
 
-export const startRefreshAccessTokenTimerJob = async (
-  adapter: ZendureSolarflow,
-): Promise<void> => {
+export const startRefreshAccessTokenTimerJob = (adapter: ZendureSolarflow): void => {
   // Restart adapter every 3 hours
   adapter.refreshAccessTokenInterval = adapter.setInterval(
     async () => {
-      adapter.log.info(
-        `Refresh Access Token - Adapter will restart in 20 seconds!`,
-      );
+      adapter.log.info(`Refresh Access Token - Adapter will restart in 20 seconds!`);
 
       await adapter.delay(20 * 1000);
       adapter.restart();
@@ -18,9 +14,7 @@ export const startRefreshAccessTokenTimerJob = async (
   );
 };
 
-export const startZenSdkDataRefreshJob = async (
-  adapter: ZendureSolarflow,
-): Promise<void> => {
+export const startZenSdkDataRefreshJob = (adapter: ZendureSolarflow): void => {
   adapter.zenSdkDataRefreshJob = scheduleJob("*/5 * * * * *", () => {
     adapter.zenIobDeviceList.forEach(async (device) => {
       if (device.isZenSdkSupported && adapter.config.useZenSDK) {
@@ -33,9 +27,7 @@ export const startZenSdkDataRefreshJob = async (
   });
 };
 
-export const startResetValuesJob = async (
-  adapter: ZendureSolarflow,
-): Promise<void> => {
+export const startResetValuesJob = (adapter: ZendureSolarflow): void => {
   adapter.resetValuesJob = scheduleJob("5 0 0 * * *", () => {
     // Reset Values on midnight
     adapter.zenIobDeviceList.forEach((device) => {
@@ -44,9 +36,7 @@ export const startResetValuesJob = async (
   });
 };
 
-export const startCalculationJob = async (
-  adapter: ZendureSolarflow,
-): Promise<void> => {
+export const startCalculationJob = (adapter: ZendureSolarflow): void => {
   adapter.calculationJob = scheduleJob("*/30 * * * * *", () => {
     adapter.zenIobDeviceList.forEach((device) => {
       if (device.productKey != "s3Xk4x") {
@@ -56,9 +46,7 @@ export const startCalculationJob = async (
   });
 };
 
-export const startCheckStatesAndConnectionJob = async (
-  adapter: ZendureSolarflow,
-): Promise<void> => {
+export const startCheckStatesAndConnectionJob = (adapter: ZendureSolarflow): void => {
   // Check for states that has no updates in the last 5 minutes and set them to 0
   const statesToReset: string[] = [
     "outputHomePower",
@@ -75,23 +63,17 @@ export const startCheckStatesAndConnectionJob = async (
 
   let refreshAccessTokenNeeded = false;
 
-  adapter.log.debug(
-    `[checkStatesJob] Starting check of states and connection!`,
-  );
+  adapter.log.debug(`[checkStatesJob] Starting check of states and connection!`);
 
-  adapter.checkStatesJob = scheduleJob("*/5 * * * *", async () => {
+  adapter.checkStatesJob = scheduleJob("*/5 * * * *", () => {
     adapter.zenIobDeviceList.forEach(async (device) => {
       if (refreshAccessTokenNeeded) {
         return;
       }
 
-      const lastUpdate = await adapter?.getStateAsync(
-        device.productKey + "." + device.deviceKey + ".lastUpdate",
-      );
+      const lastUpdate = await adapter?.getStateAsync(`${device.productKey}.${device.deviceKey}.lastUpdate`);
 
-      const wifiState = await adapter?.getStateAsync(
-        device.productKey + "." + device.deviceKey + ".wifiState",
-      );
+      const wifiState = await adapter?.getStateAsync(`${device.productKey}.${device.deviceKey}.wifiState`);
 
       const fiveMinutesAgo = (Date.now() / 1000 - 5 * 60) * 1000; // Five minutes ago
       const tenMinutesAgo = (Date.now() / 1000 - 10 * 60) * 1000; // Thirty minutes ago
@@ -104,9 +86,7 @@ export const startCheckStatesAndConnectionJob = async (
         adapter.config.connectionMode == "authKey"
       ) {
         adapter.log.debug(
-          `[checkStatesJob] Last update for deviceKey ${
-            device.deviceKey
-          } was at ${new Date(
+          `[checkStatesJob] Last update for deviceKey ${device.deviceKey} was at ${new Date(
             Number(lastUpdate.val),
           )}, device seems to be online - so maybe connection is broken!`,
         );
@@ -124,9 +104,7 @@ export const startCheckStatesAndConnectionJob = async (
         adapter.config.connectionMode == "local"
       ) {
         adapter.log.warn(
-          `[checkStatesJob] Last update for deviceKey ${
-            device.deviceKey
-          } was at ${new Date(
+          `[checkStatesJob] Last update for deviceKey ${device.deviceKey} was at ${new Date(
             Number(lastUpdate.val),
           )}, set Wifi state to Disconnected!`,
         );
@@ -134,37 +112,22 @@ export const startCheckStatesAndConnectionJob = async (
         device?.updateSolarFlowState("wifiState", 0);
       }
 
-      if (
-        lastUpdate &&
-        lastUpdate.val &&
-        Number(lastUpdate.val) < fiveMinutesAgo &&
-        !refreshAccessTokenNeeded
-      ) {
+      if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < fiveMinutesAgo && !refreshAccessTokenNeeded) {
         adapter.log.debug(
-          `[checkStatesJob] Last update for deviceKey ${
-            device.deviceKey
-          } was at ${new Date(
+          `[checkStatesJob] Last update for deviceKey ${device.deviceKey} was at ${new Date(
             Number(lastUpdate.val),
           )}, checking for pseudo power values!`,
         );
         // State was not updated in the last 5 minutes... set states to 0
-        await statesToReset.forEach(async (stateName: string) => {
-          const exist = await adapter.getObjectAsync(
-            `${device.productKey}.${device.deviceKey}.${stateName}`,
-          );
+        statesToReset.forEach(async (stateName: string) => {
+          const exist = await adapter.getObjectAsync(`${device.productKey}.${device.deviceKey}.${stateName}`);
 
           if (!exist) {
-            adapter.log.debug(
-              `[checkStatesJob] State ${stateName} does not exist for deviceKey ${device.deviceKey}!`,
-            );
+            adapter.log.debug(`[checkStatesJob] State ${stateName} does not exist for deviceKey ${device.deviceKey}!`);
             return;
           }
 
-          await adapter?.setState(
-            device.productKey + "." + device.deviceKey + "." + stateName,
-            0,
-            true,
-          );
+          await adapter?.setState(`${device.productKey}.${device.deviceKey}.${stateName}`, 0, true);
         });
       }
     });

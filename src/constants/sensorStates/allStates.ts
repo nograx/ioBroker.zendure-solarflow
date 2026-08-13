@@ -1,4 +1,4 @@
-import { ISolarflowState } from "../../models/ISolarflowState";
+import type { ISolarflowState } from "../../models/ISolarflowState";
 
 export const allStates: Record<string, ISolarflowState> = {
   // ===== From sharedStates =====

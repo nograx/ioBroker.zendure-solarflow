@@ -25,36 +25,25 @@ var import_ac2400ControlStates = require("../../constants/controlStates/ac2400Co
 var import_sharedControlStates = require("../../constants/controlStates/sharedControlStates");
 var import_ZenSdkIobDevice = require("./ZenSdkIobDevice");
 class Sf2400Ac extends import_ZenSdkIobDevice.ZenSdkIobDevice {
+  maxInputLimit = 2400;
+  maxOutputLimit = 2400;
+  isZenSdkSupported = true;
+  controlStates = [...import_sharedControlStates.sharedControlStates, ...import_ac2400ControlStates.ac2400ControlStates];
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {
-    super(
-      _adapter,
-      _productKey,
-      _deviceKey,
-      _productName,
-      _deviceName,
-      _zenHaDeviceDetails
-    );
-    this.maxInputLimit = 2400;
-    this.maxOutputLimit = 2400;
-    this.isZenSdkSupported = true;
-    this.controlStates = [...import_sharedControlStates.sharedControlStates, ...import_ac2400ControlStates.ac2400ControlStates];
+    super(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails);
   }
   async setAcMode(acMode) {
     if (this.productKey && this.deviceKey) {
       if (acMode >= 0 && acMode <= 3) {
         this.updateProperty("acMode", acMode);
-        const smartMode = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.smartMode"
-        );
+        const smartMode = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.control.smartMode`);
         if (smartMode && !smartMode.val) {
           this.adapter.log.warn(
             `[setAcMode] AC mode was switched and smartMode is false - changes will be written to flash memory. In the worst case, the device may break or changes may no longer be saved!`
           );
         }
       } else {
-        this.adapter.log.error(
-          `[setAcMode] AC mode must be a value between 0 and 3!`
-        );
+        this.adapter.log.error(`[setAcMode] AC mode must be a value between 0 and 3!`);
       }
     }
   }

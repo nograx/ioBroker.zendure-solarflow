@@ -70,16 +70,12 @@ const ignoredMqttKeys = /* @__PURE__ */ new Set(["0", "getAll"]);
 const ensureState = async (device, stateTitle, rawValue) => {
   var _a;
   const deviceId = `${device.productKey}.${device.deviceKey}`;
-  if ((_a = createdStateCache.get(deviceId)) == null ? void 0 : _a.has(stateTitle)) return;
+  if ((_a = createdStateCache.get(deviceId)) == null ? void 0 : _a.has(stateTitle)) {
+    return;
+  }
   const stateDef = import_allStates.allStates[stateTitle];
-  const productKey = device.productKey.replace(
-    device.adapter.FORBIDDEN_CHARS,
-    ""
-  );
-  const deviceKey = device.deviceKey.replace(
-    device.adapter.FORBIDDEN_CHARS,
-    ""
-  );
+  const productKey = device.productKey.replace(device.adapter.FORBIDDEN_CHARS, "");
+  const deviceKey = device.deviceKey.replace(device.adapter.FORBIDDEN_CHARS, "");
   let type;
   let role;
   let nameDe;
@@ -98,23 +94,20 @@ const ensureState = async (device, stateTitle, rawValue) => {
   } else {
     return;
   }
-  await device.adapter.extendObject(
-    `${productKey}.${deviceKey}.${stateTitle}`,
-    {
-      type: "state",
-      common: {
-        name: { de: nameDe, en: nameEn },
-        type,
-        desc: stateTitle,
-        role,
-        read: true,
-        write: false,
-        unit: stateDef == null ? void 0 : stateDef.unit,
-        states: stateDef == null ? void 0 : stateDef.states
-      },
-      native: {}
-    }
-  );
+  await device.adapter.extendObject(`${productKey}.${deviceKey}.${stateTitle}`, {
+    type: "state",
+    common: {
+      name: { de: nameDe, en: nameEn },
+      type,
+      desc: stateTitle,
+      role,
+      read: true,
+      write: false,
+      unit: stateDef == null ? void 0 : stateDef.unit,
+      states: stateDef == null ? void 0 : stateDef.states
+    },
+    native: {}
+  });
   if (!createdStateCache.has(deviceId)) {
     createdStateCache.set(deviceId, /* @__PURE__ */ new Set());
   }
@@ -141,16 +134,10 @@ const processDeviceProperties = async (device, properties, isSolarFlow) => {
         `${device.productKey}.${device.deviceKey}.control.fullChargeNeeded`
       );
       if ((fullChargeNeeded == null ? void 0 : fullChargeNeeded.val) == true) {
-        await device.adapter.setState(
-          `${device.productKey}.${device.deviceKey}.control.fullChargeNeeded`,
-          false,
-          true
-        );
+        await device.adapter.setState(`${device.productKey}.${device.deviceKey}.control.fullChargeNeeded`, false, true);
       }
     }
-    const minSoc = await device.adapter.getStateAsync(
-      `${device.productKey}.${device.deviceKey}.minSoc`
-    );
+    const minSoc = await device.adapter.getStateAsync(`${device.productKey}.${device.deviceKey}.minSoc`);
     if (((_b = device.adapter) == null ? void 0 : _b.config.useCalculation) && (minSoc == null ? void 0 : minSoc.val) && properties.electricLevel == Number(minSoc.val) && isSolarFlow) {
       device.setSocToZero();
     }
@@ -211,22 +198,30 @@ const processDeviceProperties = async (device, properties, isSolarFlow) => {
   if ((properties == null ? void 0 : properties.solarInputPower) != null) {
     statesToSet.set("solarInputPower", properties.solarInputPower);
   }
-  if ((properties == null ? void 0 : properties.pvPower1) != null)
+  if ((properties == null ? void 0 : properties.pvPower1) != null) {
     statesToSet.set("pvPower2", properties.pvPower1);
-  if ((properties == null ? void 0 : properties.pvPower2) != null)
+  }
+  if ((properties == null ? void 0 : properties.pvPower2) != null) {
     statesToSet.set("pvPower1", properties.pvPower2);
-  if ((properties == null ? void 0 : properties.solarPower1) != null)
+  }
+  if ((properties == null ? void 0 : properties.solarPower1) != null) {
     statesToSet.set("pvPower1", properties.solarPower1);
-  if ((properties == null ? void 0 : properties.solarPower2) != null)
+  }
+  if ((properties == null ? void 0 : properties.solarPower2) != null) {
     statesToSet.set("pvPower2", properties.solarPower2);
-  if ((properties == null ? void 0 : properties.solarPower3) != null)
+  }
+  if ((properties == null ? void 0 : properties.solarPower3) != null) {
     statesToSet.set("pvPower3", properties.solarPower3);
-  if ((properties == null ? void 0 : properties.solarPower4) != null)
+  }
+  if ((properties == null ? void 0 : properties.solarPower4) != null) {
     statesToSet.set("pvPower4", properties.solarPower4);
-  if ((properties == null ? void 0 : properties.remainOutTime) != null)
+  }
+  if ((properties == null ? void 0 : properties.remainOutTime) != null) {
     statesToSet.set("remainOutTime", properties.remainOutTime);
-  if ((properties == null ? void 0 : properties.remainInputTime) != null)
+  }
+  if ((properties == null ? void 0 : properties.remainInputTime) != null) {
     statesToSet.set("remainInputTime", properties.remainInputTime);
+  }
   if ((properties == null ? void 0 : properties.socSet) != null) {
     statesToSet.set("socSet", Number(properties.socSet) / 10);
     controlStatesToSet.set("chargeLimit", Number(properties.socSet) / 10);
@@ -239,18 +234,22 @@ const processDeviceProperties = async (device, properties, isSolarFlow) => {
     statesToSet.set("inputLimit", properties.inputLimit);
     controlStatesToSet.set("setInputLimit", properties.inputLimit);
   }
-  if ((properties == null ? void 0 : properties.gridInputPower) != null)
+  if ((properties == null ? void 0 : properties.gridInputPower) != null) {
     statesToSet.set("gridInputPower", properties.gridInputPower);
+  }
   if ((properties == null ? void 0 : properties.acMode) != null) {
     statesToSet.set("acMode", properties.acMode);
     controlStatesToSet.set("acMode", properties.acMode);
   }
-  if ((properties == null ? void 0 : properties.hyperTmp) != null)
+  if ((properties == null ? void 0 : properties.hyperTmp) != null) {
     statesToSet.set("hyperTmp", properties.hyperTmp / 10 - 273.15);
-  if ((properties == null ? void 0 : properties.acOutputPower) != null)
+  }
+  if ((properties == null ? void 0 : properties.acOutputPower) != null) {
     statesToSet.set("acOutputPower", properties.acOutputPower);
-  if ((properties == null ? void 0 : properties.gridPower) != null)
+  }
+  if ((properties == null ? void 0 : properties.gridPower) != null) {
     statesToSet.set("gridInputPower", properties.gridPower);
+  }
   if ((properties == null ? void 0 : properties.acSwitch) != null) {
     const value = properties.acSwitch == 0 ? false : true;
     statesToSet.set("acSwitch", value);
@@ -261,27 +260,31 @@ const processDeviceProperties = async (device, properties, isSolarFlow) => {
     statesToSet.set("dcSwitch", value);
     controlStatesToSet.set("dcSwitch", value);
   }
-  if ((properties == null ? void 0 : properties.dcOutputPower) != null)
+  if ((properties == null ? void 0 : properties.dcOutputPower) != null) {
     statesToSet.set("dcOutputPower", properties.dcOutputPower);
+  }
   if ((properties == null ? void 0 : properties.pvBrand) != null) {
     statesToSet.set(
       "pvBrand",
       properties.pvBrand == 0 ? "Others" : properties.pvBrand == 1 ? "Hoymiles" : properties.pvBrand == 2 ? "Enphase" : properties.pvBrand == 3 ? "APSystems" : properties.pvBrand == 4 ? "Anker" : properties.pvBrand == 5 ? "Deye" : properties.pvBrand == 6 ? "Bosswerk" : "Unknown"
     );
   }
-  if ((properties == null ? void 0 : properties.inverseMaxPower) != null)
+  if ((properties == null ? void 0 : properties.inverseMaxPower) != null) {
     statesToSet.set("inverseMaxPower", properties.inverseMaxPower);
+  }
   if ((properties == null ? void 0 : properties.wifiState) != null) {
     statesToSet.set("wifiState", properties.wifiState);
   }
-  if ((properties == null ? void 0 : properties.packNum) != null)
+  if ((properties == null ? void 0 : properties.packNum) != null) {
     statesToSet.set("packNum", properties.packNum);
+  }
   if ((properties == null ? void 0 : properties.hubState) != null) {
     statesToSet.set("hubState", properties.hubState);
     controlStatesToSet.set("hubState", properties.hubState);
   }
-  if ((properties == null ? void 0 : properties.batteryElectric) != null)
+  if ((properties == null ? void 0 : properties.batteryElectric) != null) {
     statesToSet.set("batteryElectric", properties.batteryElectric);
+  }
   if ((properties == null ? void 0 : properties.packData) != null) {
     await device.addOrUpdatePackData(properties.packData, isSolarFlow);
   }
@@ -289,15 +292,11 @@ const processDeviceProperties = async (device, properties, isSolarFlow) => {
     let outputPower = (_c = statesToSet.get("outputPackPower")) != null ? _c : 0;
     let inputPower = (_d = statesToSet.get("packInputPower")) != null ? _d : 0;
     if (!statesToSet.has("outputPackPower")) {
-      const s = await device.adapter.getStateAsync(
-        `${device.productKey}.${device.deviceKey}.outputPackPower`
-      );
+      const s = await device.adapter.getStateAsync(`${device.productKey}.${device.deviceKey}.outputPackPower`);
       outputPower = (s == null ? void 0 : s.val) || 0;
     }
     if (!statesToSet.has("packInputPower")) {
-      const s = await device.adapter.getStateAsync(
-        `${device.productKey}.${device.deviceKey}.packInputPower`
-      );
+      const s = await device.adapter.getStateAsync(`${device.productKey}.${device.deviceKey}.packInputPower`);
       inputPower = (s == null ? void 0 : s.val) || 0;
     }
     statesToSet.set("packPower", outputPower - inputPower);
@@ -310,8 +309,12 @@ const processDeviceProperties = async (device, properties, isSolarFlow) => {
     device.updateSolarFlowControlState(key, value);
   }
   for (const [key, value] of Object.entries(properties)) {
-    if (handledMqttKeys.has(key) || ignoredMqttKeys.has(key)) continue;
-    if (value == null || typeof value === "object") continue;
+    if (handledMqttKeys.has(key) || ignoredMqttKeys.has(key)) {
+      continue;
+    }
+    if (value == null || typeof value === "object") {
+      continue;
+    }
     const rawValue = value;
     await ensureState(device, key, rawValue);
     device.updateSolarFlowState(key, rawValue);

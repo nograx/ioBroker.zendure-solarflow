@@ -35,10 +35,7 @@ var import_axios = __toESM(require("axios"));
 var import_constants = require("../constants/sensorStates/constants");
 var crypto = __toESM(require("node:crypto"));
 const zenLogin = async (adapter) => {
-  const decodedAuthCloudKey = Buffer.from(
-    adapter.config.authorizationCloudKey,
-    "base64"
-  ).toString("utf-8");
+  const decodedAuthCloudKey = Buffer.from(adapter.config.authorizationCloudKey, "base64").toString("utf-8");
   const lastDot = decodedAuthCloudKey.lastIndexOf(".");
   if (lastDot === -1) {
   }
@@ -73,27 +70,18 @@ const zenLogin = async (adapter) => {
   return import_axios.default.post(`${apiUrl}/api/ha/deviceList`, JSON.stringify(body), config).then(async function(response) {
     const data = await response.data;
     if (data == null ? void 0 : data.data) {
-      adapter.log.debug(
-        `[zenLogin] deviceList Response: ${JSON.stringify(data, null, 2)}`
-      );
+      adapter.log.debug(`[zenLogin] deviceList Response: ${JSON.stringify(data, null, 2)}`);
       return data.data;
-    } else {
-      adapter.log.error(`[zenLogin] deviceList response is empty!`);
-      return null;
     }
-  }).catch(async function(error) {
+    adapter.log.error(`[zenLogin] deviceList response is empty!`);
+    return null;
+  }).catch(function(error) {
     if (error.response) {
-      adapter.log.error(
-        `[zenLogin] Response data: ${JSON.stringify(error.response.data, null, 2)}`
-      );
+      adapter.log.error(`[zenLogin] Response data: ${JSON.stringify(error.response.data, null, 2)}`);
       adapter.log.error(`[zenLogin] status: ${error.response.status}`);
-      adapter.log.error(
-        `[zenLogin] headers: ${JSON.stringify(error.response.headers, null, 2)}`
-      );
+      adapter.log.error(`[zenLogin] headers: ${JSON.stringify(error.response.headers, null, 2)}`);
     } else if (error.request) {
-      adapter.log.error(
-        `[zenLogin] Request data: ${JSON.stringify(error.request, null, 2)}`
-      );
+      adapter.log.error(`[zenLogin] Request data: ${JSON.stringify(error.request, null, 2)}`);
     } else {
       adapter.log.error(`[zenLogin] Error: ${error.message}`);
     }

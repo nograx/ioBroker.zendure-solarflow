@@ -1,11 +1,6 @@
-import { ZendureSolarflow } from "../main";
+import type { ZendureSolarflow } from "../main";
 
-
-export const deleteCalculationStates = async (
-  adapter: ZendureSolarflow,
-  productKey: string,
-  deviceKey: string,
-): Promise<void> => {
+export const deleteCalculationStates = (adapter: ZendureSolarflow, productKey: string, deviceKey: string): void => {
   const stateNames = [
     "energyWhMax",
     "energyWh",
@@ -23,7 +18,7 @@ export const deleteCalculationStates = async (
   ];
 
   stateNames.forEach(async (stateName) => {
-    const key = productKey + "." + deviceKey + ".calculations." + stateName;
+    const key = `${productKey}.${deviceKey}.calculations.${stateName}`;
     if (await adapter.objectExists(key)) {
       await adapter?.deleteStateAsync(key);
     }

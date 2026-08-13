@@ -35,6 +35,8 @@ var import_mqtt = __toESM(require("mqtt"));
 var import_mqttSharedService = require("./mqttSharedService");
 var import_jobSchedule = require("../jobSchedule");
 class MqttService {
+  adapter;
+  mqttClient;
   constructor(adapter) {
     this.adapter = adapter;
     (0, import_mqttSharedService.initAdapter)(adapter);
@@ -42,6 +44,10 @@ class MqttService {
   /**
    * Helper used by subclasses to wire up a client once options and URL are known.
    * Returns true when the client was successfully created and listeners attached.
+   *
+   * @param opts
+   * @param url
+   * @param isLocal
    */
   connectWithOptions(opts, url, isLocal) {
     if (!import_mqtt.default) {

@@ -25,6 +25,9 @@ var import_aceControlStates = require("../../constants/controlStates/aceControlS
 var import_sharedControlStates = require("../../constants/controlStates/sharedControlStates");
 var import_ZenIobDevice = require("./ZenIobDevice");
 class Ace1500 extends import_ZenIobDevice.ZenIobDevice {
+  maxInputLimit = 900;
+  maxOutputLimit = 900;
+  controlStates = [...import_sharedControlStates.sharedControlStates, ...import_aceControlStates.aceControlStates];
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {
     super(
       _adapter,
@@ -36,9 +39,6 @@ class Ace1500 extends import_ZenIobDevice.ZenIobDevice {
       // zenSDK not supported
       _zenHaDeviceDetails
     );
-    this.maxInputLimit = 900;
-    this.maxOutputLimit = 900;
-    this.controlStates = [...import_sharedControlStates.sharedControlStates, ...import_aceControlStates.aceControlStates];
   }
   setDcSwitch(dcSwitch) {
     if (this.productKey && this.deviceKey) {
@@ -50,20 +50,16 @@ class Ace1500 extends import_ZenIobDevice.ZenIobDevice {
       this.updateProperty("acSwitch", acSwitch ? 1 : 0);
     }
   }
-  async setDeviceAutomationInOutLimit(limit) {
+  setDeviceAutomationInOutLimit(limit) {
     if (this.productKey && this.deviceKey) {
-      this.adapter.log.debug(
-        `[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`
-      );
+      this.adapter.log.debug(`[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`);
       if (limit) {
         limit = Math.round(limit);
       } else {
         limit = 0;
       }
       if (limit > 0) {
-        this.adapter.log.error(
-          `[setDeviceAutomationInOutLimit] ACE 1500 can not feed in!`
-        );
+        this.adapter.log.error(`[setDeviceAutomationInOutLimit] ACE 1500 can not feed in!`);
       }
       if (limit < 0 && limit < -this.maxInputLimit) {
         this.adapter.log.debug(

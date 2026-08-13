@@ -44,22 +44,22 @@ class ZendureSolarflow extends utils.Adapter {
       ...options,
       name: "zendure-solarflow"
     });
-    this.zenIobDeviceList = [];
-    // All found devices for this instance will be in this array
-    this.mqttSettings = void 0;
-    this.lastLogin = void 0;
-    this.localMqttService = void 0;
-    this.cloudMqttService = void 0;
-    this.resetValuesJob = void 0;
-    this.checkStatesJob = void 0;
-    this.calculationJob = void 0;
-    this.zenSdkDataRefreshJob = void 0;
-    this.refreshAccessTokenInterval = void 0;
-    this.retryTimeout = void 0;
     this.on("ready", this.onReady.bind(this));
     this.on("stateChange", this.onStateChange.bind(this));
     this.on("unload", this.onUnload.bind(this));
   }
+  zenIobDeviceList = [];
+  // All found devices for this instance will be in this array
+  mqttSettings = void 0;
+  lastLogin = void 0;
+  localMqttService = void 0;
+  cloudMqttService = void 0;
+  resetValuesJob = void 0;
+  checkStatesJob = void 0;
+  calculationJob = void 0;
+  zenSdkDataRefreshJob = void 0;
+  refreshAccessTokenInterval = void 0;
+  retryTimeout = void 0;
   /**
    * Is called when databases are connected and adapter received configuration.
    */
@@ -104,12 +104,10 @@ class ZendureSolarflow extends utils.Adapter {
     this.setState("info.errorMessage", "", true);
     this.setState("info.connection", false, true);
     switch (this.config.connectionMode) {
-      case "authKey":
+      case "authKey": {
         this.log.debug("[onReady] Using Authorization Cloud Key");
         if (!this.config.authorizationCloudKey) {
-          this.log.error(
-            "[zenWebService.login] authorization cloud key is missing!"
-          );
+          this.log.error("[zenWebService.login] authorization cloud key is missing!");
           break;
         }
         const fileHelper = new import_fileHelper.FileHelper(this);
@@ -150,21 +148,14 @@ class ZendureSolarflow extends utils.Adapter {
           if (this.config.useAddionalLocalMqtt) {
             this.localMqttService = new import_localMqttService.LocalMqttService(this);
             if (!this.localMqttService.connect()) {
-              this.log.error(
-                "[onReady] Could not connect to MQTT local server!"
-              );
+              this.log.error("[onReady] Could not connect to MQTT local server!");
             }
           }
         }
         if (deviceList) {
           this.log.debug(`[onReady] Creating ${deviceList.length} devices...`);
-          await deviceList.forEach(async (device) => {
-            const deviceModel = (0, import_helpers.createDeviceModel)(
-              this,
-              device.productKey,
-              device.deviceKey,
-              device
-            );
+          deviceList.forEach((device) => {
+            const deviceModel = (0, import_helpers.createDeviceModel)(this, device.productKey, device.deviceKey, device);
             if (deviceModel) {
               this.zenIobDeviceList.push(deviceModel);
             } else {
@@ -178,6 +169,7 @@ class ZendureSolarflow extends utils.Adapter {
           }
         }
         break;
+      }
       case "local": {
         this.log.debug("[onReady] Using local MQTT server");
         this.localMqttService = new import_localMqttService.LocalMqttService(this);
@@ -237,6 +229,8 @@ class ZendureSolarflow extends utils.Adapter {
   }
   /**
    * Is called when adapter shuts down - callback has to be called under any circumstances!
+   *
+   * @param callback
    */
   async onUnload(callback) {
     var _a, _b, _c, _d, _e;
@@ -249,18 +243,14 @@ class ZendureSolarflow extends utils.Adapter {
         this.log.info("[onUnload] MQTT cloud client stopped!");
         this.cloudMqttService = void 0;
       } catch (ex) {
-        this.log.error(
-          "[onUnload] Error stopping MQTT cloud client: !" + ex.message
-        );
+        this.log.error(`[onUnload] Error stopping MQTT cloud client: !${ex.message}`);
       }
       try {
         await ((_d = (_c = this.localMqttService) == null ? void 0 : _c.mqttClient) == null ? void 0 : _d.endAsync());
         this.log.info("[onUnload] MQTT local client stopped!");
         this.localMqttService = void 0;
       } catch (ex) {
-        this.log.error(
-          "[onUnload] Error stopping MQTT local client: !" + ex.message
-        );
+        this.log.error(`[onUnload] Error stopping MQTT local client: !${ex.message}`);
       }
       this.setState("info.connection", false, true);
       if (this.resetValuesJob) {
@@ -289,6 +279,9 @@ class ZendureSolarflow extends utils.Adapter {
   }
   /**
    * Is called if a subscribed state changes
+   *
+   * @param id
+   * @param state
    */
   onStateChange(id, state) {
     if (state) {
@@ -297,13 +290,9 @@ class ZendureSolarflow extends utils.Adapter {
       const deviceKey = splitted[3];
       const stateName1 = splitted[4];
       const stateName2 = splitted[5];
-      const _device = this.zenIobDeviceList.find(
-        (x) => x.productKey == productKey && x.deviceKey == deviceKey
-      );
+      const _device = this.zenIobDeviceList.find((x) => x.productKey == productKey && x.deviceKey == deviceKey);
       if (!_device) {
-        this.log.error(
-          `[onStateChange] Device '${deviceKey}' not found in zenHaDeviceList!`
-        );
+        this.log.error(`[onStateChange] Device '${deviceKey}' not found in zenHaDeviceList!`);
         return;
       }
       if (state.val != void 0 && state.val != null && !state.ack) {

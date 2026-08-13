@@ -1,5 +1,5 @@
-import mqtt from "mqtt";
-import { ZendureSolarflow } from "../../main";
+import type mqtt from "mqtt";
+import type { ZendureSolarflow } from "../../main";
 import { MqttService } from "./mqttService";
 
 /**
@@ -17,9 +17,7 @@ export class CloudMqttService extends MqttService {
     }
 
     if (!this.adapter.mqttSettings.url) {
-      this.adapter.log.error(
-        "[CloudMqttService] MQTT URL is missing in mqttSettings!",
-      );
+      this.adapter.log.error("[CloudMqttService] MQTT URL is missing in mqttSettings!");
       return false;
     }
 

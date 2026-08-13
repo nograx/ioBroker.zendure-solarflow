@@ -1,8 +1,8 @@
-import mqtt from "mqtt";
+import type mqtt from "mqtt";
 import { processDeviceProperties } from "../../helpers/processDeviceProperties";
-import { ZendureSolarflow } from "../../main";
+import type { ZendureSolarflow } from "../../main";
 
-import { IMqttData } from "../../models/ISolarFlowMqttProperties";
+import type { IMqttData } from "../../models/ISolarFlowMqttProperties";
 
 export let adapter: ZendureSolarflow | undefined = undefined;
 
@@ -26,20 +26,12 @@ export const initAdapter = (_adapter: ZendureSolarflow): boolean => {
   return true;
 };
 
-export const onMessage = async (
-  productKey: string,
-  deviceKey: string,
-  obj: IMqttData,
-): Promise<void> => {
+export const onMessage = async (productKey: string, deviceKey: string, obj: IMqttData): Promise<void> => {
   if (adapter) {
-    const _device = adapter?.zenIobDeviceList.find(
-      (x) => x.deviceKey == deviceKey,
-    );
+    const _device = adapter?.zenIobDeviceList.find((x) => x.deviceKey == deviceKey);
 
     if (!_device) {
-      adapter.log.error(
-        `[onMessage] DeviceKey '${deviceKey} not found in device list!'}`,
-      );
+      adapter.log.error(`[onMessage] DeviceKey '${deviceKey} not found in device list!'}`);
     }
 
     let isSolarFlow = false;
@@ -61,26 +53,14 @@ export const onMessage = async (
 
     // Check if message is an ack for device automation and update state accordingly
     if (obj.function && obj.success != null && obj.success != undefined) {
-      if (
-        (obj.function == "deviceAutomation" || obj.function == "hemsEP") &&
-        obj.success == 1
-      ) {
+      if ((obj.function == "deviceAutomation" || obj.function == "hemsEP") && obj.success == 1) {
         // setDeviceAutomationInOutLimit ack = true setzen;
         const currentValue = await adapter.getStateAsync(
-          productKey +
-            "." +
-            deviceKey +
-            ".control.setDeviceAutomationInOutLimit",
+          `${productKey}.${deviceKey}.control.setDeviceAutomationInOutLimit`,
         );
 
-        _device?.updateSolarFlowControlState(
-          "setDeviceAutomationInOutLimit",
-          currentValue?.val ? currentValue.val : 0,
-        );
-      } else if (
-        (obj.function == "deviceAutomation" || obj.function == "hemsEP") &&
-        obj.success == 0
-      ) {
+        _device?.updateSolarFlowControlState("setDeviceAutomationInOutLimit", currentValue?.val ? currentValue.val : 0);
+      } else if ((obj.function == "deviceAutomation" || obj.function == "hemsEP") && obj.success == 0) {
         adapter?.log.warn(
           `[onMessage] device automation failed for ${_device?.productName}: ${productKey}/${deviceKey}!`,
         );
@@ -89,10 +69,7 @@ export const onMessage = async (
   }
 };
 
-export const onMessageLocal = async (
-  topic: string,
-  message: Buffer,
-): Promise<void> => {
+export const onMessageLocal = (topic: string, message: Buffer): void => {
   const topicSplitted = topic.replace("/server/app", "").split("/");
   const productKey = topicSplitted[1];
   const deviceKey = topicSplitted[2];
@@ -108,21 +85,14 @@ export const onMessageLocal = async (
   }
 
   if (adapter?.log.level == "debug") {
-    adapter?.log.debug(
-      `[onMessageLocal] MQTT message on topic '${topic}': ${message.toString()}`,
-    );
+    adapter?.log.debug(`[onMessageLocal] MQTT message on topic '${topic}': ${message.toString()}`);
   }
 
   onMessage(productKey, deviceKey, obj);
 
   // Relay message to cloud
-  if (
-    adapter?.config.relayMqttToCloud &&
-    adapter?.cloudMqttService?.mqttClient
-  ) {
-    adapter?.log.debug(
-      `[onMessageLocal] Relay local message to Zendure cloud MQTT!`,
-    );
+  if (adapter?.config.relayMqttToCloud && adapter?.cloudMqttService?.mqttClient) {
+    adapter?.log.debug(`[onMessageLocal] Relay local message to Zendure cloud MQTT!`);
 
     // Set flag to avoid loops, because the cloud will relay the message back to local and we don't want to process it twice
     obj.isHA = true;
@@ -134,10 +104,7 @@ export const onMessageLocal = async (
   }
 };
 
-export const onMessageCloud = async (
-  topic: string,
-  message: Buffer,
-): Promise<void> => {
+export const onMessageCloud = (topic: string, message: Buffer): void => {
   if (topic.toLowerCase().includes("loginOut/force")) {
     // TODO: Ausloggen???
   }
@@ -162,9 +129,7 @@ export const onMessageCloud = async (
   }
 
   if (adapter?.log.level == "debug") {
-    adapter?.log.debug(
-      `[onMessageCloud] MQTT message on topic '${topic}': ${message.toString()}`,
-    );
+    adapter?.log.debug(`[onMessageCloud] MQTT message on topic '${topic}': ${message.toString()}`);
   }
 
   onMessage(productKey, deviceKey, obj);
@@ -184,9 +149,7 @@ export const onConnected = (url: string, opts: mqtt.IClientOptions): void => {
   if (adapter) {
     adapter.lastLogin = new Date();
     adapter.setState("info.connection", true, true);
-    adapter.log.info(
-      `[onConnected] Connected with MQTT! URL: ${url}, Client ID: ${opts.clientId}`,
-    );
+    adapter.log.info(`[onConnected] Connected with MQTT! URL: ${url}, Client ID: ${opts.clientId}`);
   }
 };
 
@@ -209,35 +172,25 @@ export const onDisconnected = (url: string): void => {
 export const onError = (error: any, url: string): void => {
   if (adapter) {
     adapter.setState("info.connection", false, true);
-    adapter.log.error(
-      `[onError] Connection to MQTT failed! URL: ${url}, Error: ${error}`,
-    );
+    adapter.log.error(`[onError] Connection to MQTT failed! URL: ${url}, Error: ${error}`);
   }
 };
 
 export const onSubscribeReportTopic: any = (error: Error | null) => {
   if (error) {
-    adapter?.log.error("Subscription to MQTT failed! Error: " + error);
+    adapter?.log.error(`Subscription to MQTT failed! Error: ${error}`);
   } else {
     adapter?.log.debug("Subscription of Report Topic successful!");
   }
 };
 
-export const onSubscribeIotTopic: any = (
-  error: Error | null,
-  productKey: string,
-  deviceKey: string,
-) => {
+export const onSubscribeIotTopic: any = (error: Error | null, productKey: string, deviceKey: string) => {
   if (error) {
-    adapter?.log.error("Subscription to MQTT failed! Error: " + error);
+    adapter?.log.error(`Subscription to MQTT failed! Error: ${error}`);
   } else if (adapter) {
-    adapter?.log.debug(
-      `Subscription of IOT Topic successful! ProductKey: ${productKey}, DeviceKey: ${deviceKey}`,
-    );
+    adapter?.log.debug(`Subscription of IOT Topic successful! ProductKey: ${productKey}, DeviceKey: ${deviceKey}`);
 
-    const _device = adapter.zenIobDeviceList.find(
-      (x) => x.productKey == productKey && x.deviceKey == deviceKey,
-    );
+    const _device = adapter.zenIobDeviceList.find((x) => x.productKey == productKey && x.deviceKey == deviceKey);
 
     if (_device) {
       const randomDelay = Math.floor(Math.random() * 10) + 3;

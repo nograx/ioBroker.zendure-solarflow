@@ -1,7 +1,7 @@
 import { DeviceConnectionMode } from "../../helpers/enums";
-import { ZendureSolarflow } from "../../main";
-import { IHemsEpPayload } from "../IDeviceAutomationPayload";
-import { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
+import type { ZendureSolarflow } from "../../main";
+import type { IHemsEpPayload } from "../IDeviceAutomationPayload";
+import type { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
 import { ZenIobDevice } from "./ZenIobDevice";
 
 /**
@@ -32,9 +32,7 @@ export abstract class ZenSdkIobDevice extends ZenIobDevice {
     limit: number, // can be negative, negative will trigger charging mode
   ): Promise<void> {
     if (this.productKey && this.deviceKey) {
-      this.adapter.log.debug(
-        `[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`,
-      );
+      this.adapter.log.debug(`[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`);
 
       if (limit) {
         limit = Math.round(limit);
@@ -44,27 +42,17 @@ export abstract class ZenSdkIobDevice extends ZenIobDevice {
 
       if (this.adapter.config.useLowVoltageBlock) {
         const lowVoltageBlockState = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.lowVoltageBlock",
+          `${this.productKey}.${this.deviceKey}.control.lowVoltageBlock`,
         );
-        if (
-          lowVoltageBlockState &&
-          lowVoltageBlockState.val &&
-          lowVoltageBlockState.val == true &&
-          limit > 0
-        ) {
+        if (lowVoltageBlockState && lowVoltageBlockState.val && lowVoltageBlockState.val == true && limit > 0) {
           limit = 0;
         }
 
         const fullChargeNeeded = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".control.fullChargeNeeded",
+          `${this.productKey}.${this.deviceKey}.control.fullChargeNeeded`,
         );
 
-        if (
-          fullChargeNeeded &&
-          fullChargeNeeded.val &&
-          fullChargeNeeded.val == true &&
-          limit > 0
-        ) {
+        if (fullChargeNeeded && fullChargeNeeded.val && fullChargeNeeded.val == true && limit > 0) {
           limit = 0;
         }
       }
@@ -87,18 +75,10 @@ export abstract class ZenSdkIobDevice extends ZenIobDevice {
           `[setDeviceAutomationInOutLimit] Using zenSDK to set input/outputlimit in combination with acMode and smartMode!`,
         );
 
-        const currentSmartMode = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".smartMode",
-        );
-        const currentAcMode = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".acMode",
-        );
-        const currentInputLimit = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".inputLimit",
-        );
-        const currentOutputLimit = await this.adapter.getStateAsync(
-          this.productKey + "." + this.deviceKey + ".outputLimit",
-        );
+        const currentSmartMode = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.smartMode`);
+        const currentAcMode = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.acMode`);
+        const currentInputLimit = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.inputLimit`);
+        const currentOutputLimit = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.outputLimit`);
 
         const results: boolean[] = [];
 
@@ -117,9 +97,7 @@ export abstract class ZenSdkIobDevice extends ZenIobDevice {
           }
 
           if (currentInputLimit && currentInputLimit.val != Math.abs(limit)) {
-            results.push(
-              await this.updateProperty("inputLimit", Math.abs(limit)),
-            );
+            results.push(await this.updateProperty("inputLimit", Math.abs(limit)));
           }
         } else if (limit > 0) {
           // Discharging mode
@@ -165,10 +143,7 @@ export abstract class ZenSdkIobDevice extends ZenIobDevice {
         const success = results.every((result) => result === true);
 
         if (success) {
-          this?.updateSolarFlowControlState(
-            "setDeviceAutomationInOutLimit",
-            limit,
-          );
+          this?.updateSolarFlowControlState("setDeviceAutomationInOutLimit", limit);
         }
       } else {
         // Device Automation for HEMS devices

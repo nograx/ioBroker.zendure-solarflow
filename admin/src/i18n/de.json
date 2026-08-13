@@ -51,6 +51,5 @@
   "useRestart": "Neustart des Adapters alle 3 Stunden verwenden um die Verbindung zu erneuern",
   "useZenSDK": "zenSDK verwenden (sofern vom Gerät unterstützt)",
   "userName": "E-Mail Addresse",
-  "usrPwd": "Benutzername & Kennwort",
-  "zendure-solarflow adapter settings": "Adaptereinstelungen für Zendure Solarflow"
+  "usrPwd": "Benutzername & Kennwort"
 }

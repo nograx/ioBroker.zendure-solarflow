@@ -52,13 +52,9 @@ const initAdapter = (_adapter) => {
 };
 const onMessage = async (productKey, deviceKey, obj) => {
   if (adapter) {
-    const _device = adapter == null ? void 0 : adapter.zenIobDeviceList.find(
-      (x) => x.deviceKey == deviceKey
-    );
+    const _device = adapter == null ? void 0 : adapter.zenIobDeviceList.find((x) => x.deviceKey == deviceKey);
     if (!_device) {
-      adapter.log.error(
-        `[onMessage] DeviceKey '${deviceKey} not found in device list!'}`
-      );
+      adapter.log.error(`[onMessage] DeviceKey '${deviceKey} not found in device list!'}`);
     }
     let isSolarFlow = false;
     if ((_device == null ? void 0 : _device.productKey) != "8bM93H") {
@@ -73,12 +69,9 @@ const onMessage = async (productKey, deviceKey, obj) => {
     if (obj.function && obj.success != null && obj.success != void 0) {
       if ((obj.function == "deviceAutomation" || obj.function == "hemsEP") && obj.success == 1) {
         const currentValue = await adapter.getStateAsync(
-          productKey + "." + deviceKey + ".control.setDeviceAutomationInOutLimit"
+          `${productKey}.${deviceKey}.control.setDeviceAutomationInOutLimit`
         );
-        _device == null ? void 0 : _device.updateSolarFlowControlState(
-          "setDeviceAutomationInOutLimit",
-          (currentValue == null ? void 0 : currentValue.val) ? currentValue.val : 0
-        );
+        _device == null ? void 0 : _device.updateSolarFlowControlState("setDeviceAutomationInOutLimit", (currentValue == null ? void 0 : currentValue.val) ? currentValue.val : 0);
       } else if ((obj.function == "deviceAutomation" || obj.function == "hemsEP") && obj.success == 0) {
         adapter == null ? void 0 : adapter.log.warn(
           `[onMessage] device automation failed for ${_device == null ? void 0 : _device.productName}: ${productKey}/${deviceKey}!`
@@ -87,7 +80,7 @@ const onMessage = async (productKey, deviceKey, obj) => {
     }
   }
 };
-const onMessageLocal = async (topic, message) => {
+const onMessageLocal = (topic, message) => {
   var _a;
   const topicSplitted = topic.replace("/server/app", "").split("/");
   const productKey = topicSplitted[1];
@@ -101,15 +94,11 @@ const onMessageLocal = async (topic, message) => {
     adapter == null ? void 0 : adapter.log.debug(`[onMessageLocal] JSON Parse error: ${txt}!`);
   }
   if ((adapter == null ? void 0 : adapter.log.level) == "debug") {
-    adapter == null ? void 0 : adapter.log.debug(
-      `[onMessageLocal] MQTT message on topic '${topic}': ${message.toString()}`
-    );
+    adapter == null ? void 0 : adapter.log.debug(`[onMessageLocal] MQTT message on topic '${topic}': ${message.toString()}`);
   }
   onMessage(productKey, deviceKey, obj);
   if ((adapter == null ? void 0 : adapter.config.relayMqttToCloud) && ((_a = adapter == null ? void 0 : adapter.cloudMqttService) == null ? void 0 : _a.mqttClient)) {
-    adapter == null ? void 0 : adapter.log.debug(
-      `[onMessageLocal] Relay local message to Zendure cloud MQTT!`
-    );
+    adapter == null ? void 0 : adapter.log.debug(`[onMessageLocal] Relay local message to Zendure cloud MQTT!`);
     obj.isHA = true;
     adapter.cloudMqttService.mqttClient.publish(
       topic,
@@ -117,7 +106,7 @@ const onMessageLocal = async (topic, message) => {
     );
   }
 };
-const onMessageCloud = async (topic, message) => {
+const onMessageCloud = (topic, message) => {
   var _a;
   if (topic.toLowerCase().includes("loginOut/force")) {
   }
@@ -136,9 +125,7 @@ const onMessageCloud = async (topic, message) => {
     adapter == null ? void 0 : adapter.log.debug(`[onMessageCloud] JSON Parse error: ${txt}!`);
   }
   if ((adapter == null ? void 0 : adapter.log.level) == "debug") {
-    adapter == null ? void 0 : adapter.log.debug(
-      `[onMessageCloud] MQTT message on topic '${topic}': ${message.toString()}`
-    );
+    adapter == null ? void 0 : adapter.log.debug(`[onMessageCloud] MQTT message on topic '${topic}': ${message.toString()}`);
   }
   onMessage(productKey, deviceKey, obj);
   if (!obj.isHA && ((_a = adapter == null ? void 0 : adapter.localMqttService) == null ? void 0 : _a.mqttClient)) {
@@ -153,9 +140,7 @@ const onConnected = (url, opts) => {
   if (adapter) {
     adapter.lastLogin = /* @__PURE__ */ new Date();
     adapter.setState("info.connection", true, true);
-    adapter.log.info(
-      `[onConnected] Connected with MQTT! URL: ${url}, Client ID: ${opts.clientId}`
-    );
+    adapter.log.info(`[onConnected] Connected with MQTT! URL: ${url}, Client ID: ${opts.clientId}`);
   }
 };
 const onReconnected = (url) => {
@@ -175,28 +160,22 @@ const onDisconnected = (url) => {
 const onError = (error, url) => {
   if (adapter) {
     adapter.setState("info.connection", false, true);
-    adapter.log.error(
-      `[onError] Connection to MQTT failed! URL: ${url}, Error: ${error}`
-    );
+    adapter.log.error(`[onError] Connection to MQTT failed! URL: ${url}, Error: ${error}`);
   }
 };
 const onSubscribeReportTopic = (error) => {
   if (error) {
-    adapter == null ? void 0 : adapter.log.error("Subscription to MQTT failed! Error: " + error);
+    adapter == null ? void 0 : adapter.log.error(`Subscription to MQTT failed! Error: ${error}`);
   } else {
     adapter == null ? void 0 : adapter.log.debug("Subscription of Report Topic successful!");
   }
 };
 const onSubscribeIotTopic = (error, productKey, deviceKey) => {
   if (error) {
-    adapter == null ? void 0 : adapter.log.error("Subscription to MQTT failed! Error: " + error);
+    adapter == null ? void 0 : adapter.log.error(`Subscription to MQTT failed! Error: ${error}`);
   } else if (adapter) {
-    adapter == null ? void 0 : adapter.log.debug(
-      `Subscription of IOT Topic successful! ProductKey: ${productKey}, DeviceKey: ${deviceKey}`
-    );
-    const _device = adapter.zenIobDeviceList.find(
-      (x) => x.productKey == productKey && x.deviceKey == deviceKey
-    );
+    adapter == null ? void 0 : adapter.log.debug(`Subscription of IOT Topic successful! ProductKey: ${productKey}, DeviceKey: ${deviceKey}`);
+    const _device = adapter.zenIobDeviceList.find((x) => x.productKey == productKey && x.deviceKey == deviceKey);
     if (_device) {
       const randomDelay = Math.floor(Math.random() * 10) + 3;
       setTimeout(() => {
