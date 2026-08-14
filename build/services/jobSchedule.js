@@ -90,14 +90,14 @@ const startCheckStatesAndConnectionJob = (adapter) => {
         adapter.log.debug(
           `[checkStatesJob] Last update for deviceKey ${device.deviceKey} was at ${new Date(
             Number(lastUpdate.val)
-          )}, device seems to be online - so maybe connection is broken!`
+          ).toString()}, device seems to be online - so maybe connection is broken!`
         );
         refreshAccessTokenNeeded = true;
       } else if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < tenMinutesAgo && (wifiState == null ? void 0 : wifiState.val) == "Connected" && adapter.config.connectionMode == "local") {
         adapter.log.warn(
           `[checkStatesJob] Last update for deviceKey ${device.deviceKey} was at ${new Date(
             Number(lastUpdate.val)
-          )}, set Wifi state to Disconnected!`
+          ).toString()}, set Wifi state to Disconnected!`
         );
         device == null ? void 0 : device.updateSolarFlowState("wifiState", 0);
       }
@@ -105,7 +105,7 @@ const startCheckStatesAndConnectionJob = (adapter) => {
         adapter.log.debug(
           `[checkStatesJob] Last update for deviceKey ${device.deviceKey} was at ${new Date(
             Number(lastUpdate.val)
-          )}, checking for pseudo power values!`
+          ).toString()}, checking for pseudo power values!`
         );
         statesToReset.forEach(async (stateName) => {
           const exist = await adapter.getObjectAsync(`${device.productKey}.${device.deviceKey}.${stateName}`);
