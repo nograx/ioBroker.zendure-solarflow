@@ -300,7 +300,7 @@ export class ZenIobDevice {
       this.adapter.log.debug(
         `[getZenSdkProperties] Skipping poll for device ${this.deviceKey}, paused until ${new Date(
           this.zenSdkPausedUntil,
-        )} after repeated errors!`,
+        ).toString()} after repeated errors!`,
       );
 
       return Promise.resolve(false);
@@ -386,7 +386,7 @@ export class ZenIobDevice {
 
         if (attempt < maxRetries) {
           this.adapter.log.warn(
-            `[retryAxiosPost] Request failed (attempt ${attempt}/${maxRetries}), retrying... Error: ${error}`,
+            `[retryAxiosPost] Request failed (attempt ${attempt}/${maxRetries}), retrying... Error: ${error instanceof Error ? error.message : String(error)}`,
           );
         }
       }

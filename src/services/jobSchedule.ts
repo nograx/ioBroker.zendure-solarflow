@@ -88,7 +88,7 @@ export const startCheckStatesAndConnectionJob = (adapter: ZendureSolarflow): voi
         adapter.log.debug(
           `[checkStatesJob] Last update for deviceKey ${device.deviceKey} was at ${new Date(
             Number(lastUpdate.val),
-          )}, device seems to be online - so maybe connection is broken!`,
+          ).toString()}, device seems to be online - so maybe connection is broken!`,
         );
 
         //await adapter.delay(20 * 1000);
@@ -106,7 +106,7 @@ export const startCheckStatesAndConnectionJob = (adapter: ZendureSolarflow): voi
         adapter.log.warn(
           `[checkStatesJob] Last update for deviceKey ${device.deviceKey} was at ${new Date(
             Number(lastUpdate.val),
-          )}, set Wifi state to Disconnected!`,
+          ).toString()}, set Wifi state to Disconnected!`,
         );
 
         device?.updateSolarFlowState("wifiState", 0);
@@ -116,7 +116,7 @@ export const startCheckStatesAndConnectionJob = (adapter: ZendureSolarflow): voi
         adapter.log.debug(
           `[checkStatesJob] Last update for deviceKey ${device.deviceKey} was at ${new Date(
             Number(lastUpdate.val),
-          )}, checking for pseudo power values!`,
+          ).toString()}, checking for pseudo power values!`,
         );
         // State was not updated in the last 5 minutes... set states to 0
         statesToReset.forEach(async (stateName: string) => {
