@@ -81,6 +81,8 @@ These devices are supported via **local** MQTT mode (Zendure Cloud Disconnector)
 
 As a new feature you can disconnect the Zendure device from the Cloud. You can either use the [Solarflow Bluetooth Manager](https://github.com/reinhard-brandstaedter/solarflow-bt-manager) from Reinhard Brandstätter or my own Windows Tool [Zendure Cloud Disconnector](https://github.com/nograx/zendure-cloud-disconnector) to disconnect the device from the cloud. It's also possible to redirect DNS requests with your router from "mq.zen-iot.com" to your own MQTT server!
 
+**Note:** The Solarflow Bluetooth Manager and the Zendure Cloud Disconnector only work for **Legacy Devices**. For **zenSDK** devices you have to use the DNS redirect instead, as these devices don't expose the MQTT server setting via bluetooth.
+
 Both tools connect to the Zendure device via bluetooth and simply sets the internal MQTT url to a new url/ip you have to provide. Currently you are forced to use the default MQTT port 1883 (or 8883 with SSL) on your server. You are also forced to deactivate authentication on the MQTT server as the Zendure device use a hardcoded password.
 
 You can use this in combination with your cloud authentication key or use the full local mode.
@@ -99,6 +101,12 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 -->
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- The adapter will now expose ALL properties from the device, not only the ones we know. If you know how to map a value to a readable state feel free to contact me so I can add a definition for that state!
+- Update dependencies
+
 ### 4.1.2 (2026-07-15)
 
 - Fixed batcur reading

@@ -178,7 +178,7 @@ const onSubscribeIotTopic = (error, productKey, deviceKey) => {
     const _device = adapter.zenIobDeviceList.find((x) => x.productKey == productKey && x.deviceKey == deviceKey);
     if (_device) {
       const randomDelay = Math.floor(Math.random() * 10) + 3;
-      setTimeout(() => {
+      adapter.setTimeout(() => {
         _device.triggerFullTelemetryUpdate();
       }, randomDelay * 1e3);
     }
