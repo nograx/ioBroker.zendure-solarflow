@@ -592,6 +592,16 @@ export class ZenIobDevice {
     }
   }
 
+  public setGridReverse(gridReverse: number): void {
+    if (this.productKey && this.deviceKey) {
+      if (gridReverse >= 0 && gridReverse <= 2) {
+        this.updateProperty("gridReverse", gridReverse);
+      } else {
+        this.adapter.log.debug(`[setGridReverse] Grid reverse value ${gridReverse} is not 0, 1 or 2!`);
+      }
+    }
+  }
+
   public setPassMode(passMode: number): void {
     if (this.productKey && this.deviceKey) {
       this.updateProperty("passMode", passMode);

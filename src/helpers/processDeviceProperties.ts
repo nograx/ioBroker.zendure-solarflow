@@ -48,6 +48,7 @@ const handledMqttKeys = new Set<string>([
   "packNum",
   "hubState",
   "batteryElectric",
+  "gridReverse",
 ]);
 
 // MQTT property keys that are known noise and should never become states
@@ -352,6 +353,11 @@ export const processDeviceProperties = async (
 
   if (properties?.batteryElectric != null) {
     statesToSet.set("batteryElectric", properties.batteryElectric);
+  }
+
+  if (properties?.gridReverse != null) {
+    statesToSet.set("gridReverse", properties.gridReverse);
+    controlStatesToSet.set("gridReverse", properties.gridReverse);
   }
 
   if (properties?.packData != null) {

@@ -55,6 +55,7 @@ export interface ISolarFlowMqttProperties {
   autoModel?: number;
   heatState?: number;
   smartMode?: number;
+  gridReverse?: number;
   // ambientLightNess
   // ambientLightColor
   // ambientLightMode

@@ -693,7 +693,7 @@ export const allStates: Record<string, ISolarflowState> = {
   },
   gridReverse: {
     title: "gridReverse",
-    nameDe: "Netzeinspeisung",
+    nameDe: "Überschüssige Energie exportieren",
     nameEn: "grid reverse",
     type: "number",
     role: "value",

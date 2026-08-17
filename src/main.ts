@@ -382,6 +382,9 @@ export class ZendureSolarflow extends utils.Adapter {
               case "hubState":
                 _device.setHubState(Number(state.val));
                 break;
+              case "gridReverse":
+                _device.setGridReverse(Number(state.val));
+                break;
               case "autoModel":
                 _device.setAutoModel(Number(state.val));
                 break;
