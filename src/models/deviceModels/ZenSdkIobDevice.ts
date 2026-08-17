@@ -126,13 +126,13 @@ export abstract class ZenSdkIobDevice extends ZenIobDevice {
             results.push(await this.updateProperty("inputLimit", 0));
           }
 
-          setTimeout(async () => {
+          this.adapter.setTimeout(async () => {
             if (currentAcMode && currentAcMode.val != 0) {
               results.push(await this.updateProperty("acMode", 0));
             }
           }, 2000);
 
-          setTimeout(async () => {
+          this.adapter.setTimeout(async () => {
             if (currentSmartMode && currentSmartMode.val != 0) {
               results.push(await this.updateProperty("smartMode", 0));
             }

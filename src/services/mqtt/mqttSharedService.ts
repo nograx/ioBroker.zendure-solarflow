@@ -194,7 +194,7 @@ export const onSubscribeIotTopic: any = (error: Error | null, productKey: string
 
     if (_device) {
       const randomDelay = Math.floor(Math.random() * 10) + 3;
-      setTimeout(() => {
+      adapter.setTimeout(() => {
         _device.triggerFullTelemetryUpdate();
       }, randomDelay * 1000);
     }

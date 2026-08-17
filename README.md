@@ -126,6 +126,8 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 - Improve logging of errors
 - Adapter requires node.js >= 22 now
 
+For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
+
 ## License
 
 MIT License
