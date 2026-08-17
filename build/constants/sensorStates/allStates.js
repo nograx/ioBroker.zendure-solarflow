@@ -707,7 +707,7 @@ const allStates = {
   },
   gridReverse: {
     title: "gridReverse",
-    nameDe: "Netzeinspeisung",
+    nameDe: "\xDCbersch\xFCssige Energie exportieren",
     nameEn: "grid reverse",
     type: "number",
     role: "value",

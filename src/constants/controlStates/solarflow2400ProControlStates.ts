@@ -114,4 +114,22 @@ export const solarflow2400ProControlStates: ISolarflowState[] = [
     read: true,
     write: true,
   },
+  {
+    nameDe: "Überschüssige Energie exportieren",
+    nameEn: "Grid reverse (export excess energy)",
+    type: "number",
+    def: 0,
+    title: "gridReverse",
+    role: "value",
+    read: true,
+    write: true,
+    min: 0,
+    max: 2,
+    step: 1,
+    states: {
+      0: "disabled",
+      1: "allow",
+      2: "forbidden",
+    },
+  },
 ];

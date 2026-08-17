@@ -64,7 +64,8 @@ const handledMqttKeys = /* @__PURE__ */ new Set([
   "wifiState",
   "packNum",
   "hubState",
-  "batteryElectric"
+  "batteryElectric",
+  "gridReverse"
 ]);
 const ignoredMqttKeys = /* @__PURE__ */ new Set(["0", "getAll"]);
 const ensureState = async (device, stateTitle, rawValue) => {
@@ -284,6 +285,10 @@ const processDeviceProperties = async (device, properties, isSolarFlow) => {
   }
   if ((properties == null ? void 0 : properties.batteryElectric) != null) {
     statesToSet.set("batteryElectric", properties.batteryElectric);
+  }
+  if ((properties == null ? void 0 : properties.gridReverse) != null) {
+    statesToSet.set("gridReverse", properties.gridReverse);
+    controlStatesToSet.set("gridReverse", properties.gridReverse);
   }
   if ((properties == null ? void 0 : properties.packData) != null) {
     await device.addOrUpdatePackData(properties.packData, isSolarFlow);

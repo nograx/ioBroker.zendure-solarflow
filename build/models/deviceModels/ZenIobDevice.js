@@ -492,6 +492,15 @@ class ZenIobDevice {
       }
     }
   }
+  setGridReverse(gridReverse) {
+    if (this.productKey && this.deviceKey) {
+      if (gridReverse >= 0 && gridReverse <= 2) {
+        this.updateProperty("gridReverse", gridReverse);
+      } else {
+        this.adapter.log.debug(`[setGridReverse] Grid reverse value ${gridReverse} is not 0, 1 or 2!`);
+      }
+    }
+  }
   setPassMode(passMode) {
     if (this.productKey && this.deviceKey) {
       this.updateProperty("passMode", passMode);

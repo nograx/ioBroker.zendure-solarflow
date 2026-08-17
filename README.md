@@ -105,6 +105,7 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 ### **WORK IN PROGRESS**
 
 - The adapter will now expose ALL properties from the device, not only the ones we know. If you know how to map a value to a readable state feel free to contact me so I can add a definition for that state!
+- Add control state 'gridReverse' (export excess energy)
 - Update dependencies
 
 ### 4.1.2 (2026-07-15)
