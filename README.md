@@ -101,6 +101,11 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 -->
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Fix Wifistate type/value mismatch
+
 ### 5.0.1 (2026-08-18)
 
 - Fix state type/value mismatch

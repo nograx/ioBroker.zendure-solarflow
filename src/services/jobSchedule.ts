@@ -82,7 +82,7 @@ export const startCheckStatesAndConnectionJob = (adapter: ZendureSolarflow): voi
         lastUpdate &&
         lastUpdate.val &&
         Number(lastUpdate.val) < tenMinutesAgo &&
-        wifiState?.val == "Connected" &&
+        wifiState?.val == 1 &&
         adapter.config.connectionMode == "authKey"
       ) {
         adapter.log.debug(
@@ -100,7 +100,7 @@ export const startCheckStatesAndConnectionJob = (adapter: ZendureSolarflow): voi
         lastUpdate &&
         lastUpdate.val &&
         Number(lastUpdate.val) < tenMinutesAgo &&
-        wifiState?.val == "Connected" &&
+        wifiState?.val == 1 &&
         adapter.config.connectionMode == "local"
       ) {
         adapter.log.warn(

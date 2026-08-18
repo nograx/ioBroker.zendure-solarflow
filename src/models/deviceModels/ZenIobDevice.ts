@@ -862,7 +862,7 @@ export class ZenIobDevice {
       // Check current wifiState, if Disconnected set it to Connected!
       const currentWifiState = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.wifiState`);
 
-      if (currentWifiState && currentWifiState.val == "Disconnected") {
+      if (currentWifiState && currentWifiState.val == 0) {
         this.updateSolarFlowState("wifiState", 1);
       }
     }
@@ -953,7 +953,7 @@ export class ZenIobDevice {
                 true,
               );
               const wifiState = await this.adapter?.getStateAsync(`${this.productKey}.${this.deviceKey}.wifiState`);
-              if (wifiState?.val == "Disconnected") {
+              if (wifiState?.val == 0) {
                 this.updateSolarFlowState("wifiState", 1);
               }
             }
