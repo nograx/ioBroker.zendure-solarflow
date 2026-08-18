@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "4.1.2",
+    "version": "5.0.0",
     "news": {
+      "5.0.0": {
+        "en": "The adapter will now expose ALL properties from the device, not only the ones we know. If you know how to map a value to a readable state feel free to contact me so I can add a definition for that state!\nAdd control state 'gridReverse' (export excess energy)\nUpdate dependencies",
+        "de": "Der Adapter stellt nun ALLE Eigenschaften des Geräts bereit, nicht nur die bekannten. Wenn Sie wissen, wie man einen Wert einem lesbaren Zustand zuordnet, kontaktieren Sie mich gerne, damit ich eine Definition für diesen Zustand hinzufügen kann!\nKontrollzustand 'gridReverse' hinzufügen (überschüssige Energie exportieren)\nAbhängigkeiten aktualisieren",
+        "ru": "Теперь адаптер будет отображать ВСЕ свойства устройства, а не только те, которые нам известны. Если вы знаете, как сопоставить значение с читаемым состоянием, свяжитесь со мной, чтобы я мог добавить определение для этого состояния!\nДобавить управляющее состояние 'gridReverse' (экспорт избыточной энергии)\nОбновить зависимости",
+        "pt": "O adaptador agora exporá TODAS as propriedades do dispositivo, não apenas aquelas que conhecemos. Se você souber como mapear um valor para um estado legível, sinta-se à vontade para entrar em contato comigo para que eu possa adicionar uma definição para esse estado!\nAdicionar estado de controle 'gridReverse' (exportar excesso de energia)\nAtualizar dependências",
+        "nl": "De adapter zal nu ALLE eigenschappen van het apparaat beschikbaar maken, niet alleen de eigenschappen die we al kennen. Als je weet hoe je een waarde aan een leesbare status kunt koppelen, neem dan gerust contact met me op, zodat ik een definitie voor die status kan toevoegen!\nVoeg de besturingsstatus 'gridReverse' toe (overtollige energie exporteren)\nAfhankelijkheden bijwerken",
+        "fr": "L'adaptateur exposera désormais TOUTES les propriétés du périphérique, et non plus seulement celles que nous connaissons. Si vous savez comment associer une valeur à un état lisible, n'hésitez pas à me contacter afin que je puisse ajouter une définition pour cet état !\nAjouter l'état de contrôle 'gridReverse' (exporter l'énergie excédentaire)\nMise à jour des dépendances",
+        "it": "L'adattatore ora esporrà TUTTE le proprietà del dispositivo, non solo quelle che conosciamo. Se sai come mappare un valore a uno stato leggibile, non esitare a contattarmi così potrò aggiungere una definizione per quello stato!\nAggiungi lo stato di controllo 'gridReverse' (esporta l'energia in eccesso)\nAggiorna le dipendenze",
+        "es": "El adaptador ahora expondrá TODAS las propiedades del dispositivo, no solo las que conocemos. Si sabes cómo asignar un valor a un estado legible, no dudes en contactarme para que pueda agregar una definición para ese estado.\nAgregar estado de control 'gridReverse' (exportar exceso de energía)\nActualizar dependencias",
+        "pl": "Adapter będzie teraz udostępniał WSZYSTKIE właściwości urządzenia, nie tylko te, które znamy. Jeśli wiesz, jak zmapować wartość na stan czytelny, skontaktuj się ze mną, abym mógł dodać definicję tego stanu!\nDodaj stan kontrolny „gridReverse” (eksportuj nadmiar energii)\nAktualizuj zależności",
+        "uk": "Тепер адаптер надаватиме ВСІ властивості пристрою, а не лише ті, що нам відомі. Якщо ви знаєте, як зіставити значення зі станом, який можна читати, зв'яжіться зі мною, щоб я міг додати визначення для цього стану!\nДодати стан керування 'gridReverse' (експорт надлишкової енергії)\nОновлення залежностей",
+        "zh-cn": "现在，适配器将公开设备的所有属性，而不仅仅是我们已知的属性。如果您知道如何将某个值映射到可读状态，请随时与我联系，以便我添加该状态的定义！\n添加控制状态“gridReverse”（输出多余能量）\n更新依赖项"
+      },
       "4.1.2": {
         "en": "Fixed batcur reading\nAdd missing translations\nAdd dependencies",
         "de": "Fester Batterie-Messwert\nFehlende Übersetzungen hinzufügen\nAbhängigkeiten hinzufügen",
@@ -80,19 +93,6 @@
         "pl": "Dodaj stan 'socStatus' (Autokalibracja) dla nowoczesnych urządzeń (SF 800 w górę)\nNapraw adapter, jeśli DeviceList jest pusty\nPoprawa rejestrowania błędów\nAdapter wymaga node.js > = 22",
         "uk": "Додати стан \"socStatus\" (Auto-calibration) для сучасних пристроїв (SF 800 вгору)\nЗапуск адаптера, якщо пристрійСписок порожній\nПокращити залогу помилок\nАдаптер вимагає node.js >= 22 тепер",
         "zh-cn": "为现代设备添加状态“ oc status”( 自动校准) (SF 800 向上)\n如果设备列表为空, 固定适配器启动\n改进错误记录\n适配器需要节点.js 现在22"
-      },
-      "4.0.4": {
-        "en": "Update dependencies",
-        "de": "Abhängigkeiten aktualisieren",
-        "ru": "Обновление зависимостей",
-        "pt": "Atualizar dependências",
-        "nl": "Afhankelijkheden bijwerken",
-        "fr": "Mise à jour des dépendances",
-        "it": "Dipendenze di aggiornamento",
-        "es": "Actualizar las dependencias",
-        "pl": "Aktualizuj zależności",
-        "uk": "Оновлення залежності",
-        "zh-cn": "更新依赖关系"
       }
     },
     "titleLang": {

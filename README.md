@@ -101,8 +101,7 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 -->
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 5.0.0 (2026-08-18)
 
 - The adapter will now expose ALL properties from the device, not only the ones we know. If you know how to map a value to a readable state feel free to contact me so I can add a definition for that state!
 - Add control state 'gridReverse' (export excess energy)
@@ -127,13 +126,6 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 ### 4.0.6 (2026-06-06)
 
 - Add productKey 'nVyeqM' for Solarflow 800 Pro 2
-
-### 4.0.5 (2026-06-03)
-
-- Add state 'socStatus' (Auto-calibration) for modern devices (SF 800 upwards)
-- Fix adapter start if deviceList is empty
-- Improve logging of errors
-- Adapter requires node.js >= 22 now
 
 For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 
