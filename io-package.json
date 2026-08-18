@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "5.0.2",
+    "version": "5.0.3",
     "news": {
+      "5.0.3": {
+        "en": "Fix `wifiState` not being created/updated correctly for devices using local zenSDK polling (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus), as their local status payload does not report a `wifiState` property",
+        "de": "Behebung des Problems, dass `wifiState` für Geräte mit lokaler zenSDK-Abfrage (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus) nicht korrekt erstellt/aktualisiert wird, da deren lokale Statusnutzlast keine `wifiState`-Eigenschaft meldet.",
+        "ru": "Исправлена ошибка, из-за которой свойство `wifiState` некорректно создавалось/обновлялось для устройств, использующих локальный опрос zenSDK (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus), поскольку их локальная полезная нагрузка состояния не сообщает о свойстве `wifiState`.",
+        "pt": "Corrigido o problema em que o `wifiState` não era criado/atualizado corretamente para dispositivos que usam polling local do zenSDK (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus), pois o payload de status local desses dispositivos não reporta uma propriedade `wifiState`.",
+        "nl": "Los het probleem op dat `wifiState` niet correct wordt aangemaakt/bijgewerkt voor apparaten die gebruikmaken van lokale zenSDK-polling (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus), omdat hun lokale statuspayload geen `wifiState`-eigenschap rapporteert.",
+        "fr": "Correction d'un problème où `wifiState` n'était pas créé/mis à jour correctement pour les appareils utilisant l'interrogation locale du zenSDK (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus), car leur charge utile d'état local ne signale pas de propriété `wifiState`.",
+        "it": "Risolto il problema per cui `wifiState` non veniva creato/aggiornato correttamente per i dispositivi che utilizzano il polling locale di zenSDK (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus), poiché il loro payload di stato locale non riporta una proprietà `wifiState`",
+        "es": "Solucionar el problema por el que `wifiState` no se crea ni se actualiza correctamente en los dispositivos que utilizan el sondeo local de zenSDK (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus), ya que su carga útil de estado local no informa de una propiedad `wifiState`.",
+        "pl": "Naprawiono problem z poprawnym tworzeniem/aktualizacją właściwości `wifiState` w przypadku urządzeń korzystających z lokalnego sondowania zenSDK (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus), ponieważ ich lokalny ładunek stanu nie raportuje właściwości `wifiState`",
+        "uk": "Виправлено помилку, через яку `wifiState` не створювався/оновлювався коректно для пристроїв, що використовують локальне опитування zenSDK (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus), оскільки їхнє локальне корисне навантаження стану не повідомляє про властивість `wifiState`.",
+        "zh-cn": "修复了使用本地 zenSDK 轮询的设备（Solarflow 2400 AC/AC Plus/Pro、1600 AC Plus）的 `wifiState` 属性无法正确创建/更新的问题，因为它们的本地状态负载未报告 `wifiState` 属性。"
+      },
       "5.0.2": {
         "en": "Fix Wifistate type/value mismatch",
         "de": "Behebung des WLAN-Status-Typ-/Wertkonflikts",
@@ -80,19 +93,6 @@
         "pl": "Zezwól na połączenie lokalnego serwera TLS MQTT na porcie 8883 (z powodu nowego oprogramowania sprzętowego urządzenia) w ustawieniach\nNapraw obliczenia Batcura",
         "uk": "Дозволити підключення локального сервера TLS MQTT на порту 8883 (через нову прошивку пристрою) у налаштуваннях\nВиправити розрахунок Batcur",
         "zh-cn": "允许本地 TLS MQTT 服务器连接到端口 8883（由于设备固件更新），请在设置中进行启用。\n修复 batcur 计算"
-      },
-      "4.0.7-alpha.0": {
-        "en": "Allow local SSL MQTT Server on port 8883\nFix batcur calculation",
-        "de": "Lokalen SSL-MQTT-Server auf Port 8883 erlauben\nBatcur-Berechnung korrigiert",
-        "ru": "Разрешить локальный SSL MQTT сервер на порту 8883\nИсправлен расчёт batcur",
-        "pt": "Permitir servidor MQTT SSL local na porta 8883\nCorrecção do cálculo batcur",
-        "nl": "Lokale SSL MQTT-server op poort 8883 toestaan\nBatcur-berekening gecorrigeerd",
-        "fr": "Autoriser le serveur MQTT SSL local sur le port 8883\nCorrection du calcul batcur",
-        "it": "Consentire il server MQTT SSL locale sulla porta 8883\nCorrezione del calcolo batcur",
-        "es": "Permitir servidor MQTT SSL local en el puerto 8883\nCorreción del cálculo batcur",
-        "pl": "Zezwól na lokalny serwer SSL MQTT na porcie 8883\nNaprawiono obliczenie batcur",
-        "uk": "Дозволити локальний SSL MQTT сервер на порту 8883\nВиправлено розрахунок batcur",
-        "zh-cn": "允许本地SSL MQTT服务器使用8883端口\n修复batcur计算"
       }
     },
     "titleLang": {

@@ -157,11 +157,16 @@
 
 - Add 'packPower' state, which shows combined power from (packInputPower and outputPackPower). Discharging will be shown with a negative value.
 - Add 'hyperTmp' to Solarflow 800 devices in hope this will show the temperature of the Solarflow 800 (can not test it due to lack of test device).
+## 4.1.1 (2026-07-14)
+
+- Send MQTT commands with QOS=1
+- If zenSDK device is not reachable, stop polling device after 5 retries. Try again after 10 minutes.
+
+
 ## 4.1.0 (2026-06-19)
 
 - Allow local TLS MQTT Server connection on port 8883 (due to new device firmware) in settings
 - Fix batcur calculation
-
 
 ## 4.0.6 (2026-06-06)
 
