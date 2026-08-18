@@ -101,8 +101,7 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 -->
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 5.0.2 (2026-08-18)
 
 - Fix Wifistate type/value mismatch
 
@@ -126,11 +125,6 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 
 - Send MQTT commands with QOS=1
 - If zenSDK device is not reachable, stop polling device after 5 retries. Try again after 10 minutes.
-
-### 4.1.0 (2026-06-19)
-
-- Allow local TLS MQTT Server connection on port 8883 (due to new device firmware) in settings
-- Fix batcur calculation
 
 For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 

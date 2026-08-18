@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "5.0.1",
+    "version": "5.0.2",
     "news": {
+      "5.0.2": {
+        "en": "Fix Wifistate type/value mismatch",
+        "de": "Behebung des WLAN-Status-Typ-/Wertkonflikts",
+        "ru": "Исправлена ошибка несоответствия типа/значения Wifistate.",
+        "pt": "Corrigir incompatibilidade de tipo/valor do estado do Wi-Fi",
+        "nl": "Correctie van de mismatch tussen Wifistate-type en -waarde",
+        "fr": "Correction de l'incohérence de type/valeur de Wifistate",
+        "it": "Correggere la mancata corrispondenza tra tipo e valore di Wifistate",
+        "es": "Solucionar el desajuste de tipo/valor de Wifistate",
+        "pl": "Napraw niezgodność typu/wartości Wifistate",
+        "uk": "Виправити невідповідність типу/значення Wifistate",
+        "zh-cn": "修复 Wifistate 类型/值不匹配的问题"
+      },
       "5.0.1": {
         "en": "Fix state type/value mismatch",
         "de": "Behebung der Diskrepanz zwischen Statustyp und -wert.",
@@ -80,19 +93,6 @@
         "pl": "Zezwól na lokalny serwer SSL MQTT na porcie 8883\nNaprawiono obliczenie batcur",
         "uk": "Дозволити локальний SSL MQTT сервер на порту 8883\nВиправлено розрахунок batcur",
         "zh-cn": "允许本地SSL MQTT服务器使用8883端口\n修复batcur计算"
-      },
-      "4.0.6": {
-        "en": "Add productKey 'nVyeqM' for Solarflow Pro 2",
-        "de": "Produkt hinzufügenKey 'nVyeqM' für Solarflow Pro 2",
-        "ru": "Добавить продуктKey 'nVyeqM для Solarflow Pro 2",
-        "pt": "Adicionar produtoKey 'nVyeqM' para Solarflow Pro 2",
-        "nl": "Product toevoegenKey 'nVyeqM' voor Solarflow Pro 2",
-        "fr": "Ajouter le produitKey 'nVyeqM' pour Solarflow Pro 2",
-        "it": "Aggiungi prodottoKey 'nVyeqM' per Solarflow Pro 2",
-        "es": "Añadir productoKey 'nVyeqM' para Solarflow Pro 2",
-        "pl": "Dodaj productKey 'nVyeqM' dla Solarflow Pro 2",
-        "uk": "Додати продуктKey 'nVyeqM' для Solarflow Pro 2",
-        "zh-cn": "为太阳流Pro 2 添加产品 Key “ nVyeqM ”"
       }
     },
     "titleLang": {

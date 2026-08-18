@@ -86,14 +86,14 @@ const startCheckStatesAndConnectionJob = (adapter) => {
       const wifiState = await (adapter == null ? void 0 : adapter.getStateAsync(`${device.productKey}.${device.deviceKey}.wifiState`));
       const fiveMinutesAgo = (Date.now() / 1e3 - 5 * 60) * 1e3;
       const tenMinutesAgo = (Date.now() / 1e3 - 10 * 60) * 1e3;
-      if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < tenMinutesAgo && (wifiState == null ? void 0 : wifiState.val) == "Connected" && adapter.config.connectionMode == "authKey") {
+      if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < tenMinutesAgo && (wifiState == null ? void 0 : wifiState.val) == 1 && adapter.config.connectionMode == "authKey") {
         adapter.log.debug(
           `[checkStatesJob] Last update for deviceKey ${device.deviceKey} was at ${new Date(
             Number(lastUpdate.val)
           ).toString()}, device seems to be online - so maybe connection is broken!`
         );
         refreshAccessTokenNeeded = true;
-      } else if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < tenMinutesAgo && (wifiState == null ? void 0 : wifiState.val) == "Connected" && adapter.config.connectionMode == "local") {
+      } else if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < tenMinutesAgo && (wifiState == null ? void 0 : wifiState.val) == 1 && adapter.config.connectionMode == "local") {
         adapter.log.warn(
           `[checkStatesJob] Last update for deviceKey ${device.deviceKey} was at ${new Date(
             Number(lastUpdate.val)

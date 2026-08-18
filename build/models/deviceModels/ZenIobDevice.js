@@ -711,7 +711,7 @@ class ZenIobDevice {
     if ((currentValue == null ? void 0 : currentValue.val) != val && state != "wifiState") {
       await ((_c = this.adapter) == null ? void 0 : _c.setState(`${this.productKey}.${this.deviceKey}.lastUpdate`, (/* @__PURE__ */ new Date()).getTime(), true));
       const currentWifiState = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.wifiState`);
-      if (currentWifiState && currentWifiState.val == "Disconnected") {
+      if (currentWifiState && currentWifiState.val == 0) {
         this.updateSolarFlowState("wifiState", 1);
       }
     }
@@ -796,7 +796,7 @@ class ZenIobDevice {
                 true
               ));
               const wifiState = await ((_c2 = this.adapter) == null ? void 0 : _c2.getStateAsync(`${this.productKey}.${this.deviceKey}.wifiState`));
-              if ((wifiState == null ? void 0 : wifiState.val) == "Disconnected") {
+              if ((wifiState == null ? void 0 : wifiState.val) == 0) {
                 this.updateSolarFlowState("wifiState", 1);
               }
             }

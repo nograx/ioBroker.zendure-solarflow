@@ -157,10 +157,15 @@
 
 - Add 'packPower' state, which shows combined power from (packInputPower and outputPackPower). Discharging will be shown with a negative value.
 - Add 'hyperTmp' to Solarflow 800 devices in hope this will show the temperature of the Solarflow 800 (can not test it due to lack of test device).
+## 4.1.0 (2026-06-19)
+
+- Allow local TLS MQTT Server connection on port 8883 (due to new device firmware) in settings
+- Fix batcur calculation
+
+
 ## 4.0.6 (2026-06-06)
 
 - Add productKey 'nVyeqM' for Solarflow 800 Pro 2
-
 
 ## 4.0.5 (2026-06-03)
 
