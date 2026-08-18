@@ -14,7 +14,7 @@ import type { ISolarflowState } from "../ISolarflowState";
 import type { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
 import { DeviceConnectionMode } from "../../helpers/enums";
 import axios from "axios";
-import { processDeviceProperties } from "../../helpers/processDeviceProperties";
+import { ensureState, processDeviceProperties } from "../../helpers/processDeviceProperties";
 import { allStates } from "../../constants/sensorStates/allStates";
 
 export class ZenIobDevice {
@@ -844,12 +844,9 @@ export class ZenIobDevice {
   public async updateSolarFlowState(state: string, val: number | string | boolean): Promise<void> {
     const stateId = `${this.productKey}.${this.deviceKey}.${state}`;
 
-    // skip if state does not exist
-    const obj = await this.adapter?.getObjectAsync(stateId);
-    if (!obj) {
-      this.adapter.log.debug(`[updateSolarFlowState] state ${stateId} not found, skipping update`);
-      return;
-    }
+    // Create the state if it does not exist yet, or self-heal it if its persisted type
+    // no longer matches allStates (e.g. left over from an older adapter version).
+    await ensureState(this, state, val);
 
     const currentValue = await this.adapter.getStateAsync(stateId);
 

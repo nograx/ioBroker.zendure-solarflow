@@ -18,6 +18,7 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var processDeviceProperties_exports = {};
 __export(processDeviceProperties_exports, {
+  ensureState: () => ensureState,
   processDeviceProperties: () => processDeviceProperties
 });
 module.exports = __toCommonJS(processDeviceProperties_exports);
@@ -354,6 +355,7 @@ const processDeviceProperties = async (device, properties, isSolarFlow) => {
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  ensureState,
   processDeviceProperties
 });
 //# sourceMappingURL=processDeviceProperties.js.map
