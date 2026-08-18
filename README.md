@@ -101,8 +101,7 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 -->
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 5.0.1 (2026-08-18)
 
 - Fix state type/value mismatch
 
@@ -127,10 +126,6 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 
 - Allow local TLS MQTT Server connection on port 8883 (due to new device firmware) in settings
 - Fix batcur calculation
-
-### 4.0.6 (2026-06-06)
-
-- Add productKey 'nVyeqM' for Solarflow 800 Pro 2
 
 For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 

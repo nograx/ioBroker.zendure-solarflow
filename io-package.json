@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "5.0.0",
+    "version": "5.0.1",
     "news": {
+      "5.0.1": {
+        "en": "Fix state type/value mismatch",
+        "de": "Behebung der Diskrepanz zwischen Statustyp und -wert.",
+        "ru": "Исправлено несоответствие типа/значения состояния.",
+        "pt": "Corrigir incompatibilidade entre tipo e valor de estado",
+        "nl": "Corrigeer de mismatch tussen statustype en -waarde.",
+        "fr": "Correction de l'incohérence entre le type et la valeur de l'état",
+        "it": "Correggere la mancata corrispondenza tra tipo e valore dello stato",
+        "es": "Corregir la discrepancia entre el tipo y el valor del estado",
+        "pl": "Napraw niezgodność typu/wartości stanu",
+        "uk": "Виправити невідповідність типу/значення стану",
+        "zh-cn": "修复状态类型/值不匹配问题"
+      },
       "5.0.0": {
         "en": "The adapter will now expose ALL properties from the device, not only the ones we know. If you know how to map a value to a readable state feel free to contact me so I can add a definition for that state!\nAdd control state 'gridReverse' (export excess energy)\nUpdate dependencies",
         "de": "Der Adapter stellt nun ALLE Eigenschaften des Geräts bereit, nicht nur die bekannten. Wenn Sie wissen, wie man einen Wert einem lesbaren Zustand zuordnet, kontaktieren Sie mich gerne, damit ich eine Definition für diesen Zustand hinzufügen kann!\nKontrollzustand 'gridReverse' hinzufügen (überschüssige Energie exportieren)\nAbhängigkeiten aktualisieren",
@@ -80,19 +93,6 @@
         "pl": "Dodaj productKey 'nVyeqM' dla Solarflow Pro 2",
         "uk": "Додати продуктKey 'nVyeqM' для Solarflow Pro 2",
         "zh-cn": "为太阳流Pro 2 添加产品 Key “ nVyeqM ”"
-      },
-      "4.0.5": {
-        "en": "Add state 'socStatus' (Auto-calibration) for modern devices (SF 800 upwards)\nFix adapter start if deviceList is empty\nImprove logging of errors\nAdapter requires node.js >= 22 now",
-        "de": "Zustand 'socStatus' (Autokalibrierung) für moderne Geräte (SF 800 nach oben)\nFix Adapterstart, wenn deviceList leer ist\nFehlersuche verbessern\nAdapter benötigt node.js >= 22 jetzt",
-        "ru": "Добавить состояние «socStatus» (автокалибровка) для современных устройств (SF 800 выше)\nЗапуск адаптера исправления, если список устройств пуст\nУлучшение регистрации ошибок\nАдаптер требует node.js >= 22 сейчас",
-        "pt": "Adicionar estado 'socStatus' (Calibração automática) para dispositivos modernos (SF 800 para cima)\nCorrigir o início do adaptador se a lista estiver vazia\nMelhorar o registro de erros\nAdaptador requer nod.js >= 22 agora",
-        "nl": "Toevoegen status 'socStatus' (Auto-kalibratie) voor moderne apparaten (SF 800 naar boven)\nFix adapter start als apparaatlijst leeg is\nHet loggen van fouten verbeteren\nVoor de adapter zijn node.js < 22 nu nodig",
-        "fr": "Ajouter l'état 'socStatus' (étalonnage automatique) pour les appareils modernes (SF 800 vers le haut)\nCorrection du démarrage de l'adaptateur si deviceList est vide\nAméliorer l'enregistrement des erreurs\nAdaptateur nécessite node.js >= 22 maintenant",
-        "it": "Aggiungere lo stato 'socStatus' (calibrazione automatica) per dispositivi moderni (SF 800 verso l'alto)\nFissare l'avvio dell'adattatore se il dispositivoList è vuoto\nMigliorare la registrazione degli errori\nAdattatore richiede node.js >= 22 ora",
-        "es": "Añadir estado 'socStatus' (Auto-calibración) para dispositivos modernos (SF 800 hacia arriba)\nInicio del adaptador de fijación si dispositivoList está vacío\nMejorar el registro de errores\nAdaptador requiere node.js ю= 22 ahora",
-        "pl": "Dodaj stan 'socStatus' (Autokalibracja) dla nowoczesnych urządzeń (SF 800 w górę)\nNapraw adapter, jeśli DeviceList jest pusty\nPoprawa rejestrowania błędów\nAdapter wymaga node.js > = 22",
-        "uk": "Додати стан \"socStatus\" (Auto-calibration) для сучасних пристроїв (SF 800 вгору)\nЗапуск адаптера, якщо пристрійСписок порожній\nПокращити залогу помилок\nАдаптер вимагає node.js >= 22 тепер",
-        "zh-cn": "为现代设备添加状态“ oc status”( 自动校准) (SF 800 向上)\n如果设备列表为空, 固定适配器启动\n改进错误记录\n适配器需要节点.js 现在22"
       }
     },
     "titleLang": {

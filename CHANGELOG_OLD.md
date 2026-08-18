@@ -157,13 +157,17 @@
 
 - Add 'packPower' state, which shows combined power from (packInputPower and outputPackPower). Discharging will be shown with a negative value.
 - Add 'hyperTmp' to Solarflow 800 devices in hope this will show the temperature of the Solarflow 800 (can not test it due to lack of test device).
+## 4.0.6 (2026-06-06)
+
+- Add productKey 'nVyeqM' for Solarflow 800 Pro 2
+
+
 ## 4.0.5 (2026-06-03)
 
 - Add state 'socStatus' (Auto-calibration) for modern devices (SF 800 upwards)
 - Fix adapter start if deviceList is empty
 - Improve logging of errors
 - Adapter requires node.js >= 22 now
-
 
 ## 4.0.4 (2026-04-14)
 
