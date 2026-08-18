@@ -50,8 +50,12 @@ const allStates = {
     title: "buzzerSwitch",
     nameDe: "Sounds am HUB aktivieren",
     nameEn: "Enable buzzer on HUB",
-    type: "boolean",
-    role: "value"
+    type: "number",
+    role: "value",
+    states: {
+      0: "off",
+      1: "on"
+    }
   },
   packState: {
     title: "packState",
@@ -253,8 +257,12 @@ const allStates = {
     title: "heatState",
     nameDe: "W\xE4rmezustand",
     nameEn: "Heat state",
-    type: "boolean",
-    role: "value"
+    type: "number",
+    role: "value",
+    states: {
+      0: "off",
+      1: "on"
+    }
   },
   connectionMode: {
     title: "connectionMode",
@@ -276,15 +284,23 @@ const allStates = {
     title: "pass",
     nameDe: "Bypass an/aus",
     nameEn: "Bypass on/off",
-    type: "boolean",
-    role: "value"
+    type: "number",
+    role: "value",
+    states: {
+      0: "off",
+      1: "on"
+    }
   },
   autoRecover: {
     title: "autoRecover",
     nameDe: "Am n\xE4chsten Tag Bypass auf Automatik",
     nameEn: "Automatic recovery of bypass",
-    type: "boolean",
-    role: "value"
+    type: "number",
+    role: "value",
+    states: {
+      0: "off",
+      1: "on"
+    }
   },
   passMode: {
     title: "passMode",
@@ -332,15 +348,23 @@ const allStates = {
     title: "connectedWithAce",
     nameDe: "Mit ACE (1500) verbunden",
     nameEn: "Connected with ACE (1500)",
-    type: "boolean",
-    role: "value"
+    type: "number",
+    role: "value",
+    states: {
+      0: "off",
+      1: "on"
+    }
   },
   smartMode: {
     title: "smartMode",
     nameDe: "Smart Mode",
     nameEn: "Smart Mode",
-    type: "boolean",
-    role: "value"
+    type: "number",
+    role: "value",
+    states: {
+      0: "off",
+      1: "on"
+    }
   },
   hyperTmp: {
     title: "hyperTmp",
@@ -370,15 +394,23 @@ const allStates = {
     title: "acSwitch",
     nameDe: "AC Schalter",
     nameEn: "AC switch",
-    type: "boolean",
-    role: "value"
+    type: "number",
+    role: "value",
+    states: {
+      0: "off",
+      1: "on"
+    }
   },
   dcSwitch: {
     title: "dcSwitch",
     nameDe: "DC Schalter",
     nameEn: "DC switch",
-    type: "boolean",
-    role: "value"
+    type: "number",
+    role: "value",
+    states: {
+      0: "off",
+      1: "on"
+    }
   },
   dcOutputPower: {
     title: "dcOutputPower",
@@ -627,71 +659,111 @@ const allStates = {
     title: "masterSwitch",
     nameDe: "Hauptschalter",
     nameEn: "master switch",
-    type: "boolean",
-    role: "value"
+    type: "number",
+    role: "value",
+    states: {
+      0: "off",
+      1: "on"
+    }
   },
   restState: {
     title: "restState",
     nameDe: "Ruhezustand",
     nameEn: "rest state",
-    type: "boolean",
-    role: "value"
+    type: "number",
+    role: "value",
+    states: {
+      0: "off",
+      1: "on"
+    }
   },
   reverseState: {
     title: "reverseState",
     nameDe: "Umkehrzustand",
     nameEn: "reverse state",
-    type: "boolean",
-    role: "value"
+    type: "number",
+    role: "value",
+    states: {
+      0: "off",
+      1: "on"
+    }
   },
   lowTemperature: {
     title: "lowTemperature",
     nameDe: "Niedrige Temperatur",
     nameEn: "low temperature",
-    type: "boolean",
-    role: "value"
+    type: "number",
+    role: "value",
+    states: {
+      0: "off",
+      1: "on"
+    }
   },
   localState: {
     title: "localState",
     nameDe: "Lokaler Zustand",
     nameEn: "local state",
-    type: "boolean",
-    role: "value"
+    type: "number",
+    role: "value",
+    states: {
+      0: "off",
+      1: "on"
+    }
   },
   ctOff: {
     title: "ctOff",
     nameDe: "CT aus",
     nameEn: "CT off",
-    type: "boolean",
-    role: "value"
+    type: "number",
+    role: "value",
+    states: {
+      0: "off",
+      1: "on"
+    }
   },
   lampSwitch: {
     title: "lampSwitch",
     nameDe: "Lampe",
     nameEn: "lamp switch",
-    type: "boolean",
-    role: "value"
+    type: "number",
+    role: "value",
+    states: {
+      0: "off",
+      1: "on"
+    }
   },
   fanSwitch: {
     title: "fanSwitch",
     nameDe: "L\xFCfter",
     nameEn: "fan switch",
-    type: "boolean",
-    role: "value"
+    type: "number",
+    role: "value",
+    states: {
+      0: "off",
+      1: "on"
+    }
   },
   Fanmode: {
     title: "Fanmode",
     nameDe: "L\xFCfter Modus",
     nameEn: "fan mode",
-    type: "boolean",
-    role: "value"
+    type: "number",
+    role: "value",
+    states: {
+      0: "off",
+      1: "on"
+    }
   },
   ambientSwitch: {
     title: "ambientSwitch",
     nameDe: "Umgebungslicht",
     nameEn: "ambient light switch",
-    type: "boolean",
-    role: "value"
+    type: "number",
+    role: "value",
+    states: {
+      0: "off",
+      1: "on"
+    }
   },
   // Select states (enum)
   autoHeat: {

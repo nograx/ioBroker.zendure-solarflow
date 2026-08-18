@@ -69,7 +69,7 @@ const handledMqttKeys = /* @__PURE__ */ new Set([
 ]);
 const ignoredMqttKeys = /* @__PURE__ */ new Set(["0", "getAll"]);
 const ensureState = async (device, stateTitle, rawValue) => {
-  var _a;
+  var _a, _b;
   const deviceId = `${device.productKey}.${device.deviceKey}`;
   if ((_a = createdStateCache.get(deviceId)) == null ? void 0 : _a.has(stateTitle)) {
     return;
@@ -77,6 +77,7 @@ const ensureState = async (device, stateTitle, rawValue) => {
   const stateDef = import_allStates.allStates[stateTitle];
   const productKey = device.productKey.replace(device.adapter.FORBIDDEN_CHARS, "");
   const deviceKey = device.deviceKey.replace(device.adapter.FORBIDDEN_CHARS, "");
+  const stateId = `${productKey}.${deviceKey}.${stateTitle}`;
   let type;
   let role;
   let nameDe;
@@ -95,7 +96,11 @@ const ensureState = async (device, stateTitle, rawValue) => {
   } else {
     return;
   }
-  await device.adapter.extendObject(`${productKey}.${deviceKey}.${stateTitle}`, {
+  const existingObj = await device.adapter.getObjectAsync(stateId);
+  if (((_b = existingObj == null ? void 0 : existingObj.common) == null ? void 0 : _b.type) && existingObj.common.type !== type) {
+    await device.adapter.delObjectAsync(stateId);
+  }
+  await device.adapter.extendObject(stateId, {
     type: "state",
     common: {
       name: { de: nameDe, en: nameEn },
@@ -114,6 +119,22 @@ const ensureState = async (device, stateTitle, rawValue) => {
   }
   createdStateCache.get(deviceId).add(stateTitle);
 };
+const coerceToStateType = (stateTitle, value) => {
+  const stateDef = import_allStates.allStates[stateTitle];
+  if (!stateDef) {
+    return value;
+  }
+  if (stateDef.type === "boolean" && typeof value !== "boolean") {
+    return value == 0 ? false : true;
+  }
+  if (stateDef.type === "string" && typeof value !== "string") {
+    return String(value);
+  }
+  if (stateDef.type === "number" && typeof value !== "number") {
+    return Number(value);
+  }
+  return value;
+};
 const processDeviceProperties = async (device, properties, isSolarFlow) => {
   var _a, _b, _c, _d;
   const statesToSet = /* @__PURE__ */ new Map();
@@ -123,7 +144,7 @@ const processDeviceProperties = async (device, properties, isSolarFlow) => {
     controlStatesToSet.set("autoModel", properties.autoModel);
   }
   if ((properties == null ? void 0 : properties.heatState) != null) {
-    statesToSet.set("heatState", properties.heatState == 0 ? false : true);
+    statesToSet.set("heatState", properties.heatState == 0 ? 0 : 1);
   }
   if ((properties == null ? void 0 : properties.electricLevel) != null) {
     statesToSet.set("electricLevel", properties.electricLevel);
@@ -157,12 +178,12 @@ const processDeviceProperties = async (device, properties, isSolarFlow) => {
     controlStatesToSet.set("passMode", properties.passMode);
   }
   if ((properties == null ? void 0 : properties.pass) != null) {
-    statesToSet.set("pass", properties.pass == 0 ? false : true);
+    statesToSet.set("pass", properties.pass == 0 ? 0 : 1);
   }
   if ((properties == null ? void 0 : properties.autoRecover) != null) {
-    const value = properties.autoRecover == 0 ? false : true;
+    const value = properties.autoRecover == 0 ? 0 : 1;
     statesToSet.set("autoRecover", value);
-    controlStatesToSet.set("autoRecover", value);
+    controlStatesToSet.set("autoRecover", value == 1);
   }
   if ((properties == null ? void 0 : properties.outputHomePower) != null) {
     statesToSet.set("outputHomePower", properties.outputHomePower);
@@ -175,14 +196,14 @@ const processDeviceProperties = async (device, properties, isSolarFlow) => {
     controlStatesToSet.set("setOutputLimit", properties.outputLimit);
   }
   if ((properties == null ? void 0 : properties.smartMode) != null) {
-    const value = properties.smartMode == 0 ? false : true;
+    const value = properties.smartMode == 0 ? 0 : 1;
     statesToSet.set("smartMode", value);
-    controlStatesToSet.set("smartMode", value);
+    controlStatesToSet.set("smartMode", value == 1);
   }
   if ((properties == null ? void 0 : properties.buzzerSwitch) != null) {
-    const value = properties.buzzerSwitch == 0 ? false : true;
+    const value = properties.buzzerSwitch == 0 ? 0 : 1;
     statesToSet.set("buzzerSwitch", value);
-    controlStatesToSet.set("buzzerSwitch", value);
+    controlStatesToSet.set("buzzerSwitch", value == 1);
   }
   if ((properties == null ? void 0 : properties.outputPackPower) != null) {
     statesToSet.set("outputPackPower", properties.outputPackPower);
@@ -252,14 +273,14 @@ const processDeviceProperties = async (device, properties, isSolarFlow) => {
     statesToSet.set("gridInputPower", properties.gridPower);
   }
   if ((properties == null ? void 0 : properties.acSwitch) != null) {
-    const value = properties.acSwitch == 0 ? false : true;
+    const value = properties.acSwitch == 0 ? 0 : 1;
     statesToSet.set("acSwitch", value);
-    controlStatesToSet.set("acSwitch", value);
+    controlStatesToSet.set("acSwitch", value == 1);
   }
   if ((properties == null ? void 0 : properties.dcSwitch) != null) {
-    const value = properties.dcSwitch == 0 ? false : true;
+    const value = properties.dcSwitch == 0 ? 0 : 1;
     statesToSet.set("dcSwitch", value);
-    controlStatesToSet.set("dcSwitch", value);
+    controlStatesToSet.set("dcSwitch", value == 1);
   }
   if ((properties == null ? void 0 : properties.dcOutputPower) != null) {
     statesToSet.set("dcOutputPower", properties.dcOutputPower);
@@ -321,11 +342,12 @@ const processDeviceProperties = async (device, properties, isSolarFlow) => {
       continue;
     }
     const rawValue = value;
-    await ensureState(device, key, rawValue);
-    device.updateSolarFlowState(key, rawValue);
+    const coercedValue = coerceToStateType(key, rawValue);
+    await ensureState(device, key, coercedValue);
+    device.updateSolarFlowState(key, coercedValue);
     if (device.adapter.log.level == "debug") {
       device.adapter.log.debug(
-        `[onMessage] ${device.deviceKey}: ${key} = ${JSON.stringify(rawValue)} stored via fallback handler`
+        `[onMessage] ${device.deviceKey}: ${key} = ${JSON.stringify(coercedValue)} stored via fallback handler`
       );
     }
   }

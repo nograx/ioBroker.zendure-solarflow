@@ -67,6 +67,7 @@ const ensureState = async (
   const stateDef = allStates[stateTitle];
   const productKey = device.productKey.replace(device.adapter.FORBIDDEN_CHARS, "");
   const deviceKey = device.deviceKey.replace(device.adapter.FORBIDDEN_CHARS, "");
+  const stateId = `${productKey}.${deviceKey}.${stateTitle}`;
 
   let type: ioBroker.CommonType;
   let role: string;
@@ -88,7 +89,14 @@ const ensureState = async (
     return;
   }
 
-  await device.adapter.extendObject(`${productKey}.${deviceKey}.${stateTitle}`, {
+  // Self-heal objects left over from older adapter versions where this state had a different type
+  // (e.g. wifiState used to be a string enum and was later changed to a number).
+  const existingObj = await device.adapter.getObjectAsync(stateId);
+  if (existingObj?.common?.type && existingObj.common.type !== type) {
+    await device.adapter.delObjectAsync(stateId);
+  }
+
+  await device.adapter.extendObject(stateId, {
     type: "state",
     common: {
       name: { de: nameDe, en: nameEn },
@@ -109,6 +117,24 @@ const ensureState = async (
   createdStateCache.get(deviceId)!.add(stateTitle);
 };
 
+const coerceToStateType = (stateTitle: string, value: number | string | boolean): number | string | boolean => {
+  const stateDef = allStates[stateTitle];
+  if (!stateDef) {
+    return value;
+  }
+
+  if (stateDef.type === "boolean" && typeof value !== "boolean") {
+    return value == 0 ? false : true;
+  }
+  if (stateDef.type === "string" && typeof value !== "string") {
+    return String(value);
+  }
+  if (stateDef.type === "number" && typeof value !== "number") {
+    return Number(value);
+  }
+  return value;
+};
+
 export const processDeviceProperties = async (
   device: ZenIobDevice,
   properties: ISolarFlowMqttProperties,
@@ -125,7 +151,7 @@ export const processDeviceProperties = async (
   }
 
   if (properties?.heatState != null) {
-    statesToSet.set("heatState", properties.heatState == 0 ? false : true);
+    statesToSet.set("heatState", properties.heatState == 0 ? 0 : 1);
   }
 
   if (properties?.electricLevel != null) {
@@ -183,13 +209,13 @@ export const processDeviceProperties = async (
   }
 
   if (properties?.pass != null) {
-    statesToSet.set("pass", properties.pass == 0 ? false : true);
+    statesToSet.set("pass", properties.pass == 0 ? 0 : 1);
   }
 
   if (properties?.autoRecover != null) {
-    const value = properties.autoRecover == 0 ? false : true;
+    const value = properties.autoRecover == 0 ? 0 : 1;
     statesToSet.set("autoRecover", value);
-    controlStatesToSet.set("autoRecover", value);
+    controlStatesToSet.set("autoRecover", value == 1);
   }
 
   if (properties?.outputHomePower != null) {
@@ -206,15 +232,15 @@ export const processDeviceProperties = async (
   }
 
   if (properties?.smartMode != null) {
-    const value = properties.smartMode == 0 ? false : true;
+    const value = properties.smartMode == 0 ? 0 : 1;
     statesToSet.set("smartMode", value);
-    controlStatesToSet.set("smartMode", value);
+    controlStatesToSet.set("smartMode", value == 1);
   }
 
   if (properties?.buzzerSwitch != null) {
-    const value = properties.buzzerSwitch == 0 ? false : true;
+    const value = properties.buzzerSwitch == 0 ? 0 : 1;
     statesToSet.set("buzzerSwitch", value);
-    controlStatesToSet.set("buzzerSwitch", value);
+    controlStatesToSet.set("buzzerSwitch", value == 1);
   }
 
   if (properties?.outputPackPower != null) {
@@ -298,15 +324,15 @@ export const processDeviceProperties = async (
   }
 
   if (properties?.acSwitch != null) {
-    const value = properties.acSwitch == 0 ? false : true;
+    const value = properties.acSwitch == 0 ? 0 : 1;
     statesToSet.set("acSwitch", value);
-    controlStatesToSet.set("acSwitch", value);
+    controlStatesToSet.set("acSwitch", value == 1);
   }
 
   if (properties?.dcSwitch != null) {
-    const value = properties.dcSwitch == 0 ? false : true;
+    const value = properties.dcSwitch == 0 ? 0 : 1;
     statesToSet.set("dcSwitch", value);
-    controlStatesToSet.set("dcSwitch", value);
+    controlStatesToSet.set("dcSwitch", value == 1);
   }
 
   if (properties?.dcOutputPower != null) {
@@ -401,12 +427,13 @@ export const processDeviceProperties = async (
     }
 
     const rawValue = value as number | string | boolean;
-    await ensureState(device, key, rawValue);
-    device.updateSolarFlowState(key, rawValue);
+    const coercedValue = coerceToStateType(key, rawValue);
+    await ensureState(device, key, coercedValue);
+    device.updateSolarFlowState(key, coercedValue);
 
     if (device.adapter.log.level == "debug") {
       device.adapter.log.debug(
-        `[onMessage] ${device.deviceKey}: ${key} = ${JSON.stringify(rawValue)} stored via fallback handler`,
+        `[onMessage] ${device.deviceKey}: ${key} = ${JSON.stringify(coercedValue)} stored via fallback handler`,
       );
     }
   }
