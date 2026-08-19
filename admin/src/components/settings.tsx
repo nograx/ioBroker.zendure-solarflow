@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect } from "react";
 import {
   Box,
   TextField,
@@ -49,15 +49,6 @@ interface SettingsProps {
 }
 
 function Settings(props: SettingsProps) {
-  const password = useMemo(
-    () => (props.native.password ? props.app.decrypt(props.native.password) : ""),
-    [props.native.password, props.app],
-  );
-
-  useEffect(() => {
-    props.onChange("password", password);
-  }, [password]);
-
   useEffect(() => {
     if (props.native.connectionMode === "local" && props.native.useZenSDK) {
       props.onChange("useZenSDK", false);
