@@ -310,6 +310,53 @@ class ZenIobDevice {
     this.adapter.log.error(`[getZenSdkProperties] IP address is not defined for device ${this.deviceKey}!`);
     return Promise.resolve(false);
   }
+  /**
+   * Called by mdnsHelper when this device was discovered locally via mDNS. Fills in the
+   * ipAddress if it is not yet known, then switches the device to a zenSDK connection
+   * (instead of Cloud/MQTT) if zenSDK is supported and enabled.
+   *
+   * @param ipAddress the IP address the device was discovered at
+   */
+  connectViaMdns(ipAddress) {
+    if (!this.ipAddress) {
+      this.ipAddress = ipAddress;
+      this.updateSolarFlowState("ip", ipAddress);
+    }
+    if (!this.adapter.config.useZenSDK || !this.isZenSdkSupported || this.deviceConnectionMode == import_enums.DeviceConnectionMode.zenSDK) {
+      return;
+    }
+    this.getZenSdkProperties().then((success) => {
+      if (success) {
+        this.deviceConnectionMode = import_enums.DeviceConnectionMode.zenSDK;
+        this.updateSolarFlowState("connectionMode", "zenSDK");
+        this.updateSolarFlowState("wifiState", 1);
+        this.unsubscribeMqttTopics();
+        this.adapter.log.info(
+          `[connectViaMdns] Switched device ${this.deviceKey} to zenSDK connection via mDNS-discovered IP ${ipAddress}!`
+        );
+      }
+    }).catch(() => {
+    });
+  }
+  unsubscribeMqttTopics() {
+    var _a, _b, _c, _d;
+    const reportTopic = `/${this.productKey}/${this.deviceKey}/#`;
+    const iotSubscribeTopic = `iot/${this.productKey}/${this.deviceKey}/#`;
+    if ((_b = (_a = this.adapter) == null ? void 0 : _a.cloudMqttService) == null ? void 0 : _b.mqttClient) {
+      this.adapter.log.debug(
+        `[unsubscribeMqttTopics] Unsubscribing from MQTT Topics for device ${this.deviceKey} (Cloud)`
+      );
+      this.adapter.cloudMqttService.mqttClient.unsubscribe(reportTopic);
+      this.adapter.cloudMqttService.mqttClient.unsubscribe(iotSubscribeTopic);
+    }
+    if ((_d = (_c = this.adapter) == null ? void 0 : _c.localMqttService) == null ? void 0 : _d.mqttClient) {
+      this.adapter.log.debug(
+        `[unsubscribeMqttTopics] Unsubscribing from MQTT Topics for device ${this.deviceKey} (Local)`
+      );
+      this.adapter.localMqttService.mqttClient.unsubscribe(reportTopic);
+      this.adapter.localMqttService.mqttClient.unsubscribe(iotSubscribeTopic);
+    }
+  }
   async axiosPostWithRetry(url, data, config, maxRetries = 3) {
     let lastError;
     for (let attempt = 1; attempt <= maxRetries; attempt++) {

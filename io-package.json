@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "5.0.3",
+    "version": "5.0.4",
     "news": {
+      "5.0.4": {
+        "en": "Fix flickering Save button in Settings.\nAdd function to detect zenSDK devices with mDNS and fill missing IP-address if found.",
+        "de": "Problem mit flackernder Speichern-Schaltfläche in den Einstellungen beheben.\nFüge eine Funktion hinzu, die zenSDK-Geräte mit mDNS erkennt und fehlende IP-Adressen gegebenenfalls ergänzt.",
+        "ru": "Исправлена ошибка с кнопкой «Сохранить» в настройках.\nДобавить функцию для обнаружения устройств zenSDK с помощью mDNS и заполнения недостающего IP-адреса, если он найден.",
+        "pt": "Corrigir problema de oscilação do botão Salvar nas Configurações.\nAdicionar função para detectar dispositivos zenSDK com mDNS e preencher o endereço IP ausente, caso seja encontrado.",
+        "nl": "Het probleem met de flikkerende 'Opslaan'-knop in de instellingen oplossen.\nVoeg een functie toe om zenSDK-apparaten met mDNS te detecteren en het ontbrekende IP-adres in te vullen indien gevonden.",
+        "fr": "Correction du problème de clignotement du bouton Enregistrer dans les paramètres.\nAjouter une fonction pour détecter les appareils zenSDK avec mDNS et renseigner l'adresse IP manquante si elle est trouvée.",
+        "it": "Risolvi il problema del pulsante Salva che lampeggia nelle Impostazioni.\nAggiungere una funzione per rilevare i dispositivi zenSDK con mDNS e compilare automaticamente l'indirizzo IP mancante, se presente.",
+        "es": "Solucionar el problema del parpadeo del botón Guardar en Ajustes.\nAgregar función para detectar dispositivos zenSDK con mDNS y completar la dirección IP faltante si se encuentra.",
+        "pl": "Naprawiono migotanie przycisku Zapisz w Ustawieniach.\nDodano funkcję wykrywania urządzeń zenSDK z mDNS i uzupełniania brakujących adresów IP, jeśli zostaną znalezione.",
+        "uk": "Виправлено мерехтіння кнопки «Зберегти» в налаштуваннях.\nДодано функцію для виявлення пристроїв zenSDK з mDNS та заповнення відсутньої IP-адреси, якщо вона знайдена.",
+        "zh-cn": "修复设置中保存按钮闪烁的问题。\n添加功能以检测带有 mDNS 的 zenSDK 设备，如果找到则填充缺失的 IP 地址。"
+      },
       "5.0.3": {
         "en": "Fix `wifiState` not being created/updated correctly for devices using local zenSDK polling (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus), as their local status payload does not report a `wifiState` property",
         "de": "Behebung des Problems, dass `wifiState` für Geräte mit lokaler zenSDK-Abfrage (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus) nicht korrekt erstellt/aktualisiert wird, da deren lokale Statusnutzlast keine `wifiState`-Eigenschaft meldet.",
@@ -80,19 +93,6 @@
         "pl": "Wysyłaj polecenia MQTT z QOS=1\nJeśli urządzenie zenSDK jest niedostępne, zatrzymaj odpytywanie urządzenia po 5 próbach. Spróbuj ponownie za 10 minut.",
         "uk": "Надсилайте команди MQTT з QOS=1\nЯкщо пристрій zenSDK недоступний, зупиніть опитування пристрою після 5 спроб. Спробуйте ще раз через 10 хвилин.",
         "zh-cn": "发送 MQTT 命令时 QOS=1\n如果 zenSDK 设备无法连接，则在重试 5 次后停止轮询设备。10 分钟后再试一次。"
-      },
-      "4.1.0": {
-        "en": "Allow local TLS MQTT Server connection on port 8883 (due to new device firmware) in settings\nFix batcur calculation",
-        "de": "In den Einstellungen muss die lokale TLS-MQTT-Serververbindung auf Port 8883 zugelassen werden (aufgrund neuer Geräte-Firmware).\nKorrektur der Batch-Berechnung",
-        "ru": "В настройках разрешите локальное подключение к TLS MQTT-серверу через порт 8883 (в связи с новой прошивкой устройства).\nИсправить расчет batcur",
-        "pt": "Permitir conexão local com servidor TLS MQTT na porta 8883 (devido a uma nova atualização de firmware do dispositivo) nas configurações.\nCorrigir cálculo de batcur",
-        "nl": "Schakel in de instellingen de lokale TLS MQTT-serververbinding op poort 8883 in (vanwege de nieuwe firmware van het apparaat).\nCorrectie van de batcur-berekening",
-        "fr": "Autoriser la connexion au serveur MQTT TLS local sur le port 8883 (en raison de la nouvelle mise à jour du firmware de l'appareil) dans les paramètres\nCalcul de correction de batcur",
-        "it": "Consenti la connessione al server MQTT TLS locale sulla porta 8883 (a causa del nuovo firmware del dispositivo) nelle impostazioni\nCorreggere il calcolo del batcur",
-        "es": "Permitir la conexión local al servidor TLS MQTT en el puerto 8883 (debido al nuevo firmware del dispositivo) en la configuración.\nCorregir el cálculo de batcur",
-        "pl": "Zezwól na połączenie lokalnego serwera TLS MQTT na porcie 8883 (z powodu nowego oprogramowania sprzętowego urządzenia) w ustawieniach\nNapraw obliczenia Batcura",
-        "uk": "Дозволити підключення локального сервера TLS MQTT на порту 8883 (через нову прошивку пристрою) у налаштуваннях\nВиправити розрахунок Batcur",
-        "zh-cn": "允许本地 TLS MQTT 服务器连接到端口 8883（由于设备固件更新），请在设置中进行启用。\n修复 batcur 计算"
       }
     },
     "titleLang": {

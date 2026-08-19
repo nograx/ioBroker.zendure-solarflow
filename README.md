@@ -101,8 +101,7 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 -->
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 5.0.4 (2026-08-19)
 
 - Fix flickering Save button in Settings.
 - Add function to detect zenSDK devices with mDNS and fill missing IP-address if found.
@@ -124,12 +123,6 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 - The adapter will now expose ALL properties from the device, not only the ones we know. If you know how to map a value to a readable state feel free to contact me so I can add a definition for that state!
 - Add control state 'gridReverse' (export excess energy)
 - Update dependencies
-
-### 4.1.2 (2026-07-15)
-
-- Fixed batcur reading
-- Add missing translations
-- Add dependencies
 
 For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 

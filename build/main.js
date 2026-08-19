@@ -104,10 +104,10 @@ class ZendureSolarflow extends utils.Adapter {
     });
     this.setState("info.errorMessage", "", true);
     this.setState("info.connection", false, true);
-    (0, import_mdnsHelper.discoverZendureDevicesViaMdns)(this);
     switch (this.config.connectionMode) {
       case "authKey": {
         this.log.debug("[onReady] Using Authorization Cloud Key");
+        (0, import_mdnsHelper.discoverZendureDevicesViaMdns)(this);
         if (!this.config.authorizationCloudKey) {
           this.log.error("[zenWebService.login] authorization cloud key is missing!");
           break;
