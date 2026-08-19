@@ -38,6 +38,7 @@ var import_localMqttService = require("./services/mqtt/localMqttService");
 var import_cloudMqttService = require("./services/mqtt/cloudMqttService");
 var import_helpers = require("./helpers/helpers");
 var import_fileHelper = require("./helpers/fileHelper");
+var import_mdnsHelper = require("./helpers/mdnsHelper");
 class ZendureSolarflow extends utils.Adapter {
   constructor(options = {}) {
     super({
@@ -103,6 +104,7 @@ class ZendureSolarflow extends utils.Adapter {
     });
     this.setState("info.errorMessage", "", true);
     this.setState("info.connection", false, true);
+    (0, import_mdnsHelper.discoverZendureDevicesViaMdns)(this);
     switch (this.config.connectionMode) {
       case "authKey": {
         this.log.debug("[onReady] Using Authorization Cloud Key");

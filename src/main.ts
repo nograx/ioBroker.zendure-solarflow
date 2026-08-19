@@ -16,6 +16,7 @@ import type { IZenIobMqttData } from "./models/IZenIobMqttData";
 import type { ZenIobDevice } from "./models/deviceModels/ZenIobDevice";
 import { createDeviceModel } from "./helpers/helpers";
 import { FileHelper } from "./helpers/fileHelper";
+import { discoverZendureDevicesViaMdns } from "./helpers/mdnsHelper";
 
 export class ZendureSolarflow extends utils.Adapter {
   public constructor(options: Partial<utils.AdapterOptions> = {}) {
@@ -94,6 +95,8 @@ export class ZendureSolarflow extends utils.Adapter {
     switch (this.config.connectionMode) {
       case "authKey": {
         this.log.debug("[onReady] Using Authorization Cloud Key");
+
+        discoverZendureDevicesViaMdns(this);
 
         if (!this.config.authorizationCloudKey) {
           this.log.error("[zenWebService.login] authorization cloud key is missing!");
