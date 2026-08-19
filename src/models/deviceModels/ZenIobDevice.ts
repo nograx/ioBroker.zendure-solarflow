@@ -1056,9 +1056,9 @@ export class ZenIobDevice {
               native: {},
             });
 
-            let batcur = 0;
+            let batcur = x.batcur;
 
-            if (x.batcur > 32767) {
+            if (batcur > 32767) {
               batcur -= 65536;
             }
             packStatesToSet.set("batcur", batcur / 10);
