@@ -791,7 +791,7 @@ const allStates = {
   },
   gridOffMode: {
     title: "gridOffMode",
-    nameDe: "Netzausfall Modus",
+    nameDe: "Off-Grid Steckdosenmodus",
     nameEn: "grid off mode",
     type: "number",
     role: "value",

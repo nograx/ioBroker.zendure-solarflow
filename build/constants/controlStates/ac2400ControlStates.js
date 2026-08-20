@@ -71,6 +71,19 @@ const ac2400ControlStates = [
     write: true
   },
   {
+    nameDe: "Maximal akzeptable Ausgangsleistung",
+    nameEn: "highest acceptable output power",
+    type: "number",
+    def: 0,
+    title: "inverseMaxPower",
+    role: "value.power",
+    read: true,
+    write: true,
+    min: 0,
+    max: 2400,
+    unit: "W"
+  },
+  {
     nameDe: "Einzustellende Eingangsleistung",
     nameEn: "Control of the input limit",
     type: "number",

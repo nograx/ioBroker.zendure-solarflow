@@ -56,6 +56,7 @@ export interface ISolarFlowMqttProperties {
   heatState?: number;
   smartMode?: number;
   gridReverse?: number;
+  gridOffMode?: number;
   // ambientLightNess
   // ambientLightColor
   // ambientLightMode
@@ -74,47 +75,3 @@ export interface ISolarFlowMqttProperties {
   // inputMode
   // blueOta
 }
-
-export const knownMqttProps = [
-  "electricLevel",
-  "packData",
-  "packState",
-  "pass",
-  "passMode",
-  "autoRecover",
-  "outputHomePower",
-  "outputLimit",
-  "buzzerSwitch",
-  "smartMode",
-  "outputPackPower",
-  "packInputPower",
-  "solarInputPower",
-  "pvPower1",
-  "pvPower2",
-  "solarPower1",
-  "solarPower2",
-  "remainOutTime",
-  "remainInputTime",
-  "socSet",
-  "minSoc",
-  "pvBrand",
-  "inverseMaxPower",
-  "wifiState",
-  "hubState",
-  "sn",
-  "inputLimit",
-  "gridInputPower",
-  "acOutputPower",
-  "acSwitch",
-  "dcSwitch",
-  "autoModel",
-  "dcOutputPower",
-  "packNum",
-  "gridPower",
-  "energyPower",
-  "batteryElectric",
-  "acMode",
-  "hyperTmp",
-  "autoModel",
-  "heatState",
-];

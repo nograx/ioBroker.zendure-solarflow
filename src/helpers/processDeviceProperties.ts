@@ -49,6 +49,7 @@ const handledMqttKeys = new Set<string>([
   "hubState",
   "batteryElectric",
   "gridReverse",
+  "gridOffMode",
 ]);
 
 // MQTT property keys that are known noise and should never become states
@@ -362,6 +363,7 @@ export const processDeviceProperties = async (
 
   if (properties?.inverseMaxPower != null) {
     statesToSet.set("inverseMaxPower", properties.inverseMaxPower);
+    controlStatesToSet.set("inverseMaxPower", properties.inverseMaxPower);
   }
 
   if (properties?.wifiState != null) {
@@ -384,6 +386,11 @@ export const processDeviceProperties = async (
   if (properties?.gridReverse != null) {
     statesToSet.set("gridReverse", properties.gridReverse);
     controlStatesToSet.set("gridReverse", properties.gridReverse);
+  }
+
+  if (properties?.gridOffMode != null) {
+    statesToSet.set("gridOffMode", properties.gridOffMode);
+    controlStatesToSet.set("gridOffMode", properties.gridOffMode);
   }
 
   if (properties?.packData != null) {

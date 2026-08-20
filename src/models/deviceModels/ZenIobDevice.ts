@@ -665,6 +665,16 @@ export class ZenIobDevice {
     }
   }
 
+  public setGridOffMode(gridOffMode: number): void {
+    if (this.productKey && this.deviceKey) {
+      if (gridOffMode >= 0 && gridOffMode <= 2) {
+        this.updateProperty("gridOffMode", gridOffMode);
+      } else {
+        this.adapter.log.debug(`[setGridOffMode] Grid off mode value ${gridOffMode} is not 0, 1 or 2!`);
+      }
+    }
+  }
+
   public setPassMode(passMode: number): void {
     if (this.productKey && this.deviceKey) {
       this.updateProperty("passMode", passMode);
@@ -674,6 +684,18 @@ export class ZenIobDevice {
   public setAutoRecover(autoRecover: boolean): void {
     if (this.productKey && this.deviceKey) {
       this.updateProperty("autoRecover", autoRecover ? 1 : 0);
+    }
+  }
+
+  public setInverseMaxPower(inverseMaxPower: number): void {
+    if (this.productKey && this.deviceKey) {
+      if (inverseMaxPower < 0) {
+        this.adapter.log.debug(
+          `[setInverseMaxPower] inverseMaxPower ${inverseMaxPower} is negative, converting to positive!`,
+        );
+        inverseMaxPower = Math.abs(inverseMaxPower);
+      }
+      this.updateProperty("inverseMaxPower", Math.round(inverseMaxPower));
     }
   }
 

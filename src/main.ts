@@ -388,11 +388,17 @@ export class ZendureSolarflow extends utils.Adapter {
               case "gridReverse":
                 _device.setGridReverse(Number(state.val));
                 break;
+              case "gridOffMode":
+                _device.setGridOffMode(Number(state.val));
+                break;
               case "autoModel":
                 _device.setAutoModel(Number(state.val));
                 break;
               case "autoRecover":
                 _device.setAutoRecover(state.val ? true : false);
+                break;
+              case "inverseMaxPower":
+                _device.setInverseMaxPower(Number(state.val));
                 break;
               case "buzzerSwitch":
                 _device.setBuzzerSwitch(state.val ? true : false);

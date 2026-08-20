@@ -548,6 +548,15 @@ class ZenIobDevice {
       }
     }
   }
+  setGridOffMode(gridOffMode) {
+    if (this.productKey && this.deviceKey) {
+      if (gridOffMode >= 0 && gridOffMode <= 2) {
+        this.updateProperty("gridOffMode", gridOffMode);
+      } else {
+        this.adapter.log.debug(`[setGridOffMode] Grid off mode value ${gridOffMode} is not 0, 1 or 2!`);
+      }
+    }
+  }
   setPassMode(passMode) {
     if (this.productKey && this.deviceKey) {
       this.updateProperty("passMode", passMode);
@@ -556,6 +565,17 @@ class ZenIobDevice {
   setAutoRecover(autoRecover) {
     if (this.productKey && this.deviceKey) {
       this.updateProperty("autoRecover", autoRecover ? 1 : 0);
+    }
+  }
+  setInverseMaxPower(inverseMaxPower) {
+    if (this.productKey && this.deviceKey) {
+      if (inverseMaxPower < 0) {
+        this.adapter.log.debug(
+          `[setInverseMaxPower] inverseMaxPower ${inverseMaxPower} is negative, converting to positive!`
+        );
+        inverseMaxPower = Math.abs(inverseMaxPower);
+      }
+      this.updateProperty("inverseMaxPower", Math.round(inverseMaxPower));
     }
   }
   /**
@@ -874,8 +894,8 @@ class ZenIobDevice {
               },
               native: {}
             }));
-            let batcur = 0;
-            if (x.batcur > 32767) {
+            let batcur = x.batcur;
+            if (batcur > 32767) {
               batcur -= 65536;
             }
             packStatesToSet.set("batcur", batcur / 10);

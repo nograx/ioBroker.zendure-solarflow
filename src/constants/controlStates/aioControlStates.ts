@@ -49,6 +49,18 @@ export const aioControlStates: ISolarflowState[] = [
     write: true,
   },
   {
+    nameDe: "Maximal akzeptabler Eingang des PV-Mikrowechselrichters",
+    nameEn: "highest acceptable input power",
+    type: "number",
+    def: 0,
+    title: "inverseMaxPower",
+    role: "value.power",
+    read: true,
+    write: true,
+    min: 0,
+    unit: "W",
+  },
+  {
     nameDe: "Smart Mode",
     nameEn: "Smart Mode",
     type: "boolean",

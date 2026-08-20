@@ -107,6 +107,19 @@ const hyperControlStates = [
     min: -1200,
     max: 1200,
     unit: "W"
+  },
+  {
+    nameDe: "Maximal akzeptable Ausgangsleistung",
+    nameEn: "highest acceptable output power",
+    type: "number",
+    def: 0,
+    title: "inverseMaxPower",
+    role: "value.power",
+    read: true,
+    write: true,
+    min: 0,
+    max: 1200,
+    unit: "W"
   }
 ];
 // Annotate the CommonJS export names for ESM import in node:

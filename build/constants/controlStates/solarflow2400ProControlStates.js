@@ -71,6 +71,19 @@ const solarflow2400ProControlStates = [
     write: true
   },
   {
+    nameDe: "Maximal akzeptable Ausgangsleistung",
+    nameEn: "highest acceptable output power",
+    type: "number",
+    def: 0,
+    title: "inverseMaxPower",
+    role: "value.power",
+    read: true,
+    write: true,
+    min: 0,
+    max: 2400,
+    unit: "W"
+  },
+  {
     nameDe: "Einzustellende Eingangsleistung",
     nameEn: "Control of the input limit",
     type: "number",
@@ -151,6 +164,24 @@ const solarflow2400ProControlStates = [
       0: "disabled",
       1: "allow",
       2: "forbidden"
+    }
+  },
+  {
+    nameDe: "Off-Grid Steckdose",
+    nameEn: "Grid off mode",
+    type: "number",
+    def: 0,
+    title: "gridOffMode",
+    role: "value",
+    read: true,
+    write: true,
+    min: 0,
+    max: 2,
+    step: 1,
+    states: {
+      0: "normal",
+      1: "eco",
+      2: "off"
     }
   }
 ];
