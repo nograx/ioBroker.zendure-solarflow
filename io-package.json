@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "5.0.4",
+    "version": "5.1.0",
     "news": {
+      "5.1.0": {
+        "en": "Fix batCur Reading\nAdd control state for inverseMaxPower and gridOffMode (Control AC outlet on 'Plus' Devices)",
+        "de": "Batterie reparieren Lesen\nSteuerungsstatus für inverseMaxPower und gridOffMode hinzufügen (Wechselstromsteckdose an Geräten mit dem Präfix „Plus“ steuern)",
+        "ru": "Исправить показания batCur\nДобавить состояние управления для inverseMaxPower и gridOffMode (управление розеткой переменного тока на устройствах класса «Plus»).",
+        "pt": "Corrigir leitura batCur\nAdicionar estado de controle para inverseMaxPower e gridOffMode (Controlar tomada CA em dispositivos 'Plus')",
+        "nl": "BatCur-lezing corrigeren\nVoeg een besturingsstatus toe voor inverseMaxPower en gridOffMode (besturing van het AC-stopcontact op 'Plus'-apparaten).",
+        "fr": "Correction de la lecture batCur\nAjout d'un état de contrôle pour inverseMaxPower et gridOffMode (Contrôle de la prise secteur sur les appareils « Plus »)",
+        "it": "Correggere la lettura di batCur\nAggiungi lo stato di controllo per inverseMaxPower e gridOffMode (Controlla la presa CA sui dispositivi 'Plus')",
+        "es": "Corregir la lectura de batCur\nAgregar estado de control para inverseMaxPower y gridOffMode (Controlar la salida de CA en dispositivos 'Plus')",
+        "pl": "Napraw odczyt batCur\nDodaj stan sterowania dla inverseMaxPower i gridOffMode (sterowanie gniazdem prądu zmiennego na urządzeniach „Plus”)",
+        "uk": "Виправити читання batCur\nДодано стан керування для inverseMaxPower та gridOffMode (керування розеткою змінного струму на пристроях «Plus»)",
+        "zh-cn": "修复 batCur 读取\n为反向最大功率和电网关闭模式添加控制状态（控制“Plus”设备上的交流电源插座）"
+      },
       "5.0.4": {
         "en": "Fix flickering Save button in Settings.\nAdd function to detect zenSDK devices with mDNS and fill missing IP-address if found.",
         "de": "Problem mit flackernder Speichern-Schaltfläche in den Einstellungen beheben.\nFüge eine Funktion hinzu, die zenSDK-Geräte mit mDNS erkennt und fehlende IP-Adressen gegebenenfalls ergänzt.",
@@ -80,19 +93,6 @@
         "pl": "Naprawiono czytanie Batcura\nDodaj brakujące tłumaczenia\nDodaj zależności",
         "uk": "Виправлено читання Batcur\nДодати відсутні переклади\nДодати залежності",
         "zh-cn": "已修复 batcur 读取\n添加缺失的翻译\n添加依赖项"
-      },
-      "4.1.1": {
-        "en": "Send MQTT commands with QOS=1\nIf zenSDK device is not reachable, stop polling device after 5 retries. Try again after 10 minutes.",
-        "de": "Sende MQTT-Befehle mit QoS=1\nWenn das zenSDK-Gerät nicht erreichbar ist, wird die Abfrage des Geräts nach 5 Versuchen abgebrochen. Ein erneuter Versuch erfolgt nach 10 Minuten.",
-        "ru": "Отправляйте команды MQTT с параметром QOS=1.\nЕсли устройство zenSDK недоступно, прекратите опрос устройства после 5 попыток. Повторите попытку через 10 минут.",
-        "pt": "Enviar comandos MQTT com QoS=1\nSe o dispositivo zenSDK não estiver acessível, pare de tentar localizá-lo após 5 tentativas. Tente novamente após 10 minutos.",
-        "nl": "Verzend MQTT-opdrachten met QOS=1\nAls het zenSDK-apparaat niet bereikbaar is, stop dan na 5 pogingen met het controleren van het apparaat. Probeer het na 10 minuten opnieuw.",
-        "fr": "Envoyer des commandes MQTT avec QOS=1\nSi le périphérique zenSDK est injoignable, arrêtez l'interrogation après 5 tentatives. Réessayez après 10 minutes.",
-        "it": "Invia comandi MQTT con QOS=1\nSe il dispositivo zenSDK non è raggiungibile, interrompere il polling dopo 5 tentativi. Riprovare dopo 10 minuti.",
-        "es": "Enviar comandos MQTT con QOS=1\nSi no se puede acceder al dispositivo zenSDK, deje de sondearlo después de 5 intentos. Vuelva a intentarlo después de 10 minutos.",
-        "pl": "Wysyłaj polecenia MQTT z QOS=1\nJeśli urządzenie zenSDK jest niedostępne, zatrzymaj odpytywanie urządzenia po 5 próbach. Spróbuj ponownie za 10 minut.",
-        "uk": "Надсилайте команди MQTT з QOS=1\nЯкщо пристрій zenSDK недоступний, зупиніть опитування пристрою після 5 спроб. Спробуйте ще раз через 10 хвилин.",
-        "zh-cn": "发送 MQTT 命令时 QOS=1\n如果 zenSDK 设备无法连接，则在重试 5 次后停止轮询设备。10 分钟后再试一次。"
       }
     },
     "titleLang": {
