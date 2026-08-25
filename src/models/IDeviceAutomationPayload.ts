@@ -7,9 +7,11 @@ export interface IDeviceAutomationPayload {
 
 export interface IHemsEpPayload {
   outputPower: number;
-  chargeState: number;
   chargePower: number;
+  freq: number;
   mode: number;
+  chargeMode?: number;
+  minSoc?: number;
 }
 
 interface IAutoModelValue {

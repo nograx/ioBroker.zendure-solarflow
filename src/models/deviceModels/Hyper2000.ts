@@ -1,7 +1,6 @@
 import { hyperControlStates } from "../../constants/controlStates/hyperControlStates";
 import { sharedControlStates } from "../../constants/controlStates/sharedControlStates";
 import type { ZendureSolarflow } from "../../main";
-import type { IDeviceAutomationPayload } from "../IDeviceAutomationPayload";
 import type { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
 import { ZenIobDevice } from "./ZenIobDevice";
 
@@ -88,61 +87,7 @@ export class Hyper2000 extends ZenIobDevice {
         limit = this.maxOutputLimit;
       }
 
-      this.messageId += 1;
-
-      const timestamp = new Date();
-      timestamp.setMilliseconds(0);
-
-      let _arguments: IDeviceAutomationPayload[] = [];
-
-      if (limit < 0) {
-        this.adapter.log.debug(
-          `[setDeviceAutomationInOutLimit] Using CHARGE variant of HYPER device automation, as device '${this.deviceKey}' detected and limit (${limit}) is negative!`,
-        );
-        // Input / Charge
-        _arguments = [
-          {
-            autoModelProgram: 1,
-            autoModelValue: {
-              chargingType: 1,
-              price: 2,
-              chargingPower: Math.abs(limit),
-              prices: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-              outPower: 0,
-              freq: 0,
-            },
-            msgType: 1,
-            autoModel: 8,
-          },
-        ];
-      } else {
-        this.adapter.log.debug(
-          `[setDeviceAutomationInOutLimit] Using FEED IN variant of HYPER device automation, as device '${this.productName}' detected and limit (${limit}) is positive!`,
-        );
-        // Output
-        _arguments = [
-          {
-            autoModelProgram: 2,
-            autoModelValue: {
-              chargingType: 0,
-              chargingPower: 0,
-              freq: 0,
-              outPower: limit,
-            },
-            msgType: 1,
-            autoModel: 8,
-          },
-        ];
-      }
-
-      const deviceAutomation = {
-        arguments: _arguments,
-        function: "deviceAutomation",
-        messageId: this.messageId,
-        deviceKey: this.deviceKey,
-        timestamp: timestamp.getTime() / 1000,
-      };
-      this.invokeMqttFunction(JSON.stringify(deviceAutomation));
+      await this.sendHemsEpSetpoint(limit);
     }
   }
 }

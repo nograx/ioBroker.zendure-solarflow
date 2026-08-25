@@ -801,6 +801,43 @@ const allStates = {
       2: "off"
     }
   },
+  hemsState: {
+    title: "hemsState",
+    nameDe: "HEMS Steuerung aktiv",
+    nameEn: "HEMS control active",
+    type: "number",
+    role: "value",
+    states: {
+      0: "off",
+      1: "on"
+    }
+  },
+  gridStandard: {
+    title: "gridStandard",
+    nameDe: "Netzstandard",
+    nameEn: "grid standard",
+    type: "number",
+    role: "value",
+    states: {
+      0: "Germany",
+      1: "France",
+      2: "Austria",
+      3: "Switzerland",
+      4: "Netherlands",
+      5: "Spain",
+      6: "Belgium",
+      7: "Greece",
+      8: "Denmark",
+      9: "Italy"
+    }
+  },
+  acCouplingState: {
+    title: "acCouplingState",
+    nameDe: "AC-Kopplungsstatus",
+    nameEn: "AC coupling state",
+    type: "number",
+    role: "value"
+  },
   fanSpeed: {
     title: "fanSpeed",
     nameDe: "L\xFCftergeschwindigkeit",

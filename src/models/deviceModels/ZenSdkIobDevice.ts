@@ -1,6 +1,5 @@
 import { DeviceConnectionMode } from "../../helpers/enums";
 import type { ZendureSolarflow } from "../../main";
-import type { IHemsEpPayload } from "../IDeviceAutomationPayload";
 import type { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
 import { ZenIobDevice } from "./ZenIobDevice";
 
@@ -28,11 +27,24 @@ export abstract class ZenSdkIobDevice extends ZenIobDevice {
     );
   }
 
+  private resetAcModeTimeout?: ioBroker.Timeout;
+  private resetSmartModeTimeout?: ioBroker.Timeout;
+
   public async setDeviceAutomationInOutLimit(
     limit: number, // can be negative, negative will trigger charging mode
   ): Promise<void> {
     if (this.productKey && this.deviceKey) {
       this.adapter.log.debug(`[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`);
+
+      if (this.resetAcModeTimeout) {
+        this.adapter.clearTimeout(this.resetAcModeTimeout);
+        this.resetAcModeTimeout = undefined;
+      }
+
+      if (this.resetSmartModeTimeout) {
+        this.adapter.clearTimeout(this.resetSmartModeTimeout);
+        this.resetSmartModeTimeout = undefined;
+      }
 
       if (limit) {
         limit = Math.round(limit);
@@ -126,13 +138,15 @@ export abstract class ZenSdkIobDevice extends ZenIobDevice {
             results.push(await this.updateProperty("inputLimit", 0));
           }
 
-          this.adapter.setTimeout(async () => {
+          this.resetAcModeTimeout = this.adapter.setTimeout(async () => {
+            this.resetAcModeTimeout = undefined;
             if (currentAcMode && currentAcMode.val != 0) {
               results.push(await this.updateProperty("acMode", 0));
             }
           }, 2000);
 
-          this.adapter.setTimeout(async () => {
+          this.resetSmartModeTimeout = this.adapter.setTimeout(async () => {
+            this.resetSmartModeTimeout = undefined;
             if (currentSmartMode && currentSmartMode.val != 0) {
               results.push(await this.updateProperty("smartMode", 0));
             }
@@ -143,34 +157,14 @@ export abstract class ZenSdkIobDevice extends ZenIobDevice {
         const success = results.every((result) => result === true);
 
         if (success) {
-          this?.updateSolarFlowControlState("setDeviceAutomationInOutLimit", limit);
+          await this?.updateSolarFlowControlState("setDeviceAutomationInOutLimit", limit);
         }
       } else {
         // Device Automation for HEMS devices
         this.adapter.log.debug(
           `[setDeviceAutomationInOutLimit] Using HEMS Variant of device automation, as deviceKey '${this.deviceKey}' detected!`,
         );
-        this.messageId += 1;
-
-        const timestamp = new Date();
-        timestamp.setMilliseconds(0);
-
-        // HEMS Variante
-        const _arguments: IHemsEpPayload = {
-          outputPower: limit > 0 ? limit : 0,
-          chargeState: limit > 0 ? 0 : 1,
-          chargePower: limit > 0 ? 0 : -limit,
-          mode: 9,
-        };
-
-        const hemsEP = {
-          arguments: _arguments,
-          function: "hemsEP",
-          messageId: this.messageId,
-          deviceKey: this.deviceKey,
-          timestamp: timestamp.getTime() / 1000,
-        };
-        this.invokeMqttFunction(JSON.stringify(hemsEP));
+        await this.sendHemsEpSetpoint(limit);
       }
     }
   }

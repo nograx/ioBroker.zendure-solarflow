@@ -67,7 +67,11 @@ const handledMqttKeys = /* @__PURE__ */ new Set([
   "hubState",
   "batteryElectric",
   "gridReverse",
-  "gridOffMode"
+  "gridOffMode",
+  "gridStandard",
+  "BatVolt",
+  "acCouplingState",
+  "hemsState"
 ]);
 const ignoredMqttKeys = /* @__PURE__ */ new Set(["0", "getAll"]);
 const ensureState = async (device, stateTitle, rawValue) => {
@@ -317,6 +321,20 @@ const processDeviceProperties = async (device, properties, isSolarFlow) => {
   if ((properties == null ? void 0 : properties.gridOffMode) != null) {
     statesToSet.set("gridOffMode", properties.gridOffMode);
     controlStatesToSet.set("gridOffMode", properties.gridOffMode);
+  }
+  if ((properties == null ? void 0 : properties.hemsState) != null) {
+    statesToSet.set("hemsState", properties.hemsState);
+    controlStatesToSet.set("hemsState", properties.hemsState);
+  }
+  if ((properties == null ? void 0 : properties.gridStandard) != null) {
+    statesToSet.set("gridStandard", properties.gridStandard);
+  }
+  if ((properties == null ? void 0 : properties.acCouplingState) != null) {
+    statesToSet.set("acCouplingState", properties.acCouplingState & 61440);
+  }
+  if ((properties == null ? void 0 : properties.BatVolt) != null) {
+    const batVolt = properties.BatVolt / 100;
+    statesToSet.set("BatVolt", batVolt);
   }
   if ((properties == null ? void 0 : properties.packData) != null) {
     await device.addOrUpdatePackData(properties.packData, isSolarFlow);

@@ -100,4 +100,19 @@ export const hyperControlStates: ISolarflowState[] = [
     max: 1200,
     unit: "W",
   },
+  {
+    title: "hemsState",
+    nameDe: "HEMS Steuerung aktiv",
+    nameEn: "HEMS control active",
+    type: "number",
+    role: "value",
+    read: true,
+    write: true,
+    min: 0,
+    max: 1,
+    states: {
+      0: "off",
+      1: "on",
+    },
+  },
 ];

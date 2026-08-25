@@ -515,6 +515,54 @@ class ZenIobDevice {
     );
     return;
   }
+  /**
+   * Hands control of the device to the HEMS via `hemsState` (properties/write).
+   *
+   * @param hemsState true to hand control to the HEMS, false to release it
+   */
+  setHemsState(hemsState) {
+    if (this.productKey && this.deviceKey) {
+      this.adapter.log.debug(`[setHemsState] Setting hemsState to ${hemsState ? 1 : 0} for device ${this.deviceKey}!`);
+      this.writeMqttProperties(JSON.stringify({ properties: { hemsState: hemsState ? 1 : 0 } }));
+    }
+  }
+  /**
+   * Sending a device limit trought HEMS imitation. This function acts like the HEMS from Zendure cloud.
+   *
+   * @param limit desired power in W; negative charges, positive (including 0) discharges/idles
+   */
+  releaseHemsControlTimeout;
+  async sendHemsEpSetpoint(limit) {
+    if (this.releaseHemsControlTimeout) {
+      this.adapter.clearTimeout(this.releaseHemsControlTimeout);
+      this.releaseHemsControlTimeout = void 0;
+    }
+    const hemsStateActive = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.hemsState`);
+    if (!hemsStateActive || !hemsStateActive.val) {
+      this.setHemsState(true);
+      await new Promise((resolve) => this.adapter.setTimeout(resolve, 3e3));
+    }
+    this.messageId += 1;
+    const timestamp = /* @__PURE__ */ new Date();
+    timestamp.setMilliseconds(0);
+    const minSocState = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.minSoc`);
+    const minSoc = ((minSocState == null ? void 0 : minSocState.val) ? Number(minSocState.val) : 1) * 10;
+    const _arguments = limit < 0 ? { outputPower: 0, chargePower: -limit, freq: 0, mode: 9, chargeMode: 3 } : { outputPower: limit, chargePower: 0, freq: 0, mode: 9, minSoc };
+    const hemsEP = {
+      arguments: _arguments,
+      function: "hemsEP",
+      messageId: this.messageId,
+      deviceKey: this.deviceKey,
+      timestamp: timestamp.getTime() / 1e3
+    };
+    this.invokeMqttFunction(JSON.stringify(hemsEP));
+    if (limit === 0) {
+      this.releaseHemsControlTimeout = this.adapter.setTimeout(() => {
+        this.releaseHemsControlTimeout = void 0;
+        this.setHemsState(false);
+      }, 3e3);
+    }
+  }
   setAcMode(acMode) {
     var _a;
     (_a = this.adapter) == null ? void 0 : _a.log.error(`[setAcMode] Method setAcMode (set to ${acMode}) not defined in base class!`);
@@ -867,20 +915,20 @@ class ZenIobDevice {
           const packStatesToSet = /* @__PURE__ */ new Map();
           packStatesToSet.set("model", batType);
           packStatesToSet.set("sn", x.sn);
-          if (x.socLevel) {
+          if (x.socLevel != null) {
             packStatesToSet.set("socLevel", x.socLevel);
           }
-          if (x.maxTemp) {
+          if (x.maxTemp != null) {
             const maxTempCelsius = x.maxTemp / 10 - 273.15;
             await touchLastUpdate("maxTemp", maxTempCelsius);
             packStatesToSet.set("maxTemp", maxTempCelsius);
           }
-          if (x.minVol) {
+          if (x.minVol != null) {
             const minVol = x.minVol / 100;
             await touchLastUpdate("minVol", minVol);
             packStatesToSet.set("minVol", minVol);
           }
-          if (x.batcur) {
+          if (x.batcur != null) {
             await ((_b = this.adapter) == null ? void 0 : _b.extendObject(`${key}.batcur`, {
               type: "state",
               common: {
@@ -900,12 +948,12 @@ class ZenIobDevice {
             }
             packStatesToSet.set("batcur", batcur / 10);
           }
-          if (x.maxVol) {
+          if (x.maxVol != null) {
             const maxVol = x.maxVol / 100;
             await touchLastUpdate("maxVol", maxVol);
             packStatesToSet.set("maxVol", maxVol);
           }
-          if (x.totalVol) {
+          if (x.totalVol != null) {
             const totalVol = x.totalVol / 100;
             await touchLastUpdate("totalVol", totalVol);
             packStatesToSet.set("totalVol", totalVol);
@@ -913,10 +961,10 @@ class ZenIobDevice {
               this.checkVoltage(totalVol);
             }
           }
-          if (x.soh) {
+          if (x.soh != null) {
             packStatesToSet.set("soh", x.soh / 10);
           }
-          if (x.power) {
+          if (x.power != null) {
             packStatesToSet.set("power", x.power);
           }
           for (const [fieldName, value] of packStatesToSet) {

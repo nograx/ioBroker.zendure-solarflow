@@ -9,6 +9,7 @@ import {
   onSubscribeReportTopic,
 } from "../../services/mqtt/mqttSharedService";
 import type { IDevicePack } from "../IDevicePack";
+import type { IHemsEpPayload } from "../IDeviceAutomationPayload";
 import type { IPackData } from "../IPackData";
 import type { ISolarflowState } from "../ISolarflowState";
 import type { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
@@ -630,6 +631,69 @@ export class ZenIobDevice {
     return;
   }
 
+  /**
+   * Hands control of the device to the HEMS via `hemsState` (properties/write).
+   *
+   * @param hemsState true to hand control to the HEMS, false to release it
+   */
+  public setHemsState(hemsState: boolean): void {
+    if (this.productKey && this.deviceKey) {
+      this.adapter.log.debug(`[setHemsState] Setting hemsState to ${hemsState ? 1 : 0} for device ${this.deviceKey}!`);
+      this.writeMqttProperties(JSON.stringify({ properties: { hemsState: hemsState ? 1 : 0 } }));
+    }
+  }
+
+  /**
+   * Sending a device limit trought HEMS imitation. This function acts like the HEMS from Zendure cloud.
+   *
+   * @param limit desired power in W; negative charges, positive (including 0) discharges/idles
+   */
+  private releaseHemsControlTimeout?: ioBroker.Timeout;
+
+  protected async sendHemsEpSetpoint(limit: number): Promise<void> {
+    if (this.releaseHemsControlTimeout) {
+      this.adapter.clearTimeout(this.releaseHemsControlTimeout);
+      this.releaseHemsControlTimeout = undefined;
+    }
+
+    const hemsStateActive = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.hemsState`);
+    if (!hemsStateActive || !hemsStateActive.val) {
+      this.setHemsState(true);
+      // Device needs ~3s to process the hemsState handshake before it accepts hemsEP setpoints
+      await new Promise<void>((resolve) => this.adapter.setTimeout(resolve, 3000));
+    }
+
+    this.messageId += 1;
+
+    const timestamp = new Date();
+    timestamp.setMilliseconds(0);
+
+    const minSocState = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.minSoc`);
+    const minSoc = (minSocState?.val ? Number(minSocState.val) : 1) * 10;
+
+    const _arguments: IHemsEpPayload =
+      limit < 0
+        ? { outputPower: 0, chargePower: -limit, freq: 0, mode: 9, chargeMode: 3 }
+        : { outputPower: limit, chargePower: 0, freq: 0, mode: 9, minSoc };
+
+    const hemsEP = {
+      arguments: _arguments,
+      function: "hemsEP",
+      messageId: this.messageId,
+      deviceKey: this.deviceKey,
+      timestamp: timestamp.getTime() / 1000,
+    };
+    this.invokeMqttFunction(JSON.stringify(hemsEP));
+
+    if (limit === 0) {
+      // Release HEMS control 3s after idling at 0, unless a new setpoint arrives first (see cancellation above)
+      this.releaseHemsControlTimeout = this.adapter.setTimeout(() => {
+        this.releaseHemsControlTimeout = undefined;
+        this.setHemsState(false);
+      }, 3000);
+    }
+  }
+
   public setAcMode(acMode: number): void {
     this.adapter?.log.error(`[setAcMode] Method setAcMode (set to ${acMode}) not defined in base class!`);
     return;
@@ -1047,23 +1111,23 @@ export class ZenIobDevice {
           packStatesToSet.set("model", batType);
           packStatesToSet.set("sn", x.sn);
 
-          if (x.socLevel) {
+          if (x.socLevel != null) {
             packStatesToSet.set("socLevel", x.socLevel);
           }
 
-          if (x.maxTemp) {
+          if (x.maxTemp != null) {
             const maxTempCelsius = x.maxTemp / 10 - 273.15;
             await touchLastUpdate("maxTemp", maxTempCelsius);
             packStatesToSet.set("maxTemp", maxTempCelsius);
           }
 
-          if (x.minVol) {
+          if (x.minVol != null) {
             const minVol = x.minVol / 100;
             await touchLastUpdate("minVol", minVol);
             packStatesToSet.set("minVol", minVol);
           }
 
-          if (x.batcur) {
+          if (x.batcur != null) {
             await this.adapter?.extendObject(`${key}.batcur`, {
               type: "state",
               common: {
@@ -1086,13 +1150,13 @@ export class ZenIobDevice {
             packStatesToSet.set("batcur", batcur / 10);
           }
 
-          if (x.maxVol) {
+          if (x.maxVol != null) {
             const maxVol = x.maxVol / 100;
             await touchLastUpdate("maxVol", maxVol);
             packStatesToSet.set("maxVol", maxVol);
           }
 
-          if (x.totalVol) {
+          if (x.totalVol != null) {
             const totalVol = x.totalVol / 100;
             await touchLastUpdate("totalVol", totalVol);
             packStatesToSet.set("totalVol", totalVol);
@@ -1101,10 +1165,10 @@ export class ZenIobDevice {
             }
           }
 
-          if (x.soh) {
+          if (x.soh != null) {
             packStatesToSet.set("soh", x.soh / 10);
           }
-          if (x.power) {
+          if (x.power != null) {
             packStatesToSet.set("power", x.power);
           }
 

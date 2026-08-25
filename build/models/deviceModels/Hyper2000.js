@@ -87,55 +87,7 @@ class Hyper2000 extends import_ZenIobDevice.ZenIobDevice {
         );
         limit = this.maxOutputLimit;
       }
-      this.messageId += 1;
-      const timestamp = /* @__PURE__ */ new Date();
-      timestamp.setMilliseconds(0);
-      let _arguments = [];
-      if (limit < 0) {
-        this.adapter.log.debug(
-          `[setDeviceAutomationInOutLimit] Using CHARGE variant of HYPER device automation, as device '${this.deviceKey}' detected and limit (${limit}) is negative!`
-        );
-        _arguments = [
-          {
-            autoModelProgram: 1,
-            autoModelValue: {
-              chargingType: 1,
-              price: 2,
-              chargingPower: Math.abs(limit),
-              prices: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-              outPower: 0,
-              freq: 0
-            },
-            msgType: 1,
-            autoModel: 8
-          }
-        ];
-      } else {
-        this.adapter.log.debug(
-          `[setDeviceAutomationInOutLimit] Using FEED IN variant of HYPER device automation, as device '${this.productName}' detected and limit (${limit}) is positive!`
-        );
-        _arguments = [
-          {
-            autoModelProgram: 2,
-            autoModelValue: {
-              chargingType: 0,
-              chargingPower: 0,
-              freq: 0,
-              outPower: limit
-            },
-            msgType: 1,
-            autoModel: 8
-          }
-        ];
-      }
-      const deviceAutomation = {
-        arguments: _arguments,
-        function: "deviceAutomation",
-        messageId: this.messageId,
-        deviceKey: this.deviceKey,
-        timestamp: timestamp.getTime() / 1e3
-      };
-      this.invokeMqttFunction(JSON.stringify(deviceAutomation));
+      await this.sendHemsEpSetpoint(limit);
     }
   }
 }

@@ -36,9 +36,19 @@ class ZenSdkIobDevice extends import_ZenIobDevice.ZenIobDevice {
       _zenHaDeviceDetails
     );
   }
+  resetAcModeTimeout;
+  resetSmartModeTimeout;
   async setDeviceAutomationInOutLimit(limit) {
     if (this.productKey && this.deviceKey) {
       this.adapter.log.debug(`[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`);
+      if (this.resetAcModeTimeout) {
+        this.adapter.clearTimeout(this.resetAcModeTimeout);
+        this.resetAcModeTimeout = void 0;
+      }
+      if (this.resetSmartModeTimeout) {
+        this.adapter.clearTimeout(this.resetSmartModeTimeout);
+        this.resetSmartModeTimeout = void 0;
+      }
       if (limit) {
         limit = Math.round(limit);
       } else {
@@ -111,12 +121,14 @@ class ZenSdkIobDevice extends import_ZenIobDevice.ZenIobDevice {
           if (currentInputLimit && currentInputLimit.val != 0) {
             results.push(await this.updateProperty("inputLimit", 0));
           }
-          this.adapter.setTimeout(async () => {
+          this.resetAcModeTimeout = this.adapter.setTimeout(async () => {
+            this.resetAcModeTimeout = void 0;
             if (currentAcMode && currentAcMode.val != 0) {
               results.push(await this.updateProperty("acMode", 0));
             }
           }, 2e3);
-          this.adapter.setTimeout(async () => {
+          this.resetSmartModeTimeout = this.adapter.setTimeout(async () => {
+            this.resetSmartModeTimeout = void 0;
             if (currentSmartMode && currentSmartMode.val != 0) {
               results.push(await this.updateProperty("smartMode", 0));
             }
@@ -130,23 +142,7 @@ class ZenSdkIobDevice extends import_ZenIobDevice.ZenIobDevice {
         this.adapter.log.debug(
           `[setDeviceAutomationInOutLimit] Using HEMS Variant of device automation, as deviceKey '${this.deviceKey}' detected!`
         );
-        this.messageId += 1;
-        const timestamp = /* @__PURE__ */ new Date();
-        timestamp.setMilliseconds(0);
-        const _arguments = {
-          outputPower: limit > 0 ? limit : 0,
-          chargeState: limit > 0 ? 0 : 1,
-          chargePower: limit > 0 ? 0 : -limit,
-          mode: 9
-        };
-        const hemsEP = {
-          arguments: _arguments,
-          function: "hemsEP",
-          messageId: this.messageId,
-          deviceKey: this.deviceKey,
-          timestamp: timestamp.getTime() / 1e3
-        };
-        this.invokeMqttFunction(JSON.stringify(hemsEP));
+        await this.sendHemsEpSetpoint(limit);
       }
     }
   }

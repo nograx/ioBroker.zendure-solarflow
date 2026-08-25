@@ -409,6 +409,9 @@ export class ZendureSolarflow extends utils.Adapter {
               case "setDeviceAutomationInOutLimit":
                 _device.setDeviceAutomationInOutLimit(Number(state.val));
                 break;
+              case "hemsState":
+                _device.setHemsState(state.val ? true : false);
+                break;
             }
             break;
           default:
