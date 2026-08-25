@@ -136,7 +136,7 @@ class ZenSdkIobDevice extends import_ZenIobDevice.ZenIobDevice {
         }
         const success = results.every((result) => result === true);
         if (success) {
-          this == null ? void 0 : this.updateSolarFlowControlState("setDeviceAutomationInOutLimit", limit);
+          await (this == null ? void 0 : this.updateSolarFlowControlState("setDeviceAutomationInOutLimit", limit));
         }
       } else {
         this.adapter.log.debug(

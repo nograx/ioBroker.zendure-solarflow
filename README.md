@@ -101,8 +101,7 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 -->
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 5.2.0-alpha.0 (2026-08-25)
 
 - This version changes the function 'setDeviceAutomationInOutLimit' of Hyper 2000 to use 'hemsEP' function instead of 'deviceAutomation'. It's the same commands sent from the HEMS cloud to the device if using the cloud HEMS. Big thanks to **FireSon** from the team of the Home Assistant Integration for Zendure for clarification and details!
 - Fix setting of 0-values to battery states
@@ -124,10 +123,6 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 ### 5.0.2 (2026-08-18)
 
 - Fix Wifistate type/value mismatch
-
-### 5.0.1 (2026-08-18)
-
-- Fix state type/value mismatch
 
 For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 
