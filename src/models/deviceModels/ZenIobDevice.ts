@@ -694,7 +694,7 @@ export class ZenIobDevice {
       const inverseMaxPowerState = await this.adapter.getStateAsync(
         `${this.productKey}.${this.deviceKey}.inverseMaxPower`,
       );
-      inverseMaxPower = (inverseMaxPowerState?.val ? Number(inverseMaxPowerState.val) : 1) * 10;
+      inverseMaxPower = inverseMaxPowerState?.val ? Number(inverseMaxPowerState.val) : 800;
     }
 
     const _arguments: IHemsEpPayload =

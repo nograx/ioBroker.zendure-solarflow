@@ -99,6 +99,11 @@ This adapter will use the Cloud Authorization Code for authentication on the off
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+
+### **WORK IN PROGRESS**
+
+- Fix typo
+
 ### 5.2.0-alpha.1 (2026-08-27)
 
 - Send inverseMaxPower on first payload of setDeviceAutomationInOutLimit.
