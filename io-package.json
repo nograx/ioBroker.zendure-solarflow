@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "5.2.0-alpha.1",
+    "version": "5.2.0-alpha.2",
     "news": {
+      "5.2.0-alpha.2": {
+        "en": "Fix typo",
+        "de": "Tippfehler korrigieren",
+        "ru": "Исправить опечатку",
+        "pt": "Corrigir erro de digitação",
+        "nl": "Typfout corrigeren",
+        "fr": "Corriger une faute de frappe",
+        "it": "Correggi l'errore di battitura",
+        "es": "Corregir errata",
+        "pl": "Napraw literówkę",
+        "uk": "Виправити друкарську помилку",
+        "zh-cn": "修正拼写错误"
+      },
       "5.2.0-alpha.1": {
         "en": "Send inverseMaxPower on first payload of setDeviceAutomationInOutLimit.\nSet autoModel and acMode to 0 if necessary",
         "de": "Sende inverseMaxPower beim ersten Payload von setDeviceAutomationInOutLimit.\nSetzen Sie autoModel und acMode gegebenenfalls auf 0.",
@@ -80,19 +93,6 @@
         "pl": "Napraw niezgodność typu/wartości Wifistate",
         "uk": "Виправити невідповідність типу/значення Wifistate",
         "zh-cn": "修复 Wifistate 类型/值不匹配的问题"
-      },
-      "5.0.1": {
-        "en": "Fix state type/value mismatch",
-        "de": "Behebung der Diskrepanz zwischen Statustyp und -wert.",
-        "ru": "Исправлено несоответствие типа/значения состояния.",
-        "pt": "Corrigir incompatibilidade entre tipo e valor de estado",
-        "nl": "Corrigeer de mismatch tussen statustype en -waarde.",
-        "fr": "Correction de l'incohérence entre le type et la valeur de l'état",
-        "it": "Correggere la mancata corrispondenza tra tipo e valore dello stato",
-        "es": "Corregir la discrepancia entre el tipo y el valor del estado",
-        "pl": "Napraw niezgodność typu/wartości stanu",
-        "uk": "Виправити невідповідність типу/значення стану",
-        "zh-cn": "修复状态类型/值不匹配问题"
       }
     },
     "titleLang": {
