@@ -100,7 +100,13 @@ This adapter will use the Cloud Authorization Code for authentication on the off
     ### **WORK IN PROGRESS**
 -->
 
+### **WORK IN PROGRESS**
+
+- Send inverseMaxPower on first payload of setDeviceAutomationInOutLimit.
+- Set autoModel and acMode to 0 if necessary
+
 ## Changelog
+
 ### 5.2.0-alpha.0 (2026-08-25)
 
 - This version changes the function 'setDeviceAutomationInOutLimit' of Hyper 2000 to use 'hemsEP' function instead of 'deviceAutomation'. It's the same commands sent from the HEMS cloud to the device if using the cloud HEMS. Big thanks to **FireSon** from the team of the Home Assistant Integration for Zendure for clarification and details!

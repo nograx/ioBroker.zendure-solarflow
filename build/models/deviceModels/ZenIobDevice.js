@@ -533,21 +533,51 @@ class ZenIobDevice {
    */
   releaseHemsControlTimeout;
   async sendHemsEpSetpoint(limit) {
+    var _a, _b;
     if (this.releaseHemsControlTimeout) {
       this.adapter.clearTimeout(this.releaseHemsControlTimeout);
       this.releaseHemsControlTimeout = void 0;
     }
     const hemsStateActive = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.hemsState`);
-    if (!hemsStateActive || !hemsStateActive.val) {
+    const isFirstPayload = !hemsStateActive || !hemsStateActive.val;
+    if (isFirstPayload) {
+      const autoModel = (_a = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.autoModel`)) == null ? void 0 : _a.val;
+      if (autoModel != 0) {
+        this.adapter.log.warn(
+          `[sendHemsEpSetpoint] autoModel is not set to '0' (current value: ${autoModel}), setting it to '0' before sending the HEMS setpoint!`
+        );
+        this.setAutoModel(0);
+      }
+      const acMode = (_b = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.acMode`)) == null ? void 0 : _b.val;
+      if (acMode != 0) {
+        this.adapter.log.warn(
+          `[sendHemsEpSetpoint] acMode is not set to '0' (current value: ${acMode}), setting it to '0' before sending the HEMS setpoint!`
+        );
+        this.setAcMode(0);
+      }
       this.setHemsState(true);
       await new Promise((resolve) => this.adapter.setTimeout(resolve, 3e3));
     }
     this.messageId += 1;
     const timestamp = /* @__PURE__ */ new Date();
     timestamp.setMilliseconds(0);
-    const minSocState = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.minSoc`);
-    const minSoc = ((minSocState == null ? void 0 : minSocState.val) ? Number(minSocState.val) : 1) * 10;
-    const _arguments = limit < 0 ? { outputPower: 0, chargePower: -limit, freq: 0, mode: 9, chargeMode: 3 } : { outputPower: limit, chargePower: 0, freq: 0, mode: 9, minSoc };
+    let minSoc;
+    let inverseMaxPower;
+    if (isFirstPayload) {
+      const minSocState = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.minSoc`);
+      minSoc = ((minSocState == null ? void 0 : minSocState.val) ? Number(minSocState.val) : 1) * 10;
+      const inverseMaxPowerState = await this.adapter.getStateAsync(
+        `${this.productKey}.${this.deviceKey}.inverseMaxPower`
+      );
+      inverseMaxPower = ((inverseMaxPowerState == null ? void 0 : inverseMaxPowerState.val) ? Number(inverseMaxPowerState.val) : 1) * 10;
+    }
+    const _arguments = limit < 0 ? { outputPower: 0, chargePower: -limit, freq: 0, mode: 9, chargeMode: 3 } : {
+      outputPower: limit,
+      chargePower: 0,
+      freq: 0,
+      mode: 9,
+      ...isFirstPayload ? { minSoc, inverseMaxPower } : {}
+    };
     const hemsEP = {
       arguments: _arguments,
       function: "hemsEP",
