@@ -99,13 +99,10 @@ This adapter will use the Cloud Authorization Code for authentication on the off
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
-
-### **WORK IN PROGRESS**
+### 5.2.0-alpha.1 (2026-08-27)
 
 - Send inverseMaxPower on first payload of setDeviceAutomationInOutLimit.
 - Set autoModel and acMode to 0 if necessary
-
-## Changelog
 
 ### 5.2.0-alpha.0 (2026-08-25)
 
@@ -125,10 +122,6 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 ### 5.0.3 (2026-08-18)
 
 - Fix `wifiState` not being created/updated correctly for devices using local zenSDK polling (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus), as their local status payload does not report a `wifiState` property
-
-### 5.0.2 (2026-08-18)
-
-- Fix Wifistate type/value mismatch
 
 For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 

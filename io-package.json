@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "5.2.0-alpha.0",
+    "version": "5.2.0-alpha.1",
     "news": {
+      "5.2.0-alpha.1": {
+        "en": "Send inverseMaxPower on first payload of setDeviceAutomationInOutLimit.\nSet autoModel and acMode to 0 if necessary",
+        "de": "Sende inverseMaxPower beim ersten Payload von setDeviceAutomationInOutLimit.\nSetzen Sie autoModel und acMode gegebenenfalls auf 0.",
+        "ru": "Отправьте параметр inverseMaxPower в первом полезном потоке функции setDeviceAutomationInOutLimit.\nПри необходимости установите параметры autoModel и acMode в значение 0.",
+        "pt": "Envie o valor inverso de MaxPower no primeiro payload de setDeviceAutomationInOutLimit.\nDefina autoModel e acMode como 0, se necessário.",
+        "nl": "Verzend inverseMaxPower bij de eerste payload van setDeviceAutomationInOutLimit.\nStel autoModel en acMode indien nodig in op 0.",
+        "fr": "Envoyer inverseMaxPower sur la première charge utile de setDeviceAutomationInOutLimit.\nRéglez autoModel et acMode sur 0 si nécessaire.",
+        "it": "Invia inverseMaxPower come primo payload di setDeviceAutomationInOutLimit.\nSe necessario, imposta autoModel e acMode a 0.",
+        "es": "Envía inverseMaxPower en la primera carga útil de setDeviceAutomationInOutLimit.\nEstablezca autoModel y acMode en 0 si es necesario.",
+        "pl": "Wyślij inverseMaxPower przy pierwszym ładunku setDeviceAutomationInOutLimit.\nW razie potrzeby ustaw autoModel i acMode na 0",
+        "uk": "Надсилати inverseMaxPower для першого корисного навантаження setDeviceAutomationInOutLimit.\nЗа потреби встановіть autoModel та acMode на 0",
+        "zh-cn": "在 setDeviceAutomationInOutLimit 的第一个有效载荷上发送 inverseMaxPower。\n如有必要，将 autoModel 和 acMode 设置为 0。"
+      },
       "5.2.0-alpha.0": {
         "en": "This version changes the function 'setDeviceAutomationInOutLimit' of Hyper 2000 to use 'hemsEP' function instead of 'deviceAutomation'. It's the same commands sent from the HEMS cloud to the device if using the cloud HEMS. Big thanks to **FireSon** from the team of the Home Assistant Integration for Zendure for clarification and details!\nFix setting of 0-values to battery states",
         "de": "Diese Version ändert die Funktion „setDeviceAutomationInOutLimit“ von Hyper 2000, sodass sie die Funktion „hemsEP“ anstelle von „deviceAutomation“ verwendet. Es handelt sich um dieselben Befehle, die von der HEMS-Cloud an das Gerät gesendet werden, wenn Cloud-HEMS verwendet wird. Herzlichen Dank an **FireSon** vom Team der Home Assistant Integration für Zendure für die Erläuterungen und Details!\nKorrektur der Einstellung von 0-Werten für Batteriezustände",
@@ -80,19 +93,6 @@
         "pl": "Napraw niezgodność typu/wartości stanu",
         "uk": "Виправити невідповідність типу/значення стану",
         "zh-cn": "修复状态类型/值不匹配问题"
-      },
-      "5.0.0": {
-        "en": "The adapter will now expose ALL properties from the device, not only the ones we know. If you know how to map a value to a readable state feel free to contact me so I can add a definition for that state!\nAdd control state 'gridReverse' (export excess energy)\nUpdate dependencies",
-        "de": "Der Adapter stellt nun ALLE Eigenschaften des Geräts bereit, nicht nur die bekannten. Wenn Sie wissen, wie man einen Wert einem lesbaren Zustand zuordnet, kontaktieren Sie mich gerne, damit ich eine Definition für diesen Zustand hinzufügen kann!\nKontrollzustand 'gridReverse' hinzufügen (überschüssige Energie exportieren)\nAbhängigkeiten aktualisieren",
-        "ru": "Теперь адаптер будет отображать ВСЕ свойства устройства, а не только те, которые нам известны. Если вы знаете, как сопоставить значение с читаемым состоянием, свяжитесь со мной, чтобы я мог добавить определение для этого состояния!\nДобавить управляющее состояние 'gridReverse' (экспорт избыточной энергии)\nОбновить зависимости",
-        "pt": "O adaptador agora exporá TODAS as propriedades do dispositivo, não apenas aquelas que conhecemos. Se você souber como mapear um valor para um estado legível, sinta-se à vontade para entrar em contato comigo para que eu possa adicionar uma definição para esse estado!\nAdicionar estado de controle 'gridReverse' (exportar excesso de energia)\nAtualizar dependências",
-        "nl": "De adapter zal nu ALLE eigenschappen van het apparaat beschikbaar maken, niet alleen de eigenschappen die we al kennen. Als je weet hoe je een waarde aan een leesbare status kunt koppelen, neem dan gerust contact met me op, zodat ik een definitie voor die status kan toevoegen!\nVoeg de besturingsstatus 'gridReverse' toe (overtollige energie exporteren)\nAfhankelijkheden bijwerken",
-        "fr": "L'adaptateur exposera désormais TOUTES les propriétés du périphérique, et non plus seulement celles que nous connaissons. Si vous savez comment associer une valeur à un état lisible, n'hésitez pas à me contacter afin que je puisse ajouter une définition pour cet état !\nAjouter l'état de contrôle 'gridReverse' (exporter l'énergie excédentaire)\nMise à jour des dépendances",
-        "it": "L'adattatore ora esporrà TUTTE le proprietà del dispositivo, non solo quelle che conosciamo. Se sai come mappare un valore a uno stato leggibile, non esitare a contattarmi così potrò aggiungere una definizione per quello stato!\nAggiungi lo stato di controllo 'gridReverse' (esporta l'energia in eccesso)\nAggiorna le dipendenze",
-        "es": "El adaptador ahora expondrá TODAS las propiedades del dispositivo, no solo las que conocemos. Si sabes cómo asignar un valor a un estado legible, no dudes en contactarme para que pueda agregar una definición para ese estado.\nAgregar estado de control 'gridReverse' (exportar exceso de energía)\nActualizar dependencias",
-        "pl": "Adapter będzie teraz udostępniał WSZYSTKIE właściwości urządzenia, nie tylko te, które znamy. Jeśli wiesz, jak zmapować wartość na stan czytelny, skontaktuj się ze mną, abym mógł dodać definicję tego stanu!\nDodaj stan kontrolny „gridReverse” (eksportuj nadmiar energii)\nAktualizuj zależności",
-        "uk": "Тепер адаптер надаватиме ВСІ властивості пристрою, а не лише ті, що нам відомі. Якщо ви знаєте, як зіставити значення зі станом, який можна читати, зв'яжіться зі мною, щоб я міг додати визначення для цього стану!\nДодати стан керування 'gridReverse' (експорт надлишкової енергії)\nОновлення залежностей",
-        "zh-cn": "现在，适配器将公开设备的所有属性，而不仅仅是我们已知的属性。如果您知道如何将某个值映射到可读状态，请随时与我联系，以便我添加该状态的定义！\n添加控制状态“gridReverse”（输出多余能量）\n更新依赖项"
       }
     },
     "titleLang": {
