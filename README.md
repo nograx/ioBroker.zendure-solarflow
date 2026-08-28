@@ -40,11 +40,13 @@ Currently all Zendure Solarflow devices are supported via cloud.
 
 ## Modes
 
-- **Authentication Cloud Key** Official method supported by Zendure. Obtain a Cloud key from the official app. By default the zenSDK is used (the device has to be on the same network as the ioBroker instance). You can opt out to use only cloud mode. For older devices with mqtt set to a local server, it's now possible to relay data to the cloud without any disadvantages!
+- **Authentication Cloud Key** Official method supported by Zendure. Obtain a Cloud key from the official app. By default the zenSDK is used (the device has to be on the same network as the ioBroker instance). **This is the recommended way to control "new" (zenSDK compatible) devices, as it is the method officially recommended by Zendure themselves** - it gives you full local control while still relaying data to the cloud. You can opt out to use only cloud mode. For older devices with mqtt set to a local server, it's now possible to relay data to the cloud without any disadvantages!
 
 - **Local MQTT** It's also possible to use the local only mode. Currently there is no known way for the new Solarflow devices to set the MQTT server directly on the device, so for these you have to use a DNS relay.
 
 ### zenSDK Compatible Devices ✅
+
+> **Recommended by Zendure:** For all "new" devices listed below, using the zenSDK (via the Authentication Cloud Key mode above) is the way officially recommended by Zendure themselves to control your devices. It gives you full local control over http while the cloud connection is kept for convenience - there is no need to disconnect these devices from the cloud.
 
 These devices support the advanced zenSDK automation features with full **local** control over http:
 
@@ -99,18 +101,10 @@ This adapter will use the Cloud Authorization Code for authentication on the off
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
-### 5.2.0-alpha.2 (2026-08-27)
 
-- Fix typo
+### **WORK IN PROGRESS**
 
-### 5.2.0-alpha.1 (2026-08-27)
-
-- Send inverseMaxPower on first payload of setDeviceAutomationInOutLimit.
-- Set autoModel and acMode to 0 if necessary
-
-### 5.2.0-alpha.0 (2026-08-25)
-
-- This version changes the function 'setDeviceAutomationInOutLimit' of Hyper 2000 to use 'hemsEP' function instead of 'deviceAutomation'. It's the same commands sent from the HEMS cloud to the device if using the cloud HEMS. Big thanks to **FireSon** from the team of the Home Assistant Integration for Zendure for clarification and details!
+- This version changes the function 'setDeviceAutomationInOutLimit' of Hyper 2000 to use 'hemsEP' function instead of 'deviceAutomation'. Big thanks to **FireSon** from the team of the Home Assistant Integration for Zendure for clarification and details!
 - Fix setting of 0-values to battery states
 
 ### 5.1.0 (2026-08-20)
