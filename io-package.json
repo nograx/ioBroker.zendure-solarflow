@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "5.2.0-alpha.3",
+    "version": "5.2.0-alpha.4",
     "news": {
+      "5.2.0-alpha.4": {
+        "en": "Fix zenSDK support for Smart Meter 3CT and Smart Meter D0",
+        "de": "Behebung der zenSDK-Unterstützung für Smart Meter 3CT und Smart Meter D0",
+        "ru": "Исправлена поддержка zenSDK для интеллектуальных счетчиков Smart Meter 3CT и Smart Meter D0.",
+        "pt": "Correção do suporte do zenSDK para Smart Meter 3CT e Smart Meter D0.",
+        "nl": "Verbeter de zenSDK-ondersteuning voor slimme meters 3CT en slimme meters D0.",
+        "fr": "Correction de la prise en charge zenSDK pour les compteurs intelligents 3CT et D0",
+        "it": "Correzione del supporto zenSDK per Smart Meter 3CT e Smart Meter D0",
+        "es": "Corregir la compatibilidad de zenSDK con los contadores inteligentes 3CT y D0.",
+        "pl": "Napraw obsługę zenSDK dla liczników Smart Meter 3CT i Smart Meter D0",
+        "uk": "Виправлено підтримку zenSDK для Smart Meter 3CT та Smart Meter D0",
+        "zh-cn": "修复 zenSDK 对 Smart Meter 3CT 和 Smart Meter D0 的支持"
+      },
       "5.2.0-alpha.3": {
         "en": "Added a mDNS listener to detect Solarflow Devices with zenSDK. In cloud mode this will check for missing or wrong IP addresses. In local only mode this will add the device(s) with the serial number.\nFirst test to support SF 3000/4000 Mix devices via zenSDK and mDNS discovery\nThis version changes the function 'setDeviceAutomationInOutLimit' of Hyper 2000 to use 'hemsEP' function instead of 'deviceAutomation'. Big thanks to **FireSon** from the team of the Home Assistant Integration for Zendure for clarification and details!\nFix setting of 0-values to battery states\nFix 'Cannot write file deviceList.json: zendure-solarflow.admin is not an object of type \"meta\"'",
         "de": "Ein mDNS-Listener wurde hinzugefügt, um Solarflow-Geräte mit zenSDK zu erkennen. Im Cloud-Modus prüft dieser auf fehlende oder falsche IP-Adressen. Im lokalen Modus werden die Geräte anhand ihrer Seriennummer hinzugefügt.\nErster Test zur Unterstützung von SF 3000/4000 Mix-Geräten über zenSDK und mDNS-Erkennung\nDiese Version ändert die Funktion „setDeviceAutomationInOutLimit“ von Hyper 2000, sodass sie die Funktion „hemsEP“ anstelle von „deviceAutomation“ verwendet. Ein großes Dankeschön an **FireSon** vom Team der Home Assistant Integration für Zendure für die Erläuterungen und Details!\nKorrektur der Einstellung von 0-Werten für Batteriezustände\nBehebt den Fehler „Datei deviceList.json kann nicht geschrieben werden: zendure-solarflow.admin ist kein Objekt vom Typ \"meta\"“.",
@@ -80,19 +93,6 @@
         "pl": "Naprawiono migotanie przycisku Zapisz w Ustawieniach.\nDodano funkcję wykrywania urządzeń zenSDK z mDNS i uzupełniania brakujących adresów IP, jeśli zostaną znalezione.",
         "uk": "Виправлено мерехтіння кнопки «Зберегти» в налаштуваннях.\nДодано функцію для виявлення пристроїв zenSDK з mDNS та заповнення відсутньої IP-адреси, якщо вона знайдена.",
         "zh-cn": "修复设置中保存按钮闪烁的问题。\n添加功能以检测带有 mDNS 的 zenSDK 设备，如果找到则填充缺失的 IP 地址。"
-      },
-      "5.0.3": {
-        "en": "Fix `wifiState` not being created/updated correctly for devices using local zenSDK polling (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus), as their local status payload does not report a `wifiState` property",
-        "de": "Behebung des Problems, dass `wifiState` für Geräte mit lokaler zenSDK-Abfrage (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus) nicht korrekt erstellt/aktualisiert wird, da deren lokale Statusnutzlast keine `wifiState`-Eigenschaft meldet.",
-        "ru": "Исправлена ошибка, из-за которой свойство `wifiState` некорректно создавалось/обновлялось для устройств, использующих локальный опрос zenSDK (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus), поскольку их локальная полезная нагрузка состояния не сообщает о свойстве `wifiState`.",
-        "pt": "Corrigido o problema em que o `wifiState` não era criado/atualizado corretamente para dispositivos que usam polling local do zenSDK (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus), pois o payload de status local desses dispositivos não reporta uma propriedade `wifiState`.",
-        "nl": "Los het probleem op dat `wifiState` niet correct wordt aangemaakt/bijgewerkt voor apparaten die gebruikmaken van lokale zenSDK-polling (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus), omdat hun lokale statuspayload geen `wifiState`-eigenschap rapporteert.",
-        "fr": "Correction d'un problème où `wifiState` n'était pas créé/mis à jour correctement pour les appareils utilisant l'interrogation locale du zenSDK (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus), car leur charge utile d'état local ne signale pas de propriété `wifiState`.",
-        "it": "Risolto il problema per cui `wifiState` non veniva creato/aggiornato correttamente per i dispositivi che utilizzano il polling locale di zenSDK (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus), poiché il loro payload di stato locale non riporta una proprietà `wifiState`",
-        "es": "Solucionar el problema por el que `wifiState` no se crea ni se actualiza correctamente en los dispositivos que utilizan el sondeo local de zenSDK (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus), ya que su carga útil de estado local no informa de una propiedad `wifiState`.",
-        "pl": "Naprawiono problem z poprawnym tworzeniem/aktualizacją właściwości `wifiState` w przypadku urządzeń korzystających z lokalnego sondowania zenSDK (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus), ponieważ ich lokalny ładunek stanu nie raportuje właściwości `wifiState`",
-        "uk": "Виправлено помилку, через яку `wifiState` не створювався/оновлювався коректно для пристроїв, що використовують локальне опитування zenSDK (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus), оскільки їхнє локальне корисне навантаження стану не повідомляє про властивість `wifiState`.",
-        "zh-cn": "修复了使用本地 zenSDK 轮询的设备（Solarflow 2400 AC/AC Plus/Pro、1600 AC Plus）的 `wifiState` 属性无法正确创建/更新的问题，因为它们的本地状态负载未报告 `wifiState` 属性。"
       }
     },
     "titleLang": {
