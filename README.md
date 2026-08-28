@@ -102,10 +102,13 @@ This adapter will use the Cloud Authorization Code for authentication on the off
     ### **WORK IN PROGRESS**
 -->
 
+## Changelog
+
 ### **WORK IN PROGRESS**
 
 - This version changes the function 'setDeviceAutomationInOutLimit' of Hyper 2000 to use 'hemsEP' function instead of 'deviceAutomation'. Big thanks to **FireSon** from the team of the Home Assistant Integration for Zendure for clarification and details!
 - Fix setting of 0-values to battery states
+- Fix 'Cannot write file deviceList.json: zendure-solarflow.admin is not an object of type "meta"'
 
 ### 5.1.0 (2026-08-20)
 

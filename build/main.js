@@ -145,7 +145,7 @@ class ZendureSolarflow extends utils.Adapter {
             if (deviceList.length == 0) {
               this.log.warn("[onReady] device list is empty!");
             }
-            fileHelper.writeDeviceListToFile(deviceList);
+            void fileHelper.writeDeviceListToFile(deviceList);
           }
           if (this.config.useAddionalLocalMqtt) {
             this.localMqttService = new import_localMqttService.LocalMqttService(this);

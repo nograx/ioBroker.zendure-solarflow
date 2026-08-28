@@ -150,7 +150,7 @@ export class ZendureSolarflow extends utils.Adapter {
             }
 
             // Save device list to file
-            fileHelper.writeDeviceListToFile(deviceList);
+            void fileHelper.writeDeviceListToFile(deviceList);
           }
 
           // If enabled, also start local MQTT client

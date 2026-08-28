@@ -2,13 +2,39 @@ import type { ZendureSolarflow } from "../main";
 
 export class FileHelper {
   private adapter: ZendureSolarflow | undefined;
+  private fileNamespaceReady: Promise<void> | undefined;
+
   constructor(_adapter: ZendureSolarflow) {
     this.adapter = _adapter;
   }
 
-  public readDeviceListFromFile(): Promise<any> {
+  private get fileNamespace(): string {
+    return `${this.adapter?.name}.admin`;
+  }
+
+  // Some objects DB backends (e.g. Redis) require the target namespace to already exist as a "meta"
+  // object before readFile/writeFile can be used, unlike the default jsonl/file backend which does not.
+  private ensureFileNamespaceExists(): Promise<void> {
+    if (!this.fileNamespaceReady) {
+      this.fileNamespaceReady = (
+        this.adapter?.setObjectNotExistsAsync(this.fileNamespace, {
+          type: "meta",
+          common: {
+            name: "Zendure Solarflow files",
+            type: "meta.folder",
+          },
+          native: {},
+        }) ?? Promise.resolve()
+      ).then(() => undefined);
+    }
+    return this.fileNamespaceReady;
+  }
+
+  public async readDeviceListFromFile(): Promise<any> {
+    await this.ensureFileNamespaceExists();
+
     return new Promise((resolve, reject) => {
-      this.adapter?.readFile(`${this.adapter.name}.admin`, "deviceList.json", (err, data) => {
+      this.adapter?.readFile(this.fileNamespace, "deviceList.json", (err, data) => {
         if (err) {
           this.adapter?.log.error(`[onReady] Error reading device list from file: ${err.message}`);
           reject(err);
@@ -23,18 +49,15 @@ export class FileHelper {
     });
   }
 
-  public writeDeviceListToFile(deviceList: any): void {
-    this.adapter?.writeFile(
-      `${this.adapter.name}.admin`,
-      "deviceList.json",
-      JSON.stringify(deviceList, null, 2),
-      (err) => {
-        if (err) {
-          this.adapter?.log.error(`[onReady] Error saving device list to file: ${err.message}`);
-        } else {
-          this.adapter?.log.debug("[onReady] Device list saved to file 'deviceList.json'");
-        }
-      },
-    );
+  public async writeDeviceListToFile(deviceList: any): Promise<void> {
+    await this.ensureFileNamespaceExists();
+
+    this.adapter?.writeFile(this.fileNamespace, "deviceList.json", JSON.stringify(deviceList, null, 2), (err) => {
+      if (err) {
+        this.adapter?.log.error(`[onReady] Error saving device list to file: ${err.message}`);
+      } else {
+        this.adapter?.log.debug("[onReady] Device list saved to file 'deviceList.json'");
+      }
+    });
   }
 }

@@ -23,13 +23,35 @@ __export(fileHelper_exports, {
 module.exports = __toCommonJS(fileHelper_exports);
 class FileHelper {
   adapter;
+  fileNamespaceReady;
   constructor(_adapter) {
     this.adapter = _adapter;
   }
-  readDeviceListFromFile() {
+  get fileNamespace() {
+    var _a;
+    return `${(_a = this.adapter) == null ? void 0 : _a.name}.admin`;
+  }
+  // Some objects DB backends (e.g. Redis) require the target namespace to already exist as a "meta"
+  // object before readFile/writeFile can be used, unlike the default jsonl/file backend which does not.
+  ensureFileNamespaceExists() {
+    var _a, _b;
+    if (!this.fileNamespaceReady) {
+      this.fileNamespaceReady = ((_b = (_a = this.adapter) == null ? void 0 : _a.setObjectNotExistsAsync(this.fileNamespace, {
+        type: "meta",
+        common: {
+          name: "Zendure Solarflow files",
+          type: "meta.folder"
+        },
+        native: {}
+      })) != null ? _b : Promise.resolve()).then(() => void 0);
+    }
+    return this.fileNamespaceReady;
+  }
+  async readDeviceListFromFile() {
+    await this.ensureFileNamespaceExists();
     return new Promise((resolve, reject) => {
       var _a;
-      (_a = this.adapter) == null ? void 0 : _a.readFile(`${this.adapter.name}.admin`, "deviceList.json", (err, data) => {
+      (_a = this.adapter) == null ? void 0 : _a.readFile(this.fileNamespace, "deviceList.json", (err, data) => {
         var _a2;
         if (err) {
           (_a2 = this.adapter) == null ? void 0 : _a2.log.error(`[onReady] Error reading device list from file: ${err.message}`);
@@ -44,21 +66,17 @@ class FileHelper {
       });
     });
   }
-  writeDeviceListToFile(deviceList) {
+  async writeDeviceListToFile(deviceList) {
     var _a;
-    (_a = this.adapter) == null ? void 0 : _a.writeFile(
-      `${this.adapter.name}.admin`,
-      "deviceList.json",
-      JSON.stringify(deviceList, null, 2),
-      (err) => {
-        var _a2, _b;
-        if (err) {
-          (_a2 = this.adapter) == null ? void 0 : _a2.log.error(`[onReady] Error saving device list to file: ${err.message}`);
-        } else {
-          (_b = this.adapter) == null ? void 0 : _b.log.debug("[onReady] Device list saved to file 'deviceList.json'");
-        }
+    await this.ensureFileNamespaceExists();
+    (_a = this.adapter) == null ? void 0 : _a.writeFile(this.fileNamespace, "deviceList.json", JSON.stringify(deviceList, null, 2), (err) => {
+      var _a2, _b;
+      if (err) {
+        (_a2 = this.adapter) == null ? void 0 : _a2.log.error(`[onReady] Error saving device list to file: ${err.message}`);
+      } else {
+        (_b = this.adapter) == null ? void 0 : _b.log.debug("[onReady] Device list saved to file 'deviceList.json'");
       }
-    );
+    });
   }
 }
 // Annotate the CommonJS export names for ESM import in node:
