@@ -21,11 +21,11 @@ __export(SmartMeter3Ct_exports, {
   SmartMeter3Ct: () => SmartMeter3Ct
 });
 module.exports = __toCommonJS(SmartMeter3Ct_exports);
-var import_ZenIobDevice = require("./ZenIobDevice");
-class SmartMeter3Ct extends import_ZenIobDevice.ZenIobDevice {
+var import_ZenSdkIobDevice = require("./ZenSdkIobDevice");
+class SmartMeter3Ct extends import_ZenSdkIobDevice.ZenSdkIobDevice {
   isZenSdkSupported = true;
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {
-    super(_adapter, _productKey, _deviceKey, _productName, _deviceName, true, _zenHaDeviceDetails);
+    super(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails);
   }
 }
 // Annotate the CommonJS export names for ESM import in node:

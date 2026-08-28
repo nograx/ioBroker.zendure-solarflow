@@ -1,12 +1,12 @@
 import type { ZendureSolarflow } from "../../main";
 import type { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
-import { ZenIobDevice } from "./ZenIobDevice";
+import { ZenSdkIobDevice } from "./ZenSdkIobDevice";
 
 /**
  * Zendure Smart Meter (D0, IEC 62056-21 optical reader). Read-only zenSDK device with no control states -
  * it only ever reports live measurements read from the utility meter.
  */
-export class SmartMeterD0 extends ZenIobDevice {
+export class SmartMeterD0 extends ZenSdkIobDevice {
   isZenSdkSupported = true;
 
   public constructor(
@@ -17,6 +17,6 @@ export class SmartMeterD0 extends ZenIobDevice {
     _deviceName: string,
     _zenHaDeviceDetails?: IZenIobDeviceDetails,
   ) {
-    super(_adapter, _productKey, _deviceKey, _productName, _deviceName, true, _zenHaDeviceDetails);
+    super(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails);
   }
 }

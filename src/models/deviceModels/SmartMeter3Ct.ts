@@ -1,12 +1,12 @@
 import type { ZendureSolarflow } from "../../main";
 import type { IZenIobDeviceDetails } from "../IZenIobDeviceDetails";
-import { ZenIobDevice } from "./ZenIobDevice";
+import { ZenSdkIobDevice } from "./ZenSdkIobDevice";
 
 /**
  * Zendure Smart Meter (3CT, three current transformers). Read-only zenSDK device with no control states -
  * it only ever reports live measurements (e.g. grid power/voltage/current per phase).
  */
-export class SmartMeter3Ct extends ZenIobDevice {
+export class SmartMeter3Ct extends ZenSdkIobDevice {
   isZenSdkSupported = true;
 
   public constructor(
@@ -17,6 +17,6 @@ export class SmartMeter3Ct extends ZenIobDevice {
     _deviceName: string,
     _zenHaDeviceDetails?: IZenIobDeviceDetails,
   ) {
-    super(_adapter, _productKey, _deviceKey, _productName, _deviceName, true, _zenHaDeviceDetails);
+    super(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails);
   }
 }

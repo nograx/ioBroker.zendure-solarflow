@@ -135,7 +135,7 @@ export function discoverZendureDevicesViaMdns(adapter: ZendureSolarflow): void {
         `[mdnsHelper] Matched mDNS device ${service.name} to known device with snNumber ${device.snNumber} via IP ${ipAddress}!`,
       );
 
-      device.connectViaMdns(ipAddress);
+      device.connectViaMdns(ipAddress, service.name, service.host);
       return;
     }
 

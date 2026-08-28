@@ -316,13 +316,18 @@ class ZenIobDevice {
    * (instead of Cloud/MQTT) if zenSDK is supported and enabled.
    *
    * @param ipAddress the IP address the device was discovered at
+   * @param serviceName the mDNS service name the device was discovered with (for logging)
+   * @param serviceHost the mDNS service host the device was discovered with (for logging)
    */
-  connectViaMdns(ipAddress) {
+  connectViaMdns(ipAddress, serviceName, serviceHost) {
     if (!this.ipAddress) {
       this.ipAddress = ipAddress;
       this.updateSolarFlowState("ip", ipAddress);
     }
     if (!this.adapter.config.useZenSDK || !this.isZenSdkSupported || this.deviceConnectionMode == import_enums.DeviceConnectionMode.zenSDK) {
+      this.adapter.log.debug(
+        `[connectViaMdns] Skipping zenSDK connect for device ${this.deviceKey} (useZenSDK=${this.adapter.config.useZenSDK}, isZenSdkSupported=${this.isZenSdkSupported}, deviceConnectionMode=${this.deviceConnectionMode})!`
+      );
       return;
     }
     this.getZenSdkProperties().then((success) => {
@@ -332,7 +337,7 @@ class ZenIobDevice {
         this.updateSolarFlowState("wifiState", 1);
         this.unsubscribeMqttTopics();
         this.adapter.log.info(
-          `[connectViaMdns] Switched device ${this.deviceKey} to zenSDK connection via mDNS-discovered IP ${ipAddress}!`
+          `[connectViaMdns] Switched device ${this.deviceKey} to zenSDK connection via mDNS-discovered IP ${ipAddress} (service: ${serviceName}, host: ${serviceHost})!`
         );
       }
     }).catch(() => {
