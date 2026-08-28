@@ -103,8 +103,7 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 -->
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 5.2.0-alpha.3 (2026-08-28)
 
 - Added a mDNS listener to detect Solarflow Devices with zenSDK. In cloud mode this will check for missing or wrong IP addresses. In local only mode this will add the device(s) with the serial number.
 - First test to support SF 3000/4000 Mix devices via zenSDK and mDNS discovery
@@ -121,6 +120,15 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 
 - Fix flickering Save button in Settings.
 - Add function to detect zenSDK devices with mDNS and fill missing IP-address if found.
+
+
+### 5.0.3 (2026-08-18)
+
+- Fix `wifiState` not being created/updated correctly for devices using local zenSDK polling (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus), as their local status payload does not report a `wifiState` property
+
+### 5.0.2 (2026-08-18)
+
+- Fix Wifistate type/value mismatch
 
 For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 
