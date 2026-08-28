@@ -7,6 +7,8 @@ import { ZenIobDevice } from "./ZenIobDevice";
  * it only ever reports live measurements (e.g. grid power/voltage/current per phase).
  */
 export class SmartMeter3Ct extends ZenIobDevice {
+  isZenSdkSupported = true;
+
   public constructor(
     _adapter: ZendureSolarflow,
     _productKey: string,

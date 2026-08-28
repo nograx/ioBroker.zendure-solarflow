@@ -14,10 +14,13 @@ export class FileHelper {
 
   // Some objects DB backends (e.g. Redis) require the target namespace to already exist as a "meta"
   // object before readFile/writeFile can be used, unlike the default jsonl/file backend which does not.
+  // Must use setForeignObjectNotExists here: fileNamespace ("<adapter name>.admin", shared across all instances,
+  // deliberately without an instance number) does not start with this instance's own namespace, so the regular
+  // setObjectNotExists would otherwise prepend it (e.g. "zendure-solarflow.0.zendure-solarflow.admin").
   private ensureFileNamespaceExists(): Promise<void> {
     if (!this.fileNamespaceReady) {
       this.fileNamespaceReady = (
-        this.adapter?.setObjectNotExistsAsync(this.fileNamespace, {
+        this.adapter?.setForeignObjectNotExistsAsync(this.fileNamespace, {
           type: "meta",
           common: {
             name: "Zendure Solarflow files",

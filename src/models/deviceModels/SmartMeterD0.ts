@@ -7,6 +7,8 @@ import { ZenIobDevice } from "./ZenIobDevice";
  * it only ever reports live measurements read from the utility meter.
  */
 export class SmartMeterD0 extends ZenIobDevice {
+  isZenSdkSupported = true;
+
   public constructor(
     _adapter: ZendureSolarflow,
     _productKey: string,

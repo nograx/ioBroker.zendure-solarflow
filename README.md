@@ -103,6 +103,11 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 -->
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Fix zenSDK support for Smart Meter 3CT and Smart Meter D0
+
 ### 5.2.0-alpha.3 (2026-08-28)
 
 - Added a mDNS listener to detect Solarflow Devices with zenSDK. In cloud mode this will check for missing or wrong IP addresses. In local only mode this will add the device(s) with the serial number.
@@ -120,7 +125,6 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 
 - Fix flickering Save button in Settings.
 - Add function to detect zenSDK devices with mDNS and fill missing IP-address if found.
-
 
 ### 5.0.3 (2026-08-18)
 

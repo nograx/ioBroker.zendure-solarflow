@@ -23,6 +23,7 @@ __export(SmartMeter3Ct_exports, {
 module.exports = __toCommonJS(SmartMeter3Ct_exports);
 var import_ZenIobDevice = require("./ZenIobDevice");
 class SmartMeter3Ct extends import_ZenIobDevice.ZenIobDevice {
+  isZenSdkSupported = true;
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {
     super(_adapter, _productKey, _deviceKey, _productName, _deviceName, true, _zenHaDeviceDetails);
   }
