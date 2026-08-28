@@ -106,6 +106,8 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 
 ### **WORK IN PROGRESS**
 
+- Added a mDNS listener to detect Solarflow Devices with zenSDK. In cloud mode this will check for missing or wrong IP addresses. In local only mode this will add the device(s) with the serial number.
+- First test to support SF 3000/4000 Mix devices via zenSDK and mDNS discovery
 - This version changes the function 'setDeviceAutomationInOutLimit' of Hyper 2000 to use 'hemsEP' function instead of 'deviceAutomation'. Big thanks to **FireSon** from the team of the Home Assistant Integration for Zendure for clarification and details!
 - Fix setting of 0-values to battery states
 - Fix 'Cannot write file deviceList.json: zendure-solarflow.admin is not an object of type "meta"'

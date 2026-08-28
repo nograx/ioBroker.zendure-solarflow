@@ -8,7 +8,13 @@ import * as utils from "@iobroker/adapter-core";
 
 import { zenLogin } from "./services/zenWebService";
 import type { Job } from "node-schedule";
-import { startRefreshAccessTokenTimerJob, startZenSdkDataRefreshJob } from "./services/jobSchedule";
+import {
+  startCalculationJob,
+  startCheckStatesAndConnectionJob,
+  startRefreshAccessTokenTimerJob,
+  startResetValuesJob,
+  startZenSdkDataRefreshJob,
+} from "./services/jobSchedule";
 import { LocalMqttService } from "./services/mqtt/localMqttService";
 import type { IZenIobDeviceDetails } from "./models/IZenIobDeviceDetails";
 import { CloudMqttService } from "./services/mqtt/cloudMqttService";
@@ -96,7 +102,11 @@ export class ZendureSolarflow extends utils.Adapter {
       case "authKey": {
         this.log.debug("[onReady] Using Authorization Cloud Key");
 
-        discoverZendureDevicesViaMdns(this);
+        if (this.config.useMdnsDiscovery) {
+          discoverZendureDevicesViaMdns(this);
+        } else {
+          this.log.info(`[onReady] mDNS discovery of zenSDK devices is disabled!`);
+        }
 
         if (!this.config.authorizationCloudKey) {
           this.log.error("[zenWebService.login] authorization cloud key is missing!");
@@ -177,11 +187,13 @@ export class ZendureSolarflow extends utils.Adapter {
               );
             }
           });
+        }
 
-          // if any zenSDK device start the zenSDK data refresh job
-          if (this.zenIobDeviceList.find((x) => x.isZenSdkSupported) != undefined && this.config.useZenSDK) {
-            startZenSdkDataRefreshJob(this);
-          }
+        // Devices discovered via mDNS are always zenSDK-only devices (see discoverZendureDevicesViaMdns), and may
+        // be created after this point (mDNS discovery runs for up to 10s), so we start the job whenever zenSDK is
+        // enabled at all rather than checking zenIobDeviceList for a zenSDK device right now.
+        if (this.config.useZenSDK) {
+          startZenSdkDataRefreshJob(this);
         }
 
         break;
@@ -189,10 +201,26 @@ export class ZendureSolarflow extends utils.Adapter {
       case "local": {
         this.log.debug("[onReady] Using local MQTT server");
 
-        // Connect to local MQTT client
-        this.localMqttService = new LocalMqttService(this);
-        if (!this.localMqttService.connect()) {
-          this.log.error("[onReady] Could not connect to MQTT local server!");
+        if (this.config.useMdnsDiscovery) {
+          discoverZendureDevicesViaMdns(this);
+        } else {
+          this.log.info(`[onReady] mDNS discovery of zenSDK devices is disabled!`);
+        }
+
+        // Connect to local MQTT client, if one is configured. A pure mDNS + zenSDK setup (no legacy devices) doesn't
+        // need one - startJobs() below is normally triggered by a successful MQTT connection, so we start those
+        // jobs directly in that case instead.
+        if (this.config.localMqttUrl) {
+          this.localMqttService = new LocalMqttService(this);
+          if (!this.localMqttService.connect()) {
+            this.log.error("[onReady] Could not connect to MQTT local server!");
+          }
+        } else {
+          startResetValuesJob(this);
+          startCheckStatesAndConnectionJob(this);
+          if (this.config.useCalculation) {
+            startCalculationJob(this);
+          }
         }
 
         // Subscribe to 1. device from local settings
@@ -254,6 +282,12 @@ export class ZendureSolarflow extends utils.Adapter {
         if (this.config.useRestart) {
           // Add interval to restart adapter every 3 hours
           startRefreshAccessTokenTimerJob(this);
+        }
+
+        // Devices discovered via mDNS are always zenSDK-only devices (see discoverZendureDevicesViaMdns), and are
+        // created asynchronously as they're found, so we can't check zenIobDeviceList for a zenSDK device yet here.
+        if (this.config.useZenSDK) {
+          startZenSdkDataRefreshJob(this);
         }
         break;
       }

@@ -227,7 +227,8 @@
     "useRestart": true,
     "useAddionalLocalMqtt": false,
     "relayMqttToCloud": false,
-    "useZenSDK": true
+    "useZenSDK": true,
+    "useMdnsDiscovery": false
   },
   "encryptedNative": [
     "password"

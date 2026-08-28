@@ -48,6 +48,7 @@
   "useCalculation": "使用计算（每日值、soc）",
   "useFallbackService": "使用后备服务器（连接到开发人员MQTT服务器 - 仅读取！）",
   "useLowVoltageBlock": "使用低电压模块（当一节电池的电压低于临界电压时停用电源输出）",
+  "useMdnsDiscovery": "添加通过 mDNS 发现的设备（尚未知的 zenSDK 兼容设备）",
   "useRestart": "每3小时使用重新启动适配器来刷新访问令牌",
   "useZenSDK": "使用zenSDK（如果设备支持）",
   "userName": "用户名",

@@ -6,6 +6,7 @@ declare global {
     interface AdapterConfig {
       connectionMode; // Cloud (api key) or local MQTT
       useZenSDK: boolean;
+      useMdnsDiscovery: boolean;
       useAddionalLocalMqtt: boolean;
       relayMqttToCloud: boolean;
       authorizationCloudKey: string;

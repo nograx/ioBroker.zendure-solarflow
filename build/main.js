@@ -107,7 +107,11 @@ class ZendureSolarflow extends utils.Adapter {
     switch (this.config.connectionMode) {
       case "authKey": {
         this.log.debug("[onReady] Using Authorization Cloud Key");
-        (0, import_mdnsHelper.discoverZendureDevicesViaMdns)(this);
+        if (this.config.useMdnsDiscovery) {
+          (0, import_mdnsHelper.discoverZendureDevicesViaMdns)(this);
+        } else {
+          this.log.info(`[onReady] mDNS discovery of zenSDK devices is disabled!`);
+        }
         if (!this.config.authorizationCloudKey) {
           this.log.error("[zenWebService.login] authorization cloud key is missing!");
           break;
@@ -166,17 +170,30 @@ class ZendureSolarflow extends utils.Adapter {
               );
             }
           });
-          if (this.zenIobDeviceList.find((x) => x.isZenSdkSupported) != void 0 && this.config.useZenSDK) {
-            (0, import_jobSchedule.startZenSdkDataRefreshJob)(this);
-          }
+        }
+        if (this.config.useZenSDK) {
+          (0, import_jobSchedule.startZenSdkDataRefreshJob)(this);
         }
         break;
       }
       case "local": {
         this.log.debug("[onReady] Using local MQTT server");
-        this.localMqttService = new import_localMqttService.LocalMqttService(this);
-        if (!this.localMqttService.connect()) {
-          this.log.error("[onReady] Could not connect to MQTT local server!");
+        if (this.config.useMdnsDiscovery) {
+          (0, import_mdnsHelper.discoverZendureDevicesViaMdns)(this);
+        } else {
+          this.log.info(`[onReady] mDNS discovery of zenSDK devices is disabled!`);
+        }
+        if (this.config.localMqttUrl) {
+          this.localMqttService = new import_localMqttService.LocalMqttService(this);
+          if (!this.localMqttService.connect()) {
+            this.log.error("[onReady] Could not connect to MQTT local server!");
+          }
+        } else {
+          (0, import_jobSchedule.startResetValuesJob)(this);
+          (0, import_jobSchedule.startCheckStatesAndConnectionJob)(this);
+          if (this.config.useCalculation) {
+            (0, import_jobSchedule.startCalculationJob)(this);
+          }
         }
         if (this.config.localDevice1ProductKey && this.config.localDevice1DeviceKey) {
           const deviceModel = (0, import_helpers.createDeviceModel)(
@@ -220,6 +237,9 @@ class ZendureSolarflow extends utils.Adapter {
         }
         if (this.config.useRestart) {
           (0, import_jobSchedule.startRefreshAccessTokenTimerJob)(this);
+        }
+        if (this.config.useZenSDK) {
+          (0, import_jobSchedule.startZenSdkDataRefreshJob)(this);
         }
         break;
       }

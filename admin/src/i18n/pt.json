@@ -48,6 +48,7 @@
   "useCalculation": "Use cálculos (valores diários, soc)",
   "useFallbackService": "Use o Fallback Server (conecte -se ao desenvolvedor MQTT Server - somente leitura!)",
   "useLowVoltageBlock": "Use bloco de baixa tensão (desativa a saída de energia quando a tensão de uma bateria cai abaixo da tensão crítica)",
+  "useMdnsDiscovery": "Adicionar dispositivos encontrados via mDNS (dispositivos compatíveis com zenSDK ainda não conhecidos)",
   "useRestart": "Use o reinício do adaptador a cada 3 horas para atualizar o token de acesso",
   "useZenSDK": "Use o zenSDK (se compatível com o dispositivo)",
   "userName": "Nome de usuário",

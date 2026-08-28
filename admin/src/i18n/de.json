@@ -48,6 +48,7 @@
   "useCalculation": "Berechnungen vom Adapter nutzen (Tageswerte, SOC)",
   "useFallbackService": "Fallback benutzen (Zum Developer MQTT Server verbinden - Read Only!)",
   "useLowVoltageBlock": "Spannungs-Überwachung nutzen (deaktiviert die Einspeisung wenn die Spannung einer Batterie in kritischen Bereich fällt)",
+  "useMdnsDiscovery": "Über mDNS gefundene Geräte automatisch hinzufügen (zenSDK-kompatible Geräte, die noch nicht bekannt sind)",
   "useRestart": "Neustart des Adapters alle 3 Stunden verwenden um die Verbindung zu erneuern",
   "useZenSDK": "zenSDK verwenden (sofern vom Gerät unterstützt)",
   "userName": "E-Mail Addresse",

@@ -45,6 +45,7 @@
   "authKey": "Authorization Cloud Key",
   "usrPwd": "Username & password",
   "useZenSDK": "Use zenSDK (if supported by device)",
+  "useMdnsDiscovery": "Add devices found via mDNS discovery (zenSDK-compatible devices not yet known)",
   "useAddionalLocalMqtt": "Use additional local MQTT server",
   "relayMqttToCloud": "Relay MQTT messages to cloud",
   "sectionConnection": "Connection",

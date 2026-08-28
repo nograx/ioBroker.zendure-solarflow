@@ -50,14 +50,22 @@ interface SettingsProps {
 
 function Settings(props: SettingsProps) {
   useEffect(() => {
-    if (props.native.connectionMode === "local" && props.native.useZenSDK) {
-      props.onChange("useZenSDK", false);
-    }
-
     if (props.native.connectionMode === "local" && props.native.useAddionalLocalMqtt) {
       props.onChange("useAddionalLocalMqtt", false);
     }
+
+    if (props.native.connectionMode === "local" && !props.native.useMdnsDiscovery && props.native.useZenSDK) {
+      props.onChange("useZenSDK", false);
+    }
   }, [props.native.connectionMode]);
+
+  useEffect(() => {
+    // Devices found by mDNS discovery are always zenSDK devices (see discoverZendureDevicesViaMdns), so they'd
+    // never get any data without zenSDK enabled.
+    if (props.native.useMdnsDiscovery && !props.native.useZenSDK) {
+      props.onChange("useZenSDK", true);
+    }
+  }, [props.native.useMdnsDiscovery]);
 
   const inputSx = {
     marginTop: 0,
@@ -102,7 +110,7 @@ function Settings(props: SettingsProps) {
     );
   }
 
-  function renderCheckbox(title: AdminWord, attr: string) {
+  function renderCheckbox(title: AdminWord, attr: string, disabled?: boolean) {
     return (
       <FormControlLabel
         key={attr}
@@ -111,6 +119,7 @@ function Settings(props: SettingsProps) {
           <Checkbox
             checked={props.native[attr]}
             onChange={() => props.onChange(attr, !props.native[attr])}
+            disabled={disabled}
             color="primary"
           />
         }
@@ -210,11 +219,13 @@ function Settings(props: SettingsProps) {
               </Box>
             )}
 
-            {isAuthKey && <Box>{renderCheckbox("useZenSDK", "useZenSDK")}</Box>}
+            <Box>{renderCheckbox("useZenSDK", "useZenSDK", props.native.useMdnsDiscovery)}</Box>
 
             {isAuthKey && <Box>{renderCheckbox("useAddionalLocalMqtt", "useAddionalLocalMqtt")}</Box>}
 
             {isAuthKey && <Box>{renderCheckbox("useRestart", "useRestart")}</Box>}
+
+            <Box>{renderCheckbox("useMdnsDiscovery", "useMdnsDiscovery")}</Box>
           </Stack>,
         )}
 

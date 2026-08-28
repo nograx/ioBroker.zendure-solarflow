@@ -48,6 +48,7 @@
   "useCalculation": "Gebruik berekeningen (dagwaarden, soc)",
   "useFallbackService": "Gebruik Fallback Server (verbinding maken met ontwikkelaar MQTT Server - Alleen lezen!)",
   "useLowVoltageBlock": "Gebruik een laagspanningsblok (deactiveert de stroomuitvoer wanneer de spanning van één batterij onder de kritische spanning daalt)",
+  "useMdnsDiscovery": "Voeg apparaten toe die zijn gevonden via mDNS (zenSDK-compatibele apparaten die nog niet bekend zijn)",
   "useRestart": "Gebruik de herstart van de adapter om de 3 uur om de toegangstoken te vernieuwen",
   "useZenSDK": "Gebruik zenSDK (indien ondersteund door apparaat)",
   "userName": "Gebruikersnaam",
