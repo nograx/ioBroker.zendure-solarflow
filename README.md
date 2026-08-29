@@ -103,6 +103,11 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 -->
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Correct IP of device if it is not correctly in cloud device list and detected by mDNS
+
 ### 5.2.0-alpha.6 (2026-08-29)
 
 - Process direct properties of smart meters which are not nested under "properties"

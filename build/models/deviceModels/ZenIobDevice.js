@@ -325,15 +325,22 @@ class ZenIobDevice {
   }
   /**
    * Called by mdnsHelper when this device was discovered locally via mDNS. Fills in the
-   * ipAddress if it is not yet known, then switches the device to a zenSDK connection
-   * (instead of Cloud/MQTT) if zenSDK is supported and enabled.
+   * ipAddress if it is not yet known, or corrects it if it no longer matches the
+   * mDNS-discovered address (e.g. a stale/wrong IP from the cloud device list), then
+   * switches the device to a zenSDK connection (instead of Cloud/MQTT) if zenSDK is
+   * supported and enabled.
    *
    * @param ipAddress the IP address the device was discovered at
    * @param serviceName the mDNS service name the device was discovered with (for logging)
    * @param serviceHost the mDNS service host the device was discovered with (for logging)
    */
   connectViaMdns(ipAddress, serviceName, serviceHost) {
-    if (!this.ipAddress) {
+    if (this.ipAddress !== ipAddress) {
+      if (this.ipAddress) {
+        this.adapter.log.info(
+          `[connectViaMdns] Correcting stale IP for device ${this.deviceKey}: ${this.ipAddress} -> ${ipAddress} (mDNS service: ${serviceName})!`
+        );
+      }
       this.ipAddress = ipAddress;
       this.updateSolarFlowState("ip", ipAddress);
     }
