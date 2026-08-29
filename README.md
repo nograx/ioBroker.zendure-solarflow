@@ -103,8 +103,7 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 -->
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 5.2.0-alpha.7 (2026-08-29)
 
 - Correct IP of device if it is not correctly in cloud device list and detected by mDNS
 
@@ -127,11 +126,6 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 - This version changes the function 'setDeviceAutomationInOutLimit' of Hyper 2000 to use 'hemsEP' function instead of 'deviceAutomation'. Big thanks to **FireSon** from the team of the Home Assistant Integration for Zendure for clarification and details!
 - Fix setting of 0-values to battery states
 - Fix 'Cannot write file deviceList.json: zendure-solarflow.admin is not an object of type "meta"'
-
-### 5.1.0 (2026-08-20)
-
-- Fix batCur Reading
-- Add control state for inverseMaxPower and gridOffMode (Control AC outlet on 'Plus' Devices)
 
 For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 
