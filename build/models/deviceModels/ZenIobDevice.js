@@ -280,13 +280,26 @@ class ZenIobDevice {
         this.adapter.log.debug(
           `[getZenSdkProperties] Successfully got properties for device ${this.deviceKey} with zenSDK!}`
         );
-        if (data.properties) {
-          (0, import_processDeviceProperties.processDeviceProperties)(this, data.properties, true);
+        const {
+          properties,
+          packData,
+          timestamp,
+          messageId,
+          deviceId,
+          sn,
+          success,
+          output,
+          isHA,
+          ...directProperties
+        } = data;
+        const propertiesToProcess = { ...properties != null ? properties : {}, ...directProperties };
+        if (Object.keys(propertiesToProcess).length > 0) {
+          (0, import_processDeviceProperties.processDeviceProperties)(this, propertiesToProcess, true);
           await ((_a = this.adapter) == null ? void 0 : _a.setState(`${this.productKey}.${this.deviceKey}.lastUpdate`, (/* @__PURE__ */ new Date()).getTime(), true));
           this.updateSolarFlowState("wifiState", 1);
         }
-        if (data.packData) {
-          this.addOrUpdatePackData(data.packData, true);
+        if (packData) {
+          this.addOrUpdatePackData(packData, true);
         }
         return true;
       }).catch((error) => {

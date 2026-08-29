@@ -103,6 +103,11 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 -->
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Process direct properties of smart meters which are not nested under "properties"
+
 ### 5.2.0-alpha.5 (2026-08-28)
 
 - Add more logging for zenSDK process in mDNS discovery

@@ -331,9 +331,25 @@ export class ZenIobDevice {
             `[getZenSdkProperties] Successfully got properties for device ${this.deviceKey} with zenSDK!}`,
           );
 
-          // Process properties if they exist in the message
-          if (data.properties) {
-            processDeviceProperties(this, data.properties, true);
+          // Some devices (e.g. Smart Meter 3CT/D0) report their measurements directly on the
+          // top-level response instead of nesting them under 'properties'
+          const {
+            properties,
+            packData,
+            timestamp,
+            messageId,
+            deviceId,
+            sn,
+            success,
+            output,
+            isHA,
+            ...directProperties
+          } = data;
+
+          const propertiesToProcess = { ...(properties ?? {}), ...directProperties };
+
+          if (Object.keys(propertiesToProcess).length > 0) {
+            processDeviceProperties(this, propertiesToProcess, true);
 
             await this.adapter?.setState(`${this.productKey}.${this.deviceKey}.lastUpdate`, new Date().getTime(), true);
 
@@ -341,8 +357,8 @@ export class ZenIobDevice {
           }
 
           // Process packData if it exists in the message
-          if (data.packData) {
-            this.addOrUpdatePackData(data.packData, true);
+          if (packData) {
+            this.addOrUpdatePackData(packData, true);
           }
 
           return true;
