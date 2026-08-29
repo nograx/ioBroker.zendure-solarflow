@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "5.2.0-alpha.5",
+    "version": "5.2.0-alpha.6",
     "news": {
+      "5.2.0-alpha.6": {
+        "en": "Process direct properties of smart meters which are not nested under \"properties\"",
+        "de": "Verarbeiten Sie direkte Eigenschaften von Smart Metern, die nicht unter „Eigenschaften“ verschachtelt sind.",
+        "ru": "Обрабатывайте непосредственные свойства интеллектуальных счетчиков, которые не вложены в раздел «Свойства».",
+        "pt": "Processar propriedades diretas de medidores inteligentes que não estejam aninhadas em \"propriedades\".",
+        "nl": "Verwerk directe eigenschappen van slimme meters die niet onder \"eigenschappen\" zijn genest.",
+        "fr": "Traiter directement les propriétés des compteurs intelligents qui ne sont pas imbriquées sous « propriétés »",
+        "it": "Elabora direttamente le proprietà dei contatori intelligenti che non sono annidate sotto \"proprietà\"",
+        "es": "Procesar propiedades directas de contadores inteligentes que no estén anidadas bajo \"propiedades\".",
+        "pl": "Przetwarzaj bezpośrednio właściwości inteligentnych liczników, które nie są zagnieżdżone w „właściwościach”",
+        "uk": "Обробляти прямі властивості інтелектуальних лічильників, які не вкладені у \"властивості\"",
+        "zh-cn": "处理智能电表未嵌套在“属性”下的直接属性"
+      },
       "5.2.0-alpha.5": {
         "en": "Add more logging for zenSDK process in mDNS discovery",
         "de": "Füge zusätzliche Protokollierung für den zenSDK-Prozess bei der mDNS-Erkennung hinzu.",
@@ -80,19 +93,6 @@
         "pl": "Ta wersja zmienia funkcję „setDeviceAutomationInOutLimit” w Hyper 2000, aby zamiast funkcji „deviceAutomation” używać funkcji „hemsEP”. Są to te same polecenia wysyłane z chmury HEMS do urządzenia, jeśli korzysta ono z chmury HEMS. Wielkie podziękowania dla **FireSon** z zespołu ds. integracji Home Assistant dla Zendure za wyjaśnienia i szczegóły!\nNapraw ustawienie wartości 0 dla stanów baterii",
         "uk": "У цій версії функція «setDeviceAutomationInOutLimit» Hyper 2000 змінюється на «hemsEP» замість «deviceAutomation». Це ті самі команди, що надсилаються з хмари HEMS на пристрій, якщо використовується хмарна служба HEMS. Велика подяка **FireSon** з команди Home Assistant Integration для Zendure за роз'яснення та деталі!\nВиправлено встановлення 0-значень для станів батареї",
         "zh-cn": "此版本将 Hyper 2000 的“setDeviceAutomationInOutLimit”函数更改为使用“hemsEP”函数而非“deviceAutomation”函数。如果使用云端 HEMS，则从 HEMS 云端发送到设备的命令相同。非常感谢 Zendure Home Assistant 集成团队的 **FireSon** 提供的澄清和详细信息！\n修复电池状态的 0 值设置问题"
-      },
-      "5.1.0": {
-        "en": "Fix batCur Reading\nAdd control state for inverseMaxPower and gridOffMode (Control AC outlet on 'Plus' Devices)",
-        "de": "Batterie reparieren Lesen\nSteuerungsstatus für inverseMaxPower und gridOffMode hinzufügen (Wechselstromsteckdose an Geräten mit dem Präfix „Plus“ steuern)",
-        "ru": "Исправить показания batCur\nДобавить состояние управления для inverseMaxPower и gridOffMode (управление розеткой переменного тока на устройствах класса «Plus»).",
-        "pt": "Corrigir leitura batCur\nAdicionar estado de controle para inverseMaxPower e gridOffMode (Controlar tomada CA em dispositivos 'Plus')",
-        "nl": "BatCur-lezing corrigeren\nVoeg een besturingsstatus toe voor inverseMaxPower en gridOffMode (besturing van het AC-stopcontact op 'Plus'-apparaten).",
-        "fr": "Correction de la lecture batCur\nAjout d'un état de contrôle pour inverseMaxPower et gridOffMode (Contrôle de la prise secteur sur les appareils « Plus »)",
-        "it": "Correggere la lettura di batCur\nAggiungi lo stato di controllo per inverseMaxPower e gridOffMode (Controlla la presa CA sui dispositivi 'Plus')",
-        "es": "Corregir la lectura de batCur\nAgregar estado de control para inverseMaxPower y gridOffMode (Controlar la salida de CA en dispositivos 'Plus')",
-        "pl": "Napraw odczyt batCur\nDodaj stan sterowania dla inverseMaxPower i gridOffMode (sterowanie gniazdem prądu zmiennego na urządzeniach „Plus”)",
-        "uk": "Виправити читання batCur\nДодано стан керування для inverseMaxPower та gridOffMode (керування розеткою змінного струму на пристроях «Plus»)",
-        "zh-cn": "修复 batCur 读取\n为反向最大功率和电网关闭模式添加控制状态（控制“Plus”设备上的交流电源插座）"
       }
     },
     "titleLang": {
