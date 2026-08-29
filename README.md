@@ -124,14 +124,36 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 -->
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 5.2.0 (2026-08-29)
 
 - Add support for Solarflow 3000/4000 Mix AC+ and 4000 Mix Pro via mDNS auto-discovery
 - Add support for Smart Meter 3CT and Smart Meter D0 (read-only zenSDK accessories, with proper power state names/units and no control or packData states)
 - Correct a device's IP via mDNS if it no longer matches the (stale or wrong) IP from the cloud device list
 - Process zenSDK measurements reported directly on the response instead of nested under "properties" (affects Smart Meter 3CT/D0)
 - Enable "mDNS discovery" by default, including for existing instances that never had this setting saved - you must disable this option in settings if not desired
+
+
+### 5.2.0-alpha.3 (2026-08-28)
+
+- Added a mDNS listener to detect Solarflow Devices with zenSDK. In cloud mode this will check for missing or wrong IP addresses. In local only mode this will add the device(s) with the serial number.
+- First test to support SF 3000/4000 Mix devices via zenSDK and mDNS discovery
+- This version changes the function 'setDeviceAutomationInOutLimit' of Hyper 2000 to use 'hemsEP' function instead of 'deviceAutomation'. Big thanks to **FireSon** from the team of the Home Assistant Integration for Zendure for clarification and details!
+- Fix setting of 0-values to battery states
+- Fix 'Cannot write file deviceList.json: zendure-solarflow.admin is not an object of type "meta"'
+
+### 5.1.0 (2026-08-20)
+
+- Fix batCur Reading
+- Add control state for inverseMaxPower and gridOffMode (Control AC outlet on 'Plus' Devices)
+
+### 5.0.4 (2026-08-19)
+
+- Fix flickering Save button in Settings.
+- Add function to detect zenSDK devices with mDNS and fill missing IP-address if found.
+
+### 5.0.3 (2026-08-18)
+
+- Fix `wifiState` not being created/updated correctly for devices using local zenSDK polling (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus), as their local status payload does not report a `wifiState` property
 
 For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 
