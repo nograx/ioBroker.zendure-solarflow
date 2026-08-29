@@ -419,7 +419,7 @@ export class ZenIobDevice {
       !this.isZenSdkSupported ||
       this.deviceConnectionMode == DeviceConnectionMode.zenSDK
     ) {
-      this.adapter.log.debug(
+      this.adapter.log.warn(
         `[connectViaMdns] Skipping zenSDK connect for device ${this.deviceKey} (useZenSDK=${this.adapter.config.useZenSDK}, isZenSdkSupported=${this.isZenSdkSupported}, deviceConnectionMode=${this.deviceConnectionMode})!`,
       );
       return;

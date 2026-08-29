@@ -103,6 +103,11 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 -->
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Compare full SN number instead of suffix only
+
 ### 5.2.0-alpha.7 (2026-08-29)
 
 - Correct IP of device if it is not correctly in cloud device list and detected by mDNS

@@ -5,7 +5,6 @@ import type { ZendureSolarflow } from "../main";
 
 const ZENDURE_DEVICE_NAME_PREFIX = "Zendure-";
 const DISCOVERY_DURATION_MS = 10000;
-const MAC_SUFFIX_LENGTH = 12;
 
 function normalizeModelName(modelName: string): string {
   return modelName
@@ -97,11 +96,12 @@ function createDeviceFromMdns(adapter: ZendureSolarflow, serviceName: string, ip
 
 /**
  * Browses the local network via mDNS for a fixed duration. Every discovered device whose
- * service name starts with "Zendure-" (e.g. "Zendure-SolarFlow800-<Last12MAC>") is matched
- * against the known devices in adapter.zenIobDeviceList by comparing the last 12 characters
- * of the service name (the device's MAC) against the tail of each device's snNumber. On a
- * match, the device's ipAddress is filled in (if not yet known) and it is switched to a
- * zenSDK connection instead of Cloud/MQTT. If no match is found, a new device is created
+ * service name starts with "Zendure-" (e.g. "Zendure-SolarFlow800-<serialNumber>") is matched
+ * against the known devices in adapter.zenIobDeviceList by comparing its full serial number
+ * (parsed from the service name) against each device's snNumber. A suffix/MAC-based match is
+ * not safe here, as some Zendure serial numbers share an identical tail and only differ in a
+ * short prefix. On a match, the device's ipAddress is corrected if needed and it is switched
+ * to a zenSDK connection instead of Cloud/MQTT. If no match is found, a new device is created
  * directly from the mDNS name (using its serial number as deviceKey), provided its model is
  * a known zenSDK-compatible device.
  *
@@ -121,14 +121,19 @@ export function discoverZendureDevicesViaMdns(adapter: ZendureSolarflow): void {
       `[mdnsHelper] Found Zendure device via mDNS: ${service.name} (host: ${service.host}, addresses: ${service.addresses?.join(", ")})`,
     );
 
-    const macSuffix = service.name.slice(-MAC_SUFFIX_LENGTH).toUpperCase();
     const ipAddress = service.addresses?.find((address) => address.includes(".")) ?? service.addresses?.[0];
 
     if (!ipAddress) {
       return;
     }
 
-    const device = adapter.zenIobDeviceList.find((x) => x.snNumber?.toUpperCase().endsWith(macSuffix));
+    const parsed = extractModelAndSerial(service.name);
+
+    if (!parsed) {
+      return;
+    }
+
+    const device = adapter.zenIobDeviceList.find((x) => x.snNumber?.toUpperCase() === parsed.snNumber.toUpperCase());
 
     if (device) {
       adapter.log.debug(

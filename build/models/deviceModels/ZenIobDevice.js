@@ -345,7 +345,7 @@ class ZenIobDevice {
       this.updateSolarFlowState("ip", ipAddress);
     }
     if (!this.adapter.config.useZenSDK || !this.isZenSdkSupported || this.deviceConnectionMode == import_enums.DeviceConnectionMode.zenSDK) {
-      this.adapter.log.debug(
+      this.adapter.log.warn(
         `[connectViaMdns] Skipping zenSDK connect for device ${this.deviceKey} (useZenSDK=${this.adapter.config.useZenSDK}, isZenSdkSupported=${this.isZenSdkSupported}, deviceConnectionMode=${this.deviceConnectionMode})!`
       );
       return;

@@ -35,7 +35,6 @@ var import_bonjour_service = __toESM(require("bonjour-service"));
 var import_helpers = require("./helpers");
 const ZENDURE_DEVICE_NAME_PREFIX = "Zendure-";
 const DISCOVERY_DURATION_MS = 1e4;
-const MAC_SUFFIX_LENGTH = 12;
 function normalizeModelName(modelName) {
   return modelName.toLowerCase().replace(/\+/g, "plus").replace(/[^a-z0-9]/g, "");
 }
@@ -106,14 +105,17 @@ function discoverZendureDevicesViaMdns(adapter) {
     adapter.log.info(
       `[mdnsHelper] Found Zendure device via mDNS: ${service.name} (host: ${service.host}, addresses: ${(_b = service.addresses) == null ? void 0 : _b.join(", ")})`
     );
-    const macSuffix = service.name.slice(-MAC_SUFFIX_LENGTH).toUpperCase();
     const ipAddress = (_e = (_c = service.addresses) == null ? void 0 : _c.find((address) => address.includes("."))) != null ? _e : (_d = service.addresses) == null ? void 0 : _d[0];
     if (!ipAddress) {
       return;
     }
+    const parsed = extractModelAndSerial(service.name);
+    if (!parsed) {
+      return;
+    }
     const device = adapter.zenIobDeviceList.find((x) => {
       var _a2;
-      return (_a2 = x.snNumber) == null ? void 0 : _a2.toUpperCase().endsWith(macSuffix);
+      return ((_a2 = x.snNumber) == null ? void 0 : _a2.toUpperCase()) === parsed.snNumber.toUpperCase();
     });
     if (device) {
       adapter.log.debug(
