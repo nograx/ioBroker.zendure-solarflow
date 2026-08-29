@@ -60,6 +60,8 @@ class ZenIobDevice {
   maxInputLimit = 0;
   maxOutputLimit = 0;
   controlStates = [];
+  /** Whether this device reports battery packData (false for read-only devices like the Smart Meter 3CT/D0). */
+  hasPackData = true;
   zenSdkErrorCount = 0;
   zenSdkPausedUntil = 0;
   static ZEN_SDK_MAX_ERROR_LOGS = 5;
@@ -192,55 +194,59 @@ class ZenIobDevice {
       },
       native: {}
     }));
-    await ((_d = this.adapter) == null ? void 0 : _d.extendObject(`${productKey}.${deviceKey}.packData`, {
-      type: "channel",
-      common: {
-        name: {
-          de: "Batterie Packs",
-          en: "Battery packs"
-        }
-      },
-      native: {}
-    }));
-    await ((_e = this.adapter) == null ? void 0 : _e.extendObject(`${productKey}.${deviceKey}.control`, {
-      type: "channel",
-      common: {
-        name: {
-          de: `Steuerung f\xFCr Ger\xE4t ${deviceKey}`,
-          en: `Control for device ${deviceKey}`
-        }
-      },
-      native: {}
-    }));
-    this.controlStates.forEach(async (state) => {
-      var _a2, _b2, _c2, _d2;
-      const stateId = `${productKey}.${deviceKey}.control.${state.title}`;
-      await ((_a2 = this.adapter) == null ? void 0 : _a2.extendObject(stateId, {
-        type: "state",
+    if (this.hasPackData) {
+      await ((_d = this.adapter) == null ? void 0 : _d.extendObject(`${productKey}.${deviceKey}.packData`, {
+        type: "channel",
         common: {
           name: {
-            de: state.nameDe,
-            en: state.nameEn
-          },
-          type: state.type,
-          desc: state.title,
-          role: state.role,
-          read: true,
-          write: true,
-          unit: state.unit,
-          states: state.states,
-          def: state.def
+            de: "Batterie Packs",
+            en: "Battery packs"
+          }
         },
         native: {}
       }));
-      if (state.def !== void 0) {
-        const current = await ((_b2 = this.adapter) == null ? void 0 : _b2.getStateAsync(stateId));
-        if (!current || current.val === null || current.val === void 0) {
-          await ((_c2 = this.adapter) == null ? void 0 : _c2.setState(stateId, state.def, true));
+    }
+    if (this.controlStates.length > 0) {
+      await ((_e = this.adapter) == null ? void 0 : _e.extendObject(`${productKey}.${deviceKey}.control`, {
+        type: "channel",
+        common: {
+          name: {
+            de: `Steuerung f\xFCr Ger\xE4t ${deviceKey}`,
+            en: `Control for device ${deviceKey}`
+          }
+        },
+        native: {}
+      }));
+      this.controlStates.forEach(async (state) => {
+        var _a2, _b2, _c2, _d2;
+        const stateId = `${productKey}.${deviceKey}.control.${state.title}`;
+        await ((_a2 = this.adapter) == null ? void 0 : _a2.extendObject(stateId, {
+          type: "state",
+          common: {
+            name: {
+              de: state.nameDe,
+              en: state.nameEn
+            },
+            type: state.type,
+            desc: state.title,
+            role: state.role,
+            read: true,
+            write: true,
+            unit: state.unit,
+            states: state.states,
+            def: state.def
+          },
+          native: {}
+        }));
+        if (state.def !== void 0) {
+          const current = await ((_b2 = this.adapter) == null ? void 0 : _b2.getStateAsync(stateId));
+          if (!current || current.val === null || current.val === void 0) {
+            await ((_c2 = this.adapter) == null ? void 0 : _c2.setState(stateId, state.def, true));
+          }
         }
-      }
-      (_d2 = this.adapter) == null ? void 0 : _d2.subscribeStates(`${productKey}.${deviceKey}.control.${state.title}`);
-    });
+        (_d2 = this.adapter) == null ? void 0 : _d2.subscribeStates(`${productKey}.${deviceKey}.control.${state.title}`);
+      });
+    }
     if (this.adapter.config.useCalculation) {
       await ((_f = this.adapter) == null ? void 0 : _f.extendObject(`${productKey}.${deviceKey}.calculations`, {
         type: "channel",
@@ -305,7 +311,7 @@ class ZenIobDevice {
       }).catch((error) => {
         this.zenSdkErrorCount++;
         if (this.zenSdkErrorCount <= ZenIobDevice.ZEN_SDK_MAX_ERROR_LOGS) {
-          this.adapter.log.error(
+          this.adapter.log.warn(
             `[getZenSdkProperties] Error getting properties for device ${this.deviceKey} with zenSDK: ${error}`
           );
         }
@@ -320,7 +326,7 @@ class ZenIobDevice {
         return false;
       });
     }
-    this.adapter.log.error(`[getZenSdkProperties] IP address is not defined for device ${this.deviceKey}!`);
+    this.adapter.log.warn(`[getZenSdkProperties] IP address is not defined for device ${this.deviceKey}!`);
     return Promise.resolve(false);
   }
   /**
@@ -430,13 +436,13 @@ class ZenIobDevice {
         return false;
       });
     }
-    this.adapter.log.error(`[writeZenSdkProperties] IP address is not defined for device ${this.deviceKey}!`);
+    this.adapter.log.warn(`[writeZenSdkProperties] IP address is not defined for device ${this.deviceKey}!`);
     return Promise.resolve(false);
   }
   writeMqttProperties(properties) {
     var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j;
     if (!this.iotTopic) {
-      this.adapter.log.error(`[writeMqttProperties] IoT topic is not defined for device ${this.deviceKey}!`);
+      this.adapter.log.warn(`[writeMqttProperties] IoT topic is not defined for device ${this.deviceKey}!`);
       return false;
     }
     if (this.productKey && this.deviceKey) {

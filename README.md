@@ -44,6 +44,17 @@ Currently all Zendure Solarflow devices are supported via cloud.
 
 - **Local MQTT** It's also possible to use the local only mode. Currently there is no known way for the new Solarflow devices to set the MQTT server directly on the device, so for these you have to use a DNS relay.
 
+### mDNS Discovery
+
+When zenSDK is enabled, the adapter also briefly browses the local network via mDNS/Bonjour after startup to discover Zendure devices announcing themselves as `Zendure-<model>-<serialNumber>`. This is used to:
+
+- **Fill in or correct IP addresses**: If a device known from the cloud device list has no IP address, or the IP address in the cloud device list no longer matches the address the device actually announces on the network, it is corrected automatically.
+- **Auto-create zenSDK-only accessories**: The Mix series devices and both Smart Meters (see below) have no known cloud productKey and can't be created from the cloud device list at all. The adapter creates them directly from their mDNS announcement instead, using their serial number as the internal device key.
+
+Devices are always matched by their full serial number (parsed from the mDNS service name), not by IP address or a shortened suffix, since some Zendure serial numbers only differ in their first few characters.
+
+This behavior can be disabled with the "Add devices found via mDNS discovery" setting.
+
 ### zenSDK Compatible Devices ✅
 
 > **Recommended by Zendure:** For all "new" devices listed below, using the zenSDK (via the Authentication Cloud Key mode above) is the way officially recommended by Zendure themselves to control your devices. It gives you full local control over http while the cloud connection is kept for convenience - there is no need to disconnect these devices from the cloud.
@@ -57,6 +68,16 @@ These devices support the advanced zenSDK automation features with full **local*
 - **Solarflow 800** - Full zenSDK support
 - **Solarflow 800 Plus** - Full zenSDK support
 - **Solarflow 800 Pro** - Full zenSDK support
+- **Solarflow 3000 Mix AC+** - Full zenSDK support (no cloud productKey known yet, added via [mDNS discovery](#mdns-discovery) only)
+- **Solarflow 4000 Mix AC+** - Full zenSDK support (no cloud productKey known yet, added via [mDNS discovery](#mdns-discovery) only)
+- **Solarflow 4000 Mix Pro** - Full zenSDK support (no cloud productKey known yet, added via [mDNS discovery](#mdns-discovery) only)
+
+### Smart Meter Accessories 📊
+
+These are read-only zenSDK accessories with no control states and no battery packs - they only ever report live measurements. Like the Mix series, they have no known cloud productKey and are added via [mDNS discovery](#mdns-discovery) only:
+
+- **Smart Meter 3CT** - Reports apparent power per phase (A/B/C) and total, measured via three current transformers
+- **Smart Meter D0** - Reports live measurements read from the utility meter via its IEC 62056-21 optical interface
 
 ### Legacy Devices 🔄
 
@@ -103,25 +124,14 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 -->
 
 ## Changelog
-### 5.2.0-alpha.8 (2026-08-29)
 
-- Compare full SN number instead of suffix only
+### **WORK IN PROGRESS**
 
-### 5.2.0-alpha.7 (2026-08-29)
-
-- Correct IP of device if it is not correctly in cloud device list and detected by mDNS
-
-### 5.2.0-alpha.6 (2026-08-29)
-
-- Process direct properties of smart meters which are not nested under "properties"
-
-### 5.2.0-alpha.5 (2026-08-28)
-
-- Add more logging for zenSDK process in mDNS discovery
-
-### 5.2.0-alpha.4 (2026-08-28)
-
-- Fix zenSDK support for Smart Meter 3CT and Smart Meter D0
+- Add support for Solarflow 3000/4000 Mix AC+ and 4000 Mix Pro via mDNS auto-discovery
+- Add support for Smart Meter 3CT and Smart Meter D0 (read-only zenSDK accessories, with proper power state names/units and no control or packData states)
+- Correct a device's IP via mDNS if it no longer matches the (stale or wrong) IP from the cloud device list
+- Process zenSDK measurements reported directly on the response instead of nested under "properties" (affects Smart Meter 3CT/D0)
+- Enable "mDNS discovery" by default, including for existing instances that never had this setting saved - you must disable this option in settings if not desired
 
 For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 

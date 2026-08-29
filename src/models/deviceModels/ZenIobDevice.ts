@@ -41,6 +41,8 @@ export class ZenIobDevice {
   public maxOutputLimit: number = 0;
 
   public controlStates: ISolarflowState[] = [];
+  /** Whether this device reports battery packData (false for read-only devices like the Smart Meter 3CT/D0). */
+  public hasPackData: boolean = true;
 
   private zenSdkErrorCount: number = 0;
   private zenSdkPausedUntil: number = 0;
@@ -222,62 +224,66 @@ export class ZenIobDevice {
       native: {},
     });
 
-    // Create pack data folder
-    await this.adapter?.extendObject(`${productKey}.${deviceKey}.packData`, {
-      type: "channel",
-      common: {
-        name: {
-          de: "Batterie Packs",
-          en: "Battery packs",
-        },
-      },
-      native: {},
-    });
-
-    // Create control folder
-    await this.adapter?.extendObject(`${productKey}.${deviceKey}.control`, {
-      type: "channel",
-      common: {
-        name: {
-          de: `Steuerung für Gerät ${deviceKey}`,
-          en: `Control for device ${deviceKey}`,
-        },
-      },
-      native: {},
-    });
-
-    this.controlStates.forEach(async (state: ISolarflowState) => {
-      const stateId = `${productKey}.${deviceKey}.control.${state.title}`;
-
-      await this.adapter?.extendObject(stateId, {
-        type: "state",
+    if (this.hasPackData) {
+      // Create pack data folder
+      await this.adapter?.extendObject(`${productKey}.${deviceKey}.packData`, {
+        type: "channel",
         common: {
           name: {
-            de: state.nameDe,
-            en: state.nameEn,
+            de: "Batterie Packs",
+            en: "Battery packs",
           },
-          type: state.type,
-          desc: state.title,
-          role: state.role,
-          read: true,
-          write: true,
-          unit: state.unit,
-          states: state.states,
-          def: state.def,
+        },
+        native: {},
+      });
+    }
+
+    if (this.controlStates.length > 0) {
+      // Create control folder
+      await this.adapter?.extendObject(`${productKey}.${deviceKey}.control`, {
+        type: "channel",
+        common: {
+          name: {
+            de: `Steuerung für Gerät ${deviceKey}`,
+            en: `Control for device ${deviceKey}`,
+          },
         },
         native: {},
       });
 
-      if (state.def !== undefined) {
-        const current = await this.adapter?.getStateAsync(stateId);
-        if (!current || current.val === null || current.val === undefined) {
-          await this.adapter?.setState(stateId, state.def, true);
-        }
-      }
+      this.controlStates.forEach(async (state: ISolarflowState) => {
+        const stateId = `${productKey}.${deviceKey}.control.${state.title}`;
 
-      // Subscribe to states to respond to changes
-      this.adapter?.subscribeStates(`${productKey}.${deviceKey}.control.${state.title}`);
-    });
+        await this.adapter?.extendObject(stateId, {
+          type: "state",
+          common: {
+            name: {
+              de: state.nameDe,
+              en: state.nameEn,
+            },
+            type: state.type,
+            desc: state.title,
+            role: state.role,
+            read: true,
+            write: true,
+            unit: state.unit,
+            states: state.states,
+            def: state.def,
+          },
+          native: {},
+        });
+
+        if (state.def !== undefined) {
+          const current = await this.adapter?.getStateAsync(stateId);
+          if (!current || current.val === null || current.val === undefined) {
+            await this.adapter?.setState(stateId, state.def, true);
+          }
+        }
+
+        // Subscribe to states to respond to changes
+        this.adapter?.subscribeStates(`${productKey}.${deviceKey}.control.${state.title}`);
+      });
+    }
 
     if (this.adapter.config.useCalculation) {
       // Create calculations folder
@@ -367,7 +373,7 @@ export class ZenIobDevice {
           this.zenSdkErrorCount++;
 
           if (this.zenSdkErrorCount <= ZenIobDevice.ZEN_SDK_MAX_ERROR_LOGS) {
-            this.adapter.log.error(
+            this.adapter.log.warn(
               `[getZenSdkProperties] Error getting properties for device ${this.deviceKey} with zenSDK: ${error}`,
             );
           }
@@ -387,7 +393,7 @@ export class ZenIobDevice {
           return false;
         });
     }
-    this.adapter.log.error(`[getZenSdkProperties] IP address is not defined for device ${this.deviceKey}!`);
+    this.adapter.log.warn(`[getZenSdkProperties] IP address is not defined for device ${this.deviceKey}!`);
 
     return Promise.resolve(false);
   }
@@ -523,13 +529,13 @@ export class ZenIobDevice {
           return false;
         });
     }
-    this.adapter.log.error(`[writeZenSdkProperties] IP address is not defined for device ${this.deviceKey}!`);
+    this.adapter.log.warn(`[writeZenSdkProperties] IP address is not defined for device ${this.deviceKey}!`);
     return Promise.resolve(false);
   }
 
   public writeMqttProperties(properties: string): boolean {
     if (!this.iotTopic) {
-      this.adapter.log.error(`[writeMqttProperties] IoT topic is not defined for device ${this.deviceKey}!`);
+      this.adapter.log.warn(`[writeMqttProperties] IoT topic is not defined for device ${this.deviceKey}!`);
       return false;
     }
     if (this.productKey && this.deviceKey) {

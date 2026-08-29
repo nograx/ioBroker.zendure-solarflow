@@ -8,6 +8,7 @@ import { ZenSdkIobDevice } from "./ZenSdkIobDevice";
  */
 export class SmartMeter3Ct extends ZenSdkIobDevice {
   isZenSdkSupported = true;
+  hasPackData = false;
 
   public constructor(
     _adapter: ZendureSolarflow,

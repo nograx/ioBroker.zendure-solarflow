@@ -65,6 +65,11 @@ class ZendureSolarflow extends utils.Adapter {
    * Is called when databases are connected and adapter received configuration.
    */
   async onReady() {
+    if (this.config.useMdnsDiscovery === void 0) {
+      this.config.useMdnsDiscovery = true;
+      await this.extendForeignObjectAsync(`system.adapter.${this.namespace}`, { native: { useMdnsDiscovery: true } });
+      this.log.info("[onReady] Enabled mDNS discovery by default (was not previously configured)!");
+    }
     await this.extendObject("info", {
       type: "channel",
       common: {

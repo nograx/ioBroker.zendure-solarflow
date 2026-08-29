@@ -890,6 +890,40 @@ export const allStates: Record<string, ISolarflowState> = {
     role: "value",
   },
 
+  // Smart Meter states (3CT)
+  a_aprt_power: {
+    title: "a_aprt_power",
+    nameDe: "Scheinleistung Phase A",
+    nameEn: "Apparent power phase A",
+    type: "number",
+    role: "value.power",
+    unit: "W",
+  },
+  b_aprt_power: {
+    title: "b_aprt_power",
+    nameDe: "Scheinleistung Phase B",
+    nameEn: "Apparent power phase B",
+    type: "number",
+    role: "value.power",
+    unit: "W",
+  },
+  c_aprt_power: {
+    title: "c_aprt_power",
+    nameDe: "Scheinleistung Phase C",
+    nameEn: "Apparent power phase C",
+    type: "number",
+    role: "value.power",
+    unit: "W",
+  },
+  total_power: {
+    title: "total_power",
+    nameDe: "Gesamtleistung",
+    nameEn: "Total power",
+    type: "number",
+    role: "value.power",
+    unit: "W",
+  },
+
   // Power cycle states
   acoutputPowerCycle: {
     title: "acoutputPowerCycle",

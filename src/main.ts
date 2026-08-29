@@ -55,6 +55,15 @@ export class ZendureSolarflow extends utils.Adapter {
    * Is called when databases are connected and adapter received configuration.
    */
   private async onReady(): Promise<void> {
+    // Migration: 'useMdnsDiscovery' now defaults to enabled for new instances (see io-package.json), but
+    // existing instances configured before this setting existed have no value saved for it at all. Self-heal
+    // those once, so they also get mDNS discovery enabled by default instead of silently staying disabled.
+    if (this.config.useMdnsDiscovery === undefined) {
+      this.config.useMdnsDiscovery = true;
+      await this.extendForeignObjectAsync(`system.adapter.${this.namespace}`, { native: { useMdnsDiscovery: true } });
+      this.log.info("[onReady] Enabled mDNS discovery by default (was not previously configured)!");
+    }
+
     await this.extendObject("info", {
       type: "channel",
       common: {
