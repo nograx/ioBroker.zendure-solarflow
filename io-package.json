@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "5.2.0-alpha.7",
+    "version": "5.2.0-alpha.8",
     "news": {
+      "5.2.0-alpha.8": {
+        "en": "Compare full SN number instead of suffix only",
+        "de": "Vergleiche die vollständige Seriennummer anstatt nur das Suffix.",
+        "ru": "Сравнивайте полный серийный номер, а не только суффикс.",
+        "pt": "Compare o número de série completo em vez de apenas o sufixo.",
+        "nl": "Vergelijk het volledige serienummer in plaats van alleen het achtervoegsel.",
+        "fr": "Comparez le numéro de série complet et non seulement le suffixe.",
+        "it": "Confronta il numero SN completo anziché solo il suffisso",
+        "es": "Comparar el número SN completo en lugar de solo el sufijo.",
+        "pl": "Porównaj pełny numer SN zamiast tylko sufiksu",
+        "uk": "Порівняйте повний серійний номер, а не лише суфікс",
+        "zh-cn": "请比较完整的序列号，而不仅仅是后缀。"
+      },
       "5.2.0-alpha.7": {
         "en": "Correct IP of device if it is not correctly in cloud device list and detected by mDNS",
         "de": "Korrekte IP-Adresse des Geräts, falls es nicht korrekt in der Cloud-Geräteliste eingetragen und von mDNS erkannt wurde.",
@@ -80,19 +93,6 @@
         "pl": "Napraw literówkę",
         "uk": "Виправити друкарську помилку",
         "zh-cn": "修正拼写错误"
-      },
-      "5.2.0-alpha.1": {
-        "en": "Send inverseMaxPower on first payload of setDeviceAutomationInOutLimit.\nSet autoModel and acMode to 0 if necessary",
-        "de": "Sende inverseMaxPower beim ersten Payload von setDeviceAutomationInOutLimit.\nSetzen Sie autoModel und acMode gegebenenfalls auf 0.",
-        "ru": "Отправьте параметр inverseMaxPower в первом полезном потоке функции setDeviceAutomationInOutLimit.\nПри необходимости установите параметры autoModel и acMode в значение 0.",
-        "pt": "Envie o valor inverso de MaxPower no primeiro payload de setDeviceAutomationInOutLimit.\nDefina autoModel e acMode como 0, se necessário.",
-        "nl": "Verzend inverseMaxPower bij de eerste payload van setDeviceAutomationInOutLimit.\nStel autoModel en acMode indien nodig in op 0.",
-        "fr": "Envoyer inverseMaxPower sur la première charge utile de setDeviceAutomationInOutLimit.\nRéglez autoModel et acMode sur 0 si nécessaire.",
-        "it": "Invia inverseMaxPower come primo payload di setDeviceAutomationInOutLimit.\nSe necessario, imposta autoModel e acMode a 0.",
-        "es": "Envía inverseMaxPower en la primera carga útil de setDeviceAutomationInOutLimit.\nEstablezca autoModel y acMode en 0 si es necesario.",
-        "pl": "Wyślij inverseMaxPower przy pierwszym ładunku setDeviceAutomationInOutLimit.\nW razie potrzeby ustaw autoModel i acMode na 0",
-        "uk": "Надсилати inverseMaxPower для першого корисного навантаження setDeviceAutomationInOutLimit.\nЗа потреби встановіть autoModel та acMode на 0",
-        "zh-cn": "在 setDeviceAutomationInOutLimit 的第一个有效载荷上发送 inverseMaxPower。\n如有必要，将 autoModel 和 acMode 设置为 0。"
       }
     },
     "titleLang": {
