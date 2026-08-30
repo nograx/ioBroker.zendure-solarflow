@@ -719,16 +719,21 @@ export class ZenIobDevice {
     const timestamp = new Date();
     timestamp.setMilliseconds(0);
 
+    const inverseMaxPowerState = await this.adapter.getStateAsync(
+      `${this.productKey}.${this.deviceKey}.inverseMaxPower`,
+    );
+    const inverseMaxPower = inverseMaxPowerState?.val ? Number(inverseMaxPowerState.val) : 0;
+
+    if (limit > inverseMaxPower) {
+      this.adapter.log.error(
+        `[sendHemsEpSetpoint] Requested output limit (${limit}W) exceeds inverseMaxPower (${inverseMaxPower}W) - actual output will be ignored by the device!`,
+      );
+    }
+
     let minSoc: number | undefined;
-    let inverseMaxPower: number | undefined;
     if (isFirstPayload) {
       const minSocState = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.minSoc`);
       minSoc = (minSocState?.val ? Number(minSocState.val) : 1) * 10;
-
-      const inverseMaxPowerState = await this.adapter.getStateAsync(
-        `${this.productKey}.${this.deviceKey}.inverseMaxPower`,
-      );
-      inverseMaxPower = inverseMaxPowerState?.val ? Number(inverseMaxPowerState.val) : 800;
     }
 
     const _arguments: IHemsEpPayload =
@@ -1274,10 +1279,14 @@ export class ZenIobDevice {
         await this.adapter?.setState(`${this.productKey}.${this.deviceKey}.control.lowVoltageBlock`, true, true);
 
         // Low Voltage Block activated, stop power input immediately
-        const autoModel = (await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.autoModel`))?.val;
-        if (autoModel == 8) {
+        const outputLimit = (await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.outputLimit`))?.val;
+        const deviceAutomationInOutLimit = (
+          await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.control.setDeviceAutomationInOutLimit`)
+        )?.val;
+
+        if (deviceAutomationInOutLimit != 0) {
           this.setDeviceAutomationInOutLimit(0);
-        } else {
+        } else if (outputLimit != 0) {
           this.setOutputLimit(0);
         }
 

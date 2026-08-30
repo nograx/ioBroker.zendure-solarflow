@@ -592,15 +592,19 @@ class ZenIobDevice {
     this.messageId += 1;
     const timestamp = /* @__PURE__ */ new Date();
     timestamp.setMilliseconds(0);
+    const inverseMaxPowerState = await this.adapter.getStateAsync(
+      `${this.productKey}.${this.deviceKey}.inverseMaxPower`
+    );
+    const inverseMaxPower = (inverseMaxPowerState == null ? void 0 : inverseMaxPowerState.val) ? Number(inverseMaxPowerState.val) : 0;
+    if (limit > inverseMaxPower) {
+      this.adapter.log.error(
+        `[sendHemsEpSetpoint] Requested output limit (${limit}W) exceeds inverseMaxPower (${inverseMaxPower}W) - actual output will be ignored by the device!`
+      );
+    }
     let minSoc;
-    let inverseMaxPower;
     if (isFirstPayload) {
       const minSocState = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.minSoc`);
       minSoc = ((minSocState == null ? void 0 : minSocState.val) ? Number(minSocState.val) : 1) * 10;
-      const inverseMaxPowerState = await this.adapter.getStateAsync(
-        `${this.productKey}.${this.deviceKey}.inverseMaxPower`
-      );
-      inverseMaxPower = (inverseMaxPowerState == null ? void 0 : inverseMaxPowerState.val) ? Number(inverseMaxPowerState.val) : 800;
     }
     const _arguments = limit < 0 ? { outputPower: 0, chargePower: -limit, freq: 0, mode: 9, chargeMode: 3 } : {
       outputPower: limit,
@@ -1051,24 +1055,25 @@ class ZenIobDevice {
     }
   };
   async checkVoltage(voltage) {
-    var _a, _b, _c, _d;
+    var _a, _b, _c, _d, _e;
     if (voltage < 46.1) {
       if (this.adapter.config.useCalculation) {
         this.setSocToZero();
       }
       if (this.adapter.config.useLowVoltageBlock) {
         await ((_a = this.adapter) == null ? void 0 : _a.setState(`${this.productKey}.${this.deviceKey}.control.lowVoltageBlock`, true, true));
-        const autoModel = (_b = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.autoModel`)) == null ? void 0 : _b.val;
-        if (autoModel == 8) {
+        const outputLimit = (_b = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.outputLimit`)) == null ? void 0 : _b.val;
+        const deviceAutomationInOutLimit = (_c = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.control.setDeviceAutomationInOutLimit`)) == null ? void 0 : _c.val;
+        if (deviceAutomationInOutLimit != 0) {
           this.setDeviceAutomationInOutLimit(0);
-        } else {
+        } else if (outputLimit != 0) {
           this.setOutputLimit(0);
         }
         if (this.adapter.config.forceShutdownOnLowVoltage) {
           const currentSoc = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.electricLevel`);
           if (currentSoc && Number(currentSoc.val) > 50) {
             if (this.adapter.config.fullChargeIfNeeded) {
-              await ((_c = this.adapter) == null ? void 0 : _c.setState(`${this.productKey}.${this.deviceKey}.control.fullChargeNeeded`, true, true));
+              await ((_d = this.adapter) == null ? void 0 : _d.setState(`${this.productKey}.${this.deviceKey}.control.fullChargeNeeded`, true, true));
             }
           } else {
             if (currentSoc && currentSoc.val) {
@@ -1088,7 +1093,7 @@ class ZenIobDevice {
         `${this.productKey}.${this.deviceKey}.control.lowVoltageBlock`
       );
       if (lowVoltageBlock && lowVoltageBlock.val == true) {
-        await ((_d = this.adapter) == null ? void 0 : _d.setState(`${this.productKey}.${this.deviceKey}.control.lowVoltageBlock`, false, true));
+        await ((_e = this.adapter) == null ? void 0 : _e.setState(`${this.productKey}.${this.deviceKey}.control.lowVoltageBlock`, false, true));
         if (this.adapter.config.useLowVoltageBlock && this.adapter.config.forceShutdownOnLowVoltage) {
           this.setDischargeLimit(this.adapter.config.dischargeLimit ? this.adapter.config.dischargeLimit : 5);
         }
