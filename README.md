@@ -124,8 +124,7 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 -->
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 5.3.0-alpha.0 (2026-08-31)
 
 - Add folder "settings" for zenSDK devices. Here you can turn device polling on/off and control the polling interval for individual devices
 - Round hyperTmp to nearest int
@@ -152,10 +151,6 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 ### 5.0.3 (2026-08-18)
 
 - Fix `wifiState` not being created/updated correctly for devices using local zenSDK polling (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus), as their local status payload does not report a `wifiState` property
-
-### 5.0.2 (2026-08-18)
-
-- Fix Wifistate type/value mismatch
 
 For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 
