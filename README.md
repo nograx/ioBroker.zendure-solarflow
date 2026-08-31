@@ -124,9 +124,15 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 -->
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Add folder "settings" for zenSDK devices. Here you can turn device polling on/off and control the polling interval for individual devices
+- Round hyperTmp to nearest int
+
 ### 5.2.1 (2026-08-30)
 
-- **BREAKING CHANGE**: `setDeviceAutomationInOutLimit` on Hyper 2000 uses simulated HEMS now and requires `hemsState = 1` and `autoModel = 0` to control the device (automatically set by the adapter). Please check your control parameters (e.g. inverseMaxPower) after updating if you use setDeviceAutomationInOutLimit.
+- BREAKING: `setDeviceAutomationInOutLimit` on Hyper 2000 uses simulated HEMS now and requires `hemsState = 1` and `autoModel = 0` to control the device (automatically set by the adapter). Please check your control parameters (e.g. inverseMaxPower) after updating if you use setDeviceAutomationInOutLimit.
 - Add support for Solarflow 3000/4000 Mix AC+ and 4000 Mix Pro via mDNS auto-discovery
 - Add support for Smart Meter 3CT and Smart Meter D0 (read-only zenSDK accessories, with proper power state names/units and no control or packData states)
 - Correct a device's IP via mDNS if it no longer matches the (stale or wrong) IP from the cloud device list
@@ -146,7 +152,6 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 ### 5.0.3 (2026-08-18)
 
 - Fix `wifiState` not being created/updated correctly for devices using local zenSDK polling (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus), as their local status payload does not report a `wifiState` property
-
 
 ### 5.0.2 (2026-08-18)
 

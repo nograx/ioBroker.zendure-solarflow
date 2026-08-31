@@ -40,6 +40,32 @@ var import_enums = require("../../helpers/enums");
 var import_axios = __toESM(require("axios"));
 var import_processDeviceProperties = require("../../helpers/processDeviceProperties");
 var import_allStates = require("../../constants/sensorStates/allStates");
+var import_node_schedule = require("node-schedule");
+const zenSdkPollingSettingsStates = [
+  {
+    title: "zenSDKPollingEnabled",
+    nameDe: "zenSDK Abfrage aktiviert",
+    nameEn: "zenSDK polling enabled",
+    type: "boolean",
+    role: "switch.enable",
+    read: true,
+    write: true,
+    def: true
+  },
+  {
+    title: "zenSDKPollingInverval",
+    nameDe: "zenSDK Abfrageintervall",
+    nameEn: "zenSDK polling interval",
+    type: "number",
+    role: "level.interval",
+    read: true,
+    write: true,
+    min: 1,
+    max: 30,
+    unit: "s",
+    def: 5
+  }
+];
 class ZenIobDevice {
   zenIobDeviceDetails;
   adapter;
@@ -66,6 +92,9 @@ class ZenIobDevice {
   zenSdkPausedUntil = 0;
   static ZEN_SDK_MAX_ERROR_LOGS = 5;
   static ZEN_SDK_PAUSE_DURATION_MS = 10 * 60 * 1e3;
+  /** Per-device zenSDK polling job, scheduled with the interval configured in 'settings.ZenSDKPollingInverval'. */
+  zenSdkPollingJob;
+  zenSdkPollingIntervalSeconds;
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, isZenSdkSupported, _zenIobDeviceDetails) {
     this.zenIobDeviceDetails = _zenIobDeviceDetails;
     this.adapter = _adapter;
@@ -151,7 +180,7 @@ class ZenIobDevice {
     }
   }
   async createSolarFlowStates() {
-    var _a, _b, _c, _d, _e, _f;
+    var _a, _b, _c, _d, _e, _f, _g;
     const productKey = this.productKey.replace(this.adapter.FORBIDDEN_CHARS, "");
     const deviceKey = this.deviceKey.replace(this.adapter.FORBIDDEN_CHARS, "");
     this.adapter.log.debug(
@@ -247,8 +276,51 @@ class ZenIobDevice {
         (_d2 = this.adapter) == null ? void 0 : _d2.subscribeStates(`${productKey}.${deviceKey}.control.${state.title}`);
       });
     }
+    if (this.isZenSdkSupported) {
+      await ((_f = this.adapter) == null ? void 0 : _f.extendObject(`${productKey}.${deviceKey}.settings`, {
+        type: "channel",
+        common: {
+          name: {
+            de: `ioBroker Einstellungen f\xFCr Ger\xE4t ${deviceKey}`,
+            en: `ioBroker settings for device ${deviceKey}`
+          }
+        },
+        native: {}
+      }));
+      zenSdkPollingSettingsStates.forEach(async (state) => {
+        var _a2, _b2, _c2, _d2;
+        const stateId = `${productKey}.${deviceKey}.settings.${state.title}`;
+        await ((_a2 = this.adapter) == null ? void 0 : _a2.extendObject(stateId, {
+          type: "state",
+          common: {
+            name: {
+              de: state.nameDe,
+              en: state.nameEn
+            },
+            type: state.type,
+            desc: state.title,
+            role: state.role,
+            read: true,
+            write: true,
+            unit: state.unit,
+            min: state.min,
+            max: state.max,
+            def: state.def
+          },
+          native: {}
+        }));
+        if (state.def !== void 0) {
+          const current = await ((_b2 = this.adapter) == null ? void 0 : _b2.getStateAsync(stateId));
+          if (!current || current.val === null || current.val === void 0) {
+            await ((_c2 = this.adapter) == null ? void 0 : _c2.setState(stateId, state.def, true));
+          }
+        }
+        (_d2 = this.adapter) == null ? void 0 : _d2.subscribeStates(stateId);
+      });
+      await this.syncZenSdkPollingSchedule();
+    }
     if (this.adapter.config.useCalculation) {
-      await ((_f = this.adapter) == null ? void 0 : _f.extendObject(`${productKey}.${deviceKey}.calculations`, {
+      await ((_g = this.adapter) == null ? void 0 : _g.extendObject(`${productKey}.${deviceKey}.calculations`, {
         type: "channel",
         common: {
           name: {
@@ -328,6 +400,64 @@ class ZenIobDevice {
     }
     this.adapter.log.warn(`[getZenSdkProperties] IP address is not defined for device ${this.deviceKey}!`);
     return Promise.resolve(false);
+  }
+  /**
+   * Starts, stops or reschedules the per-device zenSDK polling job based on the current
+   * 'settings.ZenSDKPollingEnabled' / 'settings.ZenSDKPollingInverval' state values.
+   * Called periodically by the zenSDK data refresh job so that changes to those states take effect.
+   */
+  async syncZenSdkPollingSchedule() {
+    var _a;
+    if (!this.isZenSdkSupported || !this.adapter.config.useZenSDK) {
+      return;
+    }
+    const productKey = this.productKey.replace(this.adapter.FORBIDDEN_CHARS, "");
+    const deviceKey = this.deviceKey.replace(this.adapter.FORBIDDEN_CHARS, "");
+    const enabledState = await this.adapter.getStateAsync(`${productKey}.${deviceKey}.settings.ZenSDKPollingEnabled`);
+    const pollingEnabled = (enabledState == null ? void 0 : enabledState.val) !== false;
+    if (!pollingEnabled) {
+      if (this.zenSdkPollingJob) {
+        this.adapter.log.info(
+          `[syncZenSdkPollingSchedule] zenSDK polling disabled for device ${this.deviceKey}, stopping polling job!`
+        );
+        this.zenSdkPollingJob.cancel();
+        this.zenSdkPollingJob = void 0;
+        this.zenSdkPollingIntervalSeconds = void 0;
+      }
+      return;
+    }
+    const intervalState = await this.adapter.getStateAsync(`${productKey}.${deviceKey}.settings.ZenSDKPollingInverval`);
+    let intervalSeconds = Number((_a = intervalState == null ? void 0 : intervalState.val) != null ? _a : 5);
+    if (!Number.isFinite(intervalSeconds)) {
+      intervalSeconds = 5;
+    }
+    intervalSeconds = Math.min(30, Math.max(1, Math.round(intervalSeconds)));
+    if (this.zenSdkPollingJob && this.zenSdkPollingIntervalSeconds === intervalSeconds) {
+      return;
+    }
+    if (this.zenSdkPollingJob) {
+      this.adapter.log.info(
+        `[syncZenSdkPollingSchedule] zenSDK polling interval changed for device ${this.deviceKey}, restarting polling job with an interval of ${intervalSeconds}s!`
+      );
+      this.zenSdkPollingJob.cancel();
+      this.zenSdkPollingJob = void 0;
+    } else {
+      this.adapter.log.info(
+        `[syncZenSdkPollingSchedule] Starting zenSDK polling job for device ${this.deviceKey} with an interval of ${intervalSeconds}s!`
+      );
+    }
+    this.zenSdkPollingIntervalSeconds = intervalSeconds;
+    this.zenSdkPollingJob = (0, import_node_schedule.scheduleJob)(`*/${intervalSeconds} * * * * *`, () => {
+      void this.getZenSdkProperties();
+    });
+  }
+  /** Cancels the per-device zenSDK polling job, if one is running. Called on adapter unload. */
+  stopZenSdkPollingSchedule() {
+    if (this.zenSdkPollingJob) {
+      this.zenSdkPollingJob.cancel();
+      this.zenSdkPollingJob = void 0;
+      this.zenSdkPollingIntervalSeconds = void 0;
+    }
   }
   /**
    * Called by mdnsHelper when this device was discovered locally via mDNS. Fills in the

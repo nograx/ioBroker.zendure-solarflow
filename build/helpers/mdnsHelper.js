@@ -94,14 +94,17 @@ function createDeviceFromMdns(adapter, serviceName, ipAddress) {
   }
 }
 function discoverZendureDevicesViaMdns(adapter) {
+  adapter.log.info(`[mdnsHelper] Starting mDNS discovery of Zendure devices for ${DISCOVERY_DURATION_MS / 1e3}s!`);
   const bonjour = new import_bonjour_service.default(void 0, (err) => {
     adapter.log.warn(`[mdnsHelper] mDNS error: ${err.message}`);
   });
+  let foundCount = 0;
   const browser = bonjour.find(null, (service) => {
     var _a, _b, _c, _d, _e;
     if (!((_a = service.name) == null ? void 0 : _a.startsWith(ZENDURE_DEVICE_NAME_PREFIX))) {
       return;
     }
+    foundCount++;
     adapter.log.info(
       `[mdnsHelper] Found Zendure device via mDNS: ${service.name} (host: ${service.host}, addresses: ${(_b = service.addresses) == null ? void 0 : _b.join(", ")})`
     );
@@ -129,6 +132,9 @@ function discoverZendureDevicesViaMdns(adapter) {
   adapter.setTimeout(() => {
     browser.stop();
     bonjour.destroy();
+    adapter.log.info(
+      `[mdnsHelper] Finished mDNS discovery of Zendure devices, found ${foundCount} device(s) via mDNS!`
+    );
   }, DISCOVERY_DURATION_MS);
 }
 // Annotate the CommonJS export names for ESM import in node:

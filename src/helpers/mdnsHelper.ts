@@ -108,14 +108,20 @@ function createDeviceFromMdns(adapter: ZendureSolarflow, serviceName: string, ip
  * @param adapter the adapter instance, used for logging and device lookup
  */
 export function discoverZendureDevicesViaMdns(adapter: ZendureSolarflow): void {
+  adapter.log.info(`[mdnsHelper] Starting mDNS discovery of Zendure devices for ${DISCOVERY_DURATION_MS / 1000}s!`);
+
   const bonjour = new Bonjour(undefined, (err: Error) => {
     adapter.log.warn(`[mdnsHelper] mDNS error: ${err.message}`);
   });
+
+  let foundCount = 0;
 
   const browser = bonjour.find(null, (service) => {
     if (!service.name?.startsWith(ZENDURE_DEVICE_NAME_PREFIX)) {
       return;
     }
+
+    foundCount++;
 
     adapter.log.info(
       `[mdnsHelper] Found Zendure device via mDNS: ${service.name} (host: ${service.host}, addresses: ${service.addresses?.join(", ")})`,
@@ -150,5 +156,9 @@ export function discoverZendureDevicesViaMdns(adapter: ZendureSolarflow): void {
   adapter.setTimeout(() => {
     browser.stop();
     bonjour.destroy();
+
+    adapter.log.info(
+      `[mdnsHelper] Finished mDNS discovery of Zendure devices, found ${foundCount} device(s) via mDNS!`,
+    );
   }, DISCOVERY_DURATION_MS);
 }

@@ -270,7 +270,7 @@ const processDeviceProperties = async (device, properties, isSolarFlow) => {
     controlStatesToSet.set("acMode", properties.acMode);
   }
   if ((properties == null ? void 0 : properties.hyperTmp) != null) {
-    statesToSet.set("hyperTmp", properties.hyperTmp / 10 - 273.15);
+    statesToSet.set("hyperTmp", Math.round(properties.hyperTmp / 10 - 273.15));
   }
   if ((properties == null ? void 0 : properties.acOutputPower) != null) {
     statesToSet.set("acOutputPower", properties.acOutputPower);

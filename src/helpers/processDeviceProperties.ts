@@ -319,7 +319,7 @@ export const processDeviceProperties = async (
   }
 
   if (properties?.hyperTmp != null) {
-    statesToSet.set("hyperTmp", properties.hyperTmp / 10 - 273.15);
+    statesToSet.set("hyperTmp", Math.round(properties.hyperTmp / 10 - 273.15));
   }
   if (properties?.acOutputPower != null) {
     statesToSet.set("acOutputPower", properties.acOutputPower);

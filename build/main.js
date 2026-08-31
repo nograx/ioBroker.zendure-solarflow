@@ -296,6 +296,7 @@ class ZendureSolarflow extends utils.Adapter {
         this.zenSdkDataRefreshJob.cancel();
         this.zenSdkDataRefreshJob = void 0;
       }
+      this.zenIobDeviceList.forEach((device) => device.stopZenSdkPollingSchedule());
       if (this.retryTimeout) {
         this.clearTimeout(this.retryTimeout);
       }

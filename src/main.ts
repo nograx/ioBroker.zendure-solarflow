@@ -359,6 +359,8 @@ export class ZendureSolarflow extends utils.Adapter {
         this.zenSdkDataRefreshJob = undefined;
       }
 
+      this.zenIobDeviceList.forEach((device) => device.stopZenSdkPollingSchedule());
+
       if (this.retryTimeout) {
         this.clearTimeout(this.retryTimeout);
       }

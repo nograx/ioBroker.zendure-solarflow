@@ -40,8 +40,7 @@ const startZenSdkDataRefreshJob = (adapter) => {
   adapter.zenSdkDataRefreshJob = (0, import_node_schedule.scheduleJob)("*/5 * * * * *", () => {
     adapter.zenIobDeviceList.forEach(async (device) => {
       if (device.isZenSdkSupported && adapter.config.useZenSDK) {
-        device.getZenSdkProperties();
-        await adapter.delay(1 * 1e3);
+        await device.syncZenSdkPollingSchedule();
       }
     });
   });

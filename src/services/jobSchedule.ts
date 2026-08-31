@@ -14,14 +14,19 @@ export const startRefreshAccessTokenTimerJob = (adapter: ZendureSolarflow): void
   );
 };
 
+/**
+ * Supervises the per-device zenSDK polling jobs: each zenSDK-supported device polls on its own
+ * schedule (see ZenIobDevice.syncZenSdkPollingSchedule), based on its 'settings.zenSDKPollingEnabled'
+ * and 'settings.zenSDKPollingInverval' states. This job periodically re-checks those states so that
+ * disabling/re-enabling polling, or changing the interval, takes effect without an adapter restart.
+ *
+ * @param adapter the adapter instance
+ */
 export const startZenSdkDataRefreshJob = (adapter: ZendureSolarflow): void => {
   adapter.zenSdkDataRefreshJob = scheduleJob("*/5 * * * * *", () => {
     adapter.zenIobDeviceList.forEach(async (device) => {
       if (device.isZenSdkSupported && adapter.config.useZenSDK) {
-        device.getZenSdkProperties();
-
-        // Add small delay between each device to avoid too many requests at the same time
-        await adapter.delay(1 * 1000);
+        await device.syncZenSdkPollingSchedule();
       }
     });
   });
