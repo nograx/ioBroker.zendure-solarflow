@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "5.3.0-alpha.2",
+    "version": "5.3.0-alpha.3",
     "news": {
+      "5.3.0-alpha.3": {
+        "en": "Fix casing issue for changing zenSDK Polling switch and inverval",
+        "de": "Behebung des Problems mit der Groß-/Kleinschreibung beim Ändern des zenSDK-Polling-Schalters und der Intervalle",
+        "ru": "Исправлена ошибка в регистре символов при изменении параметра и интервала опроса zenSDK.",
+        "pt": "Corrigido problema de encapsulamento ao alterar a opção e o intervalo de polling do zenSDK.",
+        "nl": "Los het probleem met de hoofdlettergevoeligheid op bij het wijzigen van de zenSDK-pollingschakelaar en het interval.",
+        "fr": "Correction d'un problème de casse lors de la modification du paramètre et de l'intervalle d'interrogation du zenSDK",
+        "it": "Risolto il problema di maiuscole/minuscole per la modifica dell'interruttore Polling di zenSDK e dell'intervallo",
+        "es": "Solucionar el problema de mayúsculas y minúsculas al cambiar el interruptor de sondeo de zenSDK y el intervalo.",
+        "pl": "Naprawiono problem z wielkością liter podczas zmiany przełącznika sondowania zenSDK i inwertera",
+        "uk": "Виправлено проблему з регістром літер для зміни перемикача та інтервалу опитування zenSDK",
+        "zh-cn": "修复更改 zenSDK 轮询开关和 inverval 时的大小写问题"
+      },
       "5.3.0-alpha.2": {
         "en": "Adjust checkVoltage method to take account of the 24V architecture of the new Mix series.\nStart mDNS discovery start after fetching deviceList from Zendure cloud.",
         "de": "Die Methode checkVoltage muss an die 24V-Architektur der neuen Mix-Serie angepasst werden.\nDie mDNS-Erkennung startet, nachdem die Geräteliste aus der Zendure-Cloud abgerufen wurde.",
@@ -80,19 +93,6 @@
         "pl": "Naprawiono odczyt batCur\nDodano stan sterowania dla inverseMaxPower i gridOffMode (sterowanie gniazdem AC w urządzeniach 'Plus')",
         "uk": "Виправлено зчитування batCur\nДодано стан керування для inverseMaxPower та gridOffMode (керування розеткою змінного струму на пристроях 'Plus')",
         "zh-cn": "修复 batCur 读取问题\n为 inverseMaxPower 和 gridOffMode 添加控制状态（控制“Plus”设备上的交流插座）"
-      },
-      "5.0.4": {
-        "en": "Fix flickering Save button in Settings.\nAdd function to detect zenSDK devices with mDNS and fill missing IP-address if found.",
-        "de": "Flackernden Speichern-Button in den Einstellungen behoben.\nFunktion hinzugefügt, um zenSDK-Geräte per mDNS zu erkennen und fehlende IP-Adressen auszufüllen, falls gefunden.",
-        "ru": "Исправлено мерцание кнопки «Сохранить» в настройках.\nДобавлена функция обнаружения устройств zenSDK через mDNS и заполнения отсутствующего IP-адреса, если он найден.",
-        "pt": "Corrigido o piscar do botão Salvar nas Configurações.\nAdicionada função para detectar dispositivos zenSDK via mDNS e preencher o endereço IP ausente, se encontrado.",
-        "nl": "Knipperende Opslaan-knop in Instellingen gecorrigeerd.\nFunctie toegevoegd om zenSDK-apparaten via mDNS te detecteren en het ontbrekende IP-adres in te vullen indien gevonden.",
-        "fr": "Correction du clignotement du bouton Enregistrer dans les paramètres.\nAjout d'une fonction pour détecter les appareils zenSDK via mDNS et renseigner l'adresse IP manquante si elle est trouvée.",
-        "it": "Risolto il problema dello sfarfallio del pulsante Salva nelle impostazioni.\nAggiunta la funzione per rilevare i dispositivi zenSDK tramite mDNS e compilare l'indirizzo IP mancante se trovato.",
-        "es": "Corregido el parpadeo del botón Guardar en Configuración.\nAgregada función para detectar dispositivos zenSDK mediante mDNS y completar la dirección IP faltante si se encuentra.",
-        "pl": "Naprawiono migający przycisk Zapisz w Ustawieniach.\nDodano funkcję wykrywania urządzeń zenSDK za pomocą mDNS i uzupełniania brakującego adresu IP, jeśli zostanie znaleziony.",
-        "uk": "Виправлено блимання кнопки «Зберегти» в налаштуваннях.\nДодано функцію виявлення пристроїв zenSDK за допомогою mDNS та заповнення відсутньої IP-адреси, якщо її знайдено.",
-        "zh-cn": "修复设置中“保存”按钮闪烁的问题。\n添加通过 mDNS 检测 zenSDK 设备并在找到时填充缺失 IP 地址的功能。"
       }
     },
     "titleLang": {

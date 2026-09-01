@@ -124,8 +124,7 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 -->
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 5.3.0-alpha.3 (2026-09-01)
 
 - Fix casing issue for changing zenSDK Polling switch and inverval
 
@@ -151,11 +150,6 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 - Correct a device's IP via mDNS if it no longer matches the (stale or wrong) IP from the cloud device list
 - Process zenSDK measurements reported directly on the response instead of nested under "properties" (affects Smart Meter 3CT/D0)
 - Enable "mDNS discovery" by default, including for existing instances that never had this setting saved - you must disable this option in settings if not desired
-
-### 5.1.0 (2026-08-20)
-
-- Fix batCur Reading
-- Add control state for inverseMaxPower and gridOffMode (Control AC outlet on 'Plus' Devices)
 
 For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 
