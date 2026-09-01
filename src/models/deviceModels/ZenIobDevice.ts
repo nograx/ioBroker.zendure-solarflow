@@ -1081,7 +1081,9 @@ export class ZenIobDevice {
       const autoModel = (await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.autoModel`))?.val;
 
       if (autoModel != 0) {
-        this.adapter.log.warn("Operation mode (autoModel) is not set to '0', we can't set the output limit!");
+        this.adapter.log.warn(
+          `[setOutputLimit] Operation mode (autoModel) for device ${this.deviceName} (${this.deviceKey}) is not set to '0', we can't set the output limit!`,
+        );
         return;
       }
 
@@ -1102,7 +1104,7 @@ export class ZenIobDevice {
         limit != 60 &&
         limit != 30 &&
         limit != 0 &&
-        (this.productKey == "73bktv" || this.productKey == "a8yh63")
+        (this.productKey.toLowerCase() == "73bktv" || this.productKey.toLowerCase() == "a8yh63")
       ) {
         // NUR Solarflow HUB: Das Limit kann unter 100 nur in 30er Schritten gesetzt werden, dH. 30/60/90/100, wir rechnen das also um
         if (limit < 100 && limit > 90) {
@@ -1168,7 +1170,7 @@ export class ZenIobDevice {
         limit = this.maxInputLimit;
       }
 
-      if (this.productKey.includes("8bm93h")) {
+      if (this.productKey.toLowerCase().includes("8bm93h")) {
         // Das Limit kann beim ACE nur in 100er Schritten gesetzt werden
         limit = Math.ceil(limit / 100) * 100;
       }
@@ -1252,7 +1254,7 @@ export class ZenIobDevice {
       packData.forEach(async (x) => {
         if (x.sn && this.adapter) {
           let batType = "";
-          if (this.productKey == "yWF7hV") {
+          if (this.productKey.toLowerCase() == "ywf7hv") {
             batType = "AIO2400";
           } else if (x.sn.startsWith("A")) {
             batType = "AB1000";
@@ -1633,7 +1635,7 @@ export class ZenIobDevice {
       currentEnergyWh = 0;
     }
 
-    if (this.productKey == "yWF7hV") {
+    if (this.productKey.toLowerCase() == "ywf7hv") {
       // The device is an AIO 2400, so set maximum Wh to 2400!
       energyWhMax = 2400;
     } else {

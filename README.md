@@ -124,6 +124,11 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 -->
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Fix lower case bug in comparing product keys for new mDNS device creation
+
 ### 5.3.0-alpha.0 (2026-08-31)
 
 - Add folder "settings" for zenSDK devices. Here you can turn device polling on/off and control the polling interval for individual devices
