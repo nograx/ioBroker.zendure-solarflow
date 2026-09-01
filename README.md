@@ -124,8 +124,7 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 -->
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 5.3.0-alpha.2 (2026-09-01)
 
 - Adjust checkVoltage method to take account of the 24V architecture of the new Mix series.
 - Start mDNS discovery start after fetching deviceList from Zendure cloud.
@@ -152,11 +151,6 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 
 - Fix batCur Reading
 - Add control state for inverseMaxPower and gridOffMode (Control AC outlet on 'Plus' Devices)
-
-### 5.0.4 (2026-08-19)
-
-- Fix flickering Save button in Settings.
-- Add function to detect zenSDK devices with mDNS and fill missing IP-address if found.
 
 For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 

@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "5.3.0-alpha.1",
+    "version": "5.3.0-alpha.2",
     "news": {
+      "5.3.0-alpha.2": {
+        "en": "Adjust checkVoltage method to take account of the 24V architecture of the new Mix series.\nStart mDNS discovery start after fetching deviceList from Zendure cloud.",
+        "de": "Die Methode checkVoltage muss an die 24V-Architektur der neuen Mix-Serie angepasst werden.\nDie mDNS-Erkennung startet, nachdem die Geräteliste aus der Zendure-Cloud abgerufen wurde.",
+        "ru": "Отрегулируйте метод checkVoltage с учетом 24-вольтовой архитектуры новой серии Mix.\nЗапустите обнаружение mDNS после получения списка устройств из облака Zendure.",
+        "pt": "Ajuste o método checkVoltage para levar em consideração a arquitetura de 24V da nova série Mix.\nInicie a descoberta mDNS após obter a lista de dispositivos da nuvem Zendure.",
+        "nl": "Pas de checkVoltage-methode aan om rekening te houden met de 24V-architectuur van de nieuwe Mix-serie.\nStart de mDNS-ontdekking nadat de lijst met apparaten uit de Zendure-cloud is opgehaald.",
+        "fr": "Ajustez la méthode checkVoltage pour tenir compte de l'architecture 24V de la nouvelle série Mix.\nDémarrez la découverte mDNS après avoir récupéré la liste des périphériques depuis le cloud Zendure.",
+        "it": "Modificare il metodo checkVoltage per tenere conto dell'architettura a 24 V della nuova serie Mix.\nAvviare la scoperta mDNS dopo aver recuperato l'elenco dei dispositivi dal cloud Zendure.",
+        "es": "Ajuste el método checkVoltage para tener en cuenta la arquitectura de 24 V de la nueva serie Mix.\nEl descubrimiento de mDNS comienza después de obtener la lista de dispositivos de la nube de Zendure.",
+        "pl": "Dostosuj metodę checkVoltage, aby uwzględnić architekturę 24 V nowej serii Mix.\nRozpocznij wykrywanie mDNS po pobraniu deviceList z chmury Zendure.",
+        "uk": "Налаштуйте метод checkVoltage, щоб врахувати архітектуру 24 В нової серії Mix.\nРозпочати виявлення mDNS після отримання списку пристроїв з хмари Zendure.",
+        "zh-cn": "调整 checkVoltage 方法以适应新 Mix 系列的 24V 架构。\n从 Zendure 云获取设备列表后，启动 mDNS 发现。"
+      },
       "5.3.0-alpha.1": {
         "en": "Fix lower case bug in comparing product keys for new mDNS device creation",
         "de": "Behebung eines Fehlers bei der Kleinschreibung beim Vergleich von Produktschlüsseln für die Erstellung neuer mDNS-Geräte.",
@@ -80,19 +93,6 @@
         "pl": "Naprawiono migający przycisk Zapisz w Ustawieniach.\nDodano funkcję wykrywania urządzeń zenSDK za pomocą mDNS i uzupełniania brakującego adresu IP, jeśli zostanie znaleziony.",
         "uk": "Виправлено блимання кнопки «Зберегти» в налаштуваннях.\nДодано функцію виявлення пристроїв zenSDK за допомогою mDNS та заповнення відсутньої IP-адреси, якщо її знайдено.",
         "zh-cn": "修复设置中“保存”按钮闪烁的问题。\n添加通过 mDNS 检测 zenSDK 设备并在找到时填充缺失 IP 地址的功能。"
-      },
-      "5.0.3": {
-        "en": "Fix wifiState not being created/updated correctly for devices using local zenSDK polling (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus), as their local status payload does not report a wifiState property",
-        "de": "Fehler behoben, durch den wifiState bei Geräten mit lokalem zenSDK-Polling (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus) nicht korrekt erstellt/aktualisiert wurde, da deren lokale Statusnutzlast keine wifiState-Eigenschaft meldet",
-        "ru": "Исправлена ошибка, из-за которой wifiState некорректно создавался/обновлялся для устройств, использующих локальный опрос zenSDK (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus), поскольку их локальный пакет состояния не сообщает свойство wifiState",
-        "pt": "Corrigido o wifiState não sendo criado/atualizado corretamente para dispositivos que usam sondagem local do zenSDK (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus), pois seu payload de status local não relata a propriedade wifiState",
-        "nl": "wifiState wordt niet correct aangemaakt/bijgewerkt voor apparaten die gebruikmaken van lokale zenSDK-polling (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus) gecorrigeerd, aangezien hun lokale statuspayload geen wifiState-eigenschap rapporteert",
-        "fr": "Correction du wifiState qui n'était pas créé/mis à jour correctement pour les appareils utilisant l'interrogation locale zenSDK (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus), car leur charge utile d'état locale ne signale pas de propriété wifiState",
-        "it": "Corretto il wifiState che non veniva creato/aggiornato correttamente per i dispositivi che utilizzano il polling locale zenSDK (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus), poiché il loro payload di stato locale non riporta una proprietà wifiState",
-        "es": "Corregido que wifiState no se creara/actualizara correctamente en dispositivos que usan sondeo local de zenSDK (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus), ya que su payload de estado local no informa una propiedad wifiState",
-        "pl": "Naprawiono nieprawidłowe tworzenie/aktualizowanie wifiState dla urządzeń korzystających z lokalnego odpytywania zenSDK (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus), ponieważ ich lokalny ładunek statusu nie zgłasza właściwości wifiState",
-        "uk": "Виправлено неправильне створення/оновлення wifiState для пристроїв, що використовують локальне опитування zenSDK (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus), оскільки їхній локальний пакет стану не повідомляє властивість wifiState",
-        "zh-cn": "修复使用本地 zenSDK 轮询的设备（Solarflow 2400 AC/AC Plus/Pro、1600 AC Plus）无法正确创建/更新 wifiState 的问题，因为其本地状态负载不会报告 wifiState 属性"
       }
     },
     "titleLang": {
