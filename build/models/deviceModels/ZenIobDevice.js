@@ -85,6 +85,10 @@ class ZenIobDevice {
   // No initializer - let derived classes set this
   maxInputLimit = 0;
   maxOutputLimit = 0;
+  // Battery pack low voltage thresholds (sum of cells), for a 48V system. Devices with a different
+  // pack voltage (e.g. the 24V Mix 3000/4000) must override these with scaled values.
+  lowVoltageThreshold = 46.1;
+  lowVoltageRecoveryThreshold = 47.5;
   controlStates = [];
   /** Whether this device reports battery packData (false for read-only devices like the Smart Meter 3CT/D0). */
   hasPackData = true;
@@ -1188,7 +1192,7 @@ class ZenIobDevice {
   };
   async checkVoltage(voltage) {
     var _a, _b, _c, _d, _e;
-    if (voltage < 46.1) {
+    if (voltage < this.lowVoltageThreshold) {
       if (this.adapter.config.useCalculation) {
         this.setSocToZero();
       }
@@ -1220,7 +1224,7 @@ class ZenIobDevice {
           }
         }
       }
-    } else if (voltage >= 47.5) {
+    } else if (voltage >= this.lowVoltageRecoveryThreshold) {
       const lowVoltageBlock = await this.adapter.getStateAsync(
         `${this.productKey}.${this.deviceKey}.control.lowVoltageBlock`
       );

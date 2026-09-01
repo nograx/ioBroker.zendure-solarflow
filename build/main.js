@@ -112,11 +112,6 @@ class ZendureSolarflow extends utils.Adapter {
     switch (this.config.connectionMode) {
       case "authKey": {
         this.log.debug("[onReady] Using Authorization Cloud Key");
-        if (this.config.useMdnsDiscovery) {
-          (0, import_mdnsHelper.discoverZendureDevicesViaMdns)(this);
-        } else {
-          this.log.info(`[onReady] mDNS discovery of zenSDK devices is disabled!`);
-        }
         if (!this.config.authorizationCloudKey) {
           this.log.error("[zenWebService.login] authorization cloud key is missing!");
           break;
@@ -124,6 +119,11 @@ class ZendureSolarflow extends utils.Adapter {
         const fileHelper = new import_fileHelper.FileHelper(this);
         let deviceList;
         const data = await (0, import_zenWebService.zenLogin)(this);
+        if (this.config.useMdnsDiscovery) {
+          (0, import_mdnsHelper.discoverZendureDevicesViaMdns)(this);
+        } else {
+          this.log.info(`[onReady] mDNS discovery of zenSDK devices is disabled!`);
+        }
         if (typeof data === "string" || data == void 0) {
           this.setState("info.connection", false, true);
           fileHelper.readDeviceListFromFile().then((data2) => {

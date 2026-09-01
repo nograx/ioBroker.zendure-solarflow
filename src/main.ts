@@ -111,12 +111,6 @@ export class ZendureSolarflow extends utils.Adapter {
       case "authKey": {
         this.log.debug("[onReady] Using Authorization Cloud Key");
 
-        if (this.config.useMdnsDiscovery) {
-          discoverZendureDevicesViaMdns(this);
-        } else {
-          this.log.info(`[onReady] mDNS discovery of zenSDK devices is disabled!`);
-        }
-
         if (!this.config.authorizationCloudKey) {
           this.log.error("[zenWebService.login] authorization cloud key is missing!");
           break;
@@ -125,6 +119,12 @@ export class ZendureSolarflow extends utils.Adapter {
         const fileHelper = new FileHelper(this);
         let deviceList: IZenIobDeviceDetails[] | undefined;
         const data = await zenLogin(this);
+
+        if (this.config.useMdnsDiscovery) {
+          discoverZendureDevicesViaMdns(this);
+        } else {
+          this.log.info(`[onReady] mDNS discovery of zenSDK devices is disabled!`);
+        }
 
         if (typeof data === "string" || data == undefined) {
           // Error, try to read device list from file, if possible. This allows the adapter to continue working with the last known devices, even if the connection to Zendure Cloud is currently not possible (e.g. due to network issues).

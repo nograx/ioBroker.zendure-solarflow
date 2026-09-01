@@ -124,6 +124,12 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 -->
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Adjust checkVoltage method to take account of the 24V architecture of the new Mix series.
+- Start mDNS discovery start after fetching deviceList from Zendure cloud.
+
 ### 5.3.0-alpha.1 (2026-09-01)
 
 - Fix lower case bug in comparing product keys for new mDNS device creation

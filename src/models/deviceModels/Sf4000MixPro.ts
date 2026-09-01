@@ -9,6 +9,10 @@ export class Sf4000MixPro extends ZenSdkIobDevice {
   maxOutputLimit = 4000;
   isZenSdkSupported = true;
 
+  // This device uses a 24V battery pack, half the 48V systems the base thresholds are tuned for.
+  lowVoltageThreshold = 23.05;
+  lowVoltageRecoveryThreshold = 23.75;
+
   controlStates = [...sharedControlStates, ...solarflow4000MixProControlStates];
 
   public constructor(
