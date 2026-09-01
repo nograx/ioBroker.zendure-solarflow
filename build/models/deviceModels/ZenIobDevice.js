@@ -908,7 +908,9 @@ class ZenIobDevice {
     if (this.productKey && this.deviceKey) {
       const autoModel = (_a = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.autoModel`)) == null ? void 0 : _a.val;
       if (autoModel != 0) {
-        this.adapter.log.warn("Operation mode (autoModel) is not set to '0', we can't set the output limit!");
+        this.adapter.log.warn(
+          `[setOutputLimit] Operation mode (autoModel) for device ${this.deviceName} (${this.deviceKey}) is not set to '0', we can't set the output limit!`
+        );
         return;
       }
       if (limit) {
@@ -919,7 +921,7 @@ class ZenIobDevice {
       if (limit > this.maxOutputLimit) {
         limit = this.maxOutputLimit;
       }
-      if (limit < 100 && limit != 90 && limit != 60 && limit != 30 && limit != 0 && (this.productKey == "73bktv" || this.productKey == "a8yh63")) {
+      if (limit < 100 && limit != 90 && limit != 60 && limit != 30 && limit != 0 && (this.productKey.toLowerCase() == "73bktv" || this.productKey.toLowerCase() == "a8yh63")) {
         if (limit < 100 && limit > 90) {
           limit = 90;
         } else if (limit > 60 && limit < 90) {
@@ -972,7 +974,7 @@ class ZenIobDevice {
       } else if (limit > this.maxInputLimit) {
         limit = this.maxInputLimit;
       }
-      if (this.productKey.includes("8bm93h")) {
+      if (this.productKey.toLowerCase().includes("8bm93h")) {
         limit = Math.ceil(limit / 100) * 100;
       }
       this.updateProperty("inputLimit", limit);
@@ -1036,7 +1038,7 @@ class ZenIobDevice {
         var _a, _b, _c;
         if (x.sn && this.adapter) {
           let batType = "";
-          if (this.productKey == "yWF7hV") {
+          if (this.productKey.toLowerCase() == "ywf7hv") {
             batType = "AIO2400";
           } else if (x.sn.startsWith("A")) {
             batType = "AB1000";
@@ -1336,7 +1338,7 @@ class ZenIobDevice {
     if (currentEnergyWh == null || currentEnergyWh == void 0 || currentEnergyWh <= 0) {
       currentEnergyWh = 0;
     }
-    if (this.productKey == "yWF7hV") {
+    if (this.productKey.toLowerCase() == "ywf7hv") {
       energyWhMax = 2400;
     } else {
       for (let i = 0; i < this.batteries.length; i++) {

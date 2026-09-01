@@ -124,8 +124,7 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 -->
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 5.3.0-alpha.1 (2026-09-01)
 
 - Fix lower case bug in comparing product keys for new mDNS device creation
 
@@ -152,10 +151,6 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 
 - Fix flickering Save button in Settings.
 - Add function to detect zenSDK devices with mDNS and fill missing IP-address if found.
-
-### 5.0.3 (2026-08-18)
-
-- Fix `wifiState` not being created/updated correctly for devices using local zenSDK polling (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus), as their local status payload does not report a `wifiState` property
 
 For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 

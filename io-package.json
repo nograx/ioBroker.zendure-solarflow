@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "zendure-solarflow",
-    "version": "5.3.0-alpha.0",
+    "version": "5.3.0-alpha.1",
     "news": {
+      "5.3.0-alpha.1": {
+        "en": "Fix lower case bug in comparing product keys for new mDNS device creation",
+        "de": "Behebung eines Fehlers bei der Kleinschreibung beim Vergleich von Produktschlüsseln für die Erstellung neuer mDNS-Geräte.",
+        "ru": "Исправлена ошибка, связанная с регистром строчных букв при сравнении ключей продукта для создания нового устройства mDNS.",
+        "pt": "Corrigido erro de conversão de letras minúsculas na comparação de chaves de produto para a criação de novos dispositivos mDNS.",
+        "nl": "Een bug met kleine letters bij het vergelijken van productcodes voor het aanmaken van nieuwe mDNS-apparaten is verholpen.",
+        "fr": "Correction d'un bug de casse minuscule lors de la comparaison des clés de produit pour la création de nouveaux périphériques mDNS",
+        "it": "Risolto un bug relativo alle minuscole nel confronto delle chiavi prodotto per la creazione di nuovi dispositivi mDNS.",
+        "es": "Se corrige un error de uso de minúsculas al comparar las claves de producto para la creación de nuevos dispositivos mDNS.",
+        "pl": "Naprawiono błąd związany z małymi literami podczas porównywania kluczy produktów w celu utworzenia nowego urządzenia mDNS",
+        "uk": "Виправлено помилку з використанням нижнього регістру під час порівняння ключів продукту для створення нового пристрою mDNS",
+        "zh-cn": "修复比较新 mDNS 设备创建的产品密钥时的小写错误"
+      },
       "5.3.0-alpha.0": {
         "en": "Add folder \"settings\" for zenSDK devices. Here you can turn device polling on/off and control the polling interval for individual devices\nRound hyperTmp to nearest int",
         "de": "Fügen Sie den Ordner „Einstellungen“ für zenSDK-Geräte hinzu. Hier können Sie die Geräteabfrage ein- und ausschalten und das Abfrageintervall für einzelne Geräte festlegen.\nRunde hyperTmp auf die nächste ganze Zahl",
