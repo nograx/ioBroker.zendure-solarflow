@@ -124,6 +124,11 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 -->
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+- Fix casing issue for changing zenSDK Polling switch and inverval
+
 ### 5.3.0-alpha.2 (2026-09-01)
 
 - Adjust checkVoltage method to take account of the 24V architecture of the new Mix series.

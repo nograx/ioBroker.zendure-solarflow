@@ -489,7 +489,7 @@ export class ZenIobDevice {
 
   /**
    * Starts, stops or reschedules the per-device zenSDK polling job based on the current
-   * 'settings.ZenSDKPollingEnabled' / 'settings.ZenSDKPollingInverval' state values.
+   * 'settings.zenSDKPollingEnabled' / 'settings.zenSDKPollingInverval' state values.
    * Called periodically by the zenSDK data refresh job so that changes to those states take effect.
    */
   public async syncZenSdkPollingSchedule(): Promise<void> {
@@ -500,7 +500,7 @@ export class ZenIobDevice {
     const productKey = this.productKey.replace(this.adapter.FORBIDDEN_CHARS, "");
     const deviceKey = this.deviceKey.replace(this.adapter.FORBIDDEN_CHARS, "");
 
-    const enabledState = await this.adapter.getStateAsync(`${productKey}.${deviceKey}.settings.ZenSDKPollingEnabled`);
+    const enabledState = await this.adapter.getStateAsync(`${productKey}.${deviceKey}.settings.zenSDKPollingEnabled`);
     const pollingEnabled = enabledState?.val !== false;
 
     if (!pollingEnabled) {
@@ -515,7 +515,7 @@ export class ZenIobDevice {
       return;
     }
 
-    const intervalState = await this.adapter.getStateAsync(`${productKey}.${deviceKey}.settings.ZenSDKPollingInverval`);
+    const intervalState = await this.adapter.getStateAsync(`${productKey}.${deviceKey}.settings.zenSDKPollingInverval`);
     let intervalSeconds = Number(intervalState?.val ?? 5);
     if (!Number.isFinite(intervalSeconds)) {
       intervalSeconds = 5;
