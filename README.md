@@ -124,8 +124,7 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 -->
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 5.3.0 (2026-09-02)
 
 - Add folder "settings" for zenSDK devices. Here you can turn device polling on/off and control the polling interval for individual devices.
 - Round hyperTmp to nearest int.
@@ -141,6 +140,21 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 - Correct a device's IP via mDNS if it no longer matches the (stale or wrong) IP from the cloud device list
 - Process zenSDK measurements reported directly on the response instead of nested under "properties" (affects Smart Meter 3CT/D0)
 - Enable "mDNS discovery" by default, including for existing instances that never had this setting saved - you must disable this option in settings if not desired
+
+
+### 5.1.0 (2026-08-20)
+
+- Fix batCur Reading
+- Add control state for inverseMaxPower and gridOffMode (Control AC outlet on 'Plus' Devices)
+
+### 5.0.4 (2026-08-19)
+
+- Fix flickering Save button in Settings.
+- Add function to detect zenSDK devices with mDNS and fill missing IP-address if found.
+
+### 5.0.3 (2026-08-18)
+
+- Fix `wifiState` not being created/updated correctly for devices using local zenSDK polling (Solarflow 2400 AC/AC Plus/Pro, 1600 AC Plus), as their local status payload does not report a `wifiState` property
 
 For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 
