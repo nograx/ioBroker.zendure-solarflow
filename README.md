@@ -124,23 +124,14 @@ This adapter will use the Cloud Authorization Code for authentication on the off
 -->
 
 ## Changelog
-### 5.3.0-alpha.3 (2026-09-01)
 
-- Fix casing issue for changing zenSDK Polling switch and inverval
+### **WORK IN PROGRESS**
 
-### 5.3.0-alpha.2 (2026-09-01)
-
-- Adjust checkVoltage method to take account of the 24V architecture of the new Mix series.
+- Add folder "settings" for zenSDK devices. Here you can turn device polling on/off and control the polling interval for individual devices.
+- Round hyperTmp to nearest int.
+- Adjust checkVoltage function to take account of the 24V architecture of the new Mix series.
 - Start mDNS discovery start after fetching deviceList from Zendure cloud.
-
-### 5.3.0-alpha.1 (2026-09-01)
-
 - Fix lower case bug in comparing product keys for new mDNS device creation
-
-### 5.3.0-alpha.0 (2026-08-31)
-
-- Add folder "settings" for zenSDK devices. Here you can turn device polling on/off and control the polling interval for individual devices
-- Round hyperTmp to nearest int
 
 ### 5.2.1 (2026-08-30)
 
