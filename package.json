@@ -35,7 +35,7 @@
     "@emotion/react": "^11.11.0",
     "@emotion/styled": "^11.11.0",
     "@iobroker/adapter-dev": "^1.5.0",
-    "@iobroker/adapter-react-v5": "^8.3.2",
+    "@iobroker/adapter-react-v5": "^8.3.3",
     "@iobroker/eslint-config": "^2.3.4",
     "@iobroker/testing": "^5.3.0",
     "@mui/material": "^6.5.0",
