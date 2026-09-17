@@ -123,7 +123,7 @@ For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 
 MIT License
 
-Copyright (c) 2026 Peter Frommert
+Copyright (c) 2026 Peter Frommert <peter.frommert@outlook.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
