@@ -13,9 +13,8 @@ export class LocalMqttService extends MqttService {
       return false;
     }
 
-    const devSuffix = process.env.NODE_ENV === "development" ? ".dev" : "";
     const opts: mqtt.IClientOptions = {
-      clientId: `ioBroker.zendure-solarflow.${this.adapter.instance}${devSuffix}`,
+      clientId: `${this.adapter.host}.ioBroker.zendure-solarflow.${this.adapter.instance}`,
       rejectUnauthorized: this.adapter.config.localMqttAcceptSelfSignedSSL ? false : true,
     };
 

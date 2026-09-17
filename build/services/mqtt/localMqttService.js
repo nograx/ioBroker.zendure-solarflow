@@ -31,9 +31,8 @@ class LocalMqttService extends import_mqttService.MqttService {
       this.adapter.log.error("[LocalMqttService] local MQTT url missing!");
       return false;
     }
-    const devSuffix = false ? ".dev" : "";
     const opts = {
-      clientId: `ioBroker.zendure-solarflow.${this.adapter.instance}${devSuffix}`,
+      clientId: `${this.adapter.host}.ioBroker.zendure-solarflow.${this.adapter.instance}`,
       rejectUnauthorized: this.adapter.config.localMqttAcceptSelfSignedSSL ? false : true
     };
     const port = this.adapter.config.localMqttSSL ? 8883 : 1883;
