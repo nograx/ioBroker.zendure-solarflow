@@ -84,6 +84,10 @@ This adapter authenticates on the official MQTT servers using the Cloud Authoriz
     ### **WORK IN PROGRESS**
 -->
 
+### **WORK IN PROGRESS**
+
+- Fixed an issue to ignore empty properties
+
 ## Changelog
 
 ### 5.3.0 (2026-09-02)
