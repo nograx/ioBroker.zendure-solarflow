@@ -43,7 +43,8 @@ interface IAutomationDeviceState {
   currentLimit: number;
   newLimit: number;
   share: number;
-  hasSurplus: boolean;
+  /** Whether this device was asked for more power than its maxLimit allows (no headroom left). */
+  isAtCapacity: boolean;
   lastChangeMs: number;
   wakingUntilMs: number;
   pendingTimeout?: ioBroker.Timeout;
@@ -75,7 +76,7 @@ const getDeviceState = (device: ZenIobDevice): IAutomationDeviceState => {
       currentLimit: 0,
       newLimit: 0,
       share: 0,
-      hasSurplus: false,
+      isAtCapacity: false,
       lastChangeMs: 0,
       wakingUntilMs: 0,
     };
@@ -428,7 +429,9 @@ export const runZeroFeedInAutomation = async (
 
   setDeviceShares(inputDevices);
 
-  let surplus = 0;
+  // Total power that couldn't be assigned to a device because it exceeded that device's maxLimit; needs
+  // to be redistributed to devices that still have headroom.
+  let unmetDemand = 0;
 
   const nonAcOnly = devices.filter((device) => !device.isAcOnly);
   const avgSocNonAcOnly =
@@ -465,7 +468,7 @@ export const runZeroFeedInAutomation = async (
   // they at least export their own solar input instead of curtailing it.
   inputDevices.forEach((device) => {
     const state = getDeviceState(device);
-    state.hasSurplus = false;
+    state.isAtCapacity = false;
 
     if (state.maxLimit <= 0 || !state.share) {
       return;
@@ -486,8 +489,8 @@ export const runZeroFeedInAutomation = async (
     state.newLimit = state.newLimit < 10 ? baseLimit : state.newLimit;
 
     if (state.newLimit > state.maxLimit) {
-      surplus += state.newLimit - state.maxLimit;
-      state.hasSurplus = true;
+      unmetDemand += state.newLimit - state.maxLimit;
+      state.isAtCapacity = true;
     }
   });
 
@@ -522,17 +525,18 @@ export const runZeroFeedInAutomation = async (
     }
   }
 
-  // Redistribute surplus (devices that wanted more than their own maxLimit) across devices with headroom.
-  const availableDeviceCount = inputDevices.filter((device) => !getDeviceState(device).hasSurplus).length;
+  // Redistribute unmet demand (devices that were asked for more than their own maxLimit allows) across
+  // devices that still have headroom.
+  const availableDeviceCount = inputDevices.filter((device) => !getDeviceState(device).isAtCapacity).length;
 
-  if (availableDeviceCount > 0 && surplus > 0) {
+  if (availableDeviceCount > 0 && unmetDemand > 0) {
     inputDevices
       .filter((device) => {
         const state = getDeviceState(device);
-        return !state.hasSurplus && state.newLimit < state.maxLimit;
+        return !state.isAtCapacity && state.newLimit < state.maxLimit;
       })
       .forEach((device) => {
-        getDeviceState(device).newLimit += surplus / availableDeviceCount;
+        getDeviceState(device).newLimit += unmetDemand / availableDeviceCount;
       });
   }
 
