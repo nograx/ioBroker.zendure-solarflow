@@ -39,6 +39,8 @@ interface IAutomationDeviceState {
   soc: number;
   minSoc: number;
   maxLimit: number;
+  /** Highest acceptable charge power (W); from the device's reported 'chargeMaxLimit', or maxInputLimit if not (yet) reported. */
+  chargeMaxLimit: number;
   solarInputPower: number;
   currentLimit: number;
   newLimit: number;
@@ -72,6 +74,7 @@ const getDeviceState = (device: ZenIobDevice): IAutomationDeviceState => {
       soc: 0,
       minSoc: 0,
       maxLimit: 0,
+      chargeMaxLimit: 0,
       solarInputPower: 0,
       currentLimit: 0,
       newLimit: 0,
@@ -212,6 +215,11 @@ export const updateAutomationDeviceMetrics = async (adapter: ZendureSolarflow): 
 
     const minSocState = await adapter.getStateAsync(`${id}.minSoc`);
     state.minSoc = minSocState?.val != null ? Number(minSocState.val) : 0;
+
+    // chargeMaxLimit is reported by the device itself via MQTT/zenSDK when available; fall back to the
+    // device class's hardware maxInputLimit otherwise.
+    const chargeMaxLimitState = await adapter.getStateAsync(`${id}.chargeMaxLimit`);
+    state.chargeMaxLimit = chargeMaxLimitState?.val != null ? Number(chargeMaxLimitState.val) : device.maxInputLimit;
   }
 
   if (needsResort) {
@@ -449,10 +457,10 @@ export const runZeroFeedInAutomation = async (
       state.newLimit = 0;
     } else if (device.isAcOnly && state.soc < 100 && currentHomeUsage < 1800 && avgSocNonAcOnly >= 60) {
       if (avgSocNonAcOnly > 90 && solarInput > 1600) {
-        state.newLimit = -800;
+        state.newLimit = -state.chargeMaxLimit;
       } else {
         let maxChargePower = Math.round((solarInput * 0.1) / 100) * 100;
-        maxChargePower = Math.min(maxChargePower, 800);
+        maxChargePower = Math.min(maxChargePower, state.chargeMaxLimit);
         state.newLimit = -maxChargePower;
       }
     } else if (state.currentLimit >= 10) {
@@ -557,7 +565,7 @@ export const runZeroFeedInAutomation = async (
     const id = deviceId(device);
     const state = getDeviceState(device);
 
-    state.newLimit = Math.round(clamp(state.newLimit, -800, state.maxLimit));
+    state.newLimit = Math.round(clamp(state.newLimit, -state.chargeMaxLimit, state.maxLimit));
 
     if (state.newLimit === state.currentLimit) {
       continue;
