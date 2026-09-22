@@ -25,8 +25,18 @@ const RECENT_CHANGE_SKIP_MS = 3000;
 // A device is kept at a 10W standby (instead of a full stop to 0W) once idle, so it reacts faster once needed again.
 const MIN_STANDBY_TIME_MS = 3 * 60 * 1000;
 
+// A device may only start charging (negative limit) once its output limit has been idle at 0W for at
+// least this long, so it doesn't flip directly from discharging to charging (or back) too often.
+const MIN_IDLE_BEFORE_CHARGE_MS = 5 * 60 * 1000;
+
 // Fraction of the currently allocated max power that must be requested before another device is activated.
 const UTILIZATION_THRESHOLD = 0.7;
+
+// Grid meter surplus charging: once the meter is exporting this far beyond setPoint, there's clearly
+// spare power to charge AC-only devices with. SURPLUS_SETPOINT_BUFFER_W keeps a margin below setPoint
+// while that's active, so the meter doesn't hover right at the trigger edge and flicker in/out.
+const SURPLUS_TRIGGER_BELOW_SETPOINT_W = 60;
+const SURPLUS_SETPOINT_BUFFER_W = 30;
 
 const PI_CONTROLLER = {
   KP: 0.15,
@@ -353,6 +363,10 @@ export const runZeroFeedInAutomation = async (
 
   const setPoint = fleetMinSoc >= NEARLY_FULL_SOC && solarInput > 50 ? setPointNearlyFull : baseSetPoint;
 
+  // Comfortable grid export beyond setPoint: clear surplus power that AC-only devices could charge with.
+  const hasGridSurplus = currentGridMeterValue <= setPoint - SURPLUS_TRIGGER_BELOW_SETPOINT_W;
+  const surplusSetPoint = setPoint - SURPLUS_SETPOINT_BUFFER_W;
+
   // Bei negativem Setpoint: obere Dead-Band-Grenze auf 0W begrenzen, damit der Regler nicht dauerhaft
   // aktiv bleibt, wenn der Zielwert physikalisch nicht erreichbar ist.
   const deadBandUpper = setPoint < 0 ? 0 : setPoint + 10;
@@ -455,11 +469,17 @@ export const runZeroFeedInAutomation = async (
 
     if (!isEnabled) {
       state.newLimit = 0;
-    } else if (device.isAcOnly && state.soc < 100 && currentHomeUsage < 1800 && avgSocNonAcOnly >= 60) {
-      if (avgSocNonAcOnly > 90 && solarInput > 1600) {
-        state.newLimit = -state.chargeMaxLimit;
-      } else {
-        let maxChargePower = Math.round((solarInput * 0.1) / 100) * 100;
+    } else if (device.isAcOnly && state.soc < 100) {
+      if (hasGridSurplus) {
+        // Charge proportional to the actual measured surplus (relative to the buffered surplusSetPoint),
+        // which is more accurate than the solarInput-based estimate below.
+        const surplusPower = Math.max(0, surplusSetPoint - currentGridMeterValue);
+        state.newLimit = -Math.min(surplusPower, state.chargeMaxLimit);
+      } else if (avgSocNonAcOnly > 70 && solarInput > 800) {
+        // No confirmed grid surplus yet, but the other batteries are reasonably charged (avg SOC > 70%)
+        // and there's meaningful solar production (>800W) - estimate a safe charge power as 20% of the
+        // current total solar input, capped at this device's chargeMaxLimit.
+        let maxChargePower = Math.round((solarInput * 0.2) / 100) * 100;
         maxChargePower = Math.min(maxChargePower, state.chargeMaxLimit);
         state.newLimit = -maxChargePower;
       }
@@ -566,6 +586,12 @@ export const runZeroFeedInAutomation = async (
     const state = getDeviceState(device);
 
     state.newLimit = Math.round(clamp(state.newLimit, -state.chargeMaxLimit, state.maxLimit));
+
+    if (state.newLimit < 0 && !(state.currentLimit === 0 && state.lastChangeMs >= MIN_IDLE_BEFORE_CHARGE_MS)) {
+      // Charging was requested, but the device hasn't been idle at 0W for long enough yet (or is currently
+      // discharging) - hold it at 0W instead of flipping straight into charging.
+      state.newLimit = 0;
+    }
 
     if (state.newLimit === state.currentLimit) {
       continue;

@@ -145,12 +145,17 @@ export abstract class ZenSdkIobDevice extends ZenIobDevice {
             }
           }, 2000);
 
-          this.resetSmartModeTimeout = this.adapter.setTimeout(async () => {
-            this.resetSmartModeTimeout = undefined;
-            if (currentSmartMode && currentSmartMode.val != 0) {
-              results.push(await this.updateProperty("smartMode", 0));
-            }
-          }, 4000);
+          // Keep smartMode on for a while after idling, so a brief standby doesn't immediately turn it
+          // off again if the device is asked to resume charging/discharging shortly after.
+          this.resetSmartModeTimeout = this.adapter.setTimeout(
+            async () => {
+              this.resetSmartModeTimeout = undefined;
+              if (currentSmartMode && currentSmartMode.val != 0) {
+                results.push(await this.updateProperty("smartMode", 0));
+              }
+            },
+            10 * 60 * 1000,
+          );
         }
 
         // Check if all updates were successful
