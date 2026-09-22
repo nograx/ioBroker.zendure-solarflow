@@ -46,6 +46,8 @@ const PI_CONTROLLER = {
 };
 
 interface IAutomationDeviceState {
+  /** Whether this device's own 'adapterAutomation.automationEnabled' switch is on, refreshed once per cycle. */
+  enabled: boolean;
   soc: number;
   minSoc: number;
   maxLimit: number;
@@ -71,6 +73,9 @@ let inDeadBand = false;
 let lastGridMeterValue: number | undefined;
 let stabilizedInverterCount = 0;
 let stabilizedUntilMs = 0;
+// Guards against overlapping cycles: runZeroFeedInAutomation does many sequential awaits, so a fast
+// series of trigger updates could otherwise start a second cycle before the first one finishes.
+let isRunning = false;
 // Device order established by the last sortAutomationDevices() call; new/unsorted devices are appended.
 let deviceOrder: string[] = [];
 
@@ -81,6 +86,7 @@ const getDeviceState = (device: ZenIobDevice): IAutomationDeviceState => {
   let state = deviceStates.get(id);
   if (!state) {
     state = {
+      enabled: false,
       soc: 0,
       minSoc: 0,
       maxLimit: 0,
@@ -300,332 +306,357 @@ export const runZeroFeedInAutomation = async (
   adapter: ZendureSolarflow,
   currentGridMeterValue: number,
 ): Promise<void> => {
-  if (lastGridMeterValue === currentGridMeterValue) {
+  if (isRunning || lastGridMeterValue === currentGridMeterValue) {
     return;
   }
 
-  const automationEnabled = (await adapter.getStateAsync("adapterAutomation.automationEnabled"))?.val === true;
-  if (!automationEnabled) {
-    return;
-  }
+  // Set the guard synchronously (before the first await below), so a trigger arriving while we're still
+  // awaiting the automationEnabled check can't slip through and start a second, overlapping cycle.
+  isRunning = true;
 
-  lastGridMeterValue = currentGridMeterValue;
-
-  const devices = getOrderedAutomationDevices(adapter);
-  if (devices.length === 0) {
-    return;
-  }
-
-  const now = Date.now();
-
-  // Refresh solar input and current limit for every device; send stale 10W-standby, non-lead devices to 0.
-  for (const [index, device] of devices.entries()) {
-    const id = deviceId(device);
-    const state = getDeviceState(device);
-
-    const solarInputPowerState = await adapter.getStateAsync(`${id}.solarInputPower`);
-    state.solarInputPower = solarInputPowerState?.val != null ? Number(solarInputPowerState.val) : 0;
-
-    const currentLimitState = await adapter.getStateAsync(`${id}.control.setDeviceAutomationInOutLimit`);
-    state.lastChangeMs = currentLimitState?.lc ? now - currentLimitState.lc : Number.MAX_SAFE_INTEGER;
-
-    if (state.lastChangeMs >= MIN_STANDBY_TIME_MS && state.currentLimit === 10 && state.soc < 99 && index !== 0) {
-      state.currentLimit = 0;
-      state.newLimit = 0;
-      device.setDeviceAutomationInOutLimit(0);
-    } else {
-      state.currentLimit = currentLimitState?.val != null ? Number(currentLimitState.val) : 0;
-    }
-  }
-
-  if (devices.some((device) => getDeviceState(device).lastChangeMs < RECENT_CHANGE_SKIP_MS)) {
-    // A device's limit was changed too recently - let it settle before acting again.
-    return;
-  }
-
-  const wakingDevice = devices.find((device) => getDeviceState(device).wakingUntilMs > now);
-  if (wakingDevice) {
-    adapter.log.debug(
-      `${LOG} Device '${wakingDevice.deviceKey}' is still waking up, waiting ${Math.round((getDeviceState(wakingDevice).wakingUntilMs - now) / 1000)}s`,
-    );
-    return;
-  }
-
-  const currentFeedIn = devices.reduce((sum, device) => sum + Math.max(getDeviceState(device).currentLimit, 0), 0);
-  const maxFeedIn = devices.reduce((sum, device) => sum + getDeviceState(device).maxLimit, 0);
-  const solarInput = devices.reduce((sum, device) => sum + getDeviceState(device).solarInputPower, 0);
-  const fleetMinSoc = Math.min(...devices.map((device) => getDeviceState(device).soc));
-
-  const setPointState = await adapter.getStateAsync("adapterAutomation.setPoint");
-  const setPointNearlyFullState = await adapter.getStateAsync("adapterAutomation.setPointNearlyFull");
-  const baseSetPoint = setPointState?.val != null ? Number(setPointState.val) : 10;
-  const setPointNearlyFull = setPointNearlyFullState?.val != null ? Number(setPointNearlyFullState.val) : -100;
-
-  const setPoint = fleetMinSoc >= NEARLY_FULL_SOC && solarInput > 50 ? setPointNearlyFull : baseSetPoint;
-
-  // Comfortable grid export beyond setPoint: clear surplus power that AC-only devices could charge with.
-  const hasGridSurplus = currentGridMeterValue <= setPoint - SURPLUS_TRIGGER_BELOW_SETPOINT_W;
-  const surplusSetPoint = setPoint - SURPLUS_SETPOINT_BUFFER_W;
-
-  // Bei negativem Setpoint: obere Dead-Band-Grenze auf 0W begrenzen, damit der Regler nicht dauerhaft
-  // aktiv bleibt, wenn der Zielwert physikalisch nicht erreichbar ist.
-  const deadBandUpper = setPoint < 0 ? 0 : setPoint + 10;
-  const deadBandTarget = (setPoint + deadBandUpper) / 2;
-
-  if (currentGridMeterValue > setPoint && currentGridMeterValue < deadBandUpper) {
-    if (!inDeadBand) {
-      adapter.log.debug(
-        `${LOG} currentGridMeterValue=${currentGridMeterValue} is within the acceptable range of setPoint=${setPoint} and deadBandUpper=${deadBandUpper}`,
-      );
-      inDeadBand = true;
-    }
-    return;
-  }
-
-  if (inDeadBand) {
-    adapter.log.debug(`${LOG} currentGridMeterValue=${currentGridMeterValue}, leaving dead band!`);
-    inDeadBand = false;
-  }
-
-  const currentHomeUsage = currentGridMeterValue + currentFeedIn;
-
-  const setPointDiff = currentGridMeterValue - deadBandTarget;
-  const piCorrection = calculatePIOutput(setPointDiff);
-
-  let piAdjustedHomeUsage = currentHomeUsage + piCorrection;
-
-  const inputDevices: ZenIobDevice[] = [];
-  const otherDevices: ZenIobDevice[] = [];
-  let currentAllocatedMaxPower = 0;
-
-  for (const [index, device] of devices.entries()) {
-    const state = getDeviceState(device);
-    const isEnabled = await isDeviceEnabled(adapter, device);
-
-    const utilization = currentAllocatedMaxPower > 0 ? piAdjustedHomeUsage / currentAllocatedMaxPower : 1;
-
-    const isLead = index === 0;
-    const isFullAndCapable = state.soc >= 95 && !device.isAcOnly;
-    const hasSpareSolar = state.solarInputPower > 100 && state.soc > 35 && currentHomeUsage > 400;
-
-    if (isEnabled && (isLead || isFullAndCapable || hasSpareSolar)) {
-      inputDevices.push(device);
-      currentAllocatedMaxPower += state.maxLimit;
-    } else if (
-      isEnabled &&
-      (currentHomeUsage > 4800 ||
-        piAdjustedHomeUsage > maxFeedIn ||
-        (utilization >= UTILIZATION_THRESHOLD && !device.isAcOnly))
-    ) {
-      inputDevices.push(device);
-      currentAllocatedMaxPower += state.maxLimit;
-    } else {
-      otherDevices.push(device);
-    }
-  }
-
-  // Hold the number of active devices for a while once it grows, to avoid rapid on/off flapping when the
-  // required power hovers around the activation threshold.
-  if (inputDevices.length > stabilizedInverterCount) {
-    stabilizedInverterCount = inputDevices.length;
-    stabilizedUntilMs = now + INVERTER_MIN_HOLD_MS;
-  } else if (inputDevices.length < stabilizedInverterCount && now < stabilizedUntilMs) {
-    const needed = stabilizedInverterCount - inputDevices.length;
-    const candidates: ZenIobDevice[] = [];
-    for (const device of otherDevices) {
-      if (candidates.length >= needed) {
-        break;
-      }
-      if (await isDeviceEnabled(adapter, device)) {
-        candidates.push(device);
-      }
-    }
-    candidates.forEach((device) => {
-      otherDevices.splice(otherDevices.indexOf(device), 1);
-      inputDevices.push(device);
-      currentAllocatedMaxPower += getDeviceState(device).maxLimit;
-    });
-  } else {
-    stabilizedInverterCount = inputDevices.length;
-  }
-
-  setDeviceShares(inputDevices);
-
-  // Total power that couldn't be assigned to a device because it exceeded that device's maxLimit; needs
-  // to be redistributed to devices that still have headroom.
-  let unmetDemand = 0;
-
-  const nonAcOnly = devices.filter((device) => !device.isAcOnly);
-  const avgSocNonAcOnly =
-    nonAcOnly.length > 0
-      ? nonAcOnly.reduce((sum, device) => sum + getDeviceState(device).soc, 0) / nonAcOnly.length
-      : 0;
-
-  // Devices not currently needed for the main feed-in target: idle at 0W (or 10W standby), or, for
-  // AC-only devices once the other batteries are reasonably charged, opportunistically charge from surplus solar.
-  for (const device of otherDevices) {
-    const state = getDeviceState(device);
-    const isEnabled = await isDeviceEnabled(adapter, device);
-
-    if (!isEnabled) {
-      state.newLimit = 0;
-    } else if (device.isAcOnly && state.soc < 100) {
-      if (hasGridSurplus) {
-        // Charge proportional to the actual measured surplus (relative to the buffered surplusSetPoint),
-        // which is more accurate than the solarInput-based estimate below.
-        const surplusPower = Math.max(0, surplusSetPoint - currentGridMeterValue);
-        state.newLimit = -Math.min(surplusPower, state.chargeMaxLimit);
-      } else if (avgSocNonAcOnly > 70 && solarInput > 800) {
-        // No confirmed grid surplus yet, but the other batteries are reasonably charged (avg SOC > 70%)
-        // and there's meaningful solar production (>800W) - estimate a safe charge power as 20% of the
-        // current total solar input, capped at this device's chargeMaxLimit.
-        let maxChargePower = Math.round((solarInput * 0.2) / 100) * 100;
-        maxChargePower = Math.min(maxChargePower, state.chargeMaxLimit);
-        state.newLimit = -maxChargePower;
-      }
-    } else if (state.currentLimit >= 10) {
-      // Keep the device at a 10W standby rather than a full stop - it reacts faster once needed again.
-      state.newLimit = 10;
-      piAdjustedHomeUsage -= 10;
-    } else {
-      state.newLimit = 0;
-    }
-  }
-
-  // Assign each input device its share of the required power, prioritizing fully charged devices so
-  // they at least export their own solar input instead of curtailing it.
-  inputDevices.forEach((device) => {
-    const state = getDeviceState(device);
-    state.isAtCapacity = false;
-
-    if (state.maxLimit <= 0 || !state.share) {
+  try {
+    const automationEnabled = (await adapter.getStateAsync("adapterAutomation.automationEnabled"))?.val === true;
+    if (!automationEnabled) {
       return;
     }
 
-    const solar = state.solarInputPower;
-    const calculatedLimit = Math.floor(piAdjustedHomeUsage * state.share);
+    lastGridMeterValue = currentGridMeterValue;
 
-    state.newLimit =
-      state.soc >= 99 && solar > 0 && !device.isAcOnly ? Math.max(calculatedLimit, solar) : calculatedLimit;
-
-    if (!device.isAcOnly && state.soc === 99 && solar > 40) {
-      // soc == 99: at least 100W once solar input exceeds 40W.
-      state.newLimit = Math.max(100, state.newLimit);
+    const devices = getOrderedAutomationDevices(adapter);
+    if (devices.length === 0) {
+      return;
     }
 
-    const baseLimit = device.isAcOnly ? 0 : state.soc >= 99 && fleetMinSoc < 99 ? 30 : 10;
-    state.newLimit = state.newLimit < 10 ? baseLimit : state.newLimit;
+    const now = Date.now();
 
-    if (state.newLimit > state.maxLimit) {
-      unmetDemand += state.newLimit - state.maxLimit;
-      state.isAtCapacity = true;
-    }
-  });
-
-  // A fully charged device that's capped below its calculated share frees up power for AC-only devices
-  // to absorb instead (they'd otherwise just curtail solar or sit idle).
-  const fullSocDevices = inputDevices.filter((device) => getDeviceState(device).soc >= 99 && !device.isAcOnly);
-
-  if (fullSocDevices.length > 0) {
-    let totalExtraPower = 0;
-
-    fullSocDevices.forEach((device) => {
+    // Refresh enabled status, solar input and current limit for every device; send stale 10W-standby,
+    // non-lead, enabled devices to 0.
+    for (const [index, device] of devices.entries()) {
+      const id = deviceId(device);
       const state = getDeviceState(device);
-      const calculatedShare = Math.floor(piAdjustedHomeUsage * state.share);
-      const extra = state.newLimit - Math.max(calculatedShare, 0);
-      if (extra > 0) {
-        totalExtraPower += extra;
+
+      state.enabled = await isDeviceEnabled(adapter, device);
+
+      const solarInputPowerState = await adapter.getStateAsync(`${id}.solarInputPower`);
+      state.solarInputPower = solarInputPowerState?.val != null ? Number(solarInputPowerState.val) : 0;
+
+      const currentLimitState = await adapter.getStateAsync(`${id}.control.setDeviceAutomationInOutLimit`);
+      state.lastChangeMs = currentLimitState?.lc ? now - currentLimitState.lc : Number.MAX_SAFE_INTEGER;
+
+      if (
+        state.enabled &&
+        state.lastChangeMs >= MIN_STANDBY_TIME_MS &&
+        state.currentLimit === 10 &&
+        state.soc < 99 &&
+        index !== 0
+      ) {
+        state.currentLimit = 0;
+        state.newLimit = 0;
+        device.setDeviceAutomationInOutLimit(0);
+      } else {
+        state.currentLimit = currentLimitState?.val != null ? Number(currentLimitState.val) : 0;
+      }
+    }
+
+    if (
+      devices.some((device) => {
+        const state = getDeviceState(device);
+        return state.enabled && state.lastChangeMs < RECENT_CHANGE_SKIP_MS;
+      })
+    ) {
+      // An enabled device's limit was changed too recently - let it settle before acting again.
+      return;
+    }
+
+    const wakingDevice = devices.find((device) => {
+      const state = getDeviceState(device);
+      return state.enabled && state.wakingUntilMs > now;
+    });
+    if (wakingDevice) {
+      adapter.log.debug(
+        `${LOG} Device '${wakingDevice.deviceKey}' is still waking up, waiting ${Math.round((getDeviceState(wakingDevice).wakingUntilMs - now) / 1000)}s`,
+      );
+      return;
+    }
+
+    const currentFeedIn = devices.reduce((sum, device) => sum + Math.max(getDeviceState(device).currentLimit, 0), 0);
+    const maxFeedIn = devices.reduce((sum, device) => sum + getDeviceState(device).maxLimit, 0);
+    const solarInput = devices.reduce((sum, device) => sum + getDeviceState(device).solarInputPower, 0);
+    const fleetMinSoc = Math.min(...devices.map((device) => getDeviceState(device).soc));
+
+    const setPointState = await adapter.getStateAsync("adapterAutomation.setPoint");
+    const setPointNearlyFullState = await adapter.getStateAsync("adapterAutomation.setPointNearlyFull");
+    const baseSetPoint = setPointState?.val != null ? Number(setPointState.val) : 10;
+    const setPointNearlyFull = setPointNearlyFullState?.val != null ? Number(setPointNearlyFullState.val) : -100;
+
+    const setPoint = fleetMinSoc >= NEARLY_FULL_SOC && solarInput > 50 ? setPointNearlyFull : baseSetPoint;
+
+    // Comfortable grid export beyond setPoint: clear surplus power that AC-only devices could charge with.
+    const hasGridSurplus = currentGridMeterValue <= setPoint - SURPLUS_TRIGGER_BELOW_SETPOINT_W;
+    const surplusSetPoint = setPoint - SURPLUS_SETPOINT_BUFFER_W;
+
+    // Bei negativem Setpoint: obere Dead-Band-Grenze auf 0W begrenzen, damit der Regler nicht dauerhaft
+    // aktiv bleibt, wenn der Zielwert physikalisch nicht erreichbar ist.
+    const deadBandUpper = setPoint < 0 ? 0 : setPoint + 10;
+    const deadBandTarget = (setPoint + deadBandUpper) / 2;
+
+    if (currentGridMeterValue > setPoint && currentGridMeterValue < deadBandUpper) {
+      if (!inDeadBand) {
+        adapter.log.debug(
+          `${LOG} currentGridMeterValue=${currentGridMeterValue} is within the acceptable range of setPoint=${setPoint} and deadBandUpper=${deadBandUpper}`,
+        );
+        inDeadBand = true;
+      }
+      return;
+    }
+
+    if (inDeadBand) {
+      adapter.log.debug(`${LOG} currentGridMeterValue=${currentGridMeterValue}, leaving dead band!`);
+      inDeadBand = false;
+    }
+
+    const currentHomeUsage = currentGridMeterValue + currentFeedIn;
+
+    const setPointDiff = currentGridMeterValue - deadBandTarget;
+    const piCorrection = calculatePIOutput(setPointDiff);
+
+    let piAdjustedHomeUsage = currentHomeUsage + piCorrection;
+
+    const inputDevices: ZenIobDevice[] = [];
+    const otherDevices: ZenIobDevice[] = [];
+    let currentAllocatedMaxPower = 0;
+
+    for (const [index, device] of devices.entries()) {
+      const state = getDeviceState(device);
+
+      const utilization = currentAllocatedMaxPower > 0 ? piAdjustedHomeUsage / currentAllocatedMaxPower : 1;
+
+      const isLead = index === 0;
+      const isFullAndCapable = state.soc >= 95 && !device.isAcOnly;
+      const hasSpareSolar = state.solarInputPower > 100 && state.soc > 35 && currentHomeUsage > 400;
+
+      if (state.enabled && (isLead || isFullAndCapable || hasSpareSolar)) {
+        inputDevices.push(device);
+        currentAllocatedMaxPower += state.maxLimit;
+      } else if (
+        state.enabled &&
+        (currentHomeUsage > 4800 ||
+          piAdjustedHomeUsage > maxFeedIn ||
+          (utilization >= UTILIZATION_THRESHOLD && !device.isAcOnly))
+      ) {
+        inputDevices.push(device);
+        currentAllocatedMaxPower += state.maxLimit;
+      } else {
+        otherDevices.push(device);
+      }
+    }
+
+    // Hold the number of active devices for a while once it grows, to avoid rapid on/off flapping when the
+    // required power hovers around the activation threshold.
+    if (inputDevices.length > stabilizedInverterCount) {
+      stabilizedInverterCount = inputDevices.length;
+      stabilizedUntilMs = now + INVERTER_MIN_HOLD_MS;
+    } else if (inputDevices.length < stabilizedInverterCount && now < stabilizedUntilMs) {
+      const needed = stabilizedInverterCount - inputDevices.length;
+      const candidates = otherDevices.filter((device) => getDeviceState(device).enabled).slice(0, needed);
+
+      candidates.forEach((device) => {
+        otherDevices.splice(otherDevices.indexOf(device), 1);
+        inputDevices.push(device);
+        currentAllocatedMaxPower += getDeviceState(device).maxLimit;
+      });
+    } else {
+      stabilizedInverterCount = inputDevices.length;
+    }
+
+    setDeviceShares(inputDevices);
+
+    // Total power that couldn't be assigned to a device because it exceeded that device's maxLimit; needs
+    // to be redistributed to devices that still have headroom.
+    let unmetDemand = 0;
+
+    const nonAcOnly = devices.filter((device) => !device.isAcOnly);
+    const avgSocNonAcOnly =
+      nonAcOnly.length > 0
+        ? nonAcOnly.reduce((sum, device) => sum + getDeviceState(device).soc, 0) / nonAcOnly.length
+        : 0;
+
+    // Devices not currently needed for the main feed-in target: idle at 0W (or 10W standby), or, for
+    // AC-only devices once the other batteries are reasonably charged, opportunistically charge from surplus solar.
+    // Devices with automation disabled are left alone entirely (no command sent at all).
+    for (const device of otherDevices) {
+      const state = getDeviceState(device);
+
+      if (!state.enabled) {
+        continue;
+      }
+
+      if (device.isAcOnly && state.soc < 100) {
+        if (hasGridSurplus) {
+          // Charge proportional to the actual measured surplus (relative to the buffered surplusSetPoint),
+          // which is more accurate than the solarInput-based estimate below.
+          const surplusPower = Math.max(0, surplusSetPoint - currentGridMeterValue);
+          state.newLimit = -Math.min(surplusPower, state.chargeMaxLimit);
+        } else if (avgSocNonAcOnly > 70 && solarInput > 800) {
+          // No confirmed grid surplus yet, but the other batteries are reasonably charged (avg SOC > 70%)
+          // and there's meaningful solar production (>800W) - estimate a safe charge power as 20% of the
+          // current total solar input, capped at this device's chargeMaxLimit.
+          let maxChargePower = Math.round((solarInput * 0.2) / 100) * 100;
+          maxChargePower = Math.min(maxChargePower, state.chargeMaxLimit);
+          state.newLimit = -maxChargePower;
+        }
+      } else if (state.currentLimit >= 10) {
+        // Keep the device at a 10W standby rather than a full stop - it reacts faster once needed again.
+        state.newLimit = 10;
+        piAdjustedHomeUsage -= 10;
+      } else {
+        state.newLimit = 0;
+      }
+    }
+
+    // Assign each input device its share of the required power, prioritizing fully charged devices so
+    // they at least export their own solar input instead of curtailing it.
+    inputDevices.forEach((device) => {
+      const state = getDeviceState(device);
+      state.isAtCapacity = false;
+
+      if (state.maxLimit <= 0 || !state.share) {
+        return;
+      }
+
+      const solar = state.solarInputPower;
+      const calculatedLimit = Math.floor(piAdjustedHomeUsage * state.share);
+
+      state.newLimit =
+        state.soc >= 99 && solar > 0 && !device.isAcOnly ? Math.max(calculatedLimit, solar) : calculatedLimit;
+
+      if (!device.isAcOnly && state.soc === 99 && solar > 40) {
+        // soc == 99: at least 100W once solar input exceeds 40W.
+        state.newLimit = Math.max(100, state.newLimit);
+      }
+
+      const baseLimit = device.isAcOnly ? 0 : state.soc >= 99 && fleetMinSoc < 99 ? 30 : 10;
+      state.newLimit = state.newLimit < 10 ? baseLimit : state.newLimit;
+
+      if (state.newLimit > state.maxLimit) {
+        unmetDemand += state.newLimit - state.maxLimit;
+        state.isAtCapacity = true;
       }
     });
 
-    if (totalExtraPower > 0) {
-      const reducibleDevices = inputDevices.filter((device) => device.isAcOnly);
-      const totalReducibleShare = reducibleDevices.reduce((sum, device) => sum + getDeviceState(device).share, 0);
+    // A fully charged device that's capped below its calculated share frees up power for AC-only devices
+    // to absorb instead (they'd otherwise just curtail solar or sit idle).
+    const fullSocDevices = inputDevices.filter((device) => getDeviceState(device).soc >= 99 && !device.isAcOnly);
 
-      if (totalReducibleShare > 0) {
-        reducibleDevices.forEach((device) => {
-          const state = getDeviceState(device);
-          const reduction = Math.round(totalExtraPower * (state.share / totalReducibleShare));
-          const minNewLimit = state.soc === 99 && solarInput > 40 ? 100 : 10;
-          state.newLimit = Math.max(minNewLimit, state.newLimit - reduction);
-        });
-      }
-    }
-  }
+    if (fullSocDevices.length > 0) {
+      let totalExtraPower = 0;
 
-  // Redistribute unmet demand (devices that were asked for more than their own maxLimit allows) across
-  // devices that still have headroom.
-  const availableDeviceCount = inputDevices.filter((device) => !getDeviceState(device).isAtCapacity).length;
-
-  if (availableDeviceCount > 0 && unmetDemand > 0) {
-    inputDevices
-      .filter((device) => {
+      fullSocDevices.forEach((device) => {
         const state = getDeviceState(device);
-        return !state.isAtCapacity && state.newLimit < state.maxLimit;
-      })
-      .forEach((device) => {
-        getDeviceState(device).newLimit += unmetDemand / availableDeviceCount;
+        const calculatedShare = Math.floor(piAdjustedHomeUsage * state.share);
+        const extra = state.newLimit - Math.max(calculatedShare, 0);
+        if (extra > 0) {
+          totalExtraPower += extra;
+        }
       });
-  }
 
-  // If a device is (or is about to start) ramping up from standby, keep other 10W-standby limits in sync
-  // with the same delay so they don't apply before the ramping device has settled.
-  const globalWakingDelayMs = devices.reduce((max, device) => {
-    const state = getDeviceState(device);
-    if (state.wakingUntilMs > now) {
-      return Math.max(max, state.wakingUntilMs - now);
-    }
-    if (state.currentLimit === 0 && state.newLimit > 0) {
-      return Math.max(max, WAKE_UP_MS);
-    }
-    return max;
-  }, 0);
+      if (totalExtraPower > 0) {
+        const reducibleDevices = inputDevices.filter((device) => device.isAcOnly);
+        const totalReducibleShare = reducibleDevices.reduce((sum, device) => sum + getDeviceState(device).share, 0);
 
-  for (const device of devices) {
-    const id = deviceId(device);
-    const state = getDeviceState(device);
-
-    state.newLimit = Math.round(clamp(state.newLimit, -state.chargeMaxLimit, state.maxLimit));
-
-    if (state.newLimit < 0 && !(state.currentLimit === 0 && state.lastChangeMs >= MIN_IDLE_BEFORE_CHARGE_MS)) {
-      // Charging was requested, but the device hasn't been idle at 0W for long enough yet (or is currently
-      // discharging) - hold it at 0W instead of flipping straight into charging.
-      state.newLimit = 0;
-    }
-
-    if (state.newLimit === state.currentLimit) {
-      continue;
-    }
-
-    const autoModelState = await adapter.getStateAsync(`${id}.autoModel`);
-    const autoModelLastChangeMs = autoModelState?.lc ? now - autoModelState.lc : Number.MAX_SAFE_INTEGER;
-    const settleDelayMs = Math.max(0, AUTO_MODEL_SETTLE_MS - autoModelLastChangeMs);
-
-    if (settleDelayMs > 0) {
-      state.wakingUntilMs = now + settleDelayMs;
-      adapter.log.debug(`${LOG} autoModel change detected for '${device.deviceKey}', waiting ${settleDelayMs}ms`);
-    }
-
-    const standbyDelayMs = state.newLimit === 10 ? Math.max(settleDelayMs, globalWakingDelayMs) : settleDelayMs;
-
-    if (state.pendingTimeout) {
-      adapter.clearTimeout(state.pendingTimeout);
-    }
-
-    const newLimit = state.newLimit;
-    state.pendingTimeout = adapter.setTimeout(() => {
-      state.pendingTimeout = undefined;
-
-      const wasZero = state.currentLimit === 0;
-      state.currentLimit = newLimit;
-      device.setDeviceAutomationInOutLimit(newLimit);
-
-      if (wasZero && state.currentLimit > 0) {
-        state.wakingUntilMs = Date.now() + WAKE_UP_MS;
-        adapter.log.debug(
-          `${LOG} Device '${device.deviceKey}' starting up from standby, waiting ${WAKE_UP_MS / 1000}s`,
-        );
+        if (totalReducibleShare > 0) {
+          reducibleDevices.forEach((device) => {
+            const state = getDeviceState(device);
+            const reduction = Math.round(totalExtraPower * (state.share / totalReducibleShare));
+            const minNewLimit = state.soc === 99 && solarInput > 40 ? 100 : 10;
+            state.newLimit = Math.max(minNewLimit, state.newLimit - reduction);
+          });
+        }
       }
-    }, standbyDelayMs);
+    }
+
+    // Redistribute unmet demand (devices that were asked for more than their own maxLimit allows) across
+    // devices that still have headroom.
+    const availableDeviceCount = inputDevices.filter((device) => !getDeviceState(device).isAtCapacity).length;
+
+    if (availableDeviceCount > 0 && unmetDemand > 0) {
+      inputDevices
+        .filter((device) => {
+          const state = getDeviceState(device);
+          return !state.isAtCapacity && state.newLimit < state.maxLimit;
+        })
+        .forEach((device) => {
+          getDeviceState(device).newLimit += unmetDemand / availableDeviceCount;
+        });
+    }
+
+    // If a device is (or is about to start) ramping up from standby, keep other 10W-standby limits in sync
+    // with the same delay so they don't apply before the ramping device has settled.
+    const globalWakingDelayMs = devices.reduce((max, device) => {
+      const state = getDeviceState(device);
+      if (state.wakingUntilMs > now) {
+        return Math.max(max, state.wakingUntilMs - now);
+      }
+      if (state.currentLimit === 0 && state.newLimit > 0) {
+        return Math.max(max, WAKE_UP_MS);
+      }
+      return max;
+    }, 0);
+
+    for (const device of devices) {
+      const id = deviceId(device);
+      const state = getDeviceState(device);
+
+      if (!state.enabled) {
+        // Automation is disabled for this device - leave it alone entirely (no command sent), rather
+        // than forcing it to a specific limit.
+        continue;
+      }
+
+      state.newLimit = Math.round(clamp(state.newLimit, -state.chargeMaxLimit, state.maxLimit));
+
+      if (state.newLimit < 0 && !(state.currentLimit === 0 && state.lastChangeMs >= MIN_IDLE_BEFORE_CHARGE_MS)) {
+        // Charging was requested, but the device hasn't been idle at 0W for long enough yet (or is
+        // currently discharging) - hold it at 0W instead of flipping straight into charging.
+        state.newLimit = 0;
+      }
+
+      if (state.newLimit === state.currentLimit) {
+        continue;
+      }
+
+      const autoModelState = await adapter.getStateAsync(`${id}.autoModel`);
+      const autoModelLastChangeMs = autoModelState?.lc ? now - autoModelState.lc : Number.MAX_SAFE_INTEGER;
+      const settleDelayMs = Math.max(0, AUTO_MODEL_SETTLE_MS - autoModelLastChangeMs);
+
+      if (settleDelayMs > 0) {
+        state.wakingUntilMs = now + settleDelayMs;
+        adapter.log.debug(`${LOG} autoModel change detected for '${device.deviceKey}', waiting ${settleDelayMs}ms`);
+      }
+
+      const standbyDelayMs = state.newLimit === 10 ? Math.max(settleDelayMs, globalWakingDelayMs) : settleDelayMs;
+
+      if (state.pendingTimeout) {
+        adapter.clearTimeout(state.pendingTimeout);
+      }
+
+      const newLimit = state.newLimit;
+      state.pendingTimeout = adapter.setTimeout(() => {
+        state.pendingTimeout = undefined;
+
+        const wasZero = state.currentLimit === 0;
+        state.currentLimit = newLimit;
+        device.setDeviceAutomationInOutLimit(newLimit);
+
+        if (wasZero && state.currentLimit > 0) {
+          state.wakingUntilMs = Date.now() + WAKE_UP_MS;
+          adapter.log.debug(
+            `${LOG} Device '${device.deviceKey}' starting up from standby, waiting ${WAKE_UP_MS / 1000}s`,
+          );
+        }
+      }, standbyDelayMs);
+    }
+  } finally {
+    isRunning = false;
   }
 };

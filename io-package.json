@@ -203,6 +203,7 @@
     "relayMqttToCloud": false,
     "useZenSDK": true,
     "useMdnsDiscovery": true,
+    "enableAutomation": false,
     "automationTriggerStateId": ""
   },
   "encryptedNative": [

@@ -111,98 +111,100 @@ export class ZendureSolarflow extends utils.Adapter {
     this.setState("info.errorMessage", "", true);
     this.setState("info.connection", false, true);
 
-    await this.extendObject("adapterAutomation", {
-      type: "channel",
-      common: {
-        name: {
-          de: "Adapter-Automatisierung",
-          en: "Adapter automation",
+    if (this.config.enableAutomation) {
+      await this.extendObject("adapterAutomation", {
+        type: "channel",
+        common: {
+          name: {
+            de: "Adapter-Automatisierung",
+            en: "Adapter automation",
+          },
         },
-      },
-      native: {},
-    });
+        native: {},
+      });
 
-    await this.extendObject("adapterAutomation.automationEnabled", {
-      type: "state",
-      common: {
-        name: {
-          de: "Automatisierung aktiv",
-          en: "Automation enabled",
+      await this.extendObject("adapterAutomation.automationEnabled", {
+        type: "state",
+        common: {
+          name: {
+            de: "Automatisierung aktiv",
+            en: "Automation enabled",
+          },
+          type: "boolean",
+          desc: "automationEnabled",
+          role: "switch.enable",
+          read: true,
+          write: true,
+          def: false,
         },
-        type: "boolean",
-        desc: "automationEnabled",
-        role: "switch.enable",
-        read: true,
-        write: true,
-        def: false,
-      },
-      native: {},
-    });
+        native: {},
+      });
 
-    await this.extendObject("adapterAutomation.ignoreSuggestedInverseMaxPower", {
-      type: "state",
-      common: {
-        name: {
-          de: "Empfohlene maximale Ausgangsleistung ignorieren",
-          en: "Ignore suggested maximum inverter output power",
+      await this.extendObject("adapterAutomation.ignoreSuggestedInverseMaxPower", {
+        type: "state",
+        common: {
+          name: {
+            de: "Empfohlene maximale Ausgangsleistung ignorieren",
+            en: "Ignore suggested maximum inverter output power",
+          },
+          type: "boolean",
+          desc: "ignoreSuggestedInverseMaxPower",
+          role: "switch.enable",
+          read: true,
+          write: true,
+          def: false,
         },
-        type: "boolean",
-        desc: "ignoreSuggestedInverseMaxPower",
-        role: "switch.enable",
-        read: true,
-        write: true,
-        def: false,
-      },
-      native: {},
-    });
+        native: {},
+      });
 
-    await this.extendObject("adapterAutomation.setPoint", {
-      type: "state",
-      common: {
-        name: {
-          de: "Sollwert Netzeinspeisung",
-          en: "Grid feed-in setpoint",
+      await this.extendObject("adapterAutomation.setPoint", {
+        type: "state",
+        common: {
+          name: {
+            de: "Sollwert Netzeinspeisung",
+            en: "Grid feed-in setpoint",
+          },
+          type: "number",
+          desc: "setPoint",
+          role: "level.power",
+          read: true,
+          write: true,
+          unit: "W",
+          def: 10,
         },
-        type: "number",
-        desc: "setPoint",
-        role: "level.power",
-        read: true,
-        write: true,
-        unit: "W",
-        def: 10,
-      },
-      native: {},
-    });
+        native: {},
+      });
 
-    await this.extendObject("adapterAutomation.setPointNearlyFull", {
-      type: "state",
-      common: {
-        name: {
-          de: "Sollwert Netzeinspeisung bei nahezu vollen Batterien",
-          en: "Grid feed-in setpoint when batteries are nearly full",
+      await this.extendObject("adapterAutomation.setPointNearlyFull", {
+        type: "state",
+        common: {
+          name: {
+            de: "Sollwert Netzeinspeisung bei nahezu vollen Batterien",
+            en: "Grid feed-in setpoint when batteries are nearly full",
+          },
+          type: "number",
+          desc: "setPointNearlyFull",
+          role: "level.power",
+          read: true,
+          write: true,
+          unit: "W",
+          def: -100,
         },
-        type: "number",
-        desc: "setPointNearlyFull",
-        role: "level.power",
-        read: true,
-        write: true,
-        unit: "W",
-        def: -100,
-      },
-      native: {},
-    });
+        native: {},
+      });
 
-    const ensureDefaultValue = async (id: string, def: boolean | number): Promise<void> => {
-      const current = await this.getStateAsync(id);
-      if (current?.val == null) {
-        await this.setState(id, def, true);
-      }
-    };
+      const ensureDefaultValue = async (id: string, def: boolean | number): Promise<void> => {
+        const current = await this.getStateAsync(id);
+        if (current?.val == null) {
+          await this.setState(id, def, true);
+        }
+      };
 
-    await ensureDefaultValue("adapterAutomation.automationEnabled", false);
-    await ensureDefaultValue("adapterAutomation.ignoreSuggestedInverseMaxPower", false);
-    await ensureDefaultValue("adapterAutomation.setPoint", 10);
-    await ensureDefaultValue("adapterAutomation.setPointNearlyFull", -100);
+      await ensureDefaultValue("adapterAutomation.automationEnabled", false);
+      await ensureDefaultValue("adapterAutomation.ignoreSuggestedInverseMaxPower", false);
+      await ensureDefaultValue("adapterAutomation.setPoint", 10);
+      await ensureDefaultValue("adapterAutomation.setPointNearlyFull", -100);
+    }
 
     switch (this.config.connectionMode) {
       case "authKey": {
@@ -403,14 +405,16 @@ export class ZendureSolarflow extends utils.Adapter {
         break;
     }
 
-    if (this.config.automationTriggerStateId) {
-      this.subscribeForeignStates(this.config.automationTriggerStateId);
-      this.log.debug(`[onReady] Subscribed to automation trigger state '${this.config.automationTriggerStateId}'!`);
+    if (this.config.enableAutomation) {
+      if (this.config.automationTriggerStateId) {
+        this.subscribeForeignStates(this.config.automationTriggerStateId);
+        this.log.debug(`[onReady] Subscribed to automation trigger state '${this.config.automationTriggerStateId}'!`);
+      }
+
+      this.subscribeStates("adapterAutomation.automationEnabled");
+
+      startAdapterAutomationJob(this);
     }
-
-    this.subscribeStates("adapterAutomation.automationEnabled");
-
-    startAdapterAutomationJob(this);
   }
 
   /**

@@ -27,6 +27,7 @@ declare global {
       fullChargeIfNeeded: boolean;
       dischargeLimit: number;
       useRestart: boolean;
+      enableAutomation: boolean;
       automationTriggerStateId: string;
     }
   }

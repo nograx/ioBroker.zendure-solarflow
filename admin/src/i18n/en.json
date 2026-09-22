@@ -54,6 +54,7 @@
   "sectionPowerManagement": "Calculations & Power Management",
   "removeDevice": "Remove device",
   "sectionAutomation": "Automation",
+  "enableAutomation": "Enable adapter automation (zero grid feed-in control)",
   "automationTriggerState": "Trigger state",
   "automationTriggerStateDesc": "Select a state outside this adapter (e.g. a price or forecast state) whose changes should trigger the adapter's automation logic.",
   "selectState": "Select state",

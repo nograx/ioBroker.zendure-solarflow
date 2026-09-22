@@ -54,6 +54,7 @@
   "userName": "E-Mail Addresse",
   "usrPwd": "Benutzername & Kennwort",
   "sectionAutomation": "Automatisierung",
+  "enableAutomation": "Adapter-Automatisierung aktivieren (Nulleinspeisungs-Regelung)",
   "automationTriggerState": "Auslöser-Zustand",
   "automationTriggerStateDesc": "Wählen Sie einen Zustand außerhalb dieses Adapters (z.B. einen Preis- oder Prognose-Zustand), dessen Änderungen die Automatisierungslogik des Adapters auslösen sollen.",
   "selectState": "Zustand auswählen",

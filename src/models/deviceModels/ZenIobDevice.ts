@@ -324,72 +324,74 @@ export class ZenIobDevice {
         this.adapter?.subscribeStates(`${productKey}.${deviceKey}.control.${state.title}`);
       });
 
-      // Create automation folder
-      await this.adapter?.extendObject(`${productKey}.${deviceKey}.adapterAutomation`, {
-        type: "channel",
-        common: {
-          name: {
-            de: `Automatisierung für Gerät ${deviceKey}`,
-            en: `Automation for device ${deviceKey}`,
+      if (this.adapter.config.enableAutomation) {
+        // Create automation folder
+        await this.adapter?.extendObject(`${productKey}.${deviceKey}.adapterAutomation`, {
+          type: "channel",
+          common: {
+            name: {
+              de: `Automatisierung für Gerät ${deviceKey}`,
+              en: `Automation for device ${deviceKey}`,
+            },
           },
-        },
-        native: {},
-      });
+          native: {},
+        });
 
-      await this.adapter?.extendObject(`${productKey}.${deviceKey}.adapterAutomation.suggestedInverseMaxPower`, {
-        type: "state",
-        common: {
-          name: {
-            de: "Empfohlene maximale Ausgangsleistung",
-            en: "Suggested maximum inverter output power",
+        await this.adapter?.extendObject(`${productKey}.${deviceKey}.adapterAutomation.suggestedInverseMaxPower`, {
+          type: "state",
+          common: {
+            name: {
+              de: "Empfohlene maximale Ausgangsleistung",
+              en: "Suggested maximum inverter output power",
+            },
+            type: "number",
+            desc: "suggestedInverseMaxPower",
+            role: "value.power",
+            read: true,
+            write: false,
+            unit: "W",
           },
-          type: "number",
-          desc: "suggestedInverseMaxPower",
-          role: "value.power",
-          read: true,
-          write: false,
-          unit: "W",
-        },
-        native: {},
-      });
+          native: {},
+        });
 
-      await this.adapter?.extendObject(`${productKey}.${deviceKey}.adapterAutomation.suggestedInverseMaxPowerInfo`, {
-        type: "state",
-        common: {
-          name: {
-            de: "Begründung für empfohlene maximale Ausgangsleistung",
-            en: "Reason for the suggested maximum inverter output power",
+        await this.adapter?.extendObject(`${productKey}.${deviceKey}.adapterAutomation.suggestedInverseMaxPowerInfo`, {
+          type: "state",
+          common: {
+            name: {
+              de: "Begründung für empfohlene maximale Ausgangsleistung",
+              en: "Reason for the suggested maximum inverter output power",
+            },
+            type: "string",
+            desc: "suggestedInverseMaxPowerInfo",
+            role: "text",
+            read: true,
+            write: false,
           },
-          type: "string",
-          desc: "suggestedInverseMaxPowerInfo",
-          role: "text",
-          read: true,
-          write: false,
-        },
-        native: {},
-      });
+          native: {},
+        });
 
-      const automationEnabledStateId = `${productKey}.${deviceKey}.adapterAutomation.automationEnabled`;
-      await this.adapter?.extendObject(automationEnabledStateId, {
-        type: "state",
-        common: {
-          name: {
-            de: "Automatisierung für dieses Gerät aktiv",
-            en: "Automation enabled for this device",
+        const automationEnabledStateId = `${productKey}.${deviceKey}.adapterAutomation.automationEnabled`;
+        await this.adapter?.extendObject(automationEnabledStateId, {
+          type: "state",
+          common: {
+            name: {
+              de: "Automatisierung für dieses Gerät aktiv",
+              en: "Automation enabled for this device",
+            },
+            type: "boolean",
+            desc: "automationEnabled",
+            role: "switch.enable",
+            read: true,
+            write: true,
+            def: false,
           },
-          type: "boolean",
-          desc: "automationEnabled",
-          role: "switch.enable",
-          read: true,
-          write: true,
-          def: false,
-        },
-        native: {},
-      });
+          native: {},
+        });
 
-      const currentAutomationEnabled = await this.adapter?.getStateAsync(automationEnabledStateId);
-      if (currentAutomationEnabled?.val == null) {
-        await this.adapter?.setState(automationEnabledStateId, false, true);
+        const currentAutomationEnabled = await this.adapter?.getStateAsync(automationEnabledStateId);
+        if (currentAutomationEnabled?.val == null) {
+          await this.adapter?.setState(automationEnabledStateId, false, true);
+        }
       }
     }
 
@@ -1493,9 +1495,11 @@ export class ZenIobDevice {
         }
       });
 
-      const minVoltages = packData?.filter((x) => x.minVol != null).map((x) => x.minVol / 100);
-      if (minVoltages.length > 0) {
-        await this.updateSuggestedInverseMaxPower(Math.min(...minVoltages));
+      if (this.adapter.config.enableAutomation) {
+        const minVoltages = packData?.filter((x) => x.minVol != null).map((x) => x.minVol / 100);
+        if (minVoltages.length > 0) {
+          await this.updateSuggestedInverseMaxPower(Math.min(...minVoltages));
+        }
       }
     }
   };

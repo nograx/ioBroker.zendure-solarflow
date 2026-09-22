@@ -358,34 +358,38 @@ function Settings(props: SettingsProps) {
         {renderSection(
           I18n.t("sectionAutomation"),
           <Stack spacing={1.5}>
-            <Box>
-              <FormLabel>{I18n.t("automationTriggerState")}:</FormLabel>
-              <Typography variant="body2" sx={{ color: "text.secondary", mb: 0.5 }}>
-                {I18n.t("automationTriggerStateDesc")}
-              </Typography>
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-                <TextField
-                  variant="standard"
-                  sx={{ ...inputSx, ...controlElementSx, minWidth: 320 }}
-                  value={props.native.automationTriggerStateId || ""}
-                  placeholder={I18n.t("selectState")}
-                  slotProps={{ input: { readOnly: true } }}
-                  onClick={() => setShowStatePicker(true)}
-                />
-                <IconButton size="small" title={I18n.t("selectState")} onClick={() => setShowStatePicker(true)}>
-                  <SearchIcon fontSize="small" />
-                </IconButton>
-                {props.native.automationTriggerStateId && (
-                  <IconButton
-                    size="small"
-                    title={I18n.t("clear")}
-                    onClick={() => props.onChange("automationTriggerStateId", "")}
-                  >
-                    <DeleteIcon fontSize="small" />
+            <Box>{renderCheckbox("enableAutomation", "enableAutomation")}</Box>
+
+            {props.native.enableAutomation && (
+              <Box>
+                <FormLabel>{I18n.t("automationTriggerState")}:</FormLabel>
+                <Typography variant="body2" sx={{ color: "text.secondary", mb: 0.5 }}>
+                  {I18n.t("automationTriggerStateDesc")}
+                </Typography>
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <TextField
+                    variant="standard"
+                    sx={{ ...inputSx, ...controlElementSx, minWidth: 320 }}
+                    value={props.native.automationTriggerStateId || ""}
+                    placeholder={I18n.t("selectState")}
+                    slotProps={{ input: { readOnly: true } }}
+                    onClick={() => setShowStatePicker(true)}
+                  />
+                  <IconButton size="small" title={I18n.t("selectState")} onClick={() => setShowStatePicker(true)}>
+                    <SearchIcon fontSize="small" />
                   </IconButton>
-                )}
+                  {props.native.automationTriggerStateId && (
+                    <IconButton
+                      size="small"
+                      title={I18n.t("clear")}
+                      onClick={() => props.onChange("automationTriggerStateId", "")}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  )}
+                </Box>
               </Box>
-            </Box>
+            )}
           </Stack>,
         )}
       </form>
