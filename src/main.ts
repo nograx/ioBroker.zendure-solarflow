@@ -9,12 +9,14 @@ import * as utils from "@iobroker/adapter-core";
 import { zenLogin } from "./services/zenWebService";
 import type { Job } from "node-schedule";
 import {
+  startAdapterAutomationJob,
   startCalculationJob,
   startCheckStatesAndConnectionJob,
   startRefreshAccessTokenTimerJob,
   startResetValuesJob,
   startZenSdkDataRefreshJob,
 } from "./services/jobSchedule";
+import { runZeroFeedInAutomation } from "./services/adapterAutomation/adapterAutomation";
 import { LocalMqttService } from "./services/mqtt/localMqttService";
 import type { IZenIobDeviceDetails } from "./models/IZenIobDeviceDetails";
 import { CloudMqttService } from "./services/mqtt/cloudMqttService";
@@ -47,6 +49,8 @@ export class ZendureSolarflow extends utils.Adapter {
   public checkStatesJob: Job | undefined = undefined;
   public calculationJob: Job | undefined = undefined;
   public zenSdkDataRefreshJob: Job | undefined = undefined;
+  public adapterAutomationMetricsJob: Job | undefined = undefined;
+  public adapterAutomationSortJob: Job | undefined = undefined;
 
   public refreshAccessTokenInterval: ioBroker.Interval | undefined = undefined;
   public retryTimeout: ioBroker.Timeout | undefined = undefined;
@@ -106,6 +110,99 @@ export class ZendureSolarflow extends utils.Adapter {
 
     this.setState("info.errorMessage", "", true);
     this.setState("info.connection", false, true);
+
+    await this.extendObject("adapterAutomation", {
+      type: "channel",
+      common: {
+        name: {
+          de: "Adapter-Automatisierung",
+          en: "Adapter automation",
+        },
+      },
+      native: {},
+    });
+
+    await this.extendObject("adapterAutomation.automationEnabled", {
+      type: "state",
+      common: {
+        name: {
+          de: "Automatisierung aktiv",
+          en: "Automation enabled",
+        },
+        type: "boolean",
+        desc: "automationEnabled",
+        role: "switch.enable",
+        read: true,
+        write: true,
+        def: false,
+      },
+      native: {},
+    });
+
+    await this.extendObject("adapterAutomation.ignoreSuggestedInverseMaxPower", {
+      type: "state",
+      common: {
+        name: {
+          de: "Empfohlene maximale Ausgangsleistung ignorieren",
+          en: "Ignore suggested maximum inverter output power",
+        },
+        type: "boolean",
+        desc: "ignoreSuggestedInverseMaxPower",
+        role: "switch.enable",
+        read: true,
+        write: true,
+        def: false,
+      },
+      native: {},
+    });
+
+    await this.extendObject("adapterAutomation.setPoint", {
+      type: "state",
+      common: {
+        name: {
+          de: "Sollwert Netzeinspeisung",
+          en: "Grid feed-in setpoint",
+        },
+        type: "number",
+        desc: "setPoint",
+        role: "level.power",
+        read: true,
+        write: true,
+        unit: "W",
+        def: 10,
+      },
+      native: {},
+    });
+
+    await this.extendObject("adapterAutomation.setPointNearlyFull", {
+      type: "state",
+      common: {
+        name: {
+          de: "Sollwert Netzeinspeisung bei nahezu vollen Batterien",
+          en: "Grid feed-in setpoint when batteries are nearly full",
+        },
+        type: "number",
+        desc: "setPointNearlyFull",
+        role: "level.power",
+        read: true,
+        write: true,
+        unit: "W",
+        def: -100,
+      },
+      native: {},
+    });
+
+    const ensureDefaultValue = async (id: string, def: boolean | number): Promise<void> => {
+      const current = await this.getStateAsync(id);
+      if (current?.val == null) {
+        await this.setState(id, def, true);
+      }
+    };
+
+    await ensureDefaultValue("adapterAutomation.automationEnabled", false);
+    await ensureDefaultValue("adapterAutomation.ignoreSuggestedInverseMaxPower", false);
+    await ensureDefaultValue("adapterAutomation.setPoint", 10);
+    await ensureDefaultValue("adapterAutomation.setPointNearlyFull", -100);
 
     switch (this.config.connectionMode) {
       case "authKey": {
@@ -305,6 +402,15 @@ export class ZendureSolarflow extends utils.Adapter {
         this.log.error("[onReady] No connection mode found or mode invalid!");
         break;
     }
+
+    if (this.config.automationTriggerStateId) {
+      this.subscribeForeignStates(this.config.automationTriggerStateId);
+      this.log.debug(`[onReady] Subscribed to automation trigger state '${this.config.automationTriggerStateId}'!`);
+    }
+
+    this.subscribeStates("adapterAutomation.automationEnabled");
+
+    startAdapterAutomationJob(this);
   }
 
   /**
@@ -359,6 +465,16 @@ export class ZendureSolarflow extends utils.Adapter {
         this.zenSdkDataRefreshJob = undefined;
       }
 
+      if (this.adapterAutomationMetricsJob) {
+        this.adapterAutomationMetricsJob.cancel();
+        this.adapterAutomationMetricsJob = undefined;
+      }
+
+      if (this.adapterAutomationSortJob) {
+        this.adapterAutomationSortJob.cancel();
+        this.adapterAutomationSortJob = undefined;
+      }
+
       this.zenIobDeviceList.forEach((device) => device.stopZenSdkPollingSchedule());
 
       if (this.retryTimeout) {
@@ -379,6 +495,16 @@ export class ZendureSolarflow extends utils.Adapter {
    */
   private onStateChange(id: string, state: ioBroker.State | null | undefined): void {
     if (state) {
+      if (this.config.automationTriggerStateId && id === this.config.automationTriggerStateId) {
+        this.onAutomationTriggerStateChange(state);
+        return;
+      }
+
+      if (id === `${this.namespace}.adapterAutomation.automationEnabled`) {
+        this.onAdapterAutomationEnabledChange(state);
+        return;
+      }
+
       // The state was changed
 
       // Read product and device key from string
@@ -466,6 +592,42 @@ export class ZendureSolarflow extends utils.Adapter {
         // The state was deleted
         //this.log.debug(`state ${id} deleted`);
       }
+    }
+  }
+
+  /**
+   * Is called when the user-configured automation trigger state (an external state outside this adapter,
+   * typically a grid meter's current power) changes value. Drives the adapterAutomation zero feed-in
+   * control loop (see services/adapterAutomation/adapterAutomation.ts).
+   *
+   * @param state the new state of the automation trigger state
+   */
+  private onAutomationTriggerStateChange(state: ioBroker.State): void {
+    if (state.val == null || Number.isNaN(Number(state.val))) {
+      this.log.warn(
+        `[onAutomationTriggerStateChange] Automation trigger state has a non-numeric value (${state.val}), ignoring!`,
+      );
+      return;
+    }
+
+    void runZeroFeedInAutomation(this, Number(state.val));
+  }
+
+  /**
+   * Is called when 'adapterAutomation.automationEnabled' changes value. Logs the new state, and warns if
+   * automation was enabled without an automation trigger state configured, since it would then never run.
+   *
+   * @param state the new state of 'adapterAutomation.automationEnabled'
+   */
+  private onAdapterAutomationEnabledChange(state: ioBroker.State): void {
+    const enabled = state.val === true;
+
+    this.log.info(`[onAdapterAutomationEnabledChange] Adapter automation ${enabled ? "enabled" : "disabled"}!`);
+
+    if (enabled && !this.config.automationTriggerStateId) {
+      this.log.error(
+        "[onAdapterAutomationEnabledChange] Adapter automation was enabled, but no automation trigger state is configured in the adapter settings - automation will never run!",
+      );
     }
   }
 }

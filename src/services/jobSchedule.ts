@@ -1,5 +1,10 @@
 import { scheduleJob } from "node-schedule";
 import type { ZendureSolarflow } from "../main";
+import {
+  checkAutomationCurrentLimit,
+  sortAutomationDevices,
+  updateAutomationDeviceMetrics,
+} from "./adapterAutomation/adapterAutomation";
 
 export const startRefreshAccessTokenTimerJob = (adapter: ZendureSolarflow): void => {
   // Restart adapter every 3 hours
@@ -136,5 +141,30 @@ export const startCheckStatesAndConnectionJob = (adapter: ZendureSolarflow): voi
         });
       }
     });
+  });
+};
+
+/**
+ * Starts the periodic jobs backing the adapterAutomation feature: device metrics (SOC, minSoc, solar
+ * input, max limit) are refreshed every minute, and the device order is re-evaluated every hour. Also
+ * runs both once immediately so automation has current data right away, without waiting for the first
+ * schedule tick.
+ *
+ * @param adapter the adapter instance
+ */
+export const startAdapterAutomationJob = (adapter: ZendureSolarflow): void => {
+  void (async () => {
+    await updateAutomationDeviceMetrics(adapter);
+    sortAutomationDevices(adapter);
+  })();
+
+  adapter.adapterAutomationMetricsJob = scheduleJob("*/1 * * * *", async () => {
+    await updateAutomationDeviceMetrics(adapter);
+    await checkAutomationCurrentLimit(adapter);
+  });
+
+  adapter.adapterAutomationSortJob = scheduleJob("0 * * * *", () => {
+    adapter.log.debug("[adapterAutomation] Full hour reached, re-sorting devices!");
+    sortAutomationDevices(adapter);
   });
 };

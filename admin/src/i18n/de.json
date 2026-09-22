@@ -52,5 +52,10 @@
   "useRestart": "Neustart des Adapters alle 3 Stunden verwenden um die Verbindung zu erneuern",
   "useZenSDK": "zenSDK verwenden (sofern vom Gerät unterstützt)",
   "userName": "E-Mail Addresse",
-  "usrPwd": "Benutzername & Kennwort"
+  "usrPwd": "Benutzername & Kennwort",
+  "sectionAutomation": "Automatisierung",
+  "automationTriggerState": "Auslöser-Zustand",
+  "automationTriggerStateDesc": "Wählen Sie einen Zustand außerhalb dieses Adapters (z.B. einen Preis- oder Prognose-Zustand), dessen Änderungen die Automatisierungslogik des Adapters auslösen sollen.",
+  "selectState": "Zustand auswählen",
+  "clear": "Löschen"
 }

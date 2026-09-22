@@ -8,6 +8,7 @@ export class Sf4000MixAcPlus extends ZenSdkIobDevice {
   maxInputLimit = 4000;
   maxOutputLimit = 4000;
   isZenSdkSupported = true;
+  isAcOnly = true;
 
   // This device uses a 24V battery pack, half the 48V systems the base thresholds are tuned for.
   lowVoltageThreshold = 23.05;

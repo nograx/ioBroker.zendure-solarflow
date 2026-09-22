@@ -77,6 +77,8 @@ export class ZenIobDevice {
   public controlStates: ISolarflowState[] = [];
   /** Whether this device reports battery packData (false for read-only devices like the Smart Meter 3CT/D0). */
   public hasPackData: boolean = true;
+  /** Whether this device is an AC-only unit (no solar input), e.g. the Solarflow AC+/AC models. */
+  public isAcOnly: boolean = false;
 
   private zenSdkErrorCount: number = 0;
   private zenSdkPausedUntil: number = 0;
@@ -321,6 +323,74 @@ export class ZenIobDevice {
         // Subscribe to states to respond to changes
         this.adapter?.subscribeStates(`${productKey}.${deviceKey}.control.${state.title}`);
       });
+
+      // Create automation folder
+      await this.adapter?.extendObject(`${productKey}.${deviceKey}.adapterAutomation`, {
+        type: "channel",
+        common: {
+          name: {
+            de: `Automatisierung für Gerät ${deviceKey}`,
+            en: `Automation for device ${deviceKey}`,
+          },
+        },
+        native: {},
+      });
+
+      await this.adapter?.extendObject(`${productKey}.${deviceKey}.adapterAutomation.suggestedInverseMaxPower`, {
+        type: "state",
+        common: {
+          name: {
+            de: "Empfohlene maximale Ausgangsleistung",
+            en: "Suggested maximum inverter output power",
+          },
+          type: "number",
+          desc: "suggestedInverseMaxPower",
+          role: "value.power",
+          read: true,
+          write: false,
+          unit: "W",
+        },
+        native: {},
+      });
+
+      await this.adapter?.extendObject(`${productKey}.${deviceKey}.adapterAutomation.suggestedInverseMaxPowerInfo`, {
+        type: "state",
+        common: {
+          name: {
+            de: "Begründung für empfohlene maximale Ausgangsleistung",
+            en: "Reason for the suggested maximum inverter output power",
+          },
+          type: "string",
+          desc: "suggestedInverseMaxPowerInfo",
+          role: "text",
+          read: true,
+          write: false,
+        },
+        native: {},
+      });
+
+      const automationEnabledStateId = `${productKey}.${deviceKey}.adapterAutomation.automationEnabled`;
+      await this.adapter?.extendObject(automationEnabledStateId, {
+        type: "state",
+        common: {
+          name: {
+            de: "Automatisierung für dieses Gerät aktiv",
+            en: "Automation enabled for this device",
+          },
+          type: "boolean",
+          desc: "automationEnabled",
+          role: "switch.enable",
+          read: true,
+          write: true,
+          def: false,
+        },
+        native: {},
+      });
+
+      const currentAutomationEnabled = await this.adapter?.getStateAsync(automationEnabledStateId);
+      if (currentAutomationEnabled?.val == null) {
+        await this.adapter?.setState(automationEnabledStateId, false, true);
+      }
     }
 
     if (this.isZenSdkSupported) {
@@ -1253,7 +1323,6 @@ export class ZenIobDevice {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await -- kept async, caller in processDeviceProperties.ts awaits this method
   addOrUpdatePackData = async (packData: IPackData[], isSolarFlow: boolean): Promise<void> => {
     if (this.adapter && this.productKey && this.deviceKey) {
       packData.forEach(async (x) => {
@@ -1423,6 +1492,11 @@ export class ZenIobDevice {
           });
         }
       });
+
+      const minVoltages = packData?.filter((x) => x.minVol != null).map((x) => x.minVol / 100);
+      if (minVoltages.length > 0) {
+        await this.updateSuggestedInverseMaxPower(Math.min(...minVoltages));
+      }
     }
   };
 
@@ -1486,6 +1560,116 @@ export class ZenIobDevice {
         }
       }
     }
+  }
+
+  /**
+   * Suggests a maximum inverter output power (inverseMaxPower) based on the weakest cell voltage
+   * across all battery packs and the device SOC. Between 0-5 o'clock the suggestion is SOC-only,
+   * as voltage readings in that window are unreliable.
+   *
+   * minVoltage is the lowest single-cell voltage (V) seen across all packs, not the pack's totalVol -
+   * a weak individual cell can drop below a safe threshold long before the pack's summed voltage does.
+   * The voltage thresholds below are the pack-level thresholds (48.5V/47.4V/46.4V for a 15S pack) divided
+   * by 15 to bring them to the same per-cell scale as minVoltage.
+   *
+   * @param minVoltage lowest single-cell voltage (V) across all battery packs of this device
+   * @param soc device state of charge (%)
+   * @param maxLimit the device's currently configured inverseMaxPower (W), used as the upper bound
+   */
+  public getSuggestedInverseMaxPower(
+    minVoltage: number,
+    soc: number,
+    maxLimit: number,
+  ): { limit: number; reason: string } {
+    const hour = new Date().getHours();
+
+    if (hour >= 0 && hour < 5) {
+      if (soc <= 10) {
+        return { limit: 0, reason: `Night mode (0-5h): SOC (${soc}%) <= 10% - output disabled` };
+      }
+      return {
+        limit: Math.min(Math.ceil(soc / 10) * 100, maxLimit),
+        reason: `Night mode (0-5h): limit derived from SOC (${soc}%)`,
+      };
+    }
+
+    const HIGH_VOLTAGE = 3.23;
+    const MID_VOLTAGE = 3.2;
+    const LOW_VOLTAGE = 3.1;
+
+    let newLimit = 0;
+    let reason = "";
+
+    if (soc > 35) {
+      newLimit = maxLimit;
+      reason = `SOC (${soc}%) > 35% - full power`;
+    } else if (minVoltage > HIGH_VOLTAGE && soc > 15) {
+      newLimit = maxLimit;
+      reason = `Cell voltage (${minVoltage}V) > ${HIGH_VOLTAGE}V and SOC (${soc}%) > 15% - full power`;
+    } else if (minVoltage > HIGH_VOLTAGE && soc <= 15) {
+      newLimit = 200;
+      reason = `Cell voltage (${minVoltage}V) > ${HIGH_VOLTAGE}V but SOC (${soc}%) <= 15% - limited to 200W`;
+    } else if (minVoltage > MID_VOLTAGE && soc > 15) {
+      newLimit = 500;
+      reason = `Cell voltage (${minVoltage}V) > ${MID_VOLTAGE}V and SOC (${soc}%) > 15% - limited to 500W`;
+    } else if (minVoltage > MID_VOLTAGE && soc <= 15) {
+      newLimit = 150;
+      reason = `Cell voltage (${minVoltage}V) > ${MID_VOLTAGE}V but SOC (${soc}%) <= 15% - limited to 150W`;
+    } else if (minVoltage > LOW_VOLTAGE && soc > 10) {
+      newLimit = 130;
+      reason = `Cell voltage (${minVoltage}V) > ${LOW_VOLTAGE}V and SOC (${soc}%) > 10% - limited to 130W`;
+    } else if (minVoltage > LOW_VOLTAGE && soc <= 10) {
+      newLimit = 100;
+      reason = `Cell voltage (${minVoltage}V) > ${LOW_VOLTAGE}V but SOC (${soc}%) <= 10% - limited to 100W`;
+    } else {
+      newLimit = 60;
+      reason = `Cell voltage (${minVoltage}V) <= ${LOW_VOLTAGE}V - critical, limited to 60W`;
+    }
+
+    if (newLimit > maxLimit) {
+      reason += ` (capped to configured inverseMaxPower of ${maxLimit}W)`;
+    }
+
+    return { limit: Math.min(newLimit, maxLimit), reason };
+  }
+
+  /**
+   * Recalculates and persists 'automation.suggestedInverseMaxPower' and
+   * 'automation.suggestedInverseMaxPowerInfo' for this device.
+   *
+   * @param minVoltage lowest single-cell voltage (V) across all battery packs, as reported in the
+   * current packData batch
+   */
+  public async updateSuggestedInverseMaxPower(minVoltage: number): Promise<void> {
+    const electricLevelState = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.electricLevel`);
+    if (electricLevelState?.val == null) {
+      return;
+    }
+
+    const inverseMaxPowerState = await this.adapter.getStateAsync(
+      `${this.productKey}.${this.deviceKey}.inverseMaxPower`,
+    );
+    if (inverseMaxPowerState?.val == null) {
+      return;
+    }
+
+    const { limit, reason } = this.getSuggestedInverseMaxPower(
+      minVoltage,
+      Number(electricLevelState.val),
+      Number(inverseMaxPowerState.val),
+    );
+
+    await this.adapter?.setState(
+      `${this.productKey}.${this.deviceKey}.automation.suggestedInverseMaxPower`,
+      limit,
+      true,
+    );
+
+    await this.adapter?.setState(
+      `${this.productKey}.${this.deviceKey}.automation.suggestedInverseMaxPowerInfo`,
+      reason,
+      true,
+    );
   }
 
   /**

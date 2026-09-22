@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   TextField,
@@ -16,8 +16,9 @@ import {
   IconButton,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import SearchIcon from "@mui/icons-material/Search";
 import type { GenericApp } from "@iobroker/adapter-react-v5";
-import { I18n } from "@iobroker/adapter-react-v5";
+import { I18n, SelectID } from "@iobroker/adapter-react-v5";
 
 const productKeys: { value; title }[] = [
   { value: "", title: "-" },
@@ -49,6 +50,8 @@ interface SettingsProps {
 }
 
 function Settings(props: SettingsProps) {
+  const [showStatePicker, setShowStatePicker] = useState(false);
+
   useEffect(() => {
     if (props.native.connectionMode === "local" && props.native.useAddionalLocalMqtt) {
       props.onChange("useAddionalLocalMqtt", false);
@@ -350,7 +353,61 @@ function Settings(props: SettingsProps) {
             </Box>
           </Stack>,
         )}
+
+        {/* Section: Automation */}
+        {renderSection(
+          I18n.t("sectionAutomation"),
+          <Stack spacing={1.5}>
+            <Box>
+              <FormLabel>{I18n.t("automationTriggerState")}:</FormLabel>
+              <Typography variant="body2" sx={{ color: "text.secondary", mb: 0.5 }}>
+                {I18n.t("automationTriggerStateDesc")}
+              </Typography>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <TextField
+                  variant="standard"
+                  sx={{ ...inputSx, ...controlElementSx, minWidth: 320 }}
+                  value={props.native.automationTriggerStateId || ""}
+                  placeholder={I18n.t("selectState")}
+                  slotProps={{ input: { readOnly: true } }}
+                  onClick={() => setShowStatePicker(true)}
+                />
+                <IconButton size="small" title={I18n.t("selectState")} onClick={() => setShowStatePicker(true)}>
+                  <SearchIcon fontSize="small" />
+                </IconButton>
+                {props.native.automationTriggerStateId && (
+                  <IconButton
+                    size="small"
+                    title={I18n.t("clear")}
+                    onClick={() => props.onChange("automationTriggerStateId", "")}
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                )}
+              </Box>
+            </Box>
+          </Stack>,
+        )}
       </form>
+
+      {showStatePicker && (
+        <SelectID
+          socket={(props.app as unknown as { socket: any }).socket}
+          theme={props.app.state.theme}
+          themeName={props.app.state.themeName}
+          themeType={props.app.state.themeType}
+          selected={props.native.automationTriggerStateId || undefined}
+          types="state"
+          onOk={(selected) => {
+            const id = Array.isArray(selected) ? selected[0] : selected;
+            if (id) {
+              props.onChange("automationTriggerStateId", id);
+            }
+            setShowStatePicker(false);
+          }}
+          onClose={() => setShowStatePicker(false)}
+        />
+      )}
     </Box>
   );
 }

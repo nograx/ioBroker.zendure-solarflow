@@ -79,10 +79,10 @@ To control charging/feed-in via script or Blockly, use the **`setDeviceAutomatio
 
 This adapter authenticates on the official MQTT servers using the Cloud Authorization Code, which you can generate in the Zendure app.
 
-<!--
-    Placeholder for the next version (at the beginning of the line):
-    ### **WORK IN PROGRESS**
--->
+### **WORK IN PROGRESS**
+
+- Add folder "automation" with read-only state `suggestedInverseMaxPower` per device. It is recalculated whenever pack data is received, based on SOC and the lowest single-cell voltage across all battery packs.
+
 ### 5.3.1 (2026-09-21)
 
 - Fixed an issue to ignore empty properties
