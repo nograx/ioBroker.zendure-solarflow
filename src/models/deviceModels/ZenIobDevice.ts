@@ -79,6 +79,8 @@ export class ZenIobDevice {
   public hasPackData: boolean = true;
   /** Whether this device is an AC-only unit (no solar input), e.g. the Solarflow AC+/AC models. */
   public isAcOnly: boolean = false;
+  /** Whether this device can by charge through AC */
+  public canChargeByAc: boolean = false;
 
   private zenSdkErrorCount: number = 0;
   private zenSdkPausedUntil: number = 0;
@@ -391,6 +393,29 @@ export class ZenIobDevice {
         const currentAutomationEnabled = await this.adapter?.getStateAsync(automationEnabledStateId);
         if (currentAutomationEnabled?.val == null) {
           await this.adapter?.setState(automationEnabledStateId, false, true);
+        }
+
+        const forceAcChargingStateId = `${productKey}.${deviceKey}.adapterAutomation.forceAcCharging`;
+        await this.adapter?.extendObject(forceAcChargingStateId, {
+          type: "state",
+          common: {
+            name: {
+              de: "Laden mit maximaler Ladeleistung erzwingen",
+              en: "Force charging at maximum charge power",
+            },
+            type: "boolean",
+            desc: "forceAcCharging",
+            role: "switch",
+            read: true,
+            write: true,
+            def: false,
+          },
+          native: {},
+        });
+
+        const currentForceAcCharging = await this.adapter?.getStateAsync(forceAcChargingStateId);
+        if (currentForceAcCharging?.val == null) {
+          await this.adapter?.setState(forceAcChargingStateId, false, true);
         }
       }
     }
@@ -1638,8 +1663,8 @@ export class ZenIobDevice {
   }
 
   /**
-   * Recalculates and persists 'automation.suggestedInverseMaxPower' and
-   * 'automation.suggestedInverseMaxPowerInfo' for this device.
+   * Recalculates and persists 'adapterAutomation.suggestedInverseMaxPower' and
+   * 'adapterAutomation.suggestedInverseMaxPowerInfo' for this device.
    *
    * @param minVoltage lowest single-cell voltage (V) across all battery packs, as reported in the
    * current packData batch
@@ -1664,13 +1689,13 @@ export class ZenIobDevice {
     );
 
     await this.adapter?.setState(
-      `${this.productKey}.${this.deviceKey}.automation.suggestedInverseMaxPower`,
+      `${this.productKey}.${this.deviceKey}.adapterAutomation.suggestedInverseMaxPower`,
       limit,
       true,
     );
 
     await this.adapter?.setState(
-      `${this.productKey}.${this.deviceKey}.automation.suggestedInverseMaxPowerInfo`,
+      `${this.productKey}.${this.deviceKey}.adapterAutomation.suggestedInverseMaxPowerInfo`,
       reason,
       true,
     );

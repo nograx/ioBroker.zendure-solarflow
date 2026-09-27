@@ -27,6 +27,7 @@ var import_ZenIobDevice = require("./ZenIobDevice");
 class Hyper2000 extends import_ZenIobDevice.ZenIobDevice {
   maxInputLimit = 1200;
   maxOutputLimit = 1200;
+  canChargeByAc = true;
   controlStates = [...import_sharedControlStates.sharedControlStates, ...import_hyperControlStates.hyperControlStates];
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {
     super(

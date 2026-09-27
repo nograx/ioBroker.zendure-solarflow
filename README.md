@@ -29,6 +29,7 @@ If you find the adapter useful and want to support my work, feel free to donate 
 - Set output/input limits for zero feed-in scenarios without a Shelly Pro EM, or build more complex automations via script/Blockly
 - Battery protect: stop input if a battery drops into low voltage (requires output limit set via the adapter)
 - Control multiple Solarflow devices at once, with more precise calculations
+- Built-in zero feed-in automation (PI-controlled, SOC-weighted power sharing across multiple devices), driven by your grid meter
 - Works with all Zendure Solarflow devices
 - **zenSDK**: local HTTP control for compatible devices, with data still relayed to the Zendure cloud so you keep full control if internet/Zendure servers are down
 
@@ -75,13 +76,64 @@ Both tools force the default MQTT port (1883, or 8883 with SSL) and require auth
 
 To control charging/feed-in via script or Blockly, use the **`setDeviceAutomationInOutLimit`** control parameter - it controls the device without writing to flash memory. Negative values trigger charging from grid.
 
+## Adapter Automation (Zero Feed-In Control)
+
+The adapter includes a built-in zero feed-in controller. It reads your grid meter and continuously adjusts `setDeviceAutomationInOutLimit` of all participating devices, so that the grid power stays close to a configurable setpoint - no external script needed. It works with a single device as well as with a fleet of multiple devices.
+
+### Setup
+
+1. Open the adapter settings, section **Automation**, and check **Enable adapter automation**.
+2. Select the **Trigger state**: a state of your grid/smart meter with the current grid power in W (**positive = import from grid, negative = export to grid**). Every value change of this state runs one control cycle, so it should update frequently (every 1-5 seconds is ideal).
+3. Save - the adapter restarts and creates the `adapterAutomation` states.
+4. Enable automation for each device that should be controlled: `<productKey>.<deviceKey>.adapterAutomation.automationEnabled = true`.
+5. Switch on the global switch `adapterAutomation.automationEnabled = true`.
+
+⚠️ While automation is active for a device, do not write `setDeviceAutomationInOutLimit` from your own scripts for that device - the automation will overwrite it. Devices with `automationEnabled = false` are left completely untouched.
+
+### States
+
+Global (`zendure-solarflow.X.adapterAutomation.*`):
+
+| State                            | Default | Description                                                                                                                                                   |
+| -------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `automationEnabled`              | `false` | Global on/off switch for the automation.                                                                                                                      |
+| `setPoint`                       | `10`    | Target grid power in W. A small positive value (slight import) avoids feeding into the grid.                                                                  |
+| `setPointNearlyFull`             | `-100`  | Target grid power in W, used instead of `setPoint` when all batteries are at least 90% and there is solar input. Negative values allow feeding into the grid. |
+| `acOnlyPenalty`                  | `50`    | Score lead in % that AC-only devices need over the other devices to become lead device, once the other devices average above 35% SOC. `0` disables the penalty. |
+| `ignoreSuggestedInverseMaxPower` | `false` | If `true`, the device's `inverseMaxPower` is used as maximum output instead of the suggested value (see below).                                               |
+
+Per device (`<productKey>.<deviceKey>.adapterAutomation.*`):
+
+| State                          | Description                                                                                                                                  |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `automationEnabled`            | Include this device in the automation (default `false`).                                                                                     |
+| `forceAcCharging`              | Charge this device from the grid at its full `chargeMaxLimit` until it is full, regardless of the current demand (default `false`).          |
+| `suggestedInverseMaxPower`     | Read-only. Maximum output power the automation uses for this device, calculated from SOC and the lowest cell voltage to protect the battery. |
+| `suggestedInverseMaxPowerInfo` | Read-only. Reason for the current suggested value.                                                                                           |
+
+### How it works
+
+- **PI controller:** The required output is calculated from the current home usage (grid power + current output) plus a PI correction towards the setpoint. Within a small dead band (setpoint to setpoint + 10 W) nothing is changed, to avoid constant adjustments.
+- **Power sharing:** The required power is distributed across the active devices weighted by their SOC - fuller devices take a bigger share. Devices below their own `minSoc` get no share. Power a device cannot deliver (above its maximum) is passed on to devices with headroom.
+- **Lead device:** Devices are ranked by SOC and solar input (re-sorted every full hour). The lead device is always active; further devices are added when demand rises (above 70% utilization of the active devices), when they have spare solar power, or when they are nearly full. Once added, devices stay active for at least 5 minutes to avoid flapping. Idle devices are kept at 10 W standby for a few minutes, so they react faster.
+- **Battery protection:** `suggestedInverseMaxPower` limits the output at low SOC / low cell voltage (e.g. only 60-500 W when cells are weak) and at night (0-5 h) the limit is derived from the SOC. It never exceeds the device's `inverseMaxPower`.
+- **AC-only devices** (e.g. SF 2400 AC, SF 1600 AC+, SF 3000/4000 Mix AC+) are preferred less as lead device once the other batteries are above 35%. When the grid meter shows a surplus (export at least 60 W beyond the setpoint), idle AC-only devices charge with that surplus, up to their `chargeMaxLimit`.
+- **Charging safety:** A device only switches to charging after it has been idle at 0 W for at least 5 minutes, so it does not flip directly between discharging and charging.
+
 ## Notes
 
 This adapter authenticates on the official MQTT servers using the Cloud Authorization Code, which you can generate in the Zendure app.
 
+### Sentry (error reporting and device statistics)
+
+This adapter uses Sentry libraries to automatically report exceptions and code errors to the developer. In addition, the adapter sends anonymous device statistics 5 minutes after start and then once every 24 hours: one event per used device class, containing only the device class, product key, product name and connection mode. No device keys, serial numbers, IP addresses or credentials are transmitted. These statistics help to see which devices are in use and where support is missing.
+
+For more details and for information on how to disable error reporting, see the [Sentry-Plugin Documentation](https://github.com/ioBroker/plugin-sentry#plugin-sentry). Sentry reporting is used starting with js-controller 3.0.
+
 ### **WORK IN PROGRESS**
 
-- Add folder "automation" with read-only state `suggestedInverseMaxPower` per device. It is recalculated whenever pack data is received, based on SOC and the lowest single-cell voltage across all battery packs.
+- Report errors when creating unknown devices and anonymous device statistics (used device classes, every 24h) to Sentry.
+- Add adapter automation (zero feed-in control), see section "Adapter Automation" above.
 
 ### 5.3.1 (2026-09-21)
 

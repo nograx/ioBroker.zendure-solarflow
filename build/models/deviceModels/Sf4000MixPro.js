@@ -27,6 +27,7 @@ var import_ZenSdkIobDevice = require("./ZenSdkIobDevice");
 class Sf4000MixPro extends import_ZenSdkIobDevice.ZenSdkIobDevice {
   maxInputLimit = 4e3;
   maxOutputLimit = 4e3;
+  canChargeByAc = true;
   isZenSdkSupported = true;
   // This device uses a 24V battery pack, half the 48V systems the base thresholds are tuned for.
   lowVoltageThreshold = 23.05;

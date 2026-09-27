@@ -1,6 +1,14 @@
 {
   "common": {
     "name": "zendure-solarflow",
+    "plugins": {
+      "sentry": {
+        "dsn": "https://f509e3ba4852fc6f2588e1f226ae7ca8@o4512135346585600.ingest.de.sentry.io/4512135355891792",
+        "pathWhitelist": [
+          "iobroker.zendure-solarflow"
+        ]
+      }
+    },
     "version": "5.3.1",
     "news": {
       "5.3.1": {

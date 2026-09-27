@@ -28,6 +28,8 @@ class Sf2400Ac extends import_ZenSdkIobDevice.ZenSdkIobDevice {
   maxInputLimit = 2400;
   maxOutputLimit = 2400;
   isZenSdkSupported = true;
+  canChargeByAc = true;
+  isAcOnly = true;
   controlStates = [...import_sharedControlStates.sharedControlStates, ...import_ac2400ControlStates.ac2400ControlStates];
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {
     super(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails);

@@ -28,6 +28,8 @@ class Sf4000MixAcPlus extends import_ZenSdkIobDevice.ZenSdkIobDevice {
   maxInputLimit = 4e3;
   maxOutputLimit = 4e3;
   isZenSdkSupported = true;
+  canChargeByAc = true;
+  isAcOnly = true;
   // This device uses a 24V battery pack, half the 48V systems the base thresholds are tuned for.
   lowVoltageThreshold = 23.05;
   lowVoltageRecoveryThreshold = 23.75;

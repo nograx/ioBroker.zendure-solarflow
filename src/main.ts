@@ -16,7 +16,10 @@ import {
   startResetValuesJob,
   startZenSdkDataRefreshJob,
 } from "./services/jobSchedule";
-import { runZeroFeedInAutomation } from "./services/adapterAutomation/adapterAutomation";
+import {
+  resetAdapterAutomationController,
+  runZeroFeedInAutomation,
+} from "./services/adapterAutomation/adapterAutomation";
 import { LocalMqttService } from "./services/mqtt/localMqttService";
 import type { IZenIobDeviceDetails } from "./models/IZenIobDeviceDetails";
 import { CloudMqttService } from "./services/mqtt/cloudMqttService";
@@ -54,6 +57,8 @@ export class ZendureSolarflow extends utils.Adapter {
 
   public refreshAccessTokenInterval: ioBroker.Interval | undefined = undefined;
   public retryTimeout: ioBroker.Timeout | undefined = undefined;
+  public deviceStatisticsTimeout: ioBroker.Timeout | undefined = undefined;
+  public deviceStatisticsInterval: ioBroker.Interval | undefined = undefined;
 
   /**
    * Is called when databases are connected and adapter received configuration.
@@ -193,6 +198,25 @@ export class ZendureSolarflow extends utils.Adapter {
         native: {},
       });
 
+      await this.extendObject("adapterAutomation.acOnlyPenalty", {
+        type: "state",
+        common: {
+          name: {
+            de: "Bewertungsabschlag für reine AC-Geräte",
+            en: "Score penalty for AC-only devices",
+          },
+          type: "number",
+          desc: "acOnlyPenalty",
+          role: "level",
+          read: true,
+          write: true,
+          unit: "%",
+          min: 0,
+          def: 50,
+        },
+        native: {},
+      });
+
       const ensureDefaultValue = async (id: string, def: boolean | number): Promise<void> => {
         const current = await this.getStateAsync(id);
         if (current?.val == null) {
@@ -204,6 +228,7 @@ export class ZendureSolarflow extends utils.Adapter {
       await ensureDefaultValue("adapterAutomation.ignoreSuggestedInverseMaxPower", false);
       await ensureDefaultValue("adapterAutomation.setPoint", 10);
       await ensureDefaultValue("adapterAutomation.setPointNearlyFull", -100);
+      await ensureDefaultValue("adapterAutomation.acOnlyPenalty", 50);
     }
 
     switch (this.config.connectionMode) {
@@ -290,9 +315,14 @@ export class ZendureSolarflow extends utils.Adapter {
             if (deviceModel) {
               this.zenIobDeviceList.push(deviceModel);
             } else {
-              this.log.error(
-                `[onReady] Error creating device with productKey '${device.productKey}' / deviceKey '${device.deviceKey}' / productModel '${device.productModel}'`,
-              );
+              const message = `[onReady] Error creating device with productKey '${device.productKey}' / deviceKey '${device.deviceKey}' / productModel '${device.productModel}'`;
+              this.log.error(message);
+
+              // Report unknown device to Sentry
+              if (this.supportsFeature && this.supportsFeature("PLUGINS")) {
+                const sentryInstance = this.getPluginInstance("sentry");
+                sentryInstance?.getSentryObject()?.captureMessage(message, "error");
+              }
             }
           });
         }
@@ -415,6 +445,48 @@ export class ZendureSolarflow extends utils.Adapter {
 
       startAdapterAutomationJob(this);
     }
+
+    // Report used device classes to Sentry. First report is delayed, as mDNS discovered devices are created asynchronously.
+    this.deviceStatisticsTimeout = this.setTimeout(
+      () => {
+        this.reportDeviceStatistics();
+        this.deviceStatisticsInterval = this.setInterval(() => this.reportDeviceStatistics(), 24 * 60 * 60 * 1000);
+      },
+      5 * 60 * 1000,
+    );
+  }
+
+  /**
+   * Reports each used device class (once per instance) to Sentry, to get statistics about the used devices.
+   */
+  private reportDeviceStatistics(): void {
+    if (!this.supportsFeature || !this.supportsFeature("PLUGINS")) {
+      return;
+    }
+
+    const sentry = this.getPluginInstance("sentry")?.getSentryObject();
+    if (!sentry) {
+      return;
+    }
+
+    const reported = new Set<string>();
+    this.zenIobDeviceList.forEach((device) => {
+      const deviceClass = device.constructor.name;
+      if (reported.has(deviceClass)) {
+        return;
+      }
+      reported.add(deviceClass);
+
+      sentry.withScope((scope: any) => {
+        scope.setLevel("info");
+        scope.setTag("deviceClass", deviceClass);
+        scope.setTag("productKey", device.productKey);
+        scope.setTag("productName", device.productName);
+        scope.setTag("connectionMode", this.config.connectionMode);
+        scope.setFingerprint(["device-statistics", deviceClass]);
+        sentry.captureMessage(`Device statistics: ${deviceClass}`);
+      });
+    });
   }
 
   /**
@@ -483,6 +555,14 @@ export class ZendureSolarflow extends utils.Adapter {
 
       if (this.retryTimeout) {
         this.clearTimeout(this.retryTimeout);
+      }
+
+      if (this.deviceStatisticsTimeout) {
+        this.clearTimeout(this.deviceStatisticsTimeout);
+      }
+
+      if (this.deviceStatisticsInterval) {
+        this.clearInterval(this.deviceStatisticsInterval);
       }
 
       callback();
@@ -627,6 +707,10 @@ export class ZendureSolarflow extends utils.Adapter {
     const enabled = state.val === true;
 
     this.log.info(`[onAdapterAutomationEnabledChange] Adapter automation ${enabled ? "enabled" : "disabled"}!`);
+
+    // Reset the PI controller on every on/off transition, so a windup accumulated before automation was
+    // switched off (or before it starts fresh now) doesn't apply a stale correction based on old conditions.
+    resetAdapterAutomationController(this);
 
     if (enabled && !this.config.automationTriggerStateId) {
       this.log.error(

@@ -155,7 +155,7 @@ export const startCheckStatesAndConnectionJob = (adapter: ZendureSolarflow): voi
 export const startAdapterAutomationJob = (adapter: ZendureSolarflow): void => {
   void (async () => {
     await updateAutomationDeviceMetrics(adapter);
-    sortAutomationDevices(adapter);
+    await sortAutomationDevices(adapter);
   })();
 
   adapter.adapterAutomationMetricsJob = scheduleJob("*/1 * * * *", async () => {
@@ -163,8 +163,8 @@ export const startAdapterAutomationJob = (adapter: ZendureSolarflow): void => {
     await checkAutomationCurrentLimit(adapter);
   });
 
-  adapter.adapterAutomationSortJob = scheduleJob("0 * * * *", () => {
+  adapter.adapterAutomationSortJob = scheduleJob("0 * * * *", async () => {
     adapter.log.debug("[adapterAutomation] Full hour reached, re-sorting devices!");
-    sortAutomationDevices(adapter);
+    await sortAutomationDevices(adapter);
   });
 };

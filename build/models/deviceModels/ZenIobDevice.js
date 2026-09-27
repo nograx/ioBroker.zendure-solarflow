@@ -92,6 +92,10 @@ class ZenIobDevice {
   controlStates = [];
   /** Whether this device reports battery packData (false for read-only devices like the Smart Meter 3CT/D0). */
   hasPackData = true;
+  /** Whether this device is an AC-only unit (no solar input), e.g. the Solarflow AC+/AC models. */
+  isAcOnly = false;
+  /** Whether this device can by charge through AC */
+  canChargeByAc = false;
   zenSdkErrorCount = 0;
   zenSdkPausedUntil = 0;
   static ZEN_SDK_MAX_ERROR_LOGS = 5;
@@ -184,7 +188,7 @@ class ZenIobDevice {
     }
   }
   async createSolarFlowStates() {
-    var _a, _b, _c, _d, _e, _f, _g;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p;
     const productKey = this.productKey.replace(this.adapter.FORBIDDEN_CHARS, "");
     const deviceKey = this.deviceKey.replace(this.adapter.FORBIDDEN_CHARS, "");
     this.adapter.log.debug(
@@ -279,9 +283,94 @@ class ZenIobDevice {
         }
         (_d2 = this.adapter) == null ? void 0 : _d2.subscribeStates(`${productKey}.${deviceKey}.control.${state.title}`);
       });
+      if (this.adapter.config.enableAutomation) {
+        await ((_f = this.adapter) == null ? void 0 : _f.extendObject(`${productKey}.${deviceKey}.adapterAutomation`, {
+          type: "channel",
+          common: {
+            name: {
+              de: `Automatisierung f\xFCr Ger\xE4t ${deviceKey}`,
+              en: `Automation for device ${deviceKey}`
+            }
+          },
+          native: {}
+        }));
+        await ((_g = this.adapter) == null ? void 0 : _g.extendObject(`${productKey}.${deviceKey}.adapterAutomation.suggestedInverseMaxPower`, {
+          type: "state",
+          common: {
+            name: {
+              de: "Empfohlene maximale Ausgangsleistung",
+              en: "Suggested maximum inverter output power"
+            },
+            type: "number",
+            desc: "suggestedInverseMaxPower",
+            role: "value.power",
+            read: true,
+            write: false,
+            unit: "W"
+          },
+          native: {}
+        }));
+        await ((_h = this.adapter) == null ? void 0 : _h.extendObject(`${productKey}.${deviceKey}.adapterAutomation.suggestedInverseMaxPowerInfo`, {
+          type: "state",
+          common: {
+            name: {
+              de: "Begr\xFCndung f\xFCr empfohlene maximale Ausgangsleistung",
+              en: "Reason for the suggested maximum inverter output power"
+            },
+            type: "string",
+            desc: "suggestedInverseMaxPowerInfo",
+            role: "text",
+            read: true,
+            write: false
+          },
+          native: {}
+        }));
+        const automationEnabledStateId = `${productKey}.${deviceKey}.adapterAutomation.automationEnabled`;
+        await ((_i = this.adapter) == null ? void 0 : _i.extendObject(automationEnabledStateId, {
+          type: "state",
+          common: {
+            name: {
+              de: "Automatisierung f\xFCr dieses Ger\xE4t aktiv",
+              en: "Automation enabled for this device"
+            },
+            type: "boolean",
+            desc: "automationEnabled",
+            role: "switch.enable",
+            read: true,
+            write: true,
+            def: false
+          },
+          native: {}
+        }));
+        const currentAutomationEnabled = await ((_j = this.adapter) == null ? void 0 : _j.getStateAsync(automationEnabledStateId));
+        if ((currentAutomationEnabled == null ? void 0 : currentAutomationEnabled.val) == null) {
+          await ((_k = this.adapter) == null ? void 0 : _k.setState(automationEnabledStateId, false, true));
+        }
+        const forceAcChargingStateId = `${productKey}.${deviceKey}.adapterAutomation.forceAcCharging`;
+        await ((_l = this.adapter) == null ? void 0 : _l.extendObject(forceAcChargingStateId, {
+          type: "state",
+          common: {
+            name: {
+              de: "Laden mit maximaler Ladeleistung erzwingen",
+              en: "Force charging at maximum charge power"
+            },
+            type: "boolean",
+            desc: "forceAcCharging",
+            role: "switch",
+            read: true,
+            write: true,
+            def: false
+          },
+          native: {}
+        }));
+        const currentForceAcCharging = await ((_m = this.adapter) == null ? void 0 : _m.getStateAsync(forceAcChargingStateId));
+        if ((currentForceAcCharging == null ? void 0 : currentForceAcCharging.val) == null) {
+          await ((_n = this.adapter) == null ? void 0 : _n.setState(forceAcChargingStateId, false, true));
+        }
+      }
     }
     if (this.isZenSdkSupported) {
-      await ((_f = this.adapter) == null ? void 0 : _f.extendObject(`${productKey}.${deviceKey}.settings`, {
+      await ((_o = this.adapter) == null ? void 0 : _o.extendObject(`${productKey}.${deviceKey}.settings`, {
         type: "channel",
         common: {
           name: {
@@ -324,7 +413,7 @@ class ZenIobDevice {
       await this.syncZenSdkPollingSchedule();
     }
     if (this.adapter.config.useCalculation) {
-      await ((_g = this.adapter) == null ? void 0 : _g.extendObject(`${productKey}.${deviceKey}.calculations`, {
+      await ((_p = this.adapter) == null ? void 0 : _p.extendObject(`${productKey}.${deviceKey}.calculations`, {
         type: "channel",
         common: {
           name: {
@@ -1035,7 +1124,6 @@ class ZenIobDevice {
       await ((_b = this.adapter) == null ? void 0 : _b.setState(`${this.productKey}.${this.deviceKey}.control.${state}`, val, true));
     }
   }
-  // eslint-disable-next-line @typescript-eslint/require-await -- kept async, caller in processDeviceProperties.ts awaits this method
   addOrUpdatePackData = async (packData, isSolarFlow) => {
     if (this.adapter && this.productKey && this.deviceKey) {
       packData.forEach(async (x) => {
@@ -1188,6 +1276,12 @@ class ZenIobDevice {
           });
         }
       });
+      if (this.adapter.config.enableAutomation) {
+        const minVoltages = packData == null ? void 0 : packData.filter((x) => x.minVol != null).map((x) => x.minVol / 100);
+        if (minVoltages.length > 0) {
+          await this.updateSuggestedInverseMaxPower(Math.min(...minVoltages));
+        }
+      }
     }
   };
   async checkVoltage(voltage) {
@@ -1235,6 +1329,101 @@ class ZenIobDevice {
         }
       }
     }
+  }
+  /**
+   * Suggests a maximum inverter output power (inverseMaxPower) based on the weakest cell voltage
+   * across all battery packs and the device SOC. Between 0-5 o'clock the suggestion is SOC-only,
+   * as voltage readings in that window are unreliable.
+   *
+   * minVoltage is the lowest single-cell voltage (V) seen across all packs, not the pack's totalVol -
+   * a weak individual cell can drop below a safe threshold long before the pack's summed voltage does.
+   * The voltage thresholds below are the pack-level thresholds (48.5V/47.4V/46.4V for a 15S pack) divided
+   * by 15 to bring them to the same per-cell scale as minVoltage.
+   *
+   * @param minVoltage lowest single-cell voltage (V) across all battery packs of this device
+   * @param soc device state of charge (%)
+   * @param maxLimit the device's currently configured inverseMaxPower (W), used as the upper bound
+   */
+  getSuggestedInverseMaxPower(minVoltage, soc, maxLimit) {
+    const hour = (/* @__PURE__ */ new Date()).getHours();
+    if (hour >= 0 && hour < 5) {
+      if (soc <= 10) {
+        return { limit: 0, reason: `Night mode (0-5h): SOC (${soc}%) <= 10% - output disabled` };
+      }
+      return {
+        limit: Math.min(Math.ceil(soc / 10) * 100, maxLimit),
+        reason: `Night mode (0-5h): limit derived from SOC (${soc}%)`
+      };
+    }
+    const HIGH_VOLTAGE = 3.23;
+    const MID_VOLTAGE = 3.2;
+    const LOW_VOLTAGE = 3.1;
+    let newLimit = 0;
+    let reason = "";
+    if (soc > 35) {
+      newLimit = maxLimit;
+      reason = `SOC (${soc}%) > 35% - full power`;
+    } else if (minVoltage > HIGH_VOLTAGE && soc > 15) {
+      newLimit = maxLimit;
+      reason = `Cell voltage (${minVoltage}V) > ${HIGH_VOLTAGE}V and SOC (${soc}%) > 15% - full power`;
+    } else if (minVoltage > HIGH_VOLTAGE && soc <= 15) {
+      newLimit = 200;
+      reason = `Cell voltage (${minVoltage}V) > ${HIGH_VOLTAGE}V but SOC (${soc}%) <= 15% - limited to 200W`;
+    } else if (minVoltage > MID_VOLTAGE && soc > 15) {
+      newLimit = 500;
+      reason = `Cell voltage (${minVoltage}V) > ${MID_VOLTAGE}V and SOC (${soc}%) > 15% - limited to 500W`;
+    } else if (minVoltage > MID_VOLTAGE && soc <= 15) {
+      newLimit = 150;
+      reason = `Cell voltage (${minVoltage}V) > ${MID_VOLTAGE}V but SOC (${soc}%) <= 15% - limited to 150W`;
+    } else if (minVoltage > LOW_VOLTAGE && soc > 10) {
+      newLimit = 130;
+      reason = `Cell voltage (${minVoltage}V) > ${LOW_VOLTAGE}V and SOC (${soc}%) > 10% - limited to 130W`;
+    } else if (minVoltage > LOW_VOLTAGE && soc <= 10) {
+      newLimit = 100;
+      reason = `Cell voltage (${minVoltage}V) > ${LOW_VOLTAGE}V but SOC (${soc}%) <= 10% - limited to 100W`;
+    } else {
+      newLimit = 60;
+      reason = `Cell voltage (${minVoltage}V) <= ${LOW_VOLTAGE}V - critical, limited to 60W`;
+    }
+    if (newLimit > maxLimit) {
+      reason += ` (capped to configured inverseMaxPower of ${maxLimit}W)`;
+    }
+    return { limit: Math.min(newLimit, maxLimit), reason };
+  }
+  /**
+   * Recalculates and persists 'adapterAutomation.suggestedInverseMaxPower' and
+   * 'adapterAutomation.suggestedInverseMaxPowerInfo' for this device.
+   *
+   * @param minVoltage lowest single-cell voltage (V) across all battery packs, as reported in the
+   * current packData batch
+   */
+  async updateSuggestedInverseMaxPower(minVoltage) {
+    var _a, _b;
+    const electricLevelState = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.electricLevel`);
+    if ((electricLevelState == null ? void 0 : electricLevelState.val) == null) {
+      return;
+    }
+    const inverseMaxPowerState = await this.adapter.getStateAsync(
+      `${this.productKey}.${this.deviceKey}.inverseMaxPower`
+    );
+    if ((inverseMaxPowerState == null ? void 0 : inverseMaxPowerState.val) == null) {
+      return;
+    }
+    const { limit, reason } = this.getSuggestedInverseMaxPower(
+      minVoltage,
+      Number(electricLevelState.val),
+      Number(inverseMaxPowerState.val)
+    );
+    await ((_a = this.adapter) == null ? void 0 : _a.setState(
+      `${this.productKey}.${this.deviceKey}.adapterAutomation.suggestedInverseMaxPower`,
+      limit,
+      true
+    ));
+    await ((_b = this.adapter) == null ? void 0 : _b.setState(
+      `${this.productKey}.${this.deviceKey}.adapterAutomation.suggestedInverseMaxPowerInfo`,
+      reason,
+      true
+    ));
   }
   /**
    * Calculates the energy for all items in 'calculationStateKeys'.

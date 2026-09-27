@@ -32,6 +32,16 @@ const MIN_IDLE_BEFORE_CHARGE_MS = 5 * 60 * 1000;
 // Fraction of the currently allocated max power that must be requested before another device is activated.
 const UTILIZATION_THRESHOLD = 0.7;
 
+// A challenger device must beat the current lead device's score (see sortAutomationDevices) by more than
+// this margin to take over as lead; otherwise the current lead stays in place. Keeps the lead device from
+// swapping every hour over a marginal SOC difference (roughly 8 percentage points of SOC, given the 0.6
+// SOC weight in getScore()).
+const LEAD_HYSTERESIS_MARGIN = 5;
+
+// Fallback for 'adapterAutomation.acOnlyPenalty' (%): the score lead an AC-only device needs over the
+// other devices (see sortAutomationDevices) once they average above 35% SOC.
+const DEFAULT_AC_ONLY_PENALTY = 50;
+
 // Grid meter surplus charging: once the meter is exporting this far beyond setPoint, there's clearly
 // spare power to charge AC-only devices with. SURPLUS_SETPOINT_BUFFER_W keeps a margin below setPoint
 // while that's active, so the meter doesn't hover right at the trigger edge and flicker in/out.
@@ -45,9 +55,18 @@ const PI_CONTROLLER = {
   INTEGRAL_MAX: 200,
 };
 
+// Caps how much wall-clock time a single calculatePIOutput() call can inject into the integral term, so a
+// first call, or one arriving after a long gap (e.g. automation was sitting in the dead band, or was just
+// re-enabled), doesn't apply a large instantaneous windup as if that whole gap had been a sustained error.
+const MAX_PI_DT_SECONDS = 10;
+
 interface IAutomationDeviceState {
   /** Whether this device's own 'adapterAutomation.automationEnabled' switch is on, refreshed once per cycle. */
   enabled: boolean;
+  /** Whether this device's 'adapterAutomation.forceAcCharging' switch is on, refreshed once per cycle. */
+  forceAcCharging: boolean;
+  /** Device's 'name' state, refreshed by updateAutomationDeviceMetrics; empty until first read. */
+  name: string;
   soc: number;
   minSoc: number;
   maxLimit: number;
@@ -69,6 +88,9 @@ interface IAutomationDeviceState {
 const deviceStates = new Map<string, IAutomationDeviceState>();
 
 let piIntegral = 0;
+// Wall-clock time of the last calculatePIOutput() call, used to scale the integral term by actual elapsed
+// time rather than by call count (the trigger fires on external state changes, not a fixed interval).
+let lastPiUpdateMs: number | undefined;
 let inDeadBand = false;
 let lastGridMeterValue: number | undefined;
 let stabilizedInverterCount = 0;
@@ -87,6 +109,8 @@ const getDeviceState = (device: ZenIobDevice): IAutomationDeviceState => {
   if (!state) {
     state = {
       enabled: false,
+      forceAcCharging: false,
+      name: "",
       soc: 0,
       minSoc: 0,
       maxLimit: 0,
@@ -104,25 +128,32 @@ const getDeviceState = (device: ZenIobDevice): IAutomationDeviceState => {
   return state;
 };
 
+// Device name for logging (from its 'name' state), falling back to the device model's class name (e.g. 'Sf800').
+const deviceLabel = (device: ZenIobDevice): string => getDeviceState(device).name || device.constructor.name;
+
 const clamp = (value: number, min: number, max: number): number => Math.min(Math.max(value, min), max);
 const roundShare = (value: number): number => Math.round(value * 100) / 100;
 
-const calculatePIOutput = (setPointDiff: number): number => {
+const calculatePIOutput = (setPointDiff: number, now: number): number => {
+  const dtSeconds = lastPiUpdateMs != null ? Math.min((now - lastPiUpdateMs) / 1000, MAX_PI_DT_SECONDS) : 0;
+  lastPiUpdateMs = now;
+
   const proportional = PI_CONTROLLER.KP * setPointDiff;
 
-  piIntegral = clamp(piIntegral + setPointDiff, PI_CONTROLLER.INTEGRAL_MIN, PI_CONTROLLER.INTEGRAL_MAX);
+  piIntegral = clamp(piIntegral + setPointDiff * dtSeconds, PI_CONTROLLER.INTEGRAL_MIN, PI_CONTROLLER.INTEGRAL_MAX);
   const integral = PI_CONTROLLER.KI * piIntegral;
 
   return proportional + integral;
 };
 
 /**
- * Resets the PI controller's integral term, e.g. when automation is (re-)enabled.
+ * Resets the PI controller's integral term, e.g. when automation is (re-)enabled or disabled.
  *
  * @param adapter the adapter instance
  */
 export const resetAdapterAutomationController = (adapter: ZendureSolarflow): void => {
   piIntegral = 0;
+  lastPiUpdateMs = undefined;
   adapter.log.debug(`${LOG} PI controller integral reset`);
 };
 
@@ -151,16 +182,32 @@ const isDeviceEnabled = async (adapter: ZendureSolarflow, device: ZenIobDevice):
   return state?.val === true;
 };
 
+const isForceAcCharging = async (adapter: ZendureSolarflow, device: ZenIobDevice): Promise<boolean> => {
+  const state = await adapter.getStateAsync(`${deviceId(device)}.adapterAutomation.forceAcCharging`);
+  return state?.val === true;
+};
+
 /**
  * Sorts the automation devices by a weighted score (mostly SOC, a little solar input), so the fullest /
  * most productive device is preferred as the lead device. AC-only devices (no solar input of their own)
- * need a 50% score lead once the other devices average above 35% SOC, so they aren't preferred just
- * because they happened to be charged fully from the grid.
+ * need a score lead of 'adapterAutomation.acOnlyPenalty' percent (default 50%) once the other devices
+ * average above 35% SOC, so they aren't preferred just because they happened to be charged fully from
+ * the grid.
+ *
+ * The current lead device keeps that position unless a challenger beats its score by more than
+ * LEAD_HYSTERESIS_MARGIN, so the lead doesn't swap on every re-sort over a marginal SOC difference.
  *
  * @param adapter the adapter instance
  */
-export const sortAutomationDevices = (adapter: ZendureSolarflow): void => {
+export const sortAutomationDevices = async (adapter: ZendureSolarflow): Promise<void> => {
   const devices = getAutomationDevices(adapter);
+
+  const acOnlyPenaltyState = await adapter.getStateAsync("adapterAutomation.acOnlyPenalty");
+  const acOnlyPenalty =
+    typeof acOnlyPenaltyState?.val === "number" && acOnlyPenaltyState.val >= 0
+      ? acOnlyPenaltyState.val
+      : DEFAULT_AC_ONLY_PENALTY;
+  const acOnlyPenaltyFactor = 1 + acOnlyPenalty / 100;
 
   const getScore = (device: ZenIobDevice): number => {
     const state = getDeviceState(device);
@@ -174,25 +221,34 @@ export const sortAutomationDevices = (adapter: ZendureSolarflow): void => {
       : 0;
   const applyAcOnlyPenalty = avgSocNonAcOnly > 35;
 
-  const sorted = [...devices].sort((a, b) => {
-    const scoreA = getScore(a);
-    const scoreB = getScore(b);
+  const getEffectiveScore = (device: ZenIobDevice): number => {
+    const score = getScore(device);
+    return applyAcOnlyPenalty && device.isAcOnly ? score / acOnlyPenaltyFactor : score;
+  };
 
-    const effectiveScoreA = applyAcOnlyPenalty && a.isAcOnly ? scoreA / 1.5 : scoreA;
-    const effectiveScoreB = applyAcOnlyPenalty && b.isAcOnly ? scoreB / 1.5 : scoreB;
+  const sorted = [...devices].sort((a, b) => getEffectiveScore(b) - getEffectiveScore(a));
 
-    return effectiveScoreB - effectiveScoreA;
-  });
+  const currentLead = devices.find((device) => deviceId(device) === deviceOrder[0]);
+
+  if (currentLead && sorted[0] !== currentLead) {
+    const challengerLead = sorted[0];
+
+    if (getEffectiveScore(challengerLead) - getEffectiveScore(currentLead) < LEAD_HYSTERESIS_MARGIN) {
+      // Challenger isn't clearly ahead - keep the current lead in place to avoid flapping.
+      sorted.splice(sorted.indexOf(currentLead), 1);
+      sorted.unshift(currentLead);
+    }
+  }
 
   deviceOrder = sorted.map((device) => deviceId(device));
 
   adapter.log.debug(
-    `${LOG} New device order: ${sorted.map((device) => `${device.deviceKey}(${getScore(device).toFixed(2)})`).join(" -> ")}`,
+    `${LOG} New device order: ${sorted.map((device) => `${deviceLabel(device)} ${device.deviceKey} (${getScore(device).toFixed(2)})`).join(" -> ")}`,
   );
 };
 
 /**
- * Refreshes each device's cached SOC, minSoc, solar input and max output limit. Intended to be called
+ * Refreshes each device's cached name, SOC, minSoc, solar input and max output limit. Intended to be called
  * on a schedule (e.g. every minute). If a device's max limit drops below 500W, the device order is
  * re-evaluated, since a device that can barely output anything shouldn't stay lead device.
  *
@@ -223,6 +279,9 @@ export const updateAutomationDeviceMetrics = async (adapter: ZendureSolarflow): 
       }
     }
 
+    const nameState = await adapter.getStateAsync(`${id}.name`);
+    state.name = nameState?.val != null ? String(nameState.val) : "";
+
     const solarInputPowerState = await adapter.getStateAsync(`${id}.solarInputPower`);
     state.solarInputPower = solarInputPowerState?.val != null ? Number(solarInputPowerState.val) : 0;
 
@@ -240,7 +299,7 @@ export const updateAutomationDeviceMetrics = async (adapter: ZendureSolarflow): 
 
   if (needsResort) {
     adapter.log.debug(`${LOG} maxLimit changed significantly, re-sorting devices!`);
-    sortAutomationDevices(adapter);
+    await sortAutomationDevices(adapter);
   }
 };
 
@@ -336,6 +395,7 @@ export const runZeroFeedInAutomation = async (
       const state = getDeviceState(device);
 
       state.enabled = await isDeviceEnabled(adapter, device);
+      state.forceAcCharging = await isForceAcCharging(adapter, device);
 
       const solarInputPowerState = await adapter.getStateAsync(`${id}.solarInputPower`);
       state.solarInputPower = solarInputPowerState?.val != null ? Number(solarInputPowerState.val) : 0;
@@ -418,7 +478,7 @@ export const runZeroFeedInAutomation = async (
     const currentHomeUsage = currentGridMeterValue + currentFeedIn;
 
     const setPointDiff = currentGridMeterValue - deadBandTarget;
-    const piCorrection = calculatePIOutput(setPointDiff);
+    const piCorrection = calculatePIOutput(setPointDiff, now);
 
     let piAdjustedHomeUsage = currentHomeUsage + piCorrection;
 
@@ -458,7 +518,9 @@ export const runZeroFeedInAutomation = async (
       stabilizedUntilMs = now + INVERTER_MIN_HOLD_MS;
     } else if (inputDevices.length < stabilizedInverterCount && now < stabilizedUntilMs) {
       const needed = stabilizedInverterCount - inputDevices.length;
-      const candidates = otherDevices.filter((device) => getDeviceState(device).enabled).slice(0, needed);
+      const candidates = otherDevices
+        .filter((device) => getDeviceState(device).enabled && !getDeviceState(device).forceAcCharging)
+        .slice(0, needed);
 
       candidates.forEach((device) => {
         otherDevices.splice(otherDevices.indexOf(device), 1);
@@ -468,6 +530,16 @@ export const runZeroFeedInAutomation = async (
     } else {
       stabilizedInverterCount = inputDevices.length;
     }
+
+    // Devices with 'adapterAutomation.forceAcCharging' set should charge at their full chargeMaxLimit
+    // regardless of the fleet's feed-in needs - pull them out of the feed-in group entirely, they're
+    // handled together with the other non-feed-in devices below.
+    inputDevices
+      .filter((device) => getDeviceState(device).forceAcCharging)
+      .forEach((device) => {
+        inputDevices.splice(inputDevices.indexOf(device), 1);
+        otherDevices.push(device);
+      });
 
     setDeviceShares(inputDevices);
 
@@ -491,7 +563,10 @@ export const runZeroFeedInAutomation = async (
         continue;
       }
 
-      if (device.isAcOnly && state.soc < 100) {
+      if (state.forceAcCharging && state.soc < 100) {
+        // Manual override: charge at the device's full chargeMaxLimit, ignoring solar surplus/SOC heuristics.
+        state.newLimit = -state.chargeMaxLimit;
+      } else if (device.isAcOnly && state.soc < 100) {
         if (hasGridSurplus) {
           // Charge proportional to the actual measured surplus (relative to the buffered surplusSetPoint),
           // which is more accurate than the solarInput-based estimate below.

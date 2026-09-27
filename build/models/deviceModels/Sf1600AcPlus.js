@@ -28,6 +28,8 @@ class Sf1600AcPlus extends import_ZenSdkIobDevice.ZenSdkIobDevice {
   maxInputLimit = 1600;
   maxOutputLimit = 1600;
   isZenSdkSupported = true;
+  canChargeByAc = true;
+  isAcOnly = true;
   controlStates = [...import_sharedControlStates.sharedControlStates, ...import_solarflow1600AcPlusControlStates.solarflow1600AcPlusControlStates];
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {
     super(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails);

@@ -18,6 +18,7 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var jobSchedule_exports = {};
 __export(jobSchedule_exports, {
+  startAdapterAutomationJob: () => startAdapterAutomationJob,
   startCalculationJob: () => startCalculationJob,
   startCheckStatesAndConnectionJob: () => startCheckStatesAndConnectionJob,
   startRefreshAccessTokenTimerJob: () => startRefreshAccessTokenTimerJob,
@@ -26,6 +27,7 @@ __export(jobSchedule_exports, {
 });
 module.exports = __toCommonJS(jobSchedule_exports);
 var import_node_schedule = require("node-schedule");
+var import_adapterAutomation = require("./adapterAutomation/adapterAutomation");
 const startRefreshAccessTokenTimerJob = (adapter) => {
   adapter.refreshAccessTokenInterval = adapter.setInterval(
     async () => {
@@ -118,8 +120,23 @@ const startCheckStatesAndConnectionJob = (adapter) => {
     });
   });
 };
+const startAdapterAutomationJob = (adapter) => {
+  void (async () => {
+    await (0, import_adapterAutomation.updateAutomationDeviceMetrics)(adapter);
+    (0, import_adapterAutomation.sortAutomationDevices)(adapter);
+  })();
+  adapter.adapterAutomationMetricsJob = (0, import_node_schedule.scheduleJob)("*/1 * * * *", async () => {
+    await (0, import_adapterAutomation.updateAutomationDeviceMetrics)(adapter);
+    await (0, import_adapterAutomation.checkAutomationCurrentLimit)(adapter);
+  });
+  adapter.adapterAutomationSortJob = (0, import_node_schedule.scheduleJob)("0 * * * *", () => {
+    adapter.log.debug("[adapterAutomation] Full hour reached, re-sorting devices!");
+    (0, import_adapterAutomation.sortAutomationDevices)(adapter);
+  });
+};
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  startAdapterAutomationJob,
   startCalculationJob,
   startCheckStatesAndConnectionJob,
   startRefreshAccessTokenTimerJob,

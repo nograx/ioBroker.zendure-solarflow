@@ -34,6 +34,7 @@ module.exports = __toCommonJS(main_exports);
 var utils = __toESM(require("@iobroker/adapter-core"));
 var import_zenWebService = require("./services/zenWebService");
 var import_jobSchedule = require("./services/jobSchedule");
+var import_adapterAutomation = require("./services/adapterAutomation/adapterAutomation");
 var import_localMqttService = require("./services/mqtt/localMqttService");
 var import_cloudMqttService = require("./services/mqtt/cloudMqttService");
 var import_helpers = require("./helpers/helpers");
@@ -59,8 +60,12 @@ class ZendureSolarflow extends utils.Adapter {
   checkStatesJob = void 0;
   calculationJob = void 0;
   zenSdkDataRefreshJob = void 0;
+  adapterAutomationMetricsJob = void 0;
+  adapterAutomationSortJob = void 0;
   refreshAccessTokenInterval = void 0;
   retryTimeout = void 0;
+  deviceStatisticsTimeout = void 0;
+  deviceStatisticsInterval = void 0;
   /**
    * Is called when databases are connected and adapter received configuration.
    */
@@ -109,6 +114,94 @@ class ZendureSolarflow extends utils.Adapter {
     });
     this.setState("info.errorMessage", "", true);
     this.setState("info.connection", false, true);
+    if (this.config.enableAutomation) {
+      await this.extendObject("adapterAutomation", {
+        type: "channel",
+        common: {
+          name: {
+            de: "Adapter-Automatisierung",
+            en: "Adapter automation"
+          }
+        },
+        native: {}
+      });
+      await this.extendObject("adapterAutomation.automationEnabled", {
+        type: "state",
+        common: {
+          name: {
+            de: "Automatisierung aktiv",
+            en: "Automation enabled"
+          },
+          type: "boolean",
+          desc: "automationEnabled",
+          role: "switch.enable",
+          read: true,
+          write: true,
+          def: false
+        },
+        native: {}
+      });
+      await this.extendObject("adapterAutomation.ignoreSuggestedInverseMaxPower", {
+        type: "state",
+        common: {
+          name: {
+            de: "Empfohlene maximale Ausgangsleistung ignorieren",
+            en: "Ignore suggested maximum inverter output power"
+          },
+          type: "boolean",
+          desc: "ignoreSuggestedInverseMaxPower",
+          role: "switch.enable",
+          read: true,
+          write: true,
+          def: false
+        },
+        native: {}
+      });
+      await this.extendObject("adapterAutomation.setPoint", {
+        type: "state",
+        common: {
+          name: {
+            de: "Sollwert Netzeinspeisung",
+            en: "Grid feed-in setpoint"
+          },
+          type: "number",
+          desc: "setPoint",
+          role: "level.power",
+          read: true,
+          write: true,
+          unit: "W",
+          def: 10
+        },
+        native: {}
+      });
+      await this.extendObject("adapterAutomation.setPointNearlyFull", {
+        type: "state",
+        common: {
+          name: {
+            de: "Sollwert Netzeinspeisung bei nahezu vollen Batterien",
+            en: "Grid feed-in setpoint when batteries are nearly full"
+          },
+          type: "number",
+          desc: "setPointNearlyFull",
+          role: "level.power",
+          read: true,
+          write: true,
+          unit: "W",
+          def: -100
+        },
+        native: {}
+      });
+      const ensureDefaultValue = async (id, def) => {
+        const current = await this.getStateAsync(id);
+        if ((current == null ? void 0 : current.val) == null) {
+          await this.setState(id, def, true);
+        }
+      };
+      await ensureDefaultValue("adapterAutomation.automationEnabled", false);
+      await ensureDefaultValue("adapterAutomation.ignoreSuggestedInverseMaxPower", false);
+      await ensureDefaultValue("adapterAutomation.setPoint", 10);
+      await ensureDefaultValue("adapterAutomation.setPointNearlyFull", -100);
+    }
     switch (this.config.connectionMode) {
       case "authKey": {
         this.log.debug("[onReady] Using Authorization Cloud Key");
@@ -166,13 +259,17 @@ class ZendureSolarflow extends utils.Adapter {
         if (deviceList) {
           this.log.debug(`[onReady] Creating ${deviceList.length} devices...`);
           deviceList.forEach((device) => {
+            var _a;
             const deviceModel = (0, import_helpers.createDeviceModel)(this, device.productKey, device.deviceKey, device);
             if (deviceModel) {
               this.zenIobDeviceList.push(deviceModel);
             } else {
-              this.log.error(
-                `[onReady] Error creating device with productKey '${device.productKey}' / deviceKey '${device.deviceKey}' / productModel '${device.productModel}'`
-              );
+              const message = `[onReady] Error creating device with productKey '${device.productKey}' / deviceKey '${device.deviceKey}' / productModel '${device.productModel}'`;
+              this.log.error(message);
+              if (this.supportsFeature && this.supportsFeature("PLUGINS")) {
+                const sentryInstance = this.getPluginInstance("sentry");
+                (_a = sentryInstance == null ? void 0 : sentryInstance.getSentryObject()) == null ? void 0 : _a.captureMessage(message, "error");
+              }
             }
           });
         }
@@ -253,6 +350,51 @@ class ZendureSolarflow extends utils.Adapter {
         this.log.error("[onReady] No connection mode found or mode invalid!");
         break;
     }
+    if (this.config.enableAutomation) {
+      if (this.config.automationTriggerStateId) {
+        this.subscribeForeignStates(this.config.automationTriggerStateId);
+        this.log.debug(`[onReady] Subscribed to automation trigger state '${this.config.automationTriggerStateId}'!`);
+      }
+      this.subscribeStates("adapterAutomation.automationEnabled");
+      (0, import_jobSchedule.startAdapterAutomationJob)(this);
+    }
+    this.deviceStatisticsTimeout = this.setTimeout(
+      () => {
+        this.reportDeviceStatistics();
+        this.deviceStatisticsInterval = this.setInterval(() => this.reportDeviceStatistics(), 24 * 60 * 60 * 1e3);
+      },
+      5 * 60 * 1e3
+    );
+  }
+  /**
+   * Reports each used device class (once per instance) to Sentry, to get statistics about the used devices.
+   */
+  reportDeviceStatistics() {
+    var _a;
+    if (!this.supportsFeature || !this.supportsFeature("PLUGINS")) {
+      return;
+    }
+    const sentry = (_a = this.getPluginInstance("sentry")) == null ? void 0 : _a.getSentryObject();
+    if (!sentry) {
+      return;
+    }
+    const reported = /* @__PURE__ */ new Set();
+    this.zenIobDeviceList.forEach((device) => {
+      const deviceClass = device.constructor.name;
+      if (reported.has(deviceClass)) {
+        return;
+      }
+      reported.add(deviceClass);
+      sentry.withScope((scope) => {
+        scope.setLevel("info");
+        scope.setTag("deviceClass", deviceClass);
+        scope.setTag("productKey", device.productKey);
+        scope.setTag("productName", device.productName);
+        scope.setTag("connectionMode", this.config.connectionMode);
+        scope.setFingerprint(["device-statistics", deviceClass]);
+        sentry.captureMessage(`Device statistics: ${deviceClass}`);
+      });
+    });
   }
   /**
    * Is called when adapter shuts down - callback has to be called under any circumstances!
@@ -296,9 +438,23 @@ class ZendureSolarflow extends utils.Adapter {
         this.zenSdkDataRefreshJob.cancel();
         this.zenSdkDataRefreshJob = void 0;
       }
+      if (this.adapterAutomationMetricsJob) {
+        this.adapterAutomationMetricsJob.cancel();
+        this.adapterAutomationMetricsJob = void 0;
+      }
+      if (this.adapterAutomationSortJob) {
+        this.adapterAutomationSortJob.cancel();
+        this.adapterAutomationSortJob = void 0;
+      }
       this.zenIobDeviceList.forEach((device) => device.stopZenSdkPollingSchedule());
       if (this.retryTimeout) {
         this.clearTimeout(this.retryTimeout);
+      }
+      if (this.deviceStatisticsTimeout) {
+        this.clearTimeout(this.deviceStatisticsTimeout);
+      }
+      if (this.deviceStatisticsInterval) {
+        this.clearInterval(this.deviceStatisticsInterval);
       }
       callback();
     } catch {
@@ -313,6 +469,14 @@ class ZendureSolarflow extends utils.Adapter {
    */
   onStateChange(id, state) {
     if (state) {
+      if (this.config.automationTriggerStateId && id === this.config.automationTriggerStateId) {
+        this.onAutomationTriggerStateChange(state);
+        return;
+      }
+      if (id === `${this.namespace}.adapterAutomation.automationEnabled`) {
+        this.onAdapterAutomationEnabledChange(state);
+        return;
+      }
       const splitted = id.split(".");
       const productKey = splitted[2];
       const deviceKey = splitted[3];
@@ -391,6 +555,38 @@ class ZendureSolarflow extends utils.Adapter {
         }
       } else {
       }
+    }
+  }
+  /**
+   * Is called when the user-configured automation trigger state (an external state outside this adapter,
+   * typically a grid meter's current power) changes value. Drives the adapterAutomation zero feed-in
+   * control loop (see services/adapterAutomation/adapterAutomation.ts).
+   *
+   * @param state the new state of the automation trigger state
+   */
+  onAutomationTriggerStateChange(state) {
+    if (state.val == null || Number.isNaN(Number(state.val))) {
+      this.log.warn(
+        `[onAutomationTriggerStateChange] Automation trigger state has a non-numeric value (${state.val}), ignoring!`
+      );
+      return;
+    }
+    void (0, import_adapterAutomation.runZeroFeedInAutomation)(this, Number(state.val));
+  }
+  /**
+   * Is called when 'adapterAutomation.automationEnabled' changes value. Logs the new state, and warns if
+   * automation was enabled without an automation trigger state configured, since it would then never run.
+   *
+   * @param state the new state of 'adapterAutomation.automationEnabled'
+   */
+  onAdapterAutomationEnabledChange(state) {
+    const enabled = state.val === true;
+    this.log.info(`[onAdapterAutomationEnabledChange] Adapter automation ${enabled ? "enabled" : "disabled"}!`);
+    (0, import_adapterAutomation.resetAdapterAutomationController)(this);
+    if (enabled && !this.config.automationTriggerStateId) {
+      this.log.error(
+        "[onAdapterAutomationEnabledChange] Adapter automation was enabled, but no automation trigger state is configured in the adapter settings - automation will never run!"
+      );
     }
   }
 }
