@@ -26,12 +26,15 @@ export const initAdapter = (_adapter: ZendureSolarflow): boolean => {
   return true;
 };
 
+const isKnownDevice = (deviceKey: string): boolean => !!adapter?.zenIobDeviceList.some((x) => x.deviceKey == deviceKey);
+
 export const onMessage = async (productKey: string, deviceKey: string, obj: IMqttData): Promise<void> => {
   if (adapter) {
     const _device = adapter?.zenIobDeviceList.find((x) => x.deviceKey == deviceKey);
 
     if (!_device) {
-      adapter.log.error(`[onMessage] DeviceKey '${deviceKey} not found in device list!'}`);
+      adapter.log.debug(`[onMessage] DeviceKey '${deviceKey}' not found in device list!`);
+      return;
     }
 
     let isSolarFlow = false;
@@ -74,14 +77,21 @@ export const onMessageLocal = (topic: string, message: Buffer): void => {
   const productKey = topicSplitted[1];
   const deviceKey = topicSplitted[2];
 
+  // Ignore messages of foreign devices (e.g. other devices on a shared local broker)
+  if (!isKnownDevice(deviceKey)) {
+    adapter?.log.debug(`[onMessageLocal] Ignoring message on topic '${topic}', device not in device list!`);
+    return;
+  }
+
   let obj: IMqttData = {};
   try {
     obj = JSON.parse(message.toString());
   } catch {
     const txt = message.toString();
-    adapter?.log.error(`[onMessageLocal] JSON Parse error!`);
+    adapter?.log.error(`[onMessageLocal] JSON Parse error on topic '${topic}'!`);
 
     adapter?.log.debug(`[onMessageLocal] JSON Parse error: ${txt}!`);
+    return;
   }
 
   if (adapter?.log.level == "debug") {
@@ -113,6 +123,11 @@ export const onMessageCloud = (topic: string, message: Buffer): void => {
   const productKey = topicSplitted[1];
   const deviceKey = topicSplitted[2];
 
+  if (!isKnownDevice(deviceKey)) {
+    adapter?.log.debug(`[onMessageCloud] Ignoring message on topic '${topic}', device not in device list!`);
+    return;
+  }
+
   let obj: IMqttData = {};
   try {
     obj = JSON.parse(message.toString());
@@ -123,9 +138,10 @@ export const onMessageCloud = (topic: string, message: Buffer): void => {
     }
   } catch {
     const txt = message.toString();
-    adapter?.log.error(`[onMessageCloud] JSON Parse error!`);
+    adapter?.log.error(`[onMessageCloud] JSON Parse error on topic '${topic}'!`);
 
     adapter?.log.debug(`[onMessageCloud] JSON Parse error: ${txt}!`);
+    return;
   }
 
   if (adapter?.log.level == "debug") {
