@@ -85,8 +85,7 @@ This adapter authenticates on the official MQTT servers using the Cloud Authoriz
 -->
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 5.3.2 (2026-09-28)
 
 - Fix to ignore MQTT messages from unknown devices
 
@@ -115,11 +114,6 @@ This adapter authenticates on the official MQTT servers using the Cloud Authoriz
 
 - Fix batCur Reading
 - Add control state for inverseMaxPower and gridOffMode (Control AC outlet on 'Plus' Devices)
-
-### 5.0.4 (2026-08-19)
-
-- Fix flickering Save button in Settings.
-- Add function to detect zenSDK devices with mDNS and fill missing IP-address if found.
 
 For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 
