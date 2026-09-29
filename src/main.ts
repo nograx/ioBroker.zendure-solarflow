@@ -149,7 +149,7 @@ export class ZendureSolarflow extends utils.Adapter {
         type: "state",
         common: {
           name: {
-            de: "Empfohlene maximale Ausgangsleistung ignorieren",
+            de: "Vom Adapter empfohlene maximale Ausgangsleistung ignorieren",
             en: "Ignore suggested maximum inverter output power",
           },
           type: "boolean",
@@ -213,6 +213,22 @@ export class ZendureSolarflow extends utils.Adapter {
           unit: "%",
           min: 0,
           def: 50,
+        },
+        native: {},
+      });
+
+      await this.extendObject("adapterAutomation.deviceOrder", {
+        type: "state",
+        common: {
+          name: {
+            de: "Gerätereihenfolge",
+            en: "Device order",
+          },
+          type: "string",
+          desc: "deviceOrder",
+          role: "text",
+          read: true,
+          write: false,
         },
         native: {},
       });

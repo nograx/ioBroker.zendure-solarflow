@@ -22,12 +22,49 @@ const WAKE_UP_MS = 9000;
 // Skip a control cycle if any device's output limit state changed more recently than this (still settling).
 const RECENT_CHANGE_SKIP_MS = 3000;
 
-// A device is kept at a 10W standby (instead of a full stop to 0W) once idle, so it reacts faster once needed again.
+// A device is kept at a keep-alive limit (feed-in standby at +minLimit, or charge keep-alive at -minLimit, see
+// getMinLimit) instead of a full stop to 0W once idle, so it reacts faster once needed again; after this long
+// unchanged it's released to 0W. The charge keep-alive keeps an AC-only device in charge mode instead of
+// dropping straight to 0W, which would switch it internally from charge to discharge/off mode and trip a relay.
 const MIN_STANDBY_TIME_MS = 3 * 60 * 1000;
 
-// A device may only start charging (negative limit) once its output limit has been idle at 0W for at
-// least this long, so it doesn't flip directly from discharging to charging (or back) too often.
+// Smallest non-zero limit magnitude (W) a device accepts: zenSDK devices can't go below 30W (or -30W), others 10W.
+const ZEN_SDK_MIN_LIMIT_W = 30;
+const DEFAULT_MIN_LIMIT_W = 10;
+
+// A device may only start a new charge (negative limit) once it has stopped both charging and feeding in
+// for at least this long, so it doesn't flip directly from discharging to charging (or back) too often.
 const MIN_IDLE_BEFORE_CHARGE_MS = 5 * 60 * 1000;
+
+// A non-lead device with its own solar input is only recruited as an additional feed-in device once
+// solarInputPower > 100W && soc > 35% has held continuously for this long, so a single short load spike
+// doesn't pull it out of standby only to ramp it back down seconds later.
+const EXTRA_FEED_IN_CONFIRM_MS = 30 * 1000;
+
+// Rate limit for feed-in adjustments: only applied when the adjustment reverses direction compared to the
+// last one. A fluctuating load (e.g. a washing machine) reverses direction nearly every cycle and should be
+// damped; a genuine sustained change in demand keeps moving in the same direction and passes unthrottled.
+// Starting (0/standby -> X) and stopping (X -> 0) are exempt, so they still react immediately.
+const MAX_FEED_IN_STEP_W = 100;
+
+// Smoothing factor for the fast, internally calculated moving average of the grid meter value, used as the
+// feedback signal for feed-in and charge control - reacts to a genuine trend within a few cycles, but smooths
+// out single noisy readings (e.g. a washing machine flipping between -250W and +280W every few seconds).
+const SHORT_TERM_GRID_ALPHA = 0.3;
+
+// Much slower moving average of the grid meter value, only used to decide whether to start (or stop) surplus
+// charging - a single brief excursion of the fast average must not start a new charge, otherwise the device
+// keeps flickering between charging and not charging. Ongoing adjustment of an active charge still uses the
+// fast average.
+const CHARGE_START_GRID_ALPHA = 0.05;
+
+// Charge limits with a magnitude between 1W and this value can't be driven cleanly by the device (charge
+// current too low) - rounded down to 0 instead of sending an ineffective tiny limit.
+const CHARGE_DEAD_ZONE_MAX_W = 20;
+
+// Another AC-only device only joins charging once the total charge budget divided by the number of devices
+// gives at least this much per device - e.g. at 100W: budget <= 199W -> 1 device, >= 200W -> 2 devices.
+const CHARGE_MIN_PER_DEVICE_W = 100;
 
 // Fraction of the currently allocated max power that must be requested before another device is activated.
 const UTILIZATION_THRESHOLD = 0.7;
@@ -48,16 +85,45 @@ const DEFAULT_AC_ONLY_PENALTY = 50;
 const SURPLUS_TRIGGER_BELOW_SETPOINT_W = 60;
 const SURPLUS_SETPOINT_BUFFER_W = 30;
 
-const PI_CONTROLLER = {
+// A sole AC-only device that's surplus charging switches straight back to feed-in once the home usage
+// (excluding its own charge power) exceeds setPoint by this margin - the margin keeps small fluctuations
+// around setPoint from flipping it between charging and feeding in.
+const SOLE_DEVICE_FEED_IN_RETURN_W = 50;
+
+interface IPidConfig {
+  KP: number;
+  KI: number;
+  KD: number;
+  INTEGRAL_MIN: number;
+  INTEGRAL_MAX: number;
+}
+
+// Feed-in controller. KD damps fast changes (brakes the controller before it overshoots); kept small since
+// even the smoothed grid average still partly follows short load jumps.
+const PI_CONTROLLER: IPidConfig = {
   KP: 0.15,
   KI: 0.02,
+  KD: 0.05,
   INTEGRAL_MIN: -200,
   INTEGRAL_MAX: 200,
 };
 
-// Caps how much wall-clock time a single calculatePIOutput() call can inject into the integral term, so a
+// Charge controller for the AC-only surplus charge budget. KP is deliberately low: per cycle only a quarter
+// of the error is applied on top of the current charge power, so the controller doesn't build up a
+// self-reinforcing feedback loop with its own, quickly changeable charge power. KD is a bit larger than for
+// feed-in, since the error is based on the already smoothed short-term grid average.
+const CHARGE_PI: IPidConfig = {
+  KP: 0.25,
+  KI: 0.02,
+  KD: 0.1,
+  INTEGRAL_MIN: -400,
+  INTEGRAL_MAX: 400,
+};
+
+// Caps how much wall-clock time a single PID calculate() call can inject into the integral term, so a
 // first call, or one arriving after a long gap (e.g. automation was sitting in the dead band, or was just
 // re-enabled), doesn't apply a large instantaneous windup as if that whole gap had been a sustained error.
+// A gap longer than this also drops the derivative term for that call, since the previous error is stale.
 const MAX_PI_DT_SECONDS = 10;
 
 interface IAutomationDeviceState {
@@ -80,6 +146,14 @@ interface IAutomationDeviceState {
   isAtCapacity: boolean;
   lastChangeMs: number;
   wakingUntilMs: number;
+  /** Last transition from charging (negative) to not charging (>= 0); undefined = never charged. */
+  chargingStoppedMs?: number;
+  /** Last transition from feeding in (positive) to not feeding in (<= 0); undefined = never fed in. */
+  dischargingStoppedMs?: number;
+  /** Since when solarInputPower > 100W && soc > 35% has held continuously; undefined = not currently met. */
+  extraFeedInCandidateSinceMs?: number;
+  /** Direction (-1/0/1) of the last feed-in adjustment, see MAX_FEED_IN_STEP_W. */
+  lastFeedInDeltaSign?: number;
   pendingTimeout?: ioBroker.Timeout;
 }
 
@@ -87,14 +161,17 @@ interface IAutomationDeviceState {
 // since it's specific to this control loop, not part of the device's own model.
 const deviceStates = new Map<string, IAutomationDeviceState>();
 
-let piIntegral = 0;
-// Wall-clock time of the last calculatePIOutput() call, used to scale the integral term by actual elapsed
-// time rather than by call count (the trigger fires on external state changes, not a fixed interval).
-let lastPiUpdateMs: number | undefined;
 let inDeadBand = false;
 let lastGridMeterValue: number | undefined;
+// Fast / slow moving averages of the grid meter value, see SHORT_TERM_GRID_ALPHA and CHARGE_START_GRID_ALPHA.
+let shortTermGridAvgW: number | undefined;
+let chargeStartGridAvgW: number | undefined;
 let stabilizedInverterCount = 0;
 let stabilizedUntilMs = 0;
+// Same as stabilizedInverterCount, but for the number of AC-only devices charging at once - keeps it from
+// jumping between 1 and 2 devices when the charge budget hovers around CHARGE_MIN_PER_DEVICE_W.
+let stabilizedChargeDeviceCount = 0;
+let stabilizedChargeUntilMs = 0;
 // Guards against overlapping cycles: runZeroFeedInAutomation does many sequential awaits, so a fast
 // series of trigger updates could otherwise start a second cycle before the first one finishes.
 let isRunning = false;
@@ -134,27 +211,210 @@ const deviceLabel = (device: ZenIobDevice): string => getDeviceState(device).nam
 const clamp = (value: number, min: number, max: number): number => Math.min(Math.max(value, min), max);
 const roundShare = (value: number): number => Math.round(value * 100) / 100;
 
-const calculatePIOutput = (setPointDiff: number, now: number): number => {
-  const dtSeconds = lastPiUpdateMs != null ? Math.min((now - lastPiUpdateMs) / 1000, MAX_PI_DT_SECONDS) : 0;
-  lastPiUpdateMs = now;
-
-  const proportional = PI_CONTROLLER.KP * setPointDiff;
-
-  piIntegral = clamp(piIntegral + setPointDiff * dtSeconds, PI_CONTROLLER.INTEGRAL_MIN, PI_CONTROLLER.INTEGRAL_MAX);
-  const integral = PI_CONTROLLER.KI * piIntegral;
-
-  return proportional + integral;
-};
+// Smallest non-zero limit magnitude (W) the device accepts, also used as its feed-in standby / charge keep-alive.
+const getMinLimit = (device: ZenIobDevice): number =>
+  device.isZenSdkSupported ? ZEN_SDK_MIN_LIMIT_W : DEFAULT_MIN_LIMIT_W;
 
 /**
- * Resets the PI controller's integral term, e.g. when automation is (re-)enabled or disabled.
+ * Creates a PID controller (P + anti-windup I + D). The integral is scaled by actual elapsed wall-clock
+ * time rather than by call count (the trigger fires on external state changes, not a fixed interval); the
+ * derivative reacts to the change of the error between two calls, not per time unit.
+ *
+ * @param config gains and integral limits
+ */
+const createPidController = (
+  config: IPidConfig,
+): { calculate: (error: number, now: number) => number; reset: () => void } => {
+  let integral = 0;
+  let previousError: number | undefined;
+  let lastUpdateMs: number | undefined;
+
+  const calculate = (error: number, now: number): number => {
+    const elapsedSeconds = lastUpdateMs != null ? (now - lastUpdateMs) / 1000 : undefined;
+    const dtSeconds = elapsedSeconds != null ? Math.min(elapsedSeconds, MAX_PI_DT_SECONDS) : 0;
+    lastUpdateMs = now;
+
+    const proportional = config.KP * error;
+
+    integral = clamp(integral + error * dtSeconds, config.INTEGRAL_MIN, config.INTEGRAL_MAX);
+
+    const derivative =
+      previousError != null && elapsedSeconds != null && elapsedSeconds <= MAX_PI_DT_SECONDS
+        ? config.KD * (error - previousError)
+        : 0;
+    previousError = error;
+
+    return proportional + config.KI * integral + derivative;
+  };
+
+  const reset = (): void => {
+    integral = 0;
+    previousError = undefined;
+    lastUpdateMs = undefined;
+  };
+
+  return { calculate, reset };
+};
+
+const feedInPid = createPidController(PI_CONTROLLER);
+const chargePid = createPidController(CHARGE_PI);
+
+/**
+ * Resets the feed-in and charge PID controllers, e.g. when automation is (re-)enabled or disabled.
  *
  * @param adapter the adapter instance
  */
 export const resetAdapterAutomationController = (adapter: ZendureSolarflow): void => {
-  piIntegral = 0;
-  lastPiUpdateMs = undefined;
-  adapter.log.debug(`${LOG} PI controller integral reset`);
+  feedInPid.reset();
+  chargePid.reset();
+  adapter.log.debug(`${LOG} PID controllers reset`);
+};
+
+// Remembers charge/feed-in stop transitions, used to gate a new charge start (see MIN_IDLE_BEFORE_CHARGE_MS).
+const trackLimitTransition = (
+  state: IAutomationDeviceState,
+  previousLimit: number,
+  nextLimit: number,
+  now: number,
+): void => {
+  if (previousLimit < 0 && nextLimit >= 0) {
+    state.chargingStoppedMs = now;
+  }
+  if (previousLimit > 0 && nextLimit <= 0) {
+    state.dischargingStoppedMs = now;
+  }
+};
+
+/**
+ * Releases a device that has been sitting unchanged at the given keep-alive limit for MIN_STANDBY_TIME_MS
+ * back to a real 0W, directly (not via the regular delayed pipeline, since this check runs independently
+ * of the rest of the cycle). Devices at >= 99% SOC are kept at their keep-alive limit.
+ *
+ * @param device the device
+ * @param state the device's automation state
+ * @param keepAliveLimit the keep-alive limit to check for
+ * @param now current timestamp
+ */
+const releaseStaleKeepAlive = (
+  device: ZenIobDevice,
+  state: IAutomationDeviceState,
+  keepAliveLimit: number,
+  now: number,
+): void => {
+  if (state.lastChangeMs < MIN_STANDBY_TIME_MS || state.currentLimit !== keepAliveLimit || state.soc >= 99) {
+    return;
+  }
+
+  trackLimitTransition(state, state.currentLimit, 0, now);
+  state.currentLimit = 0;
+  state.newLimit = 0;
+  device.setDeviceAutomationInOutLimit(0);
+};
+
+// For an AC-only device without (further) charge budget: if it was just charging, don't drop straight to
+// 0W (see MIN_STANDBY_TIME_MS) - back off to the charge keep-alive instead.
+const chargeKeepAliveOrZero = (device: ZenIobDevice, state: IAutomationDeviceState): number =>
+  state.currentLimit < 0 ? -getMinLimit(device) : 0;
+
+type DeviceTask =
+  | "feedIn"
+  | "standby"
+  | "surplusCharging"
+  | "chargeKeepAlive"
+  | "forceCharging"
+  | "chargeBlocked"
+  | "waitingForSurplus"
+  | "full"
+  | "idle"
+  | "disabled";
+
+type StatusLanguage = "en" | "de";
+
+// Texts for '<device>.adapterAutomation.status', in the ioBroker system language (English fallback). Deliberately
+// without power values (those are in the device states already), so the text only changes when a task changes.
+const DEVICE_TASK_TEXTS: Record<
+  StatusLanguage,
+  {
+    tasks: Record<DeviceTask, string>;
+    leadSuffix: string;
+    automationDisabled: string;
+  }
+> = {
+  en: {
+    tasks: {
+      feedIn: "Feeding in",
+      standby: "Standby",
+      surplusCharging: "Charging from surplus",
+      chargeKeepAlive: "Holding the charge keep-alive",
+      forceCharging: "Force charging",
+      chargeBlocked: "Waiting before charging may start",
+      waitingForSurplus: "Waiting for surplus charging",
+      full: "Fully charged, idle",
+      idle: "Idle",
+      disabled: "Automation disabled for this device",
+    },
+    leadSuffix: " (lead device)",
+    automationDisabled: "Automation disabled globally",
+  },
+  de: {
+    tasks: {
+      feedIn: "Speist ein",
+      standby: "Standby",
+      surplusCharging: "Lädt aus Überschuss",
+      chargeKeepAlive: "Hält den Lade-Keep-Alive",
+      forceCharging: "Lädt erzwungen",
+      chargeBlocked: "Wartet, bevor das Laden beginnen darf",
+      waitingForSurplus: "Wartet auf Überschussladung",
+      full: "Voll geladen, inaktiv",
+      idle: "Inaktiv",
+      disabled: "Automatisierung für dieses Gerät deaktiviert",
+    },
+    leadSuffix: " (führendes Gerät)",
+    automationDisabled: "Automatisierung global deaktiviert",
+  },
+};
+
+let statusLanguage: StatusLanguage | undefined;
+// Last written values, so the states are only written on an actual change (the cycle runs very often).
+let lastDeviceOrderText: string | undefined;
+const lastDeviceStatusTexts = new Map<string, string>();
+
+const getStatusLanguage = async (adapter: ZendureSolarflow): Promise<StatusLanguage> => {
+  if (!statusLanguage) {
+    const systemConfig = await adapter.getForeignObjectAsync("system.config");
+    statusLanguage = systemConfig?.common?.language === "de" ? "de" : "en";
+  }
+  return statusLanguage;
+};
+
+const publishDeviceOrder = async (adapter: ZendureSolarflow, devices: ZenIobDevice[]): Promise<void> => {
+  const text = devices.map((device) => `${deviceLabel(device)} (${device.deviceKey})`).join(" -> ");
+  if (text !== lastDeviceOrderText) {
+    lastDeviceOrderText = text;
+    await adapter.setState("adapterAutomation.deviceOrder", text, true);
+  }
+};
+
+const publishDeviceStatusText = async (
+  adapter: ZendureSolarflow,
+  device: ZenIobDevice,
+  text: string,
+): Promise<void> => {
+  const id = deviceId(device);
+  if (text !== lastDeviceStatusTexts.get(id)) {
+    lastDeviceStatusTexts.set(id, text);
+    await adapter.setState(`${id}.adapterAutomation.status`, text, true);
+  }
+};
+
+const publishDeviceTask = async (
+  adapter: ZendureSolarflow,
+  device: ZenIobDevice,
+  task: DeviceTask,
+  isLead: boolean,
+): Promise<void> => {
+  const texts = DEVICE_TASK_TEXTS[await getStatusLanguage(adapter)];
+  await publishDeviceStatusText(adapter, device, `${texts.tasks[task]}${isLead ? texts.leadSuffix : ""}`);
 };
 
 // Devices that can participate in the zero feed-in automation: battery devices with output control.
@@ -241,6 +501,7 @@ export const sortAutomationDevices = async (adapter: ZendureSolarflow): Promise<
   }
 
   deviceOrder = sorted.map((device) => deviceId(device));
+  await publishDeviceOrder(adapter, sorted);
 
   adapter.log.debug(
     `${LOG} New device order: ${sorted.map((device) => `${deviceLabel(device)} ${device.deviceKey} (${getScore(device).toFixed(2)})`).join(" -> ")}`,
@@ -343,6 +604,22 @@ const setDeviceShares = (devices: ZenIobDevice[]): void => {
 };
 
 /**
+ * Distributes a charge budget across the given devices proportional to (100 - soc)^EXPONENT - the inverse of
+ * setDeviceShares: the device with the LOWEST SOC gets the biggest share, so it catches up faster.
+ *
+ * @param devices devices sharing the charge budget
+ * @returns share (0..1) per device id
+ */
+const getChargeShares = (devices: ZenIobDevice[]): Map<string, number> => {
+  const weight = (device: ZenIobDevice): number => Math.pow(100 - getDeviceState(device).soc, EXPONENT);
+  const weightedSum = devices.reduce((sum, device) => sum + weight(device), 0);
+
+  return new Map(
+    devices.map((device) => [deviceId(device), weightedSum > 0 ? roundShare(weight(device) / weightedSum) : 0]),
+  );
+};
+
+/**
  * Runs one cycle of the zero grid feed-in automation: given the current grid meter power (W, positive =
  * importing from the grid, negative = exporting to it), (re-)distributes output across all
  * automation-enabled devices so the grid meter tracks 'adapterAutomation.setPoint'.
@@ -355,8 +632,10 @@ const setDeviceShares = (devices: ZenIobDevice[]): void => {
  *    if 'adapterAutomation.ignoreSuggestedInverseMaxPower' is set) replaces the script's externally
  *    maintained per-inverter MaxLimit.
  *  - '<device>.minSoc' replaces the script's single, global MIN_SOC constant.
- * Forecast-based setpoint adjustments and rolling averages (solar/grid/home usage) from the original
- * script have no equivalent here (yet) and were dropped; the current instantaneous values are used instead.
+ * Forecast-based setpoint adjustments and the externally maintained rolling averages (solar/grid) from the
+ * original script have no equivalent here (yet) and were dropped; the current instantaneous solar input is
+ * used instead, and the grid meter value is smoothed by internal moving averages (see SHORT_TERM_GRID_ALPHA
+ * and CHARGE_START_GRID_ALPHA).
  *
  * @param adapter the adapter instance
  * @param currentGridMeterValue current grid meter power in W (positive = import, negative = export)
@@ -376,20 +655,26 @@ export const runZeroFeedInAutomation = async (
   try {
     const automationEnabled = (await adapter.getStateAsync("adapterAutomation.automationEnabled"))?.val === true;
     if (!automationEnabled) {
+      const text = DEVICE_TASK_TEXTS[await getStatusLanguage(adapter)].automationDisabled;
+      for (const device of getAutomationDevices(adapter)) {
+        await publishDeviceStatusText(adapter, device, text);
+      }
       return;
     }
 
     lastGridMeterValue = currentGridMeterValue;
 
     const devices = getOrderedAutomationDevices(adapter);
+    // Devices discovered after the last sort (e.g. via mDNS) are appended here, so keep the order state in sync.
+    await publishDeviceOrder(adapter, devices);
     if (devices.length === 0) {
       return;
     }
 
     const now = Date.now();
 
-    // Refresh enabled status, solar input and current limit for every device; send stale 10W-standby,
-    // non-lead, enabled devices to 0.
+    // Refresh enabled status, solar input and current limit for every device; release stale keep-alive
+    // limits of enabled devices to 0 (the lead device is never sent from feed-in standby to 0).
     for (const [index, device] of devices.entries()) {
       const id = deviceId(device);
       const state = getDeviceState(device);
@@ -400,21 +685,26 @@ export const runZeroFeedInAutomation = async (
       const solarInputPowerState = await adapter.getStateAsync(`${id}.solarInputPower`);
       state.solarInputPower = solarInputPowerState?.val != null ? Number(solarInputPowerState.val) : 0;
 
+      // Confirmation timer for recruiting this device as an additional feed-in device (see
+      // EXTRA_FEED_IN_CONFIRM_MS) - must hold continuously, so it's reset as soon as the condition fails.
+      if (state.solarInputPower > 100 && state.soc > 35) {
+        state.extraFeedInCandidateSinceMs ??= now;
+      } else {
+        state.extraFeedInCandidateSinceMs = undefined;
+      }
+
       const currentLimitState = await adapter.getStateAsync(`${id}.control.setDeviceAutomationInOutLimit`);
       state.lastChangeMs = currentLimitState?.lc ? now - currentLimitState.lc : Number.MAX_SAFE_INTEGER;
 
-      if (
-        state.enabled &&
-        state.lastChangeMs >= MIN_STANDBY_TIME_MS &&
-        state.currentLimit === 10 &&
-        state.soc < 99 &&
-        index !== 0
-      ) {
-        state.currentLimit = 0;
-        state.newLimit = 0;
-        device.setDeviceAutomationInOutLimit(0);
-      } else {
-        state.currentLimit = currentLimitState?.val != null ? Number(currentLimitState.val) : 0;
+      const freshLimit = currentLimitState?.val != null ? Number(currentLimitState.val) : 0;
+      trackLimitTransition(state, state.currentLimit, freshLimit, now);
+      state.currentLimit = freshLimit;
+
+      if (state.enabled) {
+        if (index !== 0) {
+          releaseStaleKeepAlive(device, state, getMinLimit(device), now);
+        }
+        releaseStaleKeepAlive(device, state, -getMinLimit(device), now);
       }
     }
 
@@ -440,6 +730,13 @@ export const runZeroFeedInAutomation = async (
     }
 
     const currentFeedIn = devices.reduce((sum, device) => sum + Math.max(getDeviceState(device).currentLimit, 0), 0);
+    // Power currently being charged from AC (all devices) - subtracted from the home usage below, so the
+    // feed-in controller doesn't mistake the devices' own charging for home consumption and feed in even
+    // more to cover it (which would then let the charge power rise further, without any real limit).
+    const currentTotalChargePowerAll = devices.reduce(
+      (sum, device) => sum + Math.max(0, -getDeviceState(device).currentLimit),
+      0,
+    );
     const maxFeedIn = devices.reduce((sum, device) => sum + getDeviceState(device).maxLimit, 0);
     const solarInput = devices.reduce((sum, device) => sum + getDeviceState(device).solarInputPower, 0);
     const fleetMinSoc = Math.min(...devices.map((device) => getDeviceState(device).soc));
@@ -451,8 +748,18 @@ export const runZeroFeedInAutomation = async (
 
     const setPoint = fleetMinSoc >= NEARLY_FULL_SOC && solarInput > 50 ? setPointNearlyFull : baseSetPoint;
 
-    // Comfortable grid export beyond setPoint: clear surplus power that AC-only devices could charge with.
-    const hasGridSurplus = currentGridMeterValue <= setPoint - SURPLUS_TRIGGER_BELOW_SETPOINT_W;
+    shortTermGridAvgW =
+      shortTermGridAvgW == null
+        ? currentGridMeterValue
+        : shortTermGridAvgW + SHORT_TERM_GRID_ALPHA * (currentGridMeterValue - shortTermGridAvgW);
+    chargeStartGridAvgW =
+      chargeStartGridAvgW == null
+        ? currentGridMeterValue
+        : chargeStartGridAvgW + CHARGE_START_GRID_ALPHA * (currentGridMeterValue - chargeStartGridAvgW);
+
+    // Sustained grid export beyond setPoint: clear surplus power that AC-only devices could charge with.
+    // Based on the slow average, so a new charge only starts on a confirmed surplus, not on a brief dip.
+    const hasGridSurplus = chargeStartGridAvgW <= setPoint - SURPLUS_TRIGGER_BELOW_SETPOINT_W;
     const surplusSetPoint = setPoint - SURPLUS_SETPOINT_BUFFER_W;
 
     // Bei negativem Setpoint: obere Dead-Band-Grenze auf 0W begrenzen, damit der Regler nicht dauerhaft
@@ -475,12 +782,37 @@ export const runZeroFeedInAutomation = async (
       inDeadBand = false;
     }
 
-    const currentHomeUsage = currentGridMeterValue + currentFeedIn;
+    // Based on the short-term grid average rather than the raw meter value, so strongly fluctuating loads
+    // don't produce a new, strongly fluctuating limit on every trigger while the actual trend barely changes.
+    const currentHomeUsage = shortTermGridAvgW + currentFeedIn - currentTotalChargePowerAll;
 
-    const setPointDiff = currentGridMeterValue - deadBandTarget;
-    const piCorrection = calculatePIOutput(setPointDiff, now);
+    const setPointDiff = shortTermGridAvgW - deadBandTarget;
+    const piCorrection = feedInPid.calculate(setPointDiff, now);
 
     let piAdjustedHomeUsage = currentHomeUsage + piCorrection;
+
+    // An AC-only device that isn't feeding in is released from feed-in duty (even as lead device) while
+    // there's a confirmed surplus, or while it's actively charging (beyond its charge keep-alive) - otherwise
+    // e.g. a single AC-only device would always be the lead feed-in device and never charge from surplus.
+    // Once its charge has wound down to the keep-alive and no surplus is left, it rejoins feed-in selection.
+    // If it's the only enabled device, nothing else can cover the home while it charges - so it rejoins
+    // immediately once there's real home demand (excluding its own charge power), taking precedence over the
+    // lagging slow surplus average.
+    const isSoleEnabledDevice = devices.filter((device) => getDeviceState(device).enabled).length === 1;
+    const hasHomeDemand = currentHomeUsage > setPoint + SOLE_DEVICE_FEED_IN_RETURN_W;
+
+    const isReleasedForSurplusCharging = (device: ZenIobDevice): boolean => {
+      const state = getDeviceState(device);
+      return (
+        state.enabled &&
+        !state.forceAcCharging &&
+        device.isAcOnly &&
+        state.soc < 100 &&
+        state.currentLimit <= 0 &&
+        !(isSoleEnabledDevice && hasHomeDemand) &&
+        (hasGridSurplus || state.currentLimit < -getMinLimit(device))
+      );
+    };
 
     const inputDevices: ZenIobDevice[] = [];
     const otherDevices: ZenIobDevice[] = [];
@@ -489,20 +821,26 @@ export const runZeroFeedInAutomation = async (
     for (const [index, device] of devices.entries()) {
       const state = getDeviceState(device);
 
+      if (isReleasedForSurplusCharging(device)) {
+        otherDevices.push(device);
+        continue;
+      }
+
       const utilization = currentAllocatedMaxPower > 0 ? piAdjustedHomeUsage / currentAllocatedMaxPower : 1;
 
       const isLead = index === 0;
       const isFullAndCapable = state.soc >= 95 && !device.isAcOnly;
-      const hasSpareSolar = state.solarInputPower > 100 && state.soc > 35 && currentHomeUsage > 400;
+      const hasSpareSolar =
+        state.extraFeedInCandidateSinceMs != null &&
+        now - state.extraFeedInCandidateSinceMs >= EXTRA_FEED_IN_CONFIRM_MS;
 
       if (state.enabled && (isLead || isFullAndCapable || hasSpareSolar)) {
         inputDevices.push(device);
         currentAllocatedMaxPower += state.maxLimit;
       } else if (
         state.enabled &&
-        (currentHomeUsage > 4800 ||
-          piAdjustedHomeUsage > maxFeedIn ||
-          (utilization >= UTILIZATION_THRESHOLD && !device.isAcOnly))
+        // AC-only devices may step in too, as a last resort once the active feed-in devices are well utilized.
+        (piAdjustedHomeUsage > maxFeedIn || utilization >= UTILIZATION_THRESHOLD)
       ) {
         inputDevices.push(device);
         currentAllocatedMaxPower += state.maxLimit;
@@ -519,7 +857,12 @@ export const runZeroFeedInAutomation = async (
     } else if (inputDevices.length < stabilizedInverterCount && now < stabilizedUntilMs) {
       const needed = stabilizedInverterCount - inputDevices.length;
       const candidates = otherDevices
-        .filter((device) => getDeviceState(device).enabled && !getDeviceState(device).forceAcCharging)
+        .filter(
+          (device) =>
+            getDeviceState(device).enabled &&
+            !getDeviceState(device).forceAcCharging &&
+            !isReleasedForSurplusCharging(device),
+        )
         .slice(0, needed);
 
       candidates.forEach((device) => {
@@ -553,8 +896,85 @@ export const runZeroFeedInAutomation = async (
         ? nonAcOnly.reduce((sum, device) => sum + getDeviceState(device).soc, 0) / nonAcOnly.length
         : 0;
 
-    // Devices not currently needed for the main feed-in target: idle at 0W (or 10W standby), or, for
-    // AC-only devices once the other batteries are reasonably charged, opportunistically charge from surplus solar.
+    // AC-only devices that may opportunistically charge from surplus this cycle (forced chargers are
+    // handled separately below).
+    const isSurplusChargeCandidate = (device: ZenIobDevice): boolean => {
+      const state = getDeviceState(device);
+      return state.enabled && !state.forceAcCharging && device.isAcOnly;
+    };
+    const chargeEligibleDevices = otherDevices.filter(
+      (device) => isSurplusChargeCandidate(device) && getDeviceState(device).soc < 100,
+    );
+
+    // Charge power the surplus charging devices are currently drawing - base for the PID adjustment below.
+    const currentTotalChargePower = otherDevices
+      .filter(isSurplusChargeCandidate)
+      .reduce((sum, device) => sum + Math.max(0, -getDeviceState(device).currentLimit), 0);
+
+    const chargeError = surplusSetPoint - shortTermGridAvgW;
+
+    // Total charge budget for the whole GROUP (not per device): PID-controlled based on the measured,
+    // smoothed surplus - or, if no surplus is confirmed yet and nothing is charging, a rough estimate from
+    // the solar input. hasGridSurplus deliberately uses a stricter threshold than surplusSetPoint, so a new
+    // charge only starts on a clear surplus, while an ongoing charge is smoothly regulated towards
+    // surplusSetPoint (winding down to 0 by itself over a few cycles) instead of jumping hard to 0.
+    let chargeBudgetTotal = 0;
+    if (hasGridSurplus || currentTotalChargePower > 0) {
+      chargeBudgetTotal = Math.max(0, currentTotalChargePower + chargePid.calculate(chargeError, now));
+    } else {
+      // No PID-controlled charging active - don't let the integral build up over the idle time.
+      chargePid.reset();
+
+      if (avgSocNonAcOnly > 70 && solarInput > 800) {
+        // No confirmed grid surplus yet, but the other batteries are reasonably charged (avg SOC > 70%)
+        // and there's meaningful solar production (>800W) - estimate a safe charge power as 20% of it.
+        chargeBudgetTotal = Math.round((solarInput * 0.2) / 100) * 100;
+      }
+    }
+
+    // The LAST device in the device order is picked for charging first - stable, since the order only
+    // changes on re-sort.
+    const orderedChargeEligible = [...chargeEligibleDevices].sort((a, b) => devices.indexOf(b) - devices.indexOf(a));
+
+    const rawChargeDeviceCount =
+      chargeBudgetTotal > 0
+        ? Math.min(orderedChargeEligible.length, Math.max(1, Math.floor(chargeBudgetTotal / CHARGE_MIN_PER_DEVICE_W)))
+        : 0;
+
+    // Hold the number of charging devices for a while once it grows (like stabilizedInverterCount). A budget
+    // of 0 (no charging wanted anymore) always applies immediately, bypassing the hold.
+    let activeChargeDeviceCount: number;
+    if (rawChargeDeviceCount === 0) {
+      stabilizedChargeDeviceCount = 0;
+      activeChargeDeviceCount = 0;
+    } else if (rawChargeDeviceCount > stabilizedChargeDeviceCount) {
+      stabilizedChargeDeviceCount = rawChargeDeviceCount;
+      stabilizedChargeUntilMs = now + INVERTER_MIN_HOLD_MS;
+      activeChargeDeviceCount = rawChargeDeviceCount;
+    } else if (rawChargeDeviceCount < stabilizedChargeDeviceCount && now < stabilizedChargeUntilMs) {
+      activeChargeDeviceCount = Math.min(orderedChargeEligible.length, stabilizedChargeDeviceCount);
+    } else {
+      stabilizedChargeDeviceCount = rawChargeDeviceCount;
+      activeChargeDeviceCount = rawChargeDeviceCount;
+    }
+
+    const activeChargeDevices = orderedChargeEligible.slice(0, activeChargeDeviceCount);
+    const chargeShares = getChargeShares(activeChargeDevices);
+
+    if (chargeEligibleDevices.length > 0) {
+      adapter.log.debug(
+        `${LOG} AC charge: chargeStartGridAvgW=${chargeStartGridAvgW.toFixed(1)} shortTermGridAvgW=${shortTermGridAvgW.toFixed(1)} ` +
+          `hasGridSurplus=${hasGridSurplus} currentTotalChargePower=${currentTotalChargePower} chargeError=${chargeError.toFixed(1)} ` +
+          `chargeBudgetTotal=${chargeBudgetTotal.toFixed(1)} activeChargeDevices=${
+            activeChargeDevices
+              .map((device) => `${deviceLabel(device)}:${chargeShares.get(deviceId(device))}`)
+              .join(",") || "-"
+          }`,
+      );
+    }
+
+    // Devices not currently needed for the main feed-in target: idle at 0W (or feed-in standby), or, for
+    // AC-only devices, charge their share of the surplus charge budget.
     // Devices with automation disabled are left alone entirely (no command sent at all).
     for (const device of otherDevices) {
       const state = getDeviceState(device);
@@ -567,23 +987,21 @@ export const runZeroFeedInAutomation = async (
         // Manual override: charge at the device's full chargeMaxLimit, ignoring solar surplus/SOC heuristics.
         state.newLimit = -state.chargeMaxLimit;
       } else if (device.isAcOnly && state.soc < 100) {
-        if (hasGridSurplus) {
-          // Charge proportional to the actual measured surplus (relative to the buffered surplusSetPoint),
-          // which is more accurate than the solarInput-based estimate below.
-          const surplusPower = Math.max(0, surplusSetPoint - currentGridMeterValue);
-          state.newLimit = -Math.min(surplusPower, state.chargeMaxLimit);
-        } else if (avgSocNonAcOnly > 70 && solarInput > 800) {
-          // No confirmed grid surplus yet, but the other batteries are reasonably charged (avg SOC > 70%)
-          // and there's meaningful solar production (>800W) - estimate a safe charge power as 20% of the
-          // current total solar input, capped at this device's chargeMaxLimit.
-          let maxChargePower = Math.round((solarInput * 0.2) / 100) * 100;
-          maxChargePower = Math.min(maxChargePower, state.chargeMaxLimit);
-          state.newLimit = -maxChargePower;
+        const share = chargeShares.get(deviceId(device));
+        let perDeviceBudget = share != null ? Math.round(Math.min(chargeBudgetTotal * share, state.chargeMaxLimit)) : 0;
+
+        // Also below the device's own minimum limit, which it can't be set to anyway.
+        if (perDeviceBudget <= CHARGE_DEAD_ZONE_MAX_W || perDeviceBudget < getMinLimit(device)) {
+          perDeviceBudget = 0;
         }
-      } else if (state.currentLimit >= 10) {
-        // Keep the device at a 10W standby rather than a full stop - it reacts faster once needed again.
-        state.newLimit = 10;
-        piAdjustedHomeUsage -= 10;
+
+        // No (further) budget for this device: end charging explicitly (via the charge keep-alive)
+        // rather than leaving a possibly still running old limit in place.
+        state.newLimit = perDeviceBudget > 0 ? -perDeviceBudget : chargeKeepAliveOrZero(device, state);
+      } else if (state.currentLimit >= getMinLimit(device)) {
+        // Keep the device at its feed-in standby rather than a full stop - it reacts faster once needed again.
+        state.newLimit = getMinLimit(device);
+        piAdjustedHomeUsage -= getMinLimit(device);
       } else {
         state.newLimit = 0;
       }
@@ -610,8 +1028,11 @@ export const runZeroFeedInAutomation = async (
         state.newLimit = Math.max(100, state.newLimit);
       }
 
-      const baseLimit = device.isAcOnly ? 0 : state.soc >= 99 && fleetMinSoc < 99 ? 30 : 10;
-      state.newLimit = state.newLimit < 10 ? baseLimit : state.newLimit;
+      // Anything below the device's minimum limit can't be set: floor it to that minimum (feed-in standby),
+      // or to 0W for AC-only devices (or their charge keep-alive, if they just rejoined feed-in from charging).
+      const minLimit = getMinLimit(device);
+      const baseLimit = device.isAcOnly ? chargeKeepAliveOrZero(device, state) : minLimit;
+      state.newLimit = state.newLimit < minLimit ? baseLimit : state.newLimit;
 
       if (state.newLimit > state.maxLimit) {
         unmetDemand += state.newLimit - state.maxLimit;
@@ -643,7 +1064,7 @@ export const runZeroFeedInAutomation = async (
           reducibleDevices.forEach((device) => {
             const state = getDeviceState(device);
             const reduction = Math.round(totalExtraPower * (state.share / totalReducibleShare));
-            const minNewLimit = state.soc === 99 && solarInput > 40 ? 100 : 10;
+            const minNewLimit = state.soc === 99 && solarInput > 40 ? 100 : getMinLimit(device);
             state.newLimit = Math.max(minNewLimit, state.newLimit - reduction);
           });
         }
@@ -665,7 +1086,7 @@ export const runZeroFeedInAutomation = async (
         });
     }
 
-    // If a device is (or is about to start) ramping up from standby, keep other 10W-standby limits in sync
+    // If a device is (or is about to start) ramping up from standby, keep other feed-in standby limits in sync
     // with the same delay so they don't apply before the ramping device has settled.
     const globalWakingDelayMs = devices.reduce((max, device) => {
       const state = getDeviceState(device);
@@ -678,6 +1099,38 @@ export const runZeroFeedInAutomation = async (
       return max;
     }, 0);
 
+    // Human-readable task per device for '<device>.adapterAutomation.status'. The lead device is only flagged
+    // as such while it's actually part of the feed-in group (not while released for surplus charging).
+    const leadDevice = inputDevices.includes(devices[0]) ? devices[0] : undefined;
+
+    const getDeviceTask = (
+      device: ZenIobDevice,
+      state: IAutomationDeviceState,
+      isChargeBlocked: boolean,
+    ): DeviceTask => {
+      const minLimit = getMinLimit(device);
+
+      if (isChargeBlocked) {
+        return "chargeBlocked";
+      }
+      if (state.newLimit > 0) {
+        return state.newLimit === minLimit ? "standby" : "feedIn";
+      }
+      if (state.newLimit < 0) {
+        if (state.forceAcCharging) {
+          return "forceCharging";
+        }
+        return state.newLimit === -minLimit ? "chargeKeepAlive" : "surplusCharging";
+      }
+      if (state.soc >= 100) {
+        return "full";
+      }
+      if (device.isAcOnly && !state.forceAcCharging && otherDevices.includes(device)) {
+        return "waitingForSurplus";
+      }
+      return "idle";
+    };
+
     for (const device of devices) {
       const id = deviceId(device);
       const state = getDeviceState(device);
@@ -685,16 +1138,60 @@ export const runZeroFeedInAutomation = async (
       if (!state.enabled) {
         // Automation is disabled for this device - leave it alone entirely (no command sent), rather
         // than forcing it to a specific limit.
+        await publishDeviceTask(adapter, device, "disabled", false);
         continue;
       }
 
+      let isChargeBlocked = false;
+
       state.newLimit = Math.round(clamp(state.newLimit, -state.chargeMaxLimit, state.maxLimit));
 
-      if (state.newLimit < 0 && !(state.currentLimit === 0 && state.lastChangeMs >= MIN_IDLE_BEFORE_CHARGE_MS)) {
-        // Charging was requested, but the device hasn't been idle at 0W for long enough yet (or is
-        // currently discharging) - hold it at 0W instead of flipping straight into charging.
-        state.newLimit = 0;
+      // Feed-in rate limit (see MAX_FEED_IN_STEP_W) - only for ongoing adjustment of a device that's already
+      // feeding in (above its standby), and only when reversing direction; start/stop/standby are left untouched.
+      const minLimit = getMinLimit(device);
+      if (state.newLimit > 0 && state.currentLimit > minLimit && state.newLimit !== minLimit) {
+        const previousLimit = state.currentLimit;
+        const proposedSign = Math.sign(state.newLimit - previousLimit);
+        const isReversal =
+          state.lastFeedInDeltaSign != null &&
+          state.lastFeedInDeltaSign !== 0 &&
+          proposedSign !== 0 &&
+          proposedSign !== state.lastFeedInDeltaSign;
+
+        if (isReversal) {
+          state.newLimit = clamp(
+            state.newLimit,
+            previousLimit - MAX_FEED_IN_STEP_W,
+            previousLimit + MAX_FEED_IN_STEP_W,
+          );
+        }
+
+        state.lastFeedInDeltaSign = Math.sign(state.newLimit - previousLimit);
       }
+
+      // Gate only a NEW charge start (device isn't charging yet); an ongoing charge may adjust its power
+      // without waiting again. Covers both charging -> charging and feeding in -> charging, so a device
+      // can't jump from feeding in via 0 into charging within seconds (e.g. after a sudden load drop).
+      if (state.newLimit < 0 && state.currentLimit >= 0) {
+        const msSinceChargingStopped =
+          state.chargingStoppedMs != null ? now - state.chargingStoppedMs : Number.MAX_SAFE_INTEGER;
+        const msSinceDischargingStopped =
+          state.dischargingStoppedMs != null ? now - state.dischargingStoppedMs : Number.MAX_SAFE_INTEGER;
+        const msSinceIdle = Math.min(msSinceChargingStopped, msSinceDischargingStopped);
+
+        if (state.currentLimit > 0 || msSinceIdle < MIN_IDLE_BEFORE_CHARGE_MS) {
+          // Still feeding in, or only just stopped charging/feeding in - hold at 0W instead of flipping
+          // straight into charging.
+          adapter.log.debug(
+            `${LOG} '${deviceLabel(device)}' charge requested (${state.newLimit}W) but blocked: currentLimit=${state.currentLimit} ` +
+              `msSinceChargingStopped=${msSinceChargingStopped} msSinceDischargingStopped=${msSinceDischargingStopped}`,
+          );
+          state.newLimit = 0;
+          isChargeBlocked = true;
+        }
+      }
+
+      await publishDeviceTask(adapter, device, getDeviceTask(device, state, isChargeBlocked), device === leadDevice);
 
       if (state.newLimit === state.currentLimit) {
         continue;
@@ -709,7 +1206,7 @@ export const runZeroFeedInAutomation = async (
         adapter.log.debug(`${LOG} autoModel change detected for '${device.deviceKey}', waiting ${settleDelayMs}ms`);
       }
 
-      const standbyDelayMs = state.newLimit === 10 ? Math.max(settleDelayMs, globalWakingDelayMs) : settleDelayMs;
+      const standbyDelayMs = state.newLimit === minLimit ? Math.max(settleDelayMs, globalWakingDelayMs) : settleDelayMs;
 
       if (state.pendingTimeout) {
         adapter.clearTimeout(state.pendingTimeout);
@@ -720,6 +1217,7 @@ export const runZeroFeedInAutomation = async (
         state.pendingTimeout = undefined;
 
         const wasZero = state.currentLimit === 0;
+        trackLimitTransition(state, state.currentLimit, newLimit, Date.now());
         state.currentLimit = newLimit;
         device.setDeviceAutomationInOutLimit(newLimit);
 

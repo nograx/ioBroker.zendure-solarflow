@@ -372,6 +372,22 @@ export class ZenIobDevice {
           native: {},
         });
 
+        await this.adapter?.extendObject(`${productKey}.${deviceKey}.adapterAutomation.status`, {
+          type: "state",
+          common: {
+            name: {
+              de: "Aktuelle Aufgabe des Geräts",
+              en: "Current task of the device",
+            },
+            type: "string",
+            desc: "status",
+            role: "text",
+            read: true,
+            write: false,
+          },
+          native: {},
+        });
+
         const automationEnabledStateId = `${productKey}.${deviceKey}.adapterAutomation.automationEnabled`;
         await this.adapter?.extendObject(automationEnabledStateId, {
           type: "state",

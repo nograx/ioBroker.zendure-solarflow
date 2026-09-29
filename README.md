@@ -101,15 +101,17 @@ Global (`zendure-solarflow.X.adapterAutomation.*`):
 | `setPointNearlyFull`             | `-100`  | Target grid power in W, used instead of `setPoint` when all batteries are at least 90% and there is solar input. Negative values allow feeding into the grid.   |
 | `acOnlyPenalty`                  | `50`    | Score lead in % that AC-only devices need over the other devices to become lead device, once the other devices average above 35% SOC. `0` disables the penalty. |
 | `ignoreSuggestedInverseMaxPower` | `false` | If `true`, the device's `inverseMaxPower` is used as maximum output instead of the suggested value (see below).                                                 |
+| `deviceOrder`                    |         | Read-only. Current device order, the first device is the lead device.                                                                                           |
 
 Per device (`<productKey>.<deviceKey>.adapterAutomation.*`):
 
-| State                          | Description                                                                                                                                  |
-| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `automationEnabled`            | Include this device in the automation (default `false`).                                                                                     |
-| `forceAcCharging`              | Charge this device from the grid at its full `chargeMaxLimit` until it is full, regardless of the current demand (default `false`).          |
-| `suggestedInverseMaxPower`     | Read-only. Maximum output power the automation uses for this device, calculated from SOC and the lowest cell voltage to protect the battery. |
-| `suggestedInverseMaxPowerInfo` | Read-only. Reason for the current suggested value.                                                                                           |
+| State                          | Description                                                                                                                                                              |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `automationEnabled`            | Include this device in the automation (default `false`).                                                                                                                 |
+| `forceAcCharging`              | Charge this device from the grid at its full `chargeMaxLimit` until it is full, regardless of the current demand (default `false`).                                      |
+| `suggestedInverseMaxPower`     | Read-only. Maximum output power the automation uses for this device, calculated from SOC and the lowest cell voltage to protect the battery.                             |
+| `suggestedInverseMaxPowerInfo` | Read-only. Reason for the current suggested value.                                                                                                                       |
+| `status`                       | Read-only. What the automation currently wants this device to do (e.g. feeding in, standby, charging from surplus), in the ioBroker system language (German or English). |
 
 ### How it works
 
