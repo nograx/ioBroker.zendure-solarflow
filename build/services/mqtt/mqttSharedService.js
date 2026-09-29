@@ -50,11 +50,13 @@ const initAdapter = (_adapter) => {
   adapter.log.debug("[initAdapter] Init adapter in mqttSharedService!");
   return true;
 };
+const isKnownDevice = (deviceKey) => !!(adapter == null ? void 0 : adapter.zenIobDeviceList.some((x) => x.deviceKey == deviceKey));
 const onMessage = async (productKey, deviceKey, obj) => {
   if (adapter) {
     const _device = adapter == null ? void 0 : adapter.zenIobDeviceList.find((x) => x.deviceKey == deviceKey);
     if (!_device) {
-      adapter.log.error(`[onMessage] DeviceKey '${deviceKey} not found in device list!'}`);
+      adapter.log.debug(`[onMessage] DeviceKey '${deviceKey}' not found in device list!`);
+      return;
     }
     let isSolarFlow = false;
     if ((_device == null ? void 0 : _device.productKey) != "8bM93H") {
@@ -85,13 +87,18 @@ const onMessageLocal = (topic, message) => {
   const topicSplitted = topic.replace("/server/app", "").split("/");
   const productKey = topicSplitted[1];
   const deviceKey = topicSplitted[2];
+  if (!isKnownDevice(deviceKey)) {
+    adapter == null ? void 0 : adapter.log.debug(`[onMessageLocal] Ignoring message on topic '${topic}', device not in device list!`);
+    return;
+  }
   let obj = {};
   try {
     obj = JSON.parse(message.toString());
   } catch {
     const txt = message.toString();
-    adapter == null ? void 0 : adapter.log.error(`[onMessageLocal] JSON Parse error!`);
+    adapter == null ? void 0 : adapter.log.error(`[onMessageLocal] JSON Parse error on topic '${topic}'!`);
     adapter == null ? void 0 : adapter.log.debug(`[onMessageLocal] JSON Parse error: ${txt}!`);
+    return;
   }
   if ((adapter == null ? void 0 : adapter.log.level) == "debug") {
     adapter == null ? void 0 : adapter.log.debug(`[onMessageLocal] MQTT message on topic '${topic}': ${message.toString()}`);
@@ -113,6 +120,10 @@ const onMessageCloud = (topic, message) => {
   const topicSplitted = topic.replace("/server/app", "").split("/");
   const productKey = topicSplitted[1];
   const deviceKey = topicSplitted[2];
+  if (!isKnownDevice(deviceKey)) {
+    adapter == null ? void 0 : adapter.log.debug(`[onMessageCloud] Ignoring message on topic '${topic}', device not in device list!`);
+    return;
+  }
   let obj = {};
   try {
     obj = JSON.parse(message.toString());
@@ -121,8 +132,9 @@ const onMessageCloud = (topic, message) => {
     }
   } catch {
     const txt = message.toString();
-    adapter == null ? void 0 : adapter.log.error(`[onMessageCloud] JSON Parse error!`);
+    adapter == null ? void 0 : adapter.log.error(`[onMessageCloud] JSON Parse error on topic '${topic}'!`);
     adapter == null ? void 0 : adapter.log.debug(`[onMessageCloud] JSON Parse error: ${txt}!`);
+    return;
   }
   if ((adapter == null ? void 0 : adapter.log.level) == "debug") {
     adapter == null ? void 0 : adapter.log.debug(`[onMessageCloud] MQTT message on topic '${topic}': ${message.toString()}`);

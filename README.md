@@ -94,13 +94,13 @@ The adapter includes a built-in zero feed-in controller. It reads your grid mete
 
 Global (`zendure-solarflow.X.adapterAutomation.*`):
 
-| State                            | Default | Description                                                                                                                                                   |
-| -------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `automationEnabled`              | `false` | Global on/off switch for the automation.                                                                                                                      |
-| `setPoint`                       | `10`    | Target grid power in W. A small positive value (slight import) avoids feeding into the grid.                                                                  |
-| `setPointNearlyFull`             | `-100`  | Target grid power in W, used instead of `setPoint` when all batteries are at least 90% and there is solar input. Negative values allow feeding into the grid. |
+| State                            | Default | Description                                                                                                                                                     |
+| -------------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `automationEnabled`              | `false` | Global on/off switch for the automation.                                                                                                                        |
+| `setPoint`                       | `10`    | Target grid power in W. A small positive value (slight import) avoids feeding into the grid.                                                                    |
+| `setPointNearlyFull`             | `-100`  | Target grid power in W, used instead of `setPoint` when all batteries are at least 90% and there is solar input. Negative values allow feeding into the grid.   |
 | `acOnlyPenalty`                  | `50`    | Score lead in % that AC-only devices need over the other devices to become lead device, once the other devices average above 35% SOC. `0` disables the penalty. |
-| `ignoreSuggestedInverseMaxPower` | `false` | If `true`, the device's `inverseMaxPower` is used as maximum output instead of the suggested value (see below).                                               |
+| `ignoreSuggestedInverseMaxPower` | `false` | If `true`, the device's `inverseMaxPower` is used as maximum output instead of the suggested value (see below).                                                 |
 
 Per device (`<productKey>.<deviceKey>.adapterAutomation.*`):
 
@@ -130,10 +130,21 @@ This adapter uses Sentry libraries to automatically report exceptions and code e
 
 For more details and for information on how to disable error reporting, see the [Sentry-Plugin Documentation](https://github.com/ioBroker/plugin-sentry#plugin-sentry). Sentry reporting is used starting with js-controller 3.0.
 
+<!--
+    Placeholder for the next version (at the beginning of the line):
+    ### **WORK IN PROGRESS**
+-->
+
 ### **WORK IN PROGRESS**
 
 - Report errors when creating unknown devices and anonymous device statistics (used device classes, every 24h) to Sentry.
 - Add adapter automation (zero feed-in control), see section "Adapter Automation" above.
+
+## Changelog
+
+### 5.3.2 (2026-09-28)
+
+- Fix to ignore MQTT messages from unknown devices
 
 ### 5.3.1 (2026-09-21)
 
@@ -160,11 +171,6 @@ For more details and for information on how to disable error reporting, see the 
 
 - Fix batCur Reading
 - Add control state for inverseMaxPower and gridOffMode (Control AC outlet on 'Plus' Devices)
-
-### 5.0.4 (2026-08-19)
-
-- Fix flickering Save button in Settings.
-- Add function to detect zenSDK devices with mDNS and fill missing IP-address if found.
 
 For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 

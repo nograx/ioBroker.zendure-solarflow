@@ -11,6 +11,19 @@
     },
     "version": "5.3.1",
     "news": {
+      "5.3.2": {
+        "en": "Fix to ignore MQTT messages from unknown devices",
+        "de": "Fix zum Ignorieren von MQTTs unbekannter Geräte",
+        "ru": "Исправлено игнорирование сообщений MQTT с неизвестных устройств",
+        "pt": "Correção para ignorar mensagens MQTT de PC",
+        "nl": "Oplossing om MQTT-berichten van onbekende apparaten te negeren",
+        "fr": "Corrigé pour ignorer les MQTT d'appareils inconnus",
+        "it": "Risolto il problema di ignorare MQTT da sconosciuti",
+        "es": "Arreglo para ignorar los mensajes MQTT de desconocidos",
+        "pl": "Poprawka ignorowania wiadomości MQTT z nieznanych urządzeń",
+        "uk": "Виправлено ігнорування повідомлень MQTT з невідомих пристроїв",
+        "zh-cn": "修复了忽略来自未知设备的 MQTT 消息的问题"
+      },
       "5.3.1": {
         "en": "Fixed an issue to ignore empty properties",
         "de": "Fehler beim Ignorieren leerer Objekte behoben",
