@@ -157,6 +157,15 @@
 
 - Add 'packPower' state, which shows combined power from (packInputPower and outputPackPower). Discharging will be shown with a negative value.
 - Add 'hyperTmp' to Solarflow 800 devices in hope this will show the temperature of the Solarflow 800 (can not test it due to lack of test device).
+## 5.2.1 (2026-08-30)
+
+- BREAKING: `setDeviceAutomationInOutLimit` on Hyper 2000 uses simulated HEMS now and requires `hemsState = 1` and `autoModel = 0` to control the device (automatically set by the adapter). Please check your control parameters (e.g. inverseMaxPower) after updating if you use setDeviceAutomationInOutLimit.
+- Add support for Solarflow 3000/4000 Mix AC+ and 4000 Mix Pro via mDNS auto-discovery
+- Add support for Smart Meter 3CT and Smart Meter D0 (read-only zenSDK accessories, with proper power state names/units and no control or packData states)
+- Correct a device's IP via mDNS if it no longer matches the (stale or wrong) IP from the cloud device list
+- Process zenSDK measurements reported directly on the response instead of nested under "properties" (affects Smart Meter 3CT/D0)
+- Enable "mDNS discovery" by default, including for existing instances that never had this setting saved - you must disable this option in settings if not desired
+
 ## 5.1.0 (2026-08-20)
 
 - Fix batCur Reading
