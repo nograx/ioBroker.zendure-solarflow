@@ -934,6 +934,7 @@ class ZenIobDevice {
       timestamp: timestamp.getTime() / 1e3
     };
     this.invokeMqttFunction(JSON.stringify(hemsEP));
+    await this.updateSolarFlowControlState("setDeviceAutomationInOutLimit", limit);
     if (limit === 0) {
       this.releaseHemsControlTimeout = this.adapter.setTimeout(() => {
         this.releaseHemsControlTimeout = void 0;

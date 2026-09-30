@@ -1110,6 +1110,8 @@ export class ZenIobDevice {
       timestamp: timestamp.getTime() / 1000,
     };
     this.invokeMqttFunction(JSON.stringify(hemsEP));
+    // Keep the control state in sync with the limit actually sent (also when set by the automation, not via the state).
+    await this.updateSolarFlowControlState("setDeviceAutomationInOutLimit", limit);
 
     if (limit === 0) {
       // Release HEMS control 3s after idling at 0, unless a new setpoint arrives first (see cancellation above)

@@ -159,6 +159,8 @@ export class SfHub2000 extends ZenIobDevice {
         timestamp: timestamp.getTime() / 1000,
       };
       this.invokeMqttFunction(JSON.stringify(deviceAutomation));
+      // Keep the control state in sync with the limit actually sent (also when set by the automation, not via the state).
+      await this.updateSolarFlowControlState("setDeviceAutomationInOutLimit", limit);
     }
   }
 }

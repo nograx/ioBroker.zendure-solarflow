@@ -97,6 +97,7 @@ class Ace1500 extends import_ZenIobDevice.ZenIobDevice {
         timestamp: timestamp.getTime() / 1e3
       };
       this.invokeMqttFunction(JSON.stringify(deviceAutomation));
+      void this.updateSolarFlowControlState("setDeviceAutomationInOutLimit", Math.min(limit, 0));
     }
   }
 }

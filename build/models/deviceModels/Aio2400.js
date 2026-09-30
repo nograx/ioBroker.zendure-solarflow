@@ -103,6 +103,7 @@ class Aio2400 extends import_ZenIobDevice.ZenIobDevice {
         timestamp: timestamp.getTime() / 1e3
       };
       this.invokeMqttFunction(JSON.stringify(deviceAutomation));
+      await this.updateSolarFlowControlState("setDeviceAutomationInOutLimit", limit);
     }
   }
 }
