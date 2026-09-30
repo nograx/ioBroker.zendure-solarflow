@@ -248,6 +248,25 @@ export class ZendureSolarflow extends utils.Adapter {
         native: {},
       });
 
+      await this.extendObject("adapterAutomation.surplusChargeTrigger", {
+        type: "state",
+        common: {
+          name: {
+            de: "Netzeinspeisung über dem Sollwert, ab der reine AC-Geräte mit Überschuss geladen werden",
+            en: "Grid feed-in above setpoint at which AC-only devices start charging from surplus",
+          },
+          type: "number",
+          desc: "surplusChargeTrigger",
+          role: "level.power",
+          read: true,
+          write: true,
+          unit: "W",
+          min: 30,
+          def: 100,
+        },
+        native: {},
+      });
+
       await this.extendObject("adapterAutomation.deviceOrder", {
         type: "state",
         common: {
@@ -276,6 +295,7 @@ export class ZendureSolarflow extends utils.Adapter {
       await ensureDefaultValue("adapterAutomation.setPoint", 10);
       await ensureDefaultValue("adapterAutomation.setPointNearlyFull", -100);
       await ensureDefaultValue("adapterAutomation.acOnlyPenalty", 50);
+      await ensureDefaultValue("adapterAutomation.surplusChargeTrigger", 100);
     }
 
     switch (this.config.connectionMode) {

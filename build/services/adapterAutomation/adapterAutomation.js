@@ -47,7 +47,7 @@ const CHARGE_MIN_PER_DEVICE_W = 100;
 const UTILIZATION_THRESHOLD = 0.7;
 const LEAD_HYSTERESIS_MARGIN = 5;
 const DEFAULT_AC_ONLY_PENALTY = 50;
-const SURPLUS_TRIGGER_BELOW_SETPOINT_W = 60;
+const DEFAULT_SURPLUS_CHARGE_TRIGGER_W = 100;
 const SURPLUS_SETPOINT_BUFFER_W = 30;
 const SOLE_DEVICE_FEED_IN_RETURN_W = 50;
 const PI_CONTROLLER = {
@@ -437,7 +437,9 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
     const setPoint = fleetMinSoc >= NEARLY_FULL_SOC && solarInput > 50 ? setPointNearlyFull : baseSetPoint;
     shortTermGridAvgW = shortTermGridAvgW == null ? currentGridMeterValue : shortTermGridAvgW + SHORT_TERM_GRID_ALPHA * (currentGridMeterValue - shortTermGridAvgW);
     chargeStartGridAvgW = chargeStartGridAvgW == null ? currentGridMeterValue : chargeStartGridAvgW + CHARGE_START_GRID_ALPHA * (currentGridMeterValue - chargeStartGridAvgW);
-    const hasGridSurplus = chargeStartGridAvgW <= setPoint - SURPLUS_TRIGGER_BELOW_SETPOINT_W;
+    const surplusChargeTriggerState = await adapter.getStateAsync("adapterAutomation.surplusChargeTrigger");
+    const surplusChargeTrigger = typeof (surplusChargeTriggerState == null ? void 0 : surplusChargeTriggerState.val) === "number" ? Math.max(surplusChargeTriggerState.val, SURPLUS_SETPOINT_BUFFER_W) : DEFAULT_SURPLUS_CHARGE_TRIGGER_W;
+    const hasGridSurplus = chargeStartGridAvgW <= setPoint - surplusChargeTrigger;
     const surplusSetPoint = setPoint - SURPLUS_SETPOINT_BUFFER_W;
     const deadBandUpper = setPoint < 0 ? 0 : setPoint + 10;
     const deadBandTarget = (setPoint + deadBandUpper) / 2;
@@ -510,8 +512,6 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
     });
     setDeviceShares(inputDevices);
     let unmetDemand = 0;
-    const nonAcOnly = devices.filter((device) => !device.isAcOnly);
-    const avgSocNonAcOnly = nonAcOnly.length > 0 ? nonAcOnly.reduce((sum, device) => sum + getDeviceState(device).soc, 0) / nonAcOnly.length : 0;
     const isSurplusChargeCandidate = (device) => {
       const state = getDeviceState(device);
       return state.enabled && !state.forceAcCharging && device.isAcOnly;
@@ -524,11 +524,6 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
     let chargeBudgetTotal = 0;
     if (hasGridSurplus || currentTotalChargePower > 0) {
       chargeBudgetTotal = Math.max(0, currentTotalChargePower + chargePid.calculate(chargeError, now));
-    } else {
-      chargePid.reset();
-      if (avgSocNonAcOnly > 70 && solarInput > 800) {
-        chargeBudgetTotal = Math.round(solarInput * 0.2 / 100) * 100;
-      }
     }
     const orderedChargeEligible = [...chargeEligibleDevices].sort((a, b) => devices.indexOf(b) - devices.indexOf(a));
     const rawChargeDeviceCount = chargeBudgetTotal > 0 ? Math.min(orderedChargeEligible.length, Math.max(1, Math.floor(chargeBudgetTotal / CHARGE_MIN_PER_DEVICE_W))) : 0;

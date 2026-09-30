@@ -101,6 +101,7 @@ Global (`zendure-solarflow.X.adapterAutomation.*`):
 | `setPoint`                       | `10`    | Target grid power in W. A small positive value (slight import) avoids feeding into the grid.                                                                    |
 | `setPointNearlyFull`             | `-100`  | Target grid power in W, used instead of `setPoint` when all batteries are at least 90% and there is solar input. Negative values allow feeding into the grid.   |
 | `acOnlyPenalty`                  | `50`    | Score lead in % that AC-only devices need over the other devices to become lead device, once the other devices average above 35% SOC. `0` disables the penalty. |
+| `surplusChargeTrigger`           | `100`   | Grid export in W beyond the setpoint at which idle AC-only devices start charging from surplus. Minimum `30`.                                                   |
 | `ignoreSuggestedInverseMaxPower` | `false` | If `true`, the device's `inverseMaxPower` is used as maximum output instead of the suggested value (see below).                                                 |
 | `deviceOrder`                    |         | Read-only. Current device order, the first device is the lead device.                                                                                           |
 
@@ -120,7 +121,7 @@ Per device (`<productKey>.<deviceKey>.adapterAutomation.*`):
 - **Power sharing:** The required power is distributed across the active devices weighted by their SOC - fuller devices take a bigger share. Devices below their own `minSoc` get no share. Power a device cannot deliver (above its maximum) is passed on to devices with headroom.
 - **Lead device:** Devices are ranked by SOC and solar input (re-sorted every full hour). The lead device is always active; further devices are added when demand rises (above 70% utilization of the active devices), when they have spare solar power, or when they are nearly full. Once added, devices stay active for at least 5 minutes to avoid flapping. Idle devices are kept at 10 W standby for a few minutes, so they react faster.
 - **Battery protection:** `suggestedInverseMaxPower` limits the output at low SOC / low cell voltage (e.g. only 60-500 W when cells are weak) and at night (0-5 h) the limit is derived from the SOC. It never exceeds the device's `inverseMaxPower`.
-- **AC-only devices** (e.g. SF 2400 AC, SF 1600 AC+, SF 3000/4000 Mix AC+) are preferred less as lead device once the other batteries are above 35%. When the grid meter shows a surplus (export at least 60 W beyond the setpoint), idle AC-only devices charge with that surplus, up to their `chargeMaxLimit`.
+- **AC-only devices** (e.g. SF 2400 AC, SF 1600 AC+, SF 3000/4000 Mix AC+) are preferred less as lead device once the other batteries are above 35%. When the grid meter shows a surplus (export at least `surplusChargeTrigger` W beyond the setpoint, default 100 W), idle AC-only devices charge with that surplus, up to their `chargeMaxLimit`.
 - **Charging safety:** A device only switches to charging after it has been idle at 0 W for at least 5 minutes, so it does not flip directly between discharging and charging.
 
 ## Notes
@@ -140,14 +141,13 @@ For more details and for information on how to disable error reporting, see the 
 
 ### **WORK IN PROGRESS**
 
-- Report errors when creating unknown devices and anonymous device statistics (used device classes, every 24h) to Sentry.
 - Add adapter automation (zero feed-in control), see section "Adapter Automation" above.
+- Add connection mode "zenSDK only (mDNS)": no Zendure cloud and no MQTT server, devices are found via mDNS and controlled via zenSDK.
 - mDNS discovery now runs as long as the adapter is running instead of only 10s after start. Devices connected later are added automatically, IP changes are detected, and failed zenSDK connects are retried.
 - Fix using the saved device list when Zendure Cloud is not reachable on startup.
-- Add connection mode "zenSDK only (mDNS)": no Zendure cloud and no MQTT server, devices are found via mDNS and controlled via zenSDK.
-- Only number states (e.g. the grid power of a smart meter) can be selected as automation trigger state.
 - Devices created via mDNS keep their states when they appear in the Zendure cloud device list later (cloud MQTT still works for them). Devices with an unknown productKey in the cloud device list are logged as info instead of error.
 - Disconnect MQTT clients cleanly when the adapter is stopped or restarted.
+- Added Sentry (default ioBroker) for error reporting and device statistics.
 
 ## Changelog
 

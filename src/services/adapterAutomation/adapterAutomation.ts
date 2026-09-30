@@ -79,10 +79,11 @@ const LEAD_HYSTERESIS_MARGIN = 5;
 // other devices (see sortAutomationDevices) once they average above 35% SOC.
 const DEFAULT_AC_ONLY_PENALTY = 50;
 
-// Grid meter surplus charging: once the meter is exporting this far beyond setPoint, there's clearly
-// spare power to charge AC-only devices with. SURPLUS_SETPOINT_BUFFER_W keeps a margin below setPoint
-// while that's active, so the meter doesn't hover right at the trigger edge and flicker in/out.
-const SURPLUS_TRIGGER_BELOW_SETPOINT_W = 60;
+// Grid meter surplus charging: once the meter is exporting 'adapterAutomation.surplusChargeTrigger' W
+// (this is its fallback) beyond setPoint, there's clearly spare power to charge AC-only devices with.
+// SURPLUS_SETPOINT_BUFFER_W keeps a margin below setPoint while that's active, so the meter doesn't
+// hover right at the trigger edge and flicker in/out - so the trigger must not be below that buffer.
+const DEFAULT_SURPLUS_CHARGE_TRIGGER_W = 100;
 const SURPLUS_SETPOINT_BUFFER_W = 30;
 
 // A sole AC-only device that's surplus charging switches straight back to feed-in once the home usage
@@ -825,7 +826,12 @@ export const runZeroFeedInAutomation = async (
 
     // Sustained grid export beyond setPoint: clear surplus power that AC-only devices could charge with.
     // Based on the slow average, so a new charge only starts on a confirmed surplus, not on a brief dip.
-    const hasGridSurplus = chargeStartGridAvgW <= setPoint - SURPLUS_TRIGGER_BELOW_SETPOINT_W;
+    const surplusChargeTriggerState = await adapter.getStateAsync("adapterAutomation.surplusChargeTrigger");
+    const surplusChargeTrigger =
+      typeof surplusChargeTriggerState?.val === "number"
+        ? Math.max(surplusChargeTriggerState.val, SURPLUS_SETPOINT_BUFFER_W)
+        : DEFAULT_SURPLUS_CHARGE_TRIGGER_W;
+    const hasGridSurplus = chargeStartGridAvgW <= setPoint - surplusChargeTrigger;
     const surplusSetPoint = setPoint - SURPLUS_SETPOINT_BUFFER_W;
 
     // Bei negativem Setpoint: obere Dead-Band-Grenze auf 0W begrenzen, damit der Regler nicht dauerhaft
@@ -956,12 +962,6 @@ export const runZeroFeedInAutomation = async (
     // to be redistributed to devices that still have headroom.
     let unmetDemand = 0;
 
-    const nonAcOnly = devices.filter((device) => !device.isAcOnly);
-    const avgSocNonAcOnly =
-      nonAcOnly.length > 0
-        ? nonAcOnly.reduce((sum, device) => sum + getDeviceState(device).soc, 0) / nonAcOnly.length
-        : 0;
-
     // AC-only devices that may opportunistically charge from surplus this cycle (forced chargers are
     // handled separately below).
     const isSurplusChargeCandidate = (device: ZenIobDevice): boolean => {
@@ -987,15 +987,6 @@ export const runZeroFeedInAutomation = async (
     let chargeBudgetTotal = 0;
     if (hasGridSurplus || currentTotalChargePower > 0) {
       chargeBudgetTotal = Math.max(0, currentTotalChargePower + chargePid.calculate(chargeError, now));
-    } else {
-      // No PID-controlled charging active - don't let the integral build up over the idle time.
-      chargePid.reset();
-
-      if (avgSocNonAcOnly > 70 && solarInput > 800) {
-        // No confirmed grid surplus yet, but the other batteries are reasonably charged (avg SOC > 70%)
-        // and there's meaningful solar production (>800W) - estimate a safe charge power as 20% of it.
-        chargeBudgetTotal = Math.round((solarInput * 0.2) / 100) * 100;
-      }
     }
 
     // The LAST device in the device order is picked for charging first - stable, since the order only
