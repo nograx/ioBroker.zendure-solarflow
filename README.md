@@ -40,7 +40,7 @@ If you find the adapter useful and want to support my work, feel free to donate 
 
 ### mDNS Discovery
 
-When zenSDK is enabled, the adapter briefly browses the network via mDNS/Bonjour on startup for devices announcing as `Zendure-<model>-<serialNumber>`. This fills in or corrects IP addresses for known cloud devices, and auto-creates accessories (Mix series, Smart Meters) that have no cloud productKey and can't otherwise be created. Devices are matched by full serial number, not IP or a shortened suffix. Disable via the "Add devices found via mDNS discovery" setting.
+When zenSDK is enabled, the adapter browses the network via mDNS/Bonjour for devices announcing as `Zendure-<model>-<serialNumber>` as long as it is running. The network is queried again after 5s, 15s, 30s and 60s, then every 5 minutes, so devices connected to the network later (or missed by an earlier query) are still found without restarting the adapter. This fills in or corrects IP addresses for known cloud devices, and auto-creates accessories (Mix series, Smart Meters) that have no cloud productKey and can't otherwise be created. Devices are matched by full serial number, not IP or a shortened suffix. Disable via the "Add devices found via mDNS discovery" setting.
 
 ## Supported Devices
 
@@ -141,6 +141,9 @@ For more details and for information on how to disable error reporting, see the 
 
 - Report errors when creating unknown devices and anonymous device statistics (used device classes, every 24h) to Sentry.
 - Add adapter automation (zero feed-in control), see section "Adapter Automation" above.
+- mDNS discovery now runs as long as the adapter is running instead of only 10s after start. Devices connected later are added automatically, IP changes are detected, and failed zenSDK connects are retried.
+- Fix using the saved device list when Zendure Cloud is not reachable on startup.
+- Disconnect MQTT clients cleanly when the adapter is stopped or restarted.
 
 ## Changelog
 

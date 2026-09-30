@@ -100,6 +100,12 @@ class ZenIobDevice {
   zenSdkPausedUntil = 0;
   static ZEN_SDK_MAX_ERROR_LOGS = 5;
   static ZEN_SDK_PAUSE_DURATION_MS = 10 * 60 * 1e3;
+  /** State of the zenSDK connect attempts triggered by mDNS discovery (see connectViaMdns). */
+  mdnsConnectInProgress = false;
+  mdnsConnectNotBefore = 0;
+  mdnsConnectRetryDelayMs = 0;
+  static MDNS_CONNECT_MIN_RETRY_DELAY_MS = 30 * 1e3;
+  static MDNS_CONNECT_MAX_RETRY_DELAY_MS = 30 * 60 * 1e3;
   /** Per-device zenSDK polling job, scheduled with the interval configured in 'settings.ZenSDKPollingInverval'. */
   zenSdkPollingJob;
   zenSdkPollingIntervalSeconds;
@@ -571,9 +577,12 @@ class ZenIobDevice {
   /**
    * Called by mdnsHelper when this device was discovered locally via mDNS. Fills in the
    * ipAddress if it is not yet known, or corrects it if it no longer matches the
-   * mDNS-discovered address (e.g. a stale/wrong IP from the cloud device list), then
-   * switches the device to a zenSDK connection (instead of Cloud/MQTT) if zenSDK is
-   * supported and enabled.
+   * mDNS-discovered address (e.g. a stale/wrong IP from the cloud device list, or a new
+   * IP from DHCP), then switches the device to a zenSDK connection (instead of Cloud/MQTT)
+   * if zenSDK is supported and enabled.
+   *
+   * mDNS discovery runs continuously, so this is called again on every mDNS query. A failed
+   * zenSDK connect is retried on later calls, with an increasing delay between attempts.
    *
    * @param ipAddress the IP address the device was discovered at
    * @param serviceName the mDNS service name the device was discovered with (for logging)
@@ -588,25 +597,54 @@ class ZenIobDevice {
       }
       this.ipAddress = ipAddress;
       this.updateSolarFlowState("ip", ipAddress);
+      this.zenSdkErrorCount = 0;
+      this.zenSdkPausedUntil = 0;
+      this.mdnsConnectRetryDelayMs = 0;
+      this.mdnsConnectNotBefore = 0;
     }
-    if (!this.adapter.config.useZenSDK || !this.isZenSdkSupported || this.deviceConnectionMode == import_enums.DeviceConnectionMode.zenSDK) {
-      this.adapter.log.warn(
-        `[connectViaMdns] Skipping zenSDK connect for device ${this.deviceKey} (useZenSDK=${this.adapter.config.useZenSDK}, isZenSdkSupported=${this.isZenSdkSupported}, deviceConnectionMode=${this.deviceConnectionMode})!`
+    if (!this.adapter.config.useZenSDK || !this.isZenSdkSupported) {
+      this.adapter.log.debug(
+        `[connectViaMdns] Skipping zenSDK connect for device ${this.deviceKey} (useZenSDK=${this.adapter.config.useZenSDK}, isZenSdkSupported=${this.isZenSdkSupported})!`
       );
       return;
     }
+    if (this.deviceConnectionMode == import_enums.DeviceConnectionMode.zenSDK) {
+      return;
+    }
+    if (this.mdnsConnectInProgress || Date.now() < this.mdnsConnectNotBefore) {
+      return;
+    }
+    this.mdnsConnectInProgress = true;
     this.getZenSdkProperties().then((success) => {
       if (success) {
         this.deviceConnectionMode = import_enums.DeviceConnectionMode.zenSDK;
+        this.mdnsConnectRetryDelayMs = 0;
+        this.mdnsConnectNotBefore = 0;
         this.updateSolarFlowState("connectionMode", "zenSDK");
         this.updateSolarFlowState("wifiState", 1);
         this.unsubscribeMqttTopics();
         this.adapter.log.info(
           `[connectViaMdns] Switched device ${this.deviceKey} to zenSDK connection via mDNS-discovered IP ${ipAddress} (service: ${serviceName}, host: ${serviceHost})!`
         );
+      } else {
+        this.scheduleMdnsConnectRetry();
       }
     }).catch(() => {
+      this.scheduleMdnsConnectRetry();
+    }).finally(() => {
+      this.mdnsConnectInProgress = false;
     });
+  }
+  /** Doubles the delay until the next zenSDK connect attempt from mDNS (30s up to 30 minutes). */
+  scheduleMdnsConnectRetry() {
+    this.mdnsConnectRetryDelayMs = Math.min(
+      Math.max(this.mdnsConnectRetryDelayMs * 2, ZenIobDevice.MDNS_CONNECT_MIN_RETRY_DELAY_MS),
+      ZenIobDevice.MDNS_CONNECT_MAX_RETRY_DELAY_MS
+    );
+    this.mdnsConnectNotBefore = Date.now() + this.mdnsConnectRetryDelayMs;
+    this.adapter.log.debug(
+      `[connectViaMdns] zenSDK connect for device ${this.deviceKey} failed, retrying in ${this.mdnsConnectRetryDelayMs / 1e3}s at the earliest!`
+    );
   }
   unsubscribeMqttTopics() {
     var _a, _b, _c, _d;
