@@ -94,7 +94,7 @@ const startCheckStatesAndConnectionJob = (adapter) => {
           ).toString()}, device seems to be online - so maybe connection is broken!`
         );
         refreshAccessTokenNeeded = true;
-      } else if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < tenMinutesAgo && (wifiState == null ? void 0 : wifiState.val) == 1 && adapter.config.connectionMode == "local") {
+      } else if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < tenMinutesAgo && (wifiState == null ? void 0 : wifiState.val) == 1 && (adapter.config.connectionMode == "local" || adapter.config.connectionMode == "zenSDK")) {
         adapter.log.warn(
           `[checkStatesJob] Last update for deviceKey ${device.deviceKey} was at ${new Date(
             Number(lastUpdate.val)

@@ -91,11 +91,15 @@ class ZendureSolarflow extends utils.Adapter {
    * Is called when databases are connected and adapter received configuration.
    */
   async onReady() {
-    var _a;
+    var _a, _b, _c;
     if (this.config.useMdnsDiscovery === void 0) {
       this.config.useMdnsDiscovery = true;
       await this.extendForeignObjectAsync(`system.adapter.${this.namespace}`, { native: { useMdnsDiscovery: true } });
       this.log.info("[onReady] Enabled mDNS discovery by default (was not previously configured)!");
+    }
+    if (this.config.connectionMode === "zenSDK") {
+      this.config.useZenSDK = true;
+      this.config.useMdnsDiscovery = true;
     }
     await this.extendObject("info", {
       type: "channel",
@@ -396,6 +400,18 @@ class ZendureSolarflow extends utils.Adapter {
         }
         break;
       }
+      case "zenSDK": {
+        this.log.info("[onReady] Using zenSDK only (devices found via mDNS, no Zendure Cloud or MQTT server)!");
+        this.setState("info.connection", true, true);
+        (0, import_jobSchedule.startResetValuesJob)(this);
+        (0, import_jobSchedule.startCheckStatesAndConnectionJob)(this);
+        if (this.config.useCalculation) {
+          (0, import_jobSchedule.startCalculationJob)(this);
+        }
+        this.startMdnsDiscovery();
+        (0, import_jobSchedule.startZenSdkDataRefreshJob)(this);
+        break;
+      }
       default:
         this.setState("info.connection", false, true);
         this.log.error("[onReady] No connection mode found or mode invalid!");
@@ -403,8 +419,15 @@ class ZendureSolarflow extends utils.Adapter {
     }
     if (this.config.enableAutomation) {
       if (this.config.automationTriggerStateId) {
-        this.subscribeForeignStates(this.config.automationTriggerStateId);
-        this.log.debug(`[onReady] Subscribed to automation trigger state '${this.config.automationTriggerStateId}'!`);
+        const triggerStateObj = await this.getForeignObjectAsync(this.config.automationTriggerStateId);
+        if ((triggerStateObj == null ? void 0 : triggerStateObj.type) !== "state" || ((_b = triggerStateObj.common) == null ? void 0 : _b.type) !== "number") {
+          this.log.error(
+            `[onReady] Automation trigger state '${this.config.automationTriggerStateId}' ${triggerStateObj ? `is not a number state (type: ${(_c = triggerStateObj.common) == null ? void 0 : _c.type})` : "does not exist"}, adapter automation will never run! Please select the number state of your smart meter in the adapter settings.`
+          );
+        } else {
+          this.subscribeForeignStates(this.config.automationTriggerStateId);
+          this.log.debug(`[onReady] Subscribed to automation trigger state '${this.config.automationTriggerStateId}'!`);
+        }
       }
       this.subscribeStates("adapterAutomation.automationEnabled");
       (0, import_jobSchedule.startAdapterAutomationJob)(this);
@@ -638,6 +661,9 @@ class ZendureSolarflow extends utils.Adapter {
    * @param state the new state of the automation trigger state
    */
   onAutomationTriggerStateChange(state) {
+    this.log.debug(
+      `[onAutomationTriggerStateChange] Automation trigger state '${this.config.automationTriggerStateId}' changed to ${state.val} (ack: ${state.ack})!`
+    );
     if (state.val == null || Number.isNaN(Number(state.val))) {
       this.log.warn(
         `[onAutomationTriggerStateChange] Automation trigger state has a non-numeric value (${state.val}), ignoring!`

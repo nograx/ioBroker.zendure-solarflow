@@ -19,6 +19,7 @@
   "fullChargeIfNeeded": "Auf 100% laden wenn Zendure SOC bei Erreichen der kritischen Spannung größer 50%.",
   "global": "Global (Zendure App Cloud)",
   "local": "Lokaler Mqtt Server",
+  "zenSdkOnly": "Nur zenSDK (mDNS, keine Cloud und kein MQTT)",
   "localMqttAcceptSelfSignedSSL": "Selbst signiertes Zertifikat erlauben",
   "localMqttSSL": "SSL (port 8883) benutzen",
   "localMqttUrl": "Lokale MQTT Server URL/IP",
@@ -56,7 +57,8 @@
   "sectionAutomation": "Automatisierung",
   "enableAutomation": "Adapter-Automatisierung aktivieren (Nulleinspeisungs-Regelung)",
   "automationTriggerState": "Auslöser-Zustand",
-  "automationTriggerStateDesc": "Wählen Sie einen Zustand außerhalb dieses Adapters (z.B. einen Preis- oder Prognose-Zustand), dessen Änderungen die Automatisierungslogik des Adapters auslösen sollen.",
+  "automationTriggerStateDesc": "Wählen Sie den Zustand Ihres Smart Meters (Zahl, Netzleistung in W), dessen Änderungen die Automatisierungslogik des Adapters auslösen sollen.",
+  "automationTriggerStateNotNumber": "Der Zustand '%s' kann nicht als Auslöser verwendet werden: Nur Zahlen-Zustände (z.B. die Netzleistung eines Smart Meters) sind erlaubt, sein Typ ist aber '%s'.",
   "selectState": "Zustand auswählen",
   "clear": "Löschen"
 }

@@ -4,7 +4,7 @@
 declare global {
   namespace ioBroker {
     interface AdapterConfig {
-      connectionMode; // Cloud (api key) or local MQTT
+      connectionMode; // "authKey" (Cloud), "local" (local MQTT) or "zenSDK" (zenSDK / mDNS only, no Cloud or MQTT)
       useZenSDK: boolean;
       useMdnsDiscovery: boolean;
       useAddionalLocalMqtt: boolean;

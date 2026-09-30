@@ -111,7 +111,7 @@ export const startCheckStatesAndConnectionJob = (adapter: ZendureSolarflow): voi
         lastUpdate.val &&
         Number(lastUpdate.val) < tenMinutesAgo &&
         wifiState?.val == 1 &&
-        adapter.config.connectionMode == "local"
+        (adapter.config.connectionMode == "local" || adapter.config.connectionMode == "zenSDK")
       ) {
         adapter.log.warn(
           `[checkStatesJob] Last update for deviceKey ${device.deviceKey} was at ${new Date(
