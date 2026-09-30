@@ -6,6 +6,16 @@ import type { ZendureSolarflow } from "../main";
 const ZENDURE_DEVICE_NAME_PREFIX = "Zendure-";
 const DISCOVERY_DURATION_MS = 10000;
 
+// Stops the currently running mDNS discovery (if any) and releases its socket
+let stopActiveDiscovery: (() => void) | undefined = undefined;
+
+/**
+ * Stops a running mDNS discovery before its regular end, e.g. when the adapter is unloaded.
+ */
+export function stopMdnsDiscovery(): void {
+  stopActiveDiscovery?.();
+}
+
 function normalizeModelName(modelName: string): string {
   return modelName
     .toLowerCase()
@@ -153,9 +163,23 @@ export function discoverZendureDevicesViaMdns(adapter: ZendureSolarflow): void {
     createDeviceFromMdns(adapter, service.name, ipAddress);
   });
 
-  adapter.setTimeout(() => {
+  let discoveryTimeout: ioBroker.Timeout | undefined = undefined;
+
+  const stop = (): void => {
+    if (stopActiveDiscovery === stop) {
+      stopActiveDiscovery = undefined;
+    }
+    adapter.clearTimeout(discoveryTimeout);
     browser.stop();
     bonjour.destroy();
+  };
+
+  // A new discovery replaces a still running one
+  stopActiveDiscovery?.();
+  stopActiveDiscovery = stop;
+
+  discoveryTimeout = adapter.setTimeout(() => {
+    stop();
 
     adapter.log.info(
       `[mdnsHelper] Finished mDNS discovery of Zendure devices, found ${foundCount} device(s) via mDNS!`,

@@ -157,9 +157,7 @@ const onConnected = (url, opts) => {
 };
 const onReconnected = (url) => {
   if (adapter) {
-    adapter.lastLogin = /* @__PURE__ */ new Date();
-    adapter.setState("info.connection", true, true);
-    adapter.log.info(`[onReconnected] Reconnected to MQTT! URL: ${url}`);
+    adapter.log.debug(`[onReconnected] Trying to reconnect to MQTT! URL: ${url}`);
   }
 };
 const onDisconnected = (url) => {

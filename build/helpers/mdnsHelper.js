@@ -28,13 +28,18 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var mdnsHelper_exports = {};
 __export(mdnsHelper_exports, {
-  discoverZendureDevicesViaMdns: () => discoverZendureDevicesViaMdns
+  discoverZendureDevicesViaMdns: () => discoverZendureDevicesViaMdns,
+  stopMdnsDiscovery: () => stopMdnsDiscovery
 });
 module.exports = __toCommonJS(mdnsHelper_exports);
 var import_bonjour_service = __toESM(require("bonjour-service"));
 var import_helpers = require("./helpers");
 const ZENDURE_DEVICE_NAME_PREFIX = "Zendure-";
 const DISCOVERY_DURATION_MS = 1e4;
+let stopActiveDiscovery = void 0;
+function stopMdnsDiscovery() {
+  stopActiveDiscovery == null ? void 0 : stopActiveDiscovery();
+}
 function normalizeModelName(modelName) {
   return modelName.toLowerCase().replace(/\+/g, "plus").replace(/[^a-z0-9]/g, "");
 }
@@ -129,9 +134,19 @@ function discoverZendureDevicesViaMdns(adapter) {
     }
     createDeviceFromMdns(adapter, service.name, ipAddress);
   });
-  adapter.setTimeout(() => {
+  let discoveryTimeout = void 0;
+  const stop = () => {
+    if (stopActiveDiscovery === stop) {
+      stopActiveDiscovery = void 0;
+    }
+    adapter.clearTimeout(discoveryTimeout);
     browser.stop();
     bonjour.destroy();
+  };
+  stopActiveDiscovery == null ? void 0 : stopActiveDiscovery();
+  stopActiveDiscovery = stop;
+  discoveryTimeout = adapter.setTimeout(() => {
+    stop();
     adapter.log.info(
       `[mdnsHelper] Finished mDNS discovery of Zendure devices, found ${foundCount} device(s) via mDNS!`
     );
@@ -139,6 +154,7 @@ function discoverZendureDevicesViaMdns(adapter) {
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  discoverZendureDevicesViaMdns
+  discoverZendureDevicesViaMdns,
+  stopMdnsDiscovery
 });
 //# sourceMappingURL=mdnsHelper.js.map

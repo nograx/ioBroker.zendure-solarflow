@@ -29,7 +29,7 @@ import type { IZenIobMqttData } from "./models/IZenIobMqttData";
 import type { ZenIobDevice } from "./models/deviceModels/ZenIobDevice";
 import { createDeviceModel } from "./helpers/helpers";
 import { FileHelper } from "./helpers/fileHelper";
-import { discoverZendureDevicesViaMdns } from "./helpers/mdnsHelper";
+import { discoverZendureDevicesViaMdns, stopMdnsDiscovery } from "./helpers/mdnsHelper";
 
 // Maps each writable '<device>.control.<stateName>' to the device method that sends it to the device.
 const CONTROL_STATE_HANDLERS: Record<string, (device: ZenIobDevice, value: ioBroker.StateValue) => unknown> = {
@@ -536,29 +536,10 @@ export class ZendureSolarflow extends utils.Adapter {
    */
   private async onUnload(callback: () => void): Promise<void> {
     try {
+      // Stop jobs and timers first, so nothing new is published while the MQTT clients are shutting down
       if (this.refreshAccessTokenInterval) {
         this.clearInterval(this.refreshAccessTokenInterval);
       }
-
-      // Stop MQTT Cloud client
-      try {
-        await this.cloudMqttService?.mqttClient?.endAsync();
-        this.log.info("[onUnload] MQTT cloud client stopped!");
-        this.cloudMqttService = undefined;
-      } catch (ex: any) {
-        this.log.error(`[onUnload] Error stopping MQTT cloud client: !${ex.message}`);
-      }
-
-      // Stop MQTT Local client
-      try {
-        await this.localMqttService?.mqttClient?.endAsync();
-        this.log.info("[onUnload] MQTT local client stopped!");
-        this.localMqttService = undefined;
-      } catch (ex: any) {
-        this.log.error(`[onUnload] Error stopping MQTT local client: !${ex.message}`);
-      }
-
-      this.setState("info.connection", false, true);
 
       // Scheduler beenden
       if (this.resetValuesJob) {
@@ -593,6 +574,9 @@ export class ZendureSolarflow extends utils.Adapter {
 
       this.zenIobDeviceList.forEach((device) => device.stopZenSdkPollingSchedule());
 
+      // Stop a still running mDNS discovery (runs for the first 10s after start)
+      stopMdnsDiscovery();
+
       if (this.retryTimeout) {
         this.clearTimeout(this.retryTimeout);
       }
@@ -605,8 +589,37 @@ export class ZendureSolarflow extends utils.Adapter {
         this.clearInterval(this.deviceStatisticsInterval);
       }
 
-      callback();
+      // Stop MQTT clients (cloud and local in parallel, each with a timeout)
+      const cloudMqttService = this.cloudMqttService;
+      const localMqttService = this.localMqttService;
+      this.cloudMqttService = undefined;
+      this.localMqttService = undefined;
+
+      const [cloudResult, localResult] = await Promise.allSettled([
+        cloudMqttService?.disconnect(),
+        localMqttService?.disconnect(),
+      ]);
+
+      if (cloudMqttService) {
+        if (cloudResult.status === "rejected") {
+          this.log.error(`[onUnload] Error stopping MQTT cloud client: ${cloudResult.reason?.message}`);
+        } else {
+          this.log.info("[onUnload] MQTT cloud client stopped!");
+        }
+      }
+
+      if (localMqttService) {
+        if (localResult.status === "rejected") {
+          this.log.error(`[onUnload] Error stopping MQTT local client: ${localResult.reason?.message}`);
+        } else {
+          this.log.info("[onUnload] MQTT local client stopped!");
+        }
+      }
+
+      await this.setState("info.connection", false, true);
     } catch {
+      // ignore, adapter is shutting down
+    } finally {
       callback();
     }
   }

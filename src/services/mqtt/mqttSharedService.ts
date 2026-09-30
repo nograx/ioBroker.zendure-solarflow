@@ -171,9 +171,8 @@ export const onConnected = (url: string, opts: mqtt.IClientOptions): void => {
 
 export const onReconnected = (url: string): void => {
   if (adapter) {
-    adapter.lastLogin = new Date();
-    adapter.setState("info.connection", true, true);
-    adapter.log.info(`[onReconnected] Reconnected to MQTT! URL: ${url}`);
+    // 'reconnect' is emitted when a reconnect attempt starts, not when it succeeded ('connect' is emitted then)
+    adapter.log.debug(`[onReconnected] Trying to reconnect to MQTT! URL: ${url}`);
   }
 };
 

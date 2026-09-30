@@ -60,6 +60,7 @@ class MqttService {
       this.mqttClient.on("connect", () => (0, import_mqttSharedService.onConnected)(url, opts));
       this.mqttClient.on("reconnect", () => (0, import_mqttSharedService.onReconnected)(url));
       this.mqttClient.on("disconnect", () => (0, import_mqttSharedService.onDisconnected)(url));
+      this.mqttClient.on("offline", () => (0, import_mqttSharedService.onDisconnected)(url));
       this.mqttClient.on("error", (error) => (0, import_mqttSharedService.onError)(error, url));
       this.mqttClient.on("message", isLocal ? import_mqttSharedService.onMessageLocal : import_mqttSharedService.onMessageCloud);
       this.startJobs();
@@ -78,11 +79,37 @@ class MqttService {
     }
   }
   /**
-   * Tear down the client if it exists.
+   * Tear down the client if it exists. Sends a clean DISCONNECT if possible, but never blocks the
+   * adapter shutdown: a non-forced end() waits for unacknowledged QoS 1 messages, which never
+   * arrive if the broker is unreachable. In that case (or on timeout) the connection is closed forcibly.
+   *
+   * @param timeoutMs maximum time to wait for a clean disconnect
    */
-  disconnect() {
+  async disconnect(timeoutMs = 500) {
     var _a;
-    (_a = this.mqttClient) == null ? void 0 : _a.end(true);
+    const client = this.mqttClient;
+    if (!client) {
+      return;
+    }
+    this.mqttClient = void 0;
+    client.removeAllListeners();
+    client.on("error", () => {
+    });
+    const force = !client.connected || Object.keys(client.outgoing).length > 0;
+    let timeout;
+    const timedOut = await Promise.race([
+      client.endAsync(force).then(
+        () => false,
+        () => false
+      ),
+      new Promise((resolve) => {
+        timeout = setTimeout(() => resolve(true), timeoutMs);
+      })
+    ]);
+    clearTimeout(timeout);
+    if (timedOut) {
+      (_a = client.stream) == null ? void 0 : _a.destroy();
+    }
   }
 }
 // Annotate the CommonJS export names for ESM import in node:

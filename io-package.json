@@ -137,6 +137,7 @@
     "type": "energy",
     "tier": 2,
     "compact": true,
+    "stopTimeout": 2000,
     "connectionType": "cloud",
     "dataSource": "poll",
     "adminUI": {

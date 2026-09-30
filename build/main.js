@@ -456,32 +456,17 @@ class ZendureSolarflow extends utils.Adapter {
    * @param callback
    */
   async onUnload(callback) {
-    var _a, _b, _c, _d, _e;
+    var _a, _b, _c;
     try {
       if (this.refreshAccessTokenInterval) {
         this.clearInterval(this.refreshAccessTokenInterval);
       }
-      try {
-        await ((_b = (_a = this.cloudMqttService) == null ? void 0 : _a.mqttClient) == null ? void 0 : _b.endAsync());
-        this.log.info("[onUnload] MQTT cloud client stopped!");
-        this.cloudMqttService = void 0;
-      } catch (ex) {
-        this.log.error(`[onUnload] Error stopping MQTT cloud client: !${ex.message}`);
-      }
-      try {
-        await ((_d = (_c = this.localMqttService) == null ? void 0 : _c.mqttClient) == null ? void 0 : _d.endAsync());
-        this.log.info("[onUnload] MQTT local client stopped!");
-        this.localMqttService = void 0;
-      } catch (ex) {
-        this.log.error(`[onUnload] Error stopping MQTT local client: !${ex.message}`);
-      }
-      this.setState("info.connection", false, true);
       if (this.resetValuesJob) {
         this.resetValuesJob.cancel();
         this.resetValuesJob = void 0;
       }
       if (this.checkStatesJob) {
-        (_e = this.checkStatesJob) == null ? void 0 : _e.cancel();
+        (_a = this.checkStatesJob) == null ? void 0 : _a.cancel();
         this.checkStatesJob = void 0;
       }
       if (this.calculationJob) {
@@ -501,6 +486,7 @@ class ZendureSolarflow extends utils.Adapter {
         this.adapterAutomationSortJob = void 0;
       }
       this.zenIobDeviceList.forEach((device) => device.stopZenSdkPollingSchedule());
+      (0, import_mdnsHelper.stopMdnsDiscovery)();
       if (this.retryTimeout) {
         this.clearTimeout(this.retryTimeout);
       }
@@ -510,8 +496,31 @@ class ZendureSolarflow extends utils.Adapter {
       if (this.deviceStatisticsInterval) {
         this.clearInterval(this.deviceStatisticsInterval);
       }
-      callback();
+      const cloudMqttService = this.cloudMqttService;
+      const localMqttService = this.localMqttService;
+      this.cloudMqttService = void 0;
+      this.localMqttService = void 0;
+      const [cloudResult, localResult] = await Promise.allSettled([
+        cloudMqttService == null ? void 0 : cloudMqttService.disconnect(),
+        localMqttService == null ? void 0 : localMqttService.disconnect()
+      ]);
+      if (cloudMqttService) {
+        if (cloudResult.status === "rejected") {
+          this.log.error(`[onUnload] Error stopping MQTT cloud client: ${(_b = cloudResult.reason) == null ? void 0 : _b.message}`);
+        } else {
+          this.log.info("[onUnload] MQTT cloud client stopped!");
+        }
+      }
+      if (localMqttService) {
+        if (localResult.status === "rejected") {
+          this.log.error(`[onUnload] Error stopping MQTT local client: ${(_c = localResult.reason) == null ? void 0 : _c.message}`);
+        } else {
+          this.log.info("[onUnload] MQTT local client stopped!");
+        }
+      }
+      await this.setState("info.connection", false, true);
     } catch {
+    } finally {
       callback();
     }
   }
