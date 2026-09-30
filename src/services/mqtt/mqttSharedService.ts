@@ -26,11 +26,13 @@ export const initAdapter = (_adapter: ZendureSolarflow): boolean => {
   return true;
 };
 
-const isKnownDevice = (deviceKey: string): boolean => !!adapter?.zenIobDeviceList.some((x) => x.deviceKey == deviceKey);
+// MQTT topics use the cloud keys of a device (mqttProductKey / mqttDeviceKey), which may differ from its state tree keys
+const isKnownDevice = (deviceKey: string): boolean =>
+  !!adapter?.zenIobDeviceList.some((x) => x.mqttDeviceKey == deviceKey);
 
 export const onMessage = async (productKey: string, deviceKey: string, obj: IMqttData): Promise<void> => {
   if (adapter) {
-    const _device = adapter?.zenIobDeviceList.find((x) => x.deviceKey == deviceKey);
+    const _device = adapter?.zenIobDeviceList.find((x) => x.mqttDeviceKey == deviceKey);
 
     if (!_device) {
       adapter.log.debug(`[onMessage] DeviceKey '${deviceKey}' not found in device list!`);
@@ -59,7 +61,7 @@ export const onMessage = async (productKey: string, deviceKey: string, obj: IMqt
       if ((obj.function == "deviceAutomation" || obj.function == "hemsEP") && obj.success == 1) {
         // setDeviceAutomationInOutLimit ack = true setzen;
         const currentValue = await adapter.getStateAsync(
-          `${productKey}.${deviceKey}.control.setDeviceAutomationInOutLimit`,
+          `${_device.productKey}.${_device.deviceKey}.control.setDeviceAutomationInOutLimit`,
         );
 
         _device?.updateSolarFlowControlState("setDeviceAutomationInOutLimit", currentValue?.val ? currentValue.val : 0);
@@ -171,9 +173,8 @@ export const onConnected = (url: string, opts: mqtt.IClientOptions): void => {
 
 export const onReconnected = (url: string): void => {
   if (adapter) {
-    adapter.lastLogin = new Date();
-    adapter.setState("info.connection", true, true);
-    adapter.log.info(`[onReconnected] Reconnected to MQTT! URL: ${url}`);
+    // 'reconnect' is emitted when a reconnect attempt starts, not when it succeeded ('connect' is emitted then)
+    adapter.log.debug(`[onReconnected] Trying to reconnect to MQTT! URL: ${url}`);
   }
 };
 
@@ -206,7 +207,9 @@ export const onSubscribeIotTopic: any = (error: Error | null, productKey: string
   } else if (adapter) {
     adapter?.log.debug(`Subscription of IOT Topic successful! ProductKey: ${productKey}, DeviceKey: ${deviceKey}`);
 
-    const _device = adapter.zenIobDeviceList.find((x) => x.productKey == productKey && x.deviceKey == deviceKey);
+    const _device = adapter.zenIobDeviceList.find(
+      (x) => x.mqttProductKey == productKey && x.mqttDeviceKey == deviceKey,
+    );
 
     if (_device) {
       const randomDelay = Math.floor(Math.random() * 10) + 3;

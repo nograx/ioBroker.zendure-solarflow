@@ -1,9 +1,7 @@
 "use strict";
-var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
-var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __export = (target, all) => {
   for (var name in all)
@@ -17,24 +15,19 @@ var __copyProps = (to, from, except, desc) => {
   }
   return to;
 };
-var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
-  // If the importer is in node compatibility mode or this is not an ESM
-  // file that has been converted to a CommonJS file using a Babel-
-  // compatible transform (i.e. "__esModule" has not been set), then set
-  // "default" to the CommonJS "module.exports" for node compatibility.
-  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
-  mod
-));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var mdnsHelper_exports = {};
 __export(mdnsHelper_exports, {
-  discoverZendureDevicesViaMdns: () => discoverZendureDevicesViaMdns
+  handleDiscoveredService: () => handleDiscoveredService,
+  isZendureService: () => isZendureService
 });
 module.exports = __toCommonJS(mdnsHelper_exports);
-var import_bonjour_service = __toESM(require("bonjour-service"));
 var import_helpers = require("./helpers");
 const ZENDURE_DEVICE_NAME_PREFIX = "Zendure-";
-const DISCOVERY_DURATION_MS = 1e4;
+function isZendureService(service) {
+  var _a;
+  return !!((_a = service.name) == null ? void 0 : _a.startsWith(ZENDURE_DEVICE_NAME_PREFIX));
+}
 function normalizeModelName(modelName) {
   return modelName.toLowerCase().replace(/\+/g, "plus").replace(/[^a-z0-9]/g, "");
 }
@@ -93,52 +86,35 @@ function createDeviceFromMdns(adapter, serviceName, ipAddress) {
     adapter.log.error(`[mdnsHelper] Error creating device model for mDNS-discovered device '${serviceName}'!`);
   }
 }
-function discoverZendureDevicesViaMdns(adapter) {
-  adapter.log.info(`[mdnsHelper] Starting mDNS discovery of Zendure devices for ${DISCOVERY_DURATION_MS / 1e3}s!`);
-  const bonjour = new import_bonjour_service.default(void 0, (err) => {
-    adapter.log.warn(`[mdnsHelper] mDNS error: ${err.message}`);
+function handleDiscoveredService(adapter, service) {
+  var _a, _b, _c, _d, _e, _f, _g;
+  if (!isZendureService(service)) {
+    return;
+  }
+  adapter.log.debug(
+    `[mdnsHelper] Found Zendure device via mDNS: ${service.name} (host: ${service.host}, addresses: ${(_a = service.addresses) == null ? void 0 : _a.join(", ")}, sender: ${(_b = service.referer) == null ? void 0 : _b.address})`
+  );
+  const ipAddress = (_g = (_e = (_c = service.addresses) == null ? void 0 : _c.find((address) => address.includes("."))) != null ? _e : (_d = service.referer) == null ? void 0 : _d.address) != null ? _g : (_f = service.addresses) == null ? void 0 : _f[0];
+  if (!ipAddress) {
+    return;
+  }
+  const parsed = extractModelAndSerial(service.name);
+  if (!parsed) {
+    return;
+  }
+  const device = adapter.zenIobDeviceList.find((x) => {
+    var _a2;
+    return ((_a2 = x.snNumber) == null ? void 0 : _a2.toUpperCase()) === parsed.snNumber.toUpperCase();
   });
-  let foundCount = 0;
-  const browser = bonjour.find(null, (service) => {
-    var _a, _b, _c, _d, _e;
-    if (!((_a = service.name) == null ? void 0 : _a.startsWith(ZENDURE_DEVICE_NAME_PREFIX))) {
-      return;
-    }
-    foundCount++;
-    adapter.log.info(
-      `[mdnsHelper] Found Zendure device via mDNS: ${service.name} (host: ${service.host}, addresses: ${(_b = service.addresses) == null ? void 0 : _b.join(", ")})`
-    );
-    const ipAddress = (_e = (_c = service.addresses) == null ? void 0 : _c.find((address) => address.includes("."))) != null ? _e : (_d = service.addresses) == null ? void 0 : _d[0];
-    if (!ipAddress) {
-      return;
-    }
-    const parsed = extractModelAndSerial(service.name);
-    if (!parsed) {
-      return;
-    }
-    const device = adapter.zenIobDeviceList.find((x) => {
-      var _a2;
-      return ((_a2 = x.snNumber) == null ? void 0 : _a2.toUpperCase()) === parsed.snNumber.toUpperCase();
-    });
-    if (device) {
-      adapter.log.debug(
-        `[mdnsHelper] Matched mDNS device ${service.name} to known device with snNumber ${device.snNumber} via IP ${ipAddress}!`
-      );
-      device.connectViaMdns(ipAddress, service.name, service.host);
-      return;
-    }
-    createDeviceFromMdns(adapter, service.name, ipAddress);
-  });
-  adapter.setTimeout(() => {
-    browser.stop();
-    bonjour.destroy();
-    adapter.log.info(
-      `[mdnsHelper] Finished mDNS discovery of Zendure devices, found ${foundCount} device(s) via mDNS!`
-    );
-  }, DISCOVERY_DURATION_MS);
+  if (device) {
+    device.connectViaMdns(ipAddress, service.name, service.host);
+    return;
+  }
+  createDeviceFromMdns(adapter, service.name, ipAddress);
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  discoverZendureDevicesViaMdns
+  handleDiscoveredService,
+  isZendureService
 });
 //# sourceMappingURL=mdnsHelper.js.map

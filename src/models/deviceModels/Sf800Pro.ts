@@ -7,6 +7,7 @@ import { ZenSdkIobDevice } from "./ZenSdkIobDevice";
 export class Sf800Pro extends ZenSdkIobDevice {
   maxInputLimit = 1000;
   maxOutputLimit = 800;
+  canChargeByAc = true;
   isZenSdkSupported = true;
 
   controlStates = [...sharedControlStates, ...solarflow800ProControlStates];

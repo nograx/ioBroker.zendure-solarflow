@@ -8,6 +8,8 @@ export class Sf1600AcPlus extends ZenSdkIobDevice {
   maxInputLimit = 1600;
   maxOutputLimit = 1600;
   isZenSdkSupported = true;
+  canChargeByAc = true;
+  isAcOnly = true;
 
   controlStates = [...sharedControlStates, ...solarflow1600AcPlusControlStates];
 

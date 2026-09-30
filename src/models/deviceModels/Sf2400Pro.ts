@@ -7,6 +7,7 @@ import { ZenSdkIobDevice } from "./ZenSdkIobDevice";
 export class Sf2400Pro extends ZenSdkIobDevice {
   maxInputLimit = 2400;
   maxOutputLimit = 2400;
+  canChargeByAc = true;
   isZenSdkSupported = true;
 
   controlStates = [...sharedControlStates, ...solarflow2400ProControlStates];

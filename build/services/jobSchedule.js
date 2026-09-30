@@ -18,6 +18,7 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var jobSchedule_exports = {};
 __export(jobSchedule_exports, {
+  startAdapterAutomationJob: () => startAdapterAutomationJob,
   startCalculationJob: () => startCalculationJob,
   startCheckStatesAndConnectionJob: () => startCheckStatesAndConnectionJob,
   startRefreshAccessTokenTimerJob: () => startRefreshAccessTokenTimerJob,
@@ -26,6 +27,7 @@ __export(jobSchedule_exports, {
 });
 module.exports = __toCommonJS(jobSchedule_exports);
 var import_node_schedule = require("node-schedule");
+var import_adapterAutomation = require("./adapterAutomation/adapterAutomation");
 const startRefreshAccessTokenTimerJob = (adapter) => {
   adapter.refreshAccessTokenInterval = adapter.setInterval(
     async () => {
@@ -92,7 +94,7 @@ const startCheckStatesAndConnectionJob = (adapter) => {
           ).toString()}, device seems to be online - so maybe connection is broken!`
         );
         refreshAccessTokenNeeded = true;
-      } else if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < tenMinutesAgo && (wifiState == null ? void 0 : wifiState.val) == 1 && adapter.config.connectionMode == "local") {
+      } else if (lastUpdate && lastUpdate.val && Number(lastUpdate.val) < tenMinutesAgo && (wifiState == null ? void 0 : wifiState.val) == 1 && (adapter.config.connectionMode == "local" || adapter.config.connectionMode == "zenSDK")) {
         adapter.log.warn(
           `[checkStatesJob] Last update for deviceKey ${device.deviceKey} was at ${new Date(
             Number(lastUpdate.val)
@@ -118,8 +120,25 @@ const startCheckStatesAndConnectionJob = (adapter) => {
     });
   });
 };
+const startAdapterAutomationJob = (adapter) => {
+  void (async () => {
+    await (0, import_adapterAutomation.updateAutomationDeviceMetrics)(adapter);
+    await (0, import_adapterAutomation.sortAutomationDevices)(adapter);
+    await (0, import_adapterAutomation.refreshAutomationStatuses)(adapter);
+  })();
+  adapter.adapterAutomationMetricsJob = (0, import_node_schedule.scheduleJob)("*/1 * * * *", async () => {
+    await (0, import_adapterAutomation.updateAutomationDeviceMetrics)(adapter);
+    await (0, import_adapterAutomation.checkAutomationCurrentLimit)(adapter);
+    await (0, import_adapterAutomation.refreshAutomationStatuses)(adapter);
+  });
+  adapter.adapterAutomationSortJob = (0, import_node_schedule.scheduleJob)("0 * * * *", async () => {
+    adapter.log.debug("[adapterAutomation] Full hour reached, re-sorting devices!");
+    await (0, import_adapterAutomation.sortAutomationDevices)(adapter);
+  });
+};
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  startAdapterAutomationJob,
   startCalculationJob,
   startCheckStatesAndConnectionJob,
   startRefreshAccessTokenTimerJob,

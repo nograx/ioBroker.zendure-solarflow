@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   TextField,
@@ -16,8 +16,9 @@ import {
   IconButton,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import SearchIcon from "@mui/icons-material/Search";
 import type { GenericApp } from "@iobroker/adapter-react-v5";
-import { I18n } from "@iobroker/adapter-react-v5";
+import { I18n, SelectID } from "@iobroker/adapter-react-v5";
 
 const productKeys: { value; title }[] = [
   { value: "", title: "-" },
@@ -49,9 +50,38 @@ interface SettingsProps {
 }
 
 function Settings(props: SettingsProps) {
+  // The automation calculates with the value of the trigger state (smart meter grid power), so only number states are allowed
+  const selectAutomationTriggerState = async (id: string): Promise<void> => {
+    try {
+      const socket = (props.app as unknown as { socket: any }).socket;
+      const obj = await socket.getObject(id);
+
+      if (obj?.type !== "state" || obj.common?.type !== "number") {
+        props.app.showError(I18n.t("automationTriggerStateNotNumber", id, obj?.common?.type ?? obj?.type ?? "?"));
+        return;
+      }
+
+      props.onChange("automationTriggerStateId", id);
+    } catch (e: any) {
+      props.app.showError(e?.message ?? String(e));
+    }
+  };
+
+  const [showStatePicker, setShowStatePicker] = useState(false);
+
   useEffect(() => {
-    if (props.native.connectionMode === "local" && props.native.useAddionalLocalMqtt) {
+    if (props.native.connectionMode !== "authKey" && props.native.useAddionalLocalMqtt) {
       props.onChange("useAddionalLocalMqtt", false);
+    }
+
+    // 'zenSDK only' mode works exclusively with devices found via mDNS and controlled via zenSDK
+    if (props.native.connectionMode === "zenSDK") {
+      if (!props.native.useMdnsDiscovery) {
+        props.onChange("useMdnsDiscovery", true);
+      }
+      if (!props.native.useZenSDK) {
+        props.onChange("useZenSDK", true);
+      }
     }
 
     if (props.native.connectionMode === "local" && !props.native.useMdnsDiscovery && props.native.useZenSDK) {
@@ -165,6 +195,7 @@ function Settings(props: SettingsProps) {
 
   const isAuthKey = props.native.connectionMode === "authKey";
   const isLocal = props.native.connectionMode === "local";
+  const isZenSdkOnly = props.native.connectionMode === "zenSDK";
   const useLocalMqtt = props.native.useAddionalLocalMqtt;
   const showLocalMqttSection = isLocal || useLocalMqtt;
 
@@ -208,6 +239,7 @@ function Settings(props: SettingsProps) {
                 {renderSelect("connectionMode", [
                   { value: "authKey", title: "authKey" },
                   { value: "local", title: "local" },
+                  { value: "zenSDK", title: "zenSdkOnly" },
                 ])}
               </Box>
             </Box>
@@ -219,13 +251,13 @@ function Settings(props: SettingsProps) {
               </Box>
             )}
 
-            <Box>{renderCheckbox("useZenSDK", "useZenSDK", props.native.useMdnsDiscovery)}</Box>
+            <Box>{renderCheckbox("useZenSDK", "useZenSDK", props.native.useMdnsDiscovery || isZenSdkOnly)}</Box>
 
             {isAuthKey && <Box>{renderCheckbox("useAddionalLocalMqtt", "useAddionalLocalMqtt")}</Box>}
 
             {isAuthKey && <Box>{renderCheckbox("useRestart", "useRestart")}</Box>}
 
-            <Box>{renderCheckbox("useMdnsDiscovery", "useMdnsDiscovery")}</Box>
+            <Box>{renderCheckbox("useMdnsDiscovery", "useMdnsDiscovery", isZenSdkOnly)}</Box>
           </Stack>,
         )}
 
@@ -350,7 +382,65 @@ function Settings(props: SettingsProps) {
             </Box>
           </Stack>,
         )}
+
+        {/* Section: Automation */}
+        {renderSection(
+          I18n.t("sectionAutomation"),
+          <Stack spacing={1.5}>
+            <Box>{renderCheckbox("enableAutomation", "enableAutomation")}</Box>
+
+            {props.native.enableAutomation && (
+              <Box>
+                <FormLabel>{I18n.t("automationTriggerState")}:</FormLabel>
+                <Typography variant="body2" sx={{ color: "text.secondary", mb: 0.5 }}>
+                  {I18n.t("automationTriggerStateDesc")}
+                </Typography>
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <TextField
+                    variant="standard"
+                    sx={{ ...inputSx, ...controlElementSx, minWidth: 320 }}
+                    value={props.native.automationTriggerStateId || ""}
+                    placeholder={I18n.t("selectState")}
+                    slotProps={{ input: { readOnly: true } }}
+                    onClick={() => setShowStatePicker(true)}
+                  />
+                  <IconButton size="small" title={I18n.t("selectState")} onClick={() => setShowStatePicker(true)}>
+                    <SearchIcon fontSize="small" />
+                  </IconButton>
+                  {props.native.automationTriggerStateId && (
+                    <IconButton
+                      size="small"
+                      title={I18n.t("clear")}
+                      onClick={() => props.onChange("automationTriggerStateId", "")}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  )}
+                </Box>
+              </Box>
+            )}
+          </Stack>,
+        )}
       </form>
+
+      {showStatePicker && (
+        <SelectID
+          socket={(props.app as unknown as { socket: any }).socket}
+          theme={props.app.state.theme}
+          themeName={props.app.state.themeName}
+          themeType={props.app.state.themeType}
+          selected={props.native.automationTriggerStateId || undefined}
+          types="state"
+          onOk={(selected) => {
+            const id = Array.isArray(selected) ? selected[0] : selected;
+            setShowStatePicker(false);
+            if (id) {
+              void selectAutomationTriggerState(id);
+            }
+          }}
+          onClose={() => setShowStatePicker(false)}
+        />
+      )}
     </Box>
   );
 }

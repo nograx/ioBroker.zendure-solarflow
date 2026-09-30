@@ -1,5 +1,11 @@
 import { scheduleJob } from "node-schedule";
 import type { ZendureSolarflow } from "../main";
+import {
+  checkAutomationCurrentLimit,
+  refreshAutomationStatuses,
+  sortAutomationDevices,
+  updateAutomationDeviceMetrics,
+} from "./adapterAutomation/adapterAutomation";
 
 export const startRefreshAccessTokenTimerJob = (adapter: ZendureSolarflow): void => {
   // Restart adapter every 3 hours
@@ -106,7 +112,7 @@ export const startCheckStatesAndConnectionJob = (adapter: ZendureSolarflow): voi
         lastUpdate.val &&
         Number(lastUpdate.val) < tenMinutesAgo &&
         wifiState?.val == 1 &&
-        adapter.config.connectionMode == "local"
+        (adapter.config.connectionMode == "local" || adapter.config.connectionMode == "zenSDK")
       ) {
         adapter.log.warn(
           `[checkStatesJob] Last update for deviceKey ${device.deviceKey} was at ${new Date(
@@ -136,5 +142,32 @@ export const startCheckStatesAndConnectionJob = (adapter: ZendureSolarflow): voi
         });
       }
     });
+  });
+};
+
+/**
+ * Starts the periodic jobs backing the adapterAutomation feature: device metrics (SOC, minSoc, solar
+ * input, max limit) are refreshed every minute, and the device order is re-evaluated every hour. Also
+ * runs both once immediately so automation has current data right away, without waiting for the first
+ * schedule tick.
+ *
+ * @param adapter the adapter instance
+ */
+export const startAdapterAutomationJob = (adapter: ZendureSolarflow): void => {
+  void (async () => {
+    await updateAutomationDeviceMetrics(adapter);
+    await sortAutomationDevices(adapter);
+    await refreshAutomationStatuses(adapter);
+  })();
+
+  adapter.adapterAutomationMetricsJob = scheduleJob("*/1 * * * *", async () => {
+    await updateAutomationDeviceMetrics(adapter);
+    await checkAutomationCurrentLimit(adapter);
+    await refreshAutomationStatuses(adapter);
+  });
+
+  adapter.adapterAutomationSortJob = scheduleJob("0 * * * *", async () => {
+    adapter.log.debug("[adapterAutomation] Full hour reached, re-sorting devices!");
+    await sortAutomationDevices(adapter);
   });
 };

@@ -1,10 +1,18 @@
-import Bonjour from "bonjour-service";
+import type Bonjour from "bonjour-service";
 import { createDeviceModel, findProductByMdnsModelName } from "./helpers";
 import type { IZenIobDeviceDetails } from "../models/IZenIobDeviceDetails";
 import type { ZendureSolarflow } from "../main";
 
 const ZENDURE_DEVICE_NAME_PREFIX = "Zendure-";
-const DISCOVERY_DURATION_MS = 10000;
+
+/**
+ * Whether the mDNS service was announced by a Zendure device.
+ *
+ * @param service the discovered mDNS service
+ */
+export function isZendureService(service: Bonjour.Service): boolean {
+  return !!service.name?.startsWith(ZENDURE_DEVICE_NAME_PREFIX);
+}
 
 function normalizeModelName(modelName: string): string {
   return modelName
@@ -51,7 +59,7 @@ function createDeviceFromMdns(adapter: ZendureSolarflow, serviceName: string, ip
   }
 
   if (adapter.zenIobDeviceList.some((x) => x.snNumber?.toUpperCase() === parsed.snNumber.toUpperCase())) {
-    // Already created for a previous mDNS announcement of the same device in this discovery run
+    // Already created for a previous mDNS announcement of the same device
     return;
   }
 
@@ -95,70 +103,48 @@ function createDeviceFromMdns(adapter: ZendureSolarflow, serviceName: string, ip
 }
 
 /**
- * Browses the local network via mDNS for a fixed duration. Every discovered device whose
- * service name starts with "Zendure-" (e.g. "Zendure-SolarFlow800-<serialNumber>") is matched
- * against the known devices in adapter.zenIobDeviceList by comparing its full serial number
- * (parsed from the service name) against each device's snNumber. A suffix/MAC-based match is
- * not safe here, as some Zendure serial numbers share an identical tail and only differ in a
- * short prefix. On a match, the device's ipAddress is corrected if needed and it is switched
- * to a zenSDK connection instead of Cloud/MQTT. If no match is found, a new device is created
- * directly from the mDNS name (using its serial number as deviceKey), provided its model is
- * a known zenSDK-compatible device.
+ * Handles a Zendure device found via mDNS (see MdnsDiscoveryService). This is called again for the
+ * same device on every mDNS query, so it must be idempotent. The device is matched against the known
+ * devices in adapter.zenIobDeviceList by comparing its full serial number (parsed from the service
+ * name, e.g. "Zendure-SolarFlow800-<serialNumber>") against each device's snNumber. A suffix/MAC-based
+ * match is not safe here, as some Zendure serial numbers share an identical tail and only differ in a
+ * short prefix. On a match, the device's ipAddress is corrected if needed and it is switched to a
+ * zenSDK connection instead of Cloud/MQTT. If no match is found, a new device is created directly
+ * from the mDNS name (using its serial number as deviceKey), provided its model is a known
+ * zenSDK-compatible device.
  *
  * @param adapter the adapter instance, used for logging and device lookup
+ * @param service the discovered mDNS service
  */
-export function discoverZendureDevicesViaMdns(adapter: ZendureSolarflow): void {
-  adapter.log.info(`[mdnsHelper] Starting mDNS discovery of Zendure devices for ${DISCOVERY_DURATION_MS / 1000}s!`);
+export function handleDiscoveredService(adapter: ZendureSolarflow, service: Bonjour.Service): void {
+  if (!isZendureService(service)) {
+    return;
+  }
 
-  const bonjour = new Bonjour(undefined, (err: Error) => {
-    adapter.log.warn(`[mdnsHelper] mDNS error: ${err.message}`);
-  });
+  adapter.log.debug(
+    `[mdnsHelper] Found Zendure device via mDNS: ${service.name} (host: ${service.host}, addresses: ${service.addresses?.join(", ")}, sender: ${service.referer?.address})`,
+  );
 
-  let foundCount = 0;
+  // Prefer an IPv4 address. Fall back to the sender of the mDNS response, if the response didn't include an address record.
+  const ipAddress =
+    service.addresses?.find((address) => address.includes(".")) ?? service.referer?.address ?? service.addresses?.[0];
 
-  const browser = bonjour.find(null, (service) => {
-    if (!service.name?.startsWith(ZENDURE_DEVICE_NAME_PREFIX)) {
-      return;
-    }
+  if (!ipAddress) {
+    return;
+  }
 
-    foundCount++;
+  const parsed = extractModelAndSerial(service.name);
 
-    adapter.log.info(
-      `[mdnsHelper] Found Zendure device via mDNS: ${service.name} (host: ${service.host}, addresses: ${service.addresses?.join(", ")})`,
-    );
+  if (!parsed) {
+    return;
+  }
 
-    const ipAddress = service.addresses?.find((address) => address.includes(".")) ?? service.addresses?.[0];
+  const device = adapter.zenIobDeviceList.find((x) => x.snNumber?.toUpperCase() === parsed.snNumber.toUpperCase());
 
-    if (!ipAddress) {
-      return;
-    }
+  if (device) {
+    device.connectViaMdns(ipAddress, service.name, service.host);
+    return;
+  }
 
-    const parsed = extractModelAndSerial(service.name);
-
-    if (!parsed) {
-      return;
-    }
-
-    const device = adapter.zenIobDeviceList.find((x) => x.snNumber?.toUpperCase() === parsed.snNumber.toUpperCase());
-
-    if (device) {
-      adapter.log.debug(
-        `[mdnsHelper] Matched mDNS device ${service.name} to known device with snNumber ${device.snNumber} via IP ${ipAddress}!`,
-      );
-
-      device.connectViaMdns(ipAddress, service.name, service.host);
-      return;
-    }
-
-    createDeviceFromMdns(adapter, service.name, ipAddress);
-  });
-
-  adapter.setTimeout(() => {
-    browser.stop();
-    bonjour.destroy();
-
-    adapter.log.info(
-      `[mdnsHelper] Finished mDNS discovery of Zendure devices, found ${foundCount} device(s) via mDNS!`,
-    );
-  }, DISCOVERY_DURATION_MS);
+  createDeviceFromMdns(adapter, service.name, ipAddress);
 }

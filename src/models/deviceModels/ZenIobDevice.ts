@@ -52,8 +52,16 @@ export class ZenIobDevice {
   public adapter: ZendureSolarflow;
   public deviceConnectionMode: DeviceConnectionMode | undefined = undefined;
 
+  /** productKey / deviceKey of the device's state tree ('<productKey>.<deviceKey>.*'). */
   public productKey: string;
   public deviceKey: string;
+  /**
+   * productKey / deviceKey used for MQTT topics and payloads, as known to the Zendure cloud. Usually identical to
+   * productKey / deviceKey, but differs for a device that was first created via mDNS (placeholder productKey,
+   * serial number as deviceKey) and appeared in the cloud device list later: it keeps its existing state tree.
+   */
+  public mqttProductKey: string;
+  public mqttDeviceKey: string;
   public snNumber: string | undefined = undefined;
   public productName: string;
   public deviceName: string;
@@ -77,11 +85,22 @@ export class ZenIobDevice {
   public controlStates: ISolarflowState[] = [];
   /** Whether this device reports battery packData (false for read-only devices like the Smart Meter 3CT/D0). */
   public hasPackData: boolean = true;
+  /** Whether this device is an AC-only unit (no solar input), e.g. the Solarflow AC+/AC models. */
+  public isAcOnly: boolean = false;
+  /** Whether this device can by charge through AC */
+  public canChargeByAc: boolean = false;
 
   private zenSdkErrorCount: number = 0;
   private zenSdkPausedUntil: number = 0;
   private static readonly ZEN_SDK_MAX_ERROR_LOGS = 5;
   private static readonly ZEN_SDK_PAUSE_DURATION_MS = 10 * 60 * 1000;
+
+  /** State of the zenSDK connect attempts triggered by mDNS discovery (see connectViaMdns). */
+  private mdnsConnectInProgress: boolean = false;
+  private mdnsConnectNotBefore: number = 0;
+  private mdnsConnectRetryDelayMs: number = 0;
+  private static readonly MDNS_CONNECT_MIN_RETRY_DELAY_MS = 30 * 1000;
+  private static readonly MDNS_CONNECT_MAX_RETRY_DELAY_MS = 30 * 60 * 1000;
 
   /** Per-device zenSDK polling job, scheduled with the interval configured in 'settings.ZenSDKPollingInverval'. */
   private zenSdkPollingJob?: Job;
@@ -101,14 +120,16 @@ export class ZenIobDevice {
     this.adapter = _adapter;
     this.productKey = _productKey;
     this.deviceKey = _deviceKey;
+    this.mqttProductKey = _zenIobDeviceDetails?.productKey || _productKey;
+    this.mqttDeviceKey = _zenIobDeviceDetails?.deviceKey || _deviceKey;
 
     this.deviceName = _deviceName;
     this.productName = _productName;
 
     this.isZenSdkSupported = isZenSdkSupported;
 
-    this.iotTopic = `iot/${_productKey}/${_deviceKey}/properties/write`;
-    this.functionTopic = `iot/${_productKey}/${_deviceKey}/function/invoke`;
+    this.iotTopic = `iot/${this.mqttProductKey}/${this.mqttDeviceKey}/properties/write`;
+    this.functionTopic = `iot/${this.mqttProductKey}/${this.mqttDeviceKey}/function/invoke`;
 
     // Create or update states
     this.createSolarFlowStates();
@@ -119,7 +140,7 @@ export class ZenIobDevice {
     }
 
     // Calculate device password
-    this.password = createHash("md5").update(_deviceKey, "utf8").digest("hex").toUpperCase().substring(8, 24);
+    this.password = createHash("md5").update(this.mqttDeviceKey, "utf8").digest("hex").toUpperCase().substring(8, 24);
 
     this.adapter.log.debug(
       `[ZenIobDevice] useZenSDK for device ${this.deviceKey}: Supported=${this.isZenSdkSupported} Config=${this.adapter.config.useZenSDK}`,
@@ -321,6 +342,144 @@ export class ZenIobDevice {
         // Subscribe to states to respond to changes
         this.adapter?.subscribeStates(`${productKey}.${deviceKey}.control.${state.title}`);
       });
+
+      if (this.adapter.config.enableAutomation) {
+        // Create automation folder
+        await this.adapter?.extendObject(`${productKey}.${deviceKey}.adapterAutomation`, {
+          type: "channel",
+          common: {
+            name: {
+              de: `Automatisierung für Gerät ${deviceKey}`,
+              en: `Automation for device ${deviceKey}`,
+            },
+          },
+          native: {},
+        });
+
+        await this.adapter?.extendObject(`${productKey}.${deviceKey}.adapterAutomation.suggestedInverseMaxPower`, {
+          type: "state",
+          common: {
+            name: {
+              de: "Empfohlene maximale Ausgangsleistung",
+              en: "Suggested maximum inverter output power",
+            },
+            type: "number",
+            desc: "suggestedInverseMaxPower",
+            role: "value.power",
+            read: true,
+            write: false,
+            unit: "W",
+          },
+          native: {},
+        });
+
+        await this.adapter?.extendObject(`${productKey}.${deviceKey}.adapterAutomation.suggestedInverseMaxPowerInfo`, {
+          type: "state",
+          common: {
+            name: {
+              de: "Begründung für empfohlene maximale Ausgangsleistung",
+              en: "Reason for the suggested maximum inverter output power",
+            },
+            type: "string",
+            desc: "suggestedInverseMaxPowerInfo",
+            role: "text",
+            read: true,
+            write: false,
+          },
+          native: {},
+        });
+
+        await this.adapter?.extendObject(`${productKey}.${deviceKey}.adapterAutomation.status`, {
+          type: "state",
+          common: {
+            name: {
+              de: "Aktuelle Aufgabe des Geräts",
+              en: "Current task of the device",
+            },
+            type: "string",
+            desc: "status",
+            role: "text",
+            read: true,
+            write: false,
+          },
+          native: {},
+        });
+
+        const automationEnabledStateId = `${productKey}.${deviceKey}.adapterAutomation.automationEnabled`;
+        await this.adapter?.extendObject(automationEnabledStateId, {
+          type: "state",
+          common: {
+            name: {
+              de: "Automatisierung für dieses Gerät aktiv",
+              en: "Automation enabled for this device",
+            },
+            type: "boolean",
+            desc: "automationEnabled",
+            role: "switch.enable",
+            read: true,
+            write: true,
+            def: false,
+          },
+          native: {},
+        });
+
+        const currentAutomationEnabled = await this.adapter?.getStateAsync(automationEnabledStateId);
+        if (currentAutomationEnabled?.val == null) {
+          await this.adapter?.setState(automationEnabledStateId, false, true);
+        }
+
+        // Subscribe, so the device's automation limit can be released to 0 when automation is disabled for it
+        this.adapter?.subscribeStates(automationEnabledStateId);
+
+        const forceAcChargingStateId = `${productKey}.${deviceKey}.adapterAutomation.forceAcCharging`;
+        await this.adapter?.extendObject(forceAcChargingStateId, {
+          type: "state",
+          common: {
+            name: {
+              de: "Laden mit maximaler Ladeleistung erzwingen",
+              en: "Force charging at maximum charge power",
+            },
+            type: "boolean",
+            desc: "forceAcCharging",
+            role: "switch",
+            read: true,
+            write: true,
+            def: false,
+          },
+          native: {},
+        });
+
+        const currentForceAcCharging = await this.adapter?.getStateAsync(forceAcChargingStateId);
+        if (currentForceAcCharging?.val == null) {
+          await this.adapter?.setState(forceAcChargingStateId, false, true);
+        }
+
+        // AC-only devices always charge from surplus; devices with their own solar input only if allowed here.
+        if (this.canChargeByAc && !this.isAcOnly) {
+          const acChargingAllowedStateId = `${productKey}.${deviceKey}.adapterAutomation.acChargingAllowed`;
+          await this.adapter?.extendObject(acChargingAllowedStateId, {
+            type: "state",
+            common: {
+              name: {
+                de: "Laden mit Netzüberschuss erlauben (wie AC-Geräte)",
+                en: "Allow charging from grid surplus (like AC-only devices)",
+              },
+              type: "boolean",
+              desc: "acChargingAllowed",
+              role: "switch",
+              read: true,
+              write: true,
+              def: false,
+            },
+            native: {},
+          });
+
+          const currentAcChargingAllowed = await this.adapter?.getStateAsync(acChargingAllowedStateId);
+          if (currentAcChargingAllowed?.val == null) {
+            await this.adapter?.setState(acChargingAllowedStateId, false, true);
+          }
+        }
+      }
     }
 
     if (this.isZenSdkSupported) {
@@ -402,8 +561,6 @@ export class ZenIobDevice {
       return Promise.resolve(false);
     }
 
-    this.adapter.log.debug(`[getZenSdkProperties] Getting properties with zenSDK for device ${this.deviceKey}!`);
-
     if (this.ipAddress) {
       const headers = {
         "Content-Type": "application/json",
@@ -421,10 +578,6 @@ export class ZenIobDevice {
 
           // Device is online, so set error count to 0!
           this.zenSdkErrorCount = 0;
-
-          this.adapter.log.debug(
-            `[getZenSdkProperties] Successfully got properties for device ${this.deviceKey} with zenSDK!}`,
-          );
 
           // Some devices (e.g. Smart Meter 3CT/D0) report their measurements directly on the
           // top-level response instead of nesting them under 'properties'
@@ -557,9 +710,12 @@ export class ZenIobDevice {
   /**
    * Called by mdnsHelper when this device was discovered locally via mDNS. Fills in the
    * ipAddress if it is not yet known, or corrects it if it no longer matches the
-   * mDNS-discovered address (e.g. a stale/wrong IP from the cloud device list), then
-   * switches the device to a zenSDK connection (instead of Cloud/MQTT) if zenSDK is
-   * supported and enabled.
+   * mDNS-discovered address (e.g. a stale/wrong IP from the cloud device list, or a new
+   * IP from DHCP), then switches the device to a zenSDK connection (instead of Cloud/MQTT)
+   * if zenSDK is supported and enabled.
+   *
+   * mDNS discovery runs continuously, so this is called again on every mDNS query. A failed
+   * zenSDK connect is retried on later calls, with an increasing delay between attempts.
    *
    * @param ipAddress the IP address the device was discovered at
    * @param serviceName the mDNS service name the device was discovered with (for logging)
@@ -574,23 +730,47 @@ export class ZenIobDevice {
       }
       this.ipAddress = ipAddress;
       this.updateSolarFlowState("ip", ipAddress);
+
+      // Previous zenSDK errors (and a polling pause) were caused by the old IP, so use the new one right away
+      this.zenSdkErrorCount = 0;
+      this.zenSdkPausedUntil = 0;
+      this.mdnsConnectRetryDelayMs = 0;
+      this.mdnsConnectNotBefore = 0;
     }
 
-    if (
-      !this.adapter.config.useZenSDK ||
-      !this.isZenSdkSupported ||
-      this.deviceConnectionMode == DeviceConnectionMode.zenSDK
-    ) {
-      this.adapter.log.warn(
-        `[connectViaMdns] Skipping zenSDK connect for device ${this.deviceKey} (useZenSDK=${this.adapter.config.useZenSDK}, isZenSdkSupported=${this.isZenSdkSupported}, deviceConnectionMode=${this.deviceConnectionMode})!`,
+    // The device just answered via mDNS, so it's reachable again: end a zenSDK polling pause caused by earlier errors
+    if (Date.now() < this.zenSdkPausedUntil) {
+      this.adapter.log.info(
+        `[connectViaMdns] Device ${this.deviceKey} was found via mDNS, resuming paused zenSDK polling!`,
+      );
+      this.zenSdkErrorCount = 0;
+      this.zenSdkPausedUntil = 0;
+    }
+
+    if (!this.adapter.config.useZenSDK || !this.isZenSdkSupported) {
+      this.adapter.log.debug(
+        `[connectViaMdns] Skipping zenSDK connect for device ${this.deviceKey} (useZenSDK=${this.adapter.config.useZenSDK}, isZenSdkSupported=${this.isZenSdkSupported})!`,
       );
       return;
     }
+
+    // Already connected - zenSDK polling uses the (possibly corrected) ipAddress
+    if (this.deviceConnectionMode == DeviceConnectionMode.zenSDK) {
+      return;
+    }
+
+    if (this.mdnsConnectInProgress || Date.now() < this.mdnsConnectNotBefore) {
+      return;
+    }
+
+    this.mdnsConnectInProgress = true;
 
     this.getZenSdkProperties()
       .then((success) => {
         if (success) {
           this.deviceConnectionMode = DeviceConnectionMode.zenSDK;
+          this.mdnsConnectRetryDelayMs = 0;
+          this.mdnsConnectNotBefore = 0;
 
           this.updateSolarFlowState("connectionMode", "zenSDK");
           this.updateSolarFlowState("wifiState", 1);
@@ -601,16 +781,35 @@ export class ZenIobDevice {
           this.adapter.log.info(
             `[connectViaMdns] Switched device ${this.deviceKey} to zenSDK connection via mDNS-discovered IP ${ipAddress} (service: ${serviceName}, host: ${serviceHost})!`,
           );
+        } else {
+          this.scheduleMdnsConnectRetry();
         }
       })
       .catch(() => {
         // zenSDK not reachable yet via the discovered IP, keep existing connection mode
+        this.scheduleMdnsConnectRetry();
+      })
+      .finally(() => {
+        this.mdnsConnectInProgress = false;
       });
   }
 
+  /** Doubles the delay until the next zenSDK connect attempt from mDNS (30s up to 30 minutes). */
+  private scheduleMdnsConnectRetry(): void {
+    this.mdnsConnectRetryDelayMs = Math.min(
+      Math.max(this.mdnsConnectRetryDelayMs * 2, ZenIobDevice.MDNS_CONNECT_MIN_RETRY_DELAY_MS),
+      ZenIobDevice.MDNS_CONNECT_MAX_RETRY_DELAY_MS,
+    );
+    this.mdnsConnectNotBefore = Date.now() + this.mdnsConnectRetryDelayMs;
+
+    this.adapter.log.debug(
+      `[connectViaMdns] zenSDK connect for device ${this.deviceKey} failed, retrying in ${this.mdnsConnectRetryDelayMs / 1000}s at the earliest!`,
+    );
+  }
+
   private unsubscribeMqttTopics(): void {
-    const reportTopic = `/${this.productKey}/${this.deviceKey}/#`;
-    const iotSubscribeTopic = `iot/${this.productKey}/${this.deviceKey}/#`;
+    const reportTopic = `/${this.mqttProductKey}/${this.mqttDeviceKey}/#`;
+    const iotSubscribeTopic = `iot/${this.mqttProductKey}/${this.mqttDeviceKey}/#`;
 
     if (this.adapter?.cloudMqttService?.mqttClient) {
       this.adapter.log.debug(
@@ -731,7 +930,7 @@ export class ZenIobDevice {
   }
 
   public subscribeReportTopic(): void {
-    const reportTopic = `/${this.productKey}/${this.deviceKey}/#`; // Use wildcard topic to get ALL messages from device
+    const reportTopic = `/${this.mqttProductKey}/${this.mqttDeviceKey}/#`; // Use wildcard topic to get ALL messages from device
 
     if (this.adapter) {
       // Subscribe to report topic with both MQTT clients, if available. This is necessary because we don't know which MQTT client the device will report to (cloud or local), so we have to subscribe with both to make sure we receive the reports.
@@ -780,20 +979,20 @@ export class ZenIobDevice {
   }
 
   private subscribeIotTopic(): void {
-    const iotTopic = `iot/${this.productKey}/${this.deviceKey}/#`; // Use wildcard topic to get all messages from device
+    const iotTopic = `iot/${this.mqttProductKey}/${this.mqttDeviceKey}/#`; // Use wildcard topic to get all messages from device
 
     if (this.adapter) {
       if (this.adapter?.cloudMqttService?.mqttClient) {
         this.adapter?.log.debug(`[subscribeIotTopic] Subscribing to MQTT Topic: '${iotTopic}' (Cloud)`);
         this.adapter?.cloudMqttService?.mqttClient.subscribe(iotTopic, (error) => {
-          onSubscribeIotTopic(error, this.productKey, this.deviceKey);
+          onSubscribeIotTopic(error, this.mqttProductKey, this.mqttDeviceKey);
         });
       }
 
       if (this.adapter?.localMqttService?.mqttClient) {
         this.adapter?.log.debug(`[subscribeIotTopic] Subscribing to MQTT Topic: '${iotTopic}' (Local)`);
         this.adapter?.localMqttService?.mqttClient.subscribe(iotTopic, (error) => {
-          onSubscribeIotTopic(error, this.productKey, this.deviceKey);
+          onSubscribeIotTopic(error, this.mqttProductKey, this.mqttDeviceKey);
         });
       }
     }
@@ -907,7 +1106,7 @@ export class ZenIobDevice {
       arguments: _arguments,
       function: "hemsEP",
       messageId: this.messageId,
-      deviceKey: this.deviceKey,
+      deviceKey: this.mqttDeviceKey,
       timestamp: timestamp.getTime() / 1000,
     };
     this.invokeMqttFunction(JSON.stringify(hemsEP));
@@ -1207,7 +1406,7 @@ export class ZenIobDevice {
       this.adapter.log.debug(
         `[triggerFullTelemetryUpdate] Triggering full telemetry update for device key ${this.deviceKey}!`,
       );
-      const topic = `iot/${this.productKey}/${this.deviceKey}/properties/read`;
+      const topic = `iot/${this.mqttProductKey}/${this.mqttDeviceKey}/properties/read`;
 
       this.messageId += 1;
       // if local MQTT is enabled, prefer local MQTT client for setting properties, otherwise use cloud MQTT client
@@ -1253,7 +1452,6 @@ export class ZenIobDevice {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await -- kept async, caller in processDeviceProperties.ts awaits this method
   addOrUpdatePackData = async (packData: IPackData[], isSolarFlow: boolean): Promise<void> => {
     if (this.adapter && this.productKey && this.deviceKey) {
       packData.forEach(async (x) => {
@@ -1423,6 +1621,13 @@ export class ZenIobDevice {
           });
         }
       });
+
+      if (this.adapter.config.enableAutomation) {
+        const minVoltages = packData?.filter((x) => x.minVol != null).map((x) => x.minVol / 100);
+        if (minVoltages.length > 0) {
+          await this.updateSuggestedInverseMaxPower(Math.min(...minVoltages));
+        }
+      }
     }
   };
 
@@ -1486,6 +1691,116 @@ export class ZenIobDevice {
         }
       }
     }
+  }
+
+  /**
+   * Suggests a maximum inverter output power (inverseMaxPower) based on the weakest cell voltage
+   * across all battery packs and the device SOC. Between 0-5 o'clock the suggestion is SOC-only,
+   * as voltage readings in that window are unreliable.
+   *
+   * minVoltage is the lowest single-cell voltage (V) seen across all packs, not the pack's totalVol -
+   * a weak individual cell can drop below a safe threshold long before the pack's summed voltage does.
+   * The voltage thresholds below are the pack-level thresholds (48.5V/47.4V/46.4V for a 15S pack) divided
+   * by 15 to bring them to the same per-cell scale as minVoltage.
+   *
+   * @param minVoltage lowest single-cell voltage (V) across all battery packs of this device
+   * @param soc device state of charge (%)
+   * @param maxLimit the device's currently configured inverseMaxPower (W), used as the upper bound
+   */
+  public getSuggestedInverseMaxPower(
+    minVoltage: number,
+    soc: number,
+    maxLimit: number,
+  ): { limit: number; reason: string } {
+    const hour = new Date().getHours();
+
+    if (hour >= 0 && hour < 5) {
+      if (soc <= 10) {
+        return { limit: 0, reason: `Night mode (0-5h): SOC (${soc}%) <= 10% - output disabled` };
+      }
+      return {
+        limit: Math.min(Math.ceil(soc / 10) * 100, maxLimit),
+        reason: `Night mode (0-5h): limit derived from SOC (${soc}%)`,
+      };
+    }
+
+    const HIGH_VOLTAGE = 3.23;
+    const MID_VOLTAGE = 3.2;
+    const LOW_VOLTAGE = 3.1;
+
+    let newLimit = 0;
+    let reason = "";
+
+    if (soc > 35) {
+      newLimit = maxLimit;
+      reason = `SOC (${soc}%) > 35% - full power`;
+    } else if (minVoltage > HIGH_VOLTAGE && soc > 15) {
+      newLimit = maxLimit;
+      reason = `Cell voltage (${minVoltage}V) > ${HIGH_VOLTAGE}V and SOC (${soc}%) > 15% - full power`;
+    } else if (minVoltage > HIGH_VOLTAGE && soc <= 15) {
+      newLimit = 200;
+      reason = `Cell voltage (${minVoltage}V) > ${HIGH_VOLTAGE}V but SOC (${soc}%) <= 15% - limited to 200W`;
+    } else if (minVoltage > MID_VOLTAGE && soc > 15) {
+      newLimit = 500;
+      reason = `Cell voltage (${minVoltage}V) > ${MID_VOLTAGE}V and SOC (${soc}%) > 15% - limited to 500W`;
+    } else if (minVoltage > MID_VOLTAGE && soc <= 15) {
+      newLimit = 150;
+      reason = `Cell voltage (${minVoltage}V) > ${MID_VOLTAGE}V but SOC (${soc}%) <= 15% - limited to 150W`;
+    } else if (minVoltage > LOW_VOLTAGE && soc > 10) {
+      newLimit = 130;
+      reason = `Cell voltage (${minVoltage}V) > ${LOW_VOLTAGE}V and SOC (${soc}%) > 10% - limited to 130W`;
+    } else if (minVoltage > LOW_VOLTAGE && soc <= 10) {
+      newLimit = 100;
+      reason = `Cell voltage (${minVoltage}V) > ${LOW_VOLTAGE}V but SOC (${soc}%) <= 10% - limited to 100W`;
+    } else {
+      newLimit = 60;
+      reason = `Cell voltage (${minVoltage}V) <= ${LOW_VOLTAGE}V - critical, limited to 60W`;
+    }
+
+    if (newLimit > maxLimit) {
+      reason += ` (capped to configured inverseMaxPower of ${maxLimit}W)`;
+    }
+
+    return { limit: Math.min(newLimit, maxLimit), reason };
+  }
+
+  /**
+   * Recalculates and persists 'adapterAutomation.suggestedInverseMaxPower' and
+   * 'adapterAutomation.suggestedInverseMaxPowerInfo' for this device.
+   *
+   * @param minVoltage lowest single-cell voltage (V) across all battery packs, as reported in the
+   * current packData batch
+   */
+  public async updateSuggestedInverseMaxPower(minVoltage: number): Promise<void> {
+    const electricLevelState = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.electricLevel`);
+    if (electricLevelState?.val == null) {
+      return;
+    }
+
+    const inverseMaxPowerState = await this.adapter.getStateAsync(
+      `${this.productKey}.${this.deviceKey}.inverseMaxPower`,
+    );
+    if (inverseMaxPowerState?.val == null) {
+      return;
+    }
+
+    const { limit, reason } = this.getSuggestedInverseMaxPower(
+      minVoltage,
+      Number(electricLevelState.val),
+      Number(inverseMaxPowerState.val),
+    );
+
+    await this.adapter?.setState(
+      `${this.productKey}.${this.deviceKey}.adapterAutomation.suggestedInverseMaxPower`,
+      limit,
+      true,
+    );
+
+    await this.adapter?.setState(
+      `${this.productKey}.${this.deviceKey}.adapterAutomation.suggestedInverseMaxPowerInfo`,
+      reason,
+      true,
+    );
   }
 
   /**

@@ -8,6 +8,8 @@ export class Sf2400AcPlus extends ZenSdkIobDevice {
   maxInputLimit = 2400;
   maxOutputLimit = 2400;
   isZenSdkSupported = true;
+  canChargeByAc = true;
+  isAcOnly = true;
 
   controlStates = [...sharedControlStates, ...ac2400PlusControlStates];
 

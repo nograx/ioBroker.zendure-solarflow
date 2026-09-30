@@ -127,12 +127,15 @@ class ZenSdkIobDevice extends import_ZenIobDevice.ZenIobDevice {
               results.push(await this.updateProperty("acMode", 0));
             }
           }, 2e3);
-          this.resetSmartModeTimeout = this.adapter.setTimeout(async () => {
-            this.resetSmartModeTimeout = void 0;
-            if (currentSmartMode && currentSmartMode.val != 0) {
-              results.push(await this.updateProperty("smartMode", 0));
-            }
-          }, 4e3);
+          this.resetSmartModeTimeout = this.adapter.setTimeout(
+            async () => {
+              this.resetSmartModeTimeout = void 0;
+              if (currentSmartMode && currentSmartMode.val != 0) {
+                results.push(await this.updateProperty("smartMode", 0));
+              }
+            },
+            10 * 60 * 1e3
+          );
         }
         const success = results.every((result) => result === true);
         if (success) {

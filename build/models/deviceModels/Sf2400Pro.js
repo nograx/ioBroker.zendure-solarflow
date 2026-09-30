@@ -27,6 +27,7 @@ var import_ZenSdkIobDevice = require("./ZenSdkIobDevice");
 class Sf2400Pro extends import_ZenSdkIobDevice.ZenSdkIobDevice {
   maxInputLimit = 2400;
   maxOutputLimit = 2400;
+  canChargeByAc = true;
   isZenSdkSupported = true;
   controlStates = [...import_sharedControlStates.sharedControlStates, ...import_solarflow2400ProControlStates.solarflow2400ProControlStates];
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {

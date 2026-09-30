@@ -38,6 +38,14 @@ const allStates = {
     role: "value.power",
     unit: "W"
   },
+  chargeMaxLimit: {
+    title: "chargeMaxLimit",
+    nameDe: "Maximal akzeptable Ladeleistung",
+    nameEn: "highest acceptable charge power",
+    type: "number",
+    role: "value.power",
+    unit: "W"
+  },
   gridInputPower: {
     title: "gridInputPower",
     nameDe: "Leistung vom Stromnetz",

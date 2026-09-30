@@ -27,6 +27,7 @@ var import_ZenSdkIobDevice = require("./ZenSdkIobDevice");
 class Sf800Plus extends import_ZenSdkIobDevice.ZenSdkIobDevice {
   maxInputLimit = 1e3;
   maxOutputLimit = 800;
+  canChargeByAc = true;
   isZenSdkSupported = true;
   controlStates = [...import_sharedControlStates.sharedControlStates, ...import_solarflow800PlusControlStates.solarflow800PlusControlStates];
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {

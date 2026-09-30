@@ -460,10 +460,11 @@ export const processDeviceProperties = async (
     await ensureState(device, key, coercedValue);
     device.updateSolarFlowState(key, coercedValue);
 
+    /*
     if (device.adapter.log.level == "debug") {
       device.adapter.log.debug(
         `[onMessage] ${device.deviceKey}: ${key} = ${JSON.stringify(coercedValue)} stored via fallback handler`,
       );
-    }
+    }*/
   }
 };

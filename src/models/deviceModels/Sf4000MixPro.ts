@@ -7,6 +7,7 @@ import { ZenSdkIobDevice } from "./ZenSdkIobDevice";
 export class Sf4000MixPro extends ZenSdkIobDevice {
   maxInputLimit = 4000;
   maxOutputLimit = 4000;
+  canChargeByAc = true;
   isZenSdkSupported = true;
 
   // This device uses a 24V battery pack, half the 48V systems the base thresholds are tuned for.

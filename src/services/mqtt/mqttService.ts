@@ -46,6 +46,7 @@ export abstract class MqttService {
       this.mqttClient.on("connect", () => onConnected(url, opts));
       this.mqttClient.on("reconnect", () => onReconnected(url));
       this.mqttClient.on("disconnect", () => onDisconnected(url));
+      this.mqttClient.on("offline", () => onDisconnected(url));
       this.mqttClient.on("error", (error) => onError(error, url));
       this.mqttClient.on("message", isLocal ? onMessageLocal : onMessageCloud);
 
@@ -73,9 +74,42 @@ export abstract class MqttService {
   abstract connect(): boolean;
 
   /**
-   * Tear down the client if it exists.
+   * Tear down the client if it exists. Sends a clean DISCONNECT if possible, but never blocks the
+   * adapter shutdown: a non-forced end() waits for unacknowledged QoS 1 messages, which never
+   * arrive if the broker is unreachable. In that case (or on timeout) the connection is closed forcibly.
+   *
+   * @param timeoutMs maximum time to wait for a clean disconnect
    */
-  disconnect(): void {
-    this.mqttClient?.end(true);
+  async disconnect(timeoutMs = 500): Promise<void> {
+    const client = this.mqttClient;
+    if (!client) {
+      return;
+    }
+
+    this.mqttClient = undefined;
+
+    // Don't process any further events (messages, state updates) while shutting down
+    client.removeAllListeners();
+    client.on("error", () => {});
+
+    // Pending QoS 1 messages or no connection: a clean disconnect is not possible, close immediately
+    const force = !client.connected || Object.keys(client.outgoing).length > 0;
+
+    let timeout: NodeJS.Timeout | undefined;
+    const timedOut = await Promise.race([
+      client.endAsync(force).then(
+        () => false,
+        () => false,
+      ),
+      new Promise<boolean>((resolve) => {
+        timeout = setTimeout(() => resolve(true), timeoutMs);
+      }),
+    ]);
+    clearTimeout(timeout);
+
+    if (timedOut) {
+      // end() can't be forced once it is in progress, so destroy the underlying socket
+      client.stream?.destroy();
+    }
   }
 }

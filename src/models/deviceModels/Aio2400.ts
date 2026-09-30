@@ -104,7 +104,7 @@ export class Aio2400 extends ZenIobDevice {
         arguments: _arguments,
         function: "deviceAutomation",
         messageId: this.messageId,
-        deviceKey: this.deviceKey,
+        deviceKey: this.mqttDeviceKey,
         timestamp: timestamp.getTime() / 1000,
       };
       this.invokeMqttFunction(JSON.stringify(deviceAutomation));
