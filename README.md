@@ -139,8 +139,7 @@ For more details and for information on how to disable error reporting, see the 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
-
-### **WORK IN PROGRESS**
+### 6.0.0-alpha.0 (2026-09-30)
 
 - Add adapter automation (zero feed-in control), see section "Adapter Automation" above.
 - Add connection mode "zenSDK only (mDNS)": no Zendure cloud and no MQTT server, devices are found via mDNS and controlled via zenSDK.
@@ -149,8 +148,6 @@ For more details and for information on how to disable error reporting, see the 
 - Devices created via mDNS keep their states when they appear in the Zendure cloud device list later (cloud MQTT still works for them). Devices with an unknown productKey in the cloud device list are logged as info instead of error.
 - Disconnect MQTT clients cleanly when the adapter is stopped or restarted.
 - Added Sentry (default ioBroker) for error reporting and device statistics.
-
-## Changelog
 
 ### 5.3.2 (2026-09-28)
 
@@ -176,11 +173,6 @@ For more details and for information on how to disable error reporting, see the 
 - Correct a device's IP via mDNS if it no longer matches the (stale or wrong) IP from the cloud device list
 - Process zenSDK measurements reported directly on the response instead of nested under "properties" (affects Smart Meter 3CT/D0)
 - Enable "mDNS discovery" by default, including for existing instances that never had this setting saved - you must disable this option in settings if not desired
-
-### 5.1.0 (2026-08-20)
-
-- Fix batCur Reading
-- Add control state for inverseMaxPower and gridOffMode (Control AC outlet on 'Plus' Devices)
 
 For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 

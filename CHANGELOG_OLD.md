@@ -157,6 +157,11 @@
 
 - Add 'packPower' state, which shows combined power from (packInputPower and outputPackPower). Discharging will be shown with a negative value.
 - Add 'hyperTmp' to Solarflow 800 devices in hope this will show the temperature of the Solarflow 800 (can not test it due to lack of test device).
+## 5.1.0 (2026-08-20)
+
+- Fix batCur Reading
+- Add control state for inverseMaxPower and gridOffMode (Control AC outlet on 'Plus' Devices)
+
 ## 5.0.4 (2026-08-19)
 
 - Fix flickering Save button in Settings.
