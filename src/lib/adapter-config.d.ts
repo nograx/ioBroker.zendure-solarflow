@@ -7,6 +7,7 @@ declare global {
       connectionMode; // "authKey" (Cloud), "local" (local MQTT) or "zenSDK" (zenSDK / mDNS only, no Cloud or MQTT)
       useZenSDK: boolean;
       useMdnsDiscovery: boolean;
+      zenSdkDeviceIps: string[]; // IP addresses / host names of zenSDK devices, connected without mDNS
       useAddionalLocalMqtt: boolean;
       relayMqttToCloud: boolean;
       authorizationCloudKey: string;

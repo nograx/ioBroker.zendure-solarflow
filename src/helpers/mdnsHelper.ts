@@ -14,7 +14,13 @@ export function isZendureService(service: Bonjour.Service): boolean {
   return !!service.name?.startsWith(ZENDURE_DEVICE_NAME_PREFIX);
 }
 
-function normalizeModelName(modelName: string): string {
+/**
+ * Normalizes a Zendure model name as reported via mDNS or in the zenSDK 'product' field (e.g. "solarFlow2400AC+"
+ * or "solarFlow800Pro") for a lookup with findProductByMdnsModelName.
+ *
+ * @param modelName the model name as reported by the device
+ */
+export function normalizeModelName(modelName: string): string {
   return modelName
     .toLowerCase()
     .replace(/\+/g, "plus")
@@ -43,9 +49,74 @@ function extractModelAndSerial(serviceName: string): { modelName: string; snNumb
 }
 
 /**
+ * Creates a new device model for a zenSDK-compatible device that is not (yet) known from the cloud device list
+ * (e.g. no cloud account configured, or the device was not yet synced to the cloud). The device's serial number is
+ * used as its deviceKey, since no cloud-assigned deviceKey is available for it. Used for devices discovered via
+ * mDNS as well as for devices configured with a fixed IP address (see manualZenSdkDeviceService.ts).
+ *
+ * @param adapter the adapter instance, used for logging and to register the new device
+ * @param modelName the model name as reported by the device (mDNS service name part or zenSDK 'product' field)
+ * @param snNumber the serial number of the device
+ * @param ipAddress the IP address of the device
+ * @param source description of where the device was found, for logging (e.g. the mDNS service name)
+ * @returns whether the device exists now (was created, or was already created before)
+ */
+export function createZenSdkDevice(
+  adapter: ZendureSolarflow,
+  modelName: string,
+  snNumber: string,
+  ipAddress: string,
+  source: string,
+): boolean {
+  if (adapter.zenIobDeviceList.some((x) => x.snNumber?.toUpperCase() === snNumber.toUpperCase())) {
+    // Already created before (e.g. for a previous mDNS announcement of the same device)
+    return true;
+  }
+
+  const product = findProductByMdnsModelName(normalizeModelName(modelName));
+
+  if (!product) {
+    adapter.log.warn(
+      `[mdnsHelper] Found Zendure device '${source}', but its model '${modelName}' is not known and can't be created automatically. Please connect it via the Zendure Cloud instead!`,
+    );
+    return false;
+  }
+
+  adapter.log.info(
+    `[mdnsHelper] Creating new device for '${source}' (model: ${product.productModel}, serial: ${snNumber}) at IP ${ipAddress}!`,
+  );
+
+  const zenHaDeviceDetails: IZenIobDeviceDetails = {
+    deviceKey: snNumber,
+    deviceName: product.productModel,
+    enable: true,
+    ip: ipAddress,
+    lcnSupport: 0,
+    online: true,
+    password: "",
+    port: 0,
+    productKey: product.productKey,
+    productModel: product.productModel,
+    protocol: "",
+    server: "",
+    snNumber: snNumber,
+    username: "",
+  };
+
+  const deviceModel = createDeviceModel(adapter, product.productKey, snNumber, zenHaDeviceDetails);
+
+  if (deviceModel) {
+    adapter.zenIobDeviceList.push(deviceModel);
+    return true;
+  }
+
+  adapter.log.error(`[mdnsHelper] Error creating device model for '${source}'!`);
+  return false;
+}
+
+/**
  * Creates a new device model for a device that was discovered via mDNS but is not (yet) known from the
- * cloud device list (e.g. no cloud account configured, or the device was not yet synced to the cloud). The
- * device's serial number is used as its deviceKey, since no cloud-assigned deviceKey is available for it.
+ * cloud device list.
  *
  * @param adapter the adapter instance, used for logging and to register the new device
  * @param serviceName the full mDNS service name the device was discovered with
@@ -58,48 +129,7 @@ function createDeviceFromMdns(adapter: ZendureSolarflow, serviceName: string, ip
     return;
   }
 
-  if (adapter.zenIobDeviceList.some((x) => x.snNumber?.toUpperCase() === parsed.snNumber.toUpperCase())) {
-    // Already created for a previous mDNS announcement of the same device
-    return;
-  }
-
-  const product = findProductByMdnsModelName(normalizeModelName(parsed.modelName));
-
-  if (!product) {
-    adapter.log.warn(
-      `[mdnsHelper] Discovered Zendure device '${serviceName}' via mDNS, but its model '${parsed.modelName}' is not known and can't be created automatically. Please connect it via the Zendure Cloud instead!`,
-    );
-    return;
-  }
-
-  adapter.log.info(
-    `[mdnsHelper] Creating new device for mDNS-discovered device '${serviceName}' (model: ${product.productModel}, serial: ${parsed.snNumber}) at IP ${ipAddress}!`,
-  );
-
-  const zenHaDeviceDetails: IZenIobDeviceDetails = {
-    deviceKey: parsed.snNumber,
-    deviceName: product.productModel,
-    enable: true,
-    ip: ipAddress,
-    lcnSupport: 0,
-    online: true,
-    password: "",
-    port: 0,
-    productKey: product.productKey,
-    productModel: product.productModel,
-    protocol: "",
-    server: "",
-    snNumber: parsed.snNumber,
-    username: "",
-  };
-
-  const deviceModel = createDeviceModel(adapter, product.productKey, parsed.snNumber, zenHaDeviceDetails);
-
-  if (deviceModel) {
-    adapter.zenIobDeviceList.push(deviceModel);
-  } else {
-    adapter.log.error(`[mdnsHelper] Error creating device model for mDNS-discovered device '${serviceName}'!`);
-  }
+  createZenSdkDevice(adapter, parsed.modelName, parsed.snNumber, ipAddress, `mDNS: ${serviceName}`);
 }
 
 /**
