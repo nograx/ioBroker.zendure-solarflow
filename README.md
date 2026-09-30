@@ -41,11 +41,15 @@ If you find the adapter useful and want to support my work, feel free to donate 
 
 - **Authentication Cloud Key** (recommended): the official Zendure method. Get a Cloud key from the app. By default zenSDK is used for compatible devices on the same network as ioBroker, giving full local control while still relaying data to the cloud. Cloud-only is also possible. Legacy devices already on a local MQTT server can relay to the cloud too, with no downside.
 - **Local**: local-only mode. Point the adapter at a local MQTT server for legacy devices (see below); zenSDK devices are found via mDNS.
-- **zenSDK only (mDNS)**: no Zendure cloud and no MQTT server at all. Devices are found via [mDNS discovery](#mdns-discovery) and polled/controlled locally via zenSDK only, so only zenSDK-compatible devices are supported.
+- **zenSDK only (mDNS / IP)**: no Zendure cloud and no MQTT server at all. Devices are found via [mDNS discovery](#mdns-discovery) or [configured by IP address](#zensdk-devices-by-ip-address) and polled/controlled locally via zenSDK only, so only zenSDK-compatible devices are supported.
 
 ### mDNS Discovery
 
 When zenSDK is enabled, the adapter browses the network via mDNS/Bonjour for devices announcing as `Zendure-<model>-<serialNumber>` as long as it is running. The network is queried again after 5s, 15s, 30s and 60s, then every 5 minutes, so devices connected to the network later (or missed by an earlier query) are still found without restarting the adapter. This fills in or corrects IP addresses for known cloud devices, and auto-creates accessories (Mix series, Smart Meters) that have no cloud productKey and can't otherwise be created. Devices are matched by full serial number, not IP or a shortened suffix. Disable via the "Add devices found via mDNS discovery" setting.
+
+### zenSDK devices by IP address
+
+mDNS uses multicast, which is usually not routed between network segments. If your Zendure devices are in another VLAN / subnet than ioBroker, enter their IP addresses (or host names) in the "zenSDK devices by IP address" section of the adapter settings. The adapter queries each address via zenSDK (`http://<ip>/properties/report`) at start and then every 5 minutes, and identifies the device by the serial number it reports: a device already known (e.g. from the Zendure cloud device list) keeps its existing states and is switched to local zenSDK control, an unknown device is created with its serial number as key, just like a device found via mDNS. Works in every connection mode as long as zenSDK is enabled. Give the devices a fixed IP (DHCP reservation), and make sure ioBroker can reach them on TCP port 80.
 
 ## Supported Devices
 
@@ -145,6 +149,10 @@ For more details and for information on how to disable error reporting, see the 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+### **WORK IN PROGRESS**
+
+- (Schattenwelt) Add setting "zenSDK devices by IP address": zenSDK devices can be configured by IP address, so they also work if mDNS doesn't reach them (e.g. devices in another network segment / VLAN). Known devices are matched by serial number and keep their states, unknown devices are created with their serial number as key.
+
 ### 6.0.0-alpha.6 (2026-10-06)
 
 - Better tracking if device command is accepted

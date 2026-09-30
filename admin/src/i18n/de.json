@@ -19,7 +19,7 @@
   "fullChargeIfNeeded": "Auf 100% laden wenn Zendure SOC bei Erreichen der kritischen Spannung größer 50%.",
   "global": "Global (Zendure App Cloud)",
   "local": "Lokaler Mqtt Server",
-  "zenSdkOnly": "Nur zenSDK (mDNS, keine Cloud und kein MQTT)",
+  "zenSdkOnly": "Nur zenSDK (mDNS / IP, keine Cloud und kein MQTT)",
   "localMqttAcceptSelfSignedSSL": "Selbst signiertes Zertifikat erlauben",
   "localMqttSSL": "SSL (port 8883) benutzen",
   "localMqttUrl": "Lokale MQTT Server URL/IP",
@@ -60,5 +60,10 @@
   "automationTriggerStateDesc": "Wählen Sie den Zustand Ihres Smart Meters (Zahl, Netzleistung in W), dessen Änderungen die Automatisierungslogik des Adapters auslösen sollen.",
   "automationTriggerStateNotNumber": "Der Zustand '%s' kann nicht als Auslöser verwendet werden: Nur Zahlen-Zustände (z.B. die Netzleistung eines Smart Meters) sind erlaubt, sein Typ ist aber '%s'.",
   "selectState": "Zustand auswählen",
-  "clear": "Löschen"
+  "clear": "Löschen",
+  "sectionZenSdkDeviceIps": "zenSDK-Geräte per IP-Adresse",
+  "zenSdkDeviceIpsDesc": "IP-Adressen der zenSDK-Geräte eintragen, falls sie nicht per mDNS gefunden werden (z. B. Geräte in einem anderen Netzsegment / VLAN). Das Gerät wird über seine Seriennummer erkannt: Ein bereits aus der Zendure Cloud bekanntes Gerät behält seine Datenpunkte und wird lokal per zenSDK gesteuert, ein unbekanntes Gerät wird mit seiner Seriennummer als Schlüssel angelegt.",
+  "addZenSdkDeviceIp": "IP-Adresse hinzufügen",
+  "removeZenSdkDeviceIp": "IP-Adresse entfernen",
+  "zenSdkDeviceIpInvalid": "Ungültige IP-Adresse oder ungültiger Hostname"
 }

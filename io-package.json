@@ -238,6 +238,7 @@
     "relayMqttToCloud": false,
     "useZenSDK": true,
     "useMdnsDiscovery": true,
+    "zenSdkDeviceIps": [],
     "enableAutomation": false,
     "automationTriggerStateId": ""
   },

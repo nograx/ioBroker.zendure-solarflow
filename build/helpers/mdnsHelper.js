@@ -18,8 +18,10 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var mdnsHelper_exports = {};
 __export(mdnsHelper_exports, {
+  createZenSdkDevice: () => createZenSdkDevice,
   handleDiscoveredService: () => handleDiscoveredService,
-  isZendureService: () => isZendureService
+  isZendureService: () => isZendureService,
+  normalizeModelName: () => normalizeModelName
 });
 module.exports = __toCommonJS(mdnsHelper_exports);
 var import_helpers = require("./helpers");
@@ -51,30 +53,26 @@ function extractModelAndSerial(serviceName) {
     snNumber: withoutPrefix.slice(lastDashIndex + 1)
   };
 }
-function createDeviceFromMdns(adapter, serviceName, ipAddress) {
-  const parsed = extractModelAndSerial(serviceName);
-  if (!parsed) {
-    return;
-  }
+function createZenSdkDevice(adapter, modelName, snNumber, ipAddress, source) {
   if (adapter.zenIobDeviceList.some((x) => {
     var _a;
-    return ((_a = x.snNumber) == null ? void 0 : _a.toUpperCase()) === parsed.snNumber.toUpperCase();
+    return ((_a = x.snNumber) == null ? void 0 : _a.toUpperCase()) === snNumber.toUpperCase();
   })) {
-    return;
+    return true;
   }
-  const product = (0, import_helpers.findProductByMdnsModelName)(normalizeModelName(parsed.modelName));
+  const product = (0, import_helpers.findProductByMdnsModelName)(normalizeModelName(modelName));
   if (!product) {
     adapter.log.warn(
-      `[mdnsHelper] Discovered Zendure device '${serviceName}' via mDNS, but its model '${parsed.modelName}' is not known and can't be created automatically. Please connect it via the Zendure Cloud instead!`
+      `[mdnsHelper] Found Zendure device '${source}', but its model '${modelName}' is not known and can't be created automatically. Please connect it via the Zendure Cloud instead!`
     );
-    reportToSentry(adapter, serviceName, `[mdnsHelper] Unknown mDNS model '${parsed.modelName}' ('${serviceName}')`);
-    return;
+    reportToSentry(adapter, source, `[mdnsHelper] Unknown zenSDK model '${modelName}' ('${source}')`);
+    return false;
   }
   adapter.log.info(
-    `[mdnsHelper] Creating new device for mDNS-discovered device '${serviceName}' (model: ${product.productModel}, serial: ${parsed.snNumber}) at IP ${ipAddress}!`
+    `[mdnsHelper] Creating new device for '${source}' (model: ${product.productModel}, serial: ${snNumber}) at IP ${ipAddress}!`
   );
   const zenHaDeviceDetails = {
-    deviceKey: parsed.snNumber,
+    deviceKey: snNumber,
     deviceName: product.productModel,
     enable: true,
     ip: ipAddress,
@@ -86,17 +84,25 @@ function createDeviceFromMdns(adapter, serviceName, ipAddress) {
     productModel: product.productModel,
     protocol: "",
     server: "",
-    snNumber: parsed.snNumber,
+    snNumber,
     username: ""
   };
-  const deviceModel = (0, import_helpers.createDeviceModel)(adapter, product.productKey, parsed.snNumber, zenHaDeviceDetails);
+  const deviceModel = (0, import_helpers.createDeviceModel)(adapter, product.productKey, snNumber, zenHaDeviceDetails);
   if (deviceModel) {
     adapter.zenIobDeviceList.push(deviceModel);
-  } else {
-    const message = `[mdnsHelper] Error creating device model for mDNS-discovered device '${serviceName}' (productKey '${product.productKey}')`;
-    adapter.log.error(`${message}!`);
-    reportToSentry(adapter, serviceName, message);
+    return true;
   }
+  const message = `[mdnsHelper] Error creating device model for '${source}' (productKey '${product.productKey}')`;
+  adapter.log.error(`${message}!`);
+  reportToSentry(adapter, source, message);
+  return false;
+}
+function createDeviceFromMdns(adapter, serviceName, ipAddress) {
+  const parsed = extractModelAndSerial(serviceName);
+  if (!parsed) {
+    return;
+  }
+  createZenSdkDevice(adapter, parsed.modelName, parsed.snNumber, ipAddress, `mDNS: ${serviceName}`);
 }
 function handleDiscoveredService(adapter, service) {
   var _a, _b, _c, _d, _e, _f, _g;
@@ -126,7 +132,9 @@ function handleDiscoveredService(adapter, service) {
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  createZenSdkDevice,
   handleDiscoveredService,
-  isZendureService
+  isZendureService,
+  normalizeModelName
 });
 //# sourceMappingURL=mdnsHelper.js.map
