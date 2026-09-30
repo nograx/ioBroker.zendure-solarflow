@@ -175,6 +175,10 @@ let stabilizedChargeUntilMs = 0;
 // Guards against overlapping cycles: runZeroFeedInAutomation does many sequential awaits, so a fast
 // series of trigger updates could otherwise start a second cycle before the first one finishes.
 let isRunning = false;
+// Incremented by stopAdapterAutomation(); a cycle (and the delayed limit commands it schedules) only
+// applies its limits while this still matches the value captured at its start, so a cycle that was already
+// running when automation got switched off can't override the stop's 0W afterwards.
+let automationGeneration = 0;
 // Device order established by the last sortAutomationDevices() call; new/unsorted devices are appended.
 let deviceOrder: string[] = [];
 
@@ -447,6 +451,67 @@ const isForceAcCharging = async (adapter: ZendureSolarflow, device: ZenIobDevice
   return state?.val === true;
 };
 
+// Cancels a device's pending (delayed) limit command and sets its 'control.setDeviceAutomationInOutLimit'
+// to 0 (if it isn't already), so it doesn't keep feeding in or charging at the last automation limit.
+const releaseDeviceToZero = async (adapter: ZendureSolarflow, device: ZenIobDevice, reason: string): Promise<void> => {
+  const state = getDeviceState(device);
+
+  if (state.pendingTimeout) {
+    adapter.clearTimeout(state.pendingTimeout);
+    state.pendingTimeout = undefined;
+  }
+
+  const currentLimitState = await adapter.getStateAsync(`${deviceId(device)}.control.setDeviceAutomationInOutLimit`);
+  const currentLimit = currentLimitState?.val != null ? Number(currentLimitState.val) : 0;
+
+  trackLimitTransition(state, currentLimit, 0, Date.now());
+  state.currentLimit = 0;
+  state.newLimit = 0;
+
+  if (currentLimit !== 0) {
+    adapter.log.info(`${LOG} ${reason}, setting limit of '${deviceLabel(device)}' to 0W`);
+    device.setDeviceAutomationInOutLimit(0);
+  }
+};
+
+/**
+ * Called when the global automation is switched off: releases every automation-enabled device to 0W (see
+ * releaseDeviceToZero). Devices with automation disabled are left alone, like in the regular cycle.
+ *
+ * @param adapter the adapter instance
+ */
+export const stopAdapterAutomation = async (adapter: ZendureSolarflow): Promise<void> => {
+  automationGeneration++;
+  // Forget the last trigger value, so the first trigger after re-enabling isn't skipped as a duplicate.
+  lastGridMeterValue = undefined;
+
+  for (const device of getAutomationDevices(adapter)) {
+    if (!(await isDeviceEnabled(adapter, device))) {
+      continue;
+    }
+
+    await releaseDeviceToZero(adapter, device, "Automation disabled globally");
+  }
+};
+
+/**
+ * Called when a single device's '<device>.adapterAutomation.automationEnabled' is switched off: releases
+ * that device to 0W (see releaseDeviceToZero). The regular cycle leaves it alone from then on.
+ *
+ * @param adapter the adapter instance
+ * @param device the device automation was disabled for
+ */
+export const stopDeviceAutomation = async (adapter: ZendureSolarflow, device: ZenIobDevice): Promise<void> => {
+  if (!getAutomationDevices(adapter).includes(device)) {
+    return;
+  }
+
+  // Mark it disabled right away, so a cycle that's already running doesn't send it a new limit.
+  getDeviceState(device).enabled = false;
+
+  await releaseDeviceToZero(adapter, device, "Automation disabled for this device");
+};
+
 /**
  * Sorts the automation devices by a weighted score (mostly SOC, a little solar input), so the fullest /
  * most productive device is preferred as the lead device. AC-only devices (no solar input of their own)
@@ -651,6 +716,7 @@ export const runZeroFeedInAutomation = async (
   // Set the guard synchronously (before the first await below), so a trigger arriving while we're still
   // awaiting the automationEnabled check can't slip through and start a second, overlapping cycle.
   isRunning = true;
+  const generation = automationGeneration;
 
   try {
     const automationEnabled = (await adapter.getStateAsync("adapterAutomation.automationEnabled"))?.val === true;
@@ -1208,6 +1274,15 @@ export const runZeroFeedInAutomation = async (
 
       const standbyDelayMs = state.newLimit === minLimit ? Math.max(settleDelayMs, globalWakingDelayMs) : settleDelayMs;
 
+      if (generation !== automationGeneration) {
+        // Automation was switched off while this cycle was running - don't override the stop's 0W.
+        return;
+      }
+      if (!state.enabled) {
+        // Automation was disabled for this device while this cycle was running.
+        continue;
+      }
+
       if (state.pendingTimeout) {
         adapter.clearTimeout(state.pendingTimeout);
       }
@@ -1215,6 +1290,11 @@ export const runZeroFeedInAutomation = async (
       const newLimit = state.newLimit;
       state.pendingTimeout = adapter.setTimeout(() => {
         state.pendingTimeout = undefined;
+
+        // Automation was switched off (globally or for this device) since this command was scheduled.
+        if (generation !== automationGeneration || !state.enabled) {
+          return;
+        }
 
         const wasZero = state.currentLimit === 0;
         trackLimitTransition(state, state.currentLimit, newLimit, Date.now());

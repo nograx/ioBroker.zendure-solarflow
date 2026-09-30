@@ -19,6 +19,8 @@ import {
 import {
   resetAdapterAutomationController,
   runZeroFeedInAutomation,
+  stopAdapterAutomation,
+  stopDeviceAutomation,
 } from "./services/adapterAutomation/adapterAutomation";
 import { LocalMqttService } from "./services/mqtt/localMqttService";
 import type { IZenIobDeviceDetails } from "./models/IZenIobDeviceDetails";
@@ -28,6 +30,28 @@ import type { ZenIobDevice } from "./models/deviceModels/ZenIobDevice";
 import { createDeviceModel } from "./helpers/helpers";
 import { FileHelper } from "./helpers/fileHelper";
 import { discoverZendureDevicesViaMdns } from "./helpers/mdnsHelper";
+
+// Maps each writable '<device>.control.<stateName>' to the device method that sends it to the device.
+const CONTROL_STATE_HANDLERS: Record<string, (device: ZenIobDevice, value: ioBroker.StateValue) => unknown> = {
+  setOutputLimit: (device, value) => device.setOutputLimit(Number(value)),
+  setInputLimit: (device, value) => device.setInputLimit(Number(value)),
+  chargeLimit: (device, value) => device.setChargeLimit(Number(value)),
+  dischargeLimit: (device, value) => device.setDischargeLimit(Number(value)),
+  passMode: (device, value) => device.setPassMode(Number(value)),
+  dcSwitch: (device, value) => device.setDcSwitch(Boolean(value)),
+  acSwitch: (device, value) => device.setAcSwitch(Boolean(value)),
+  acMode: (device, value) => device.setAcMode(Number(value)),
+  hubState: (device, value) => device.setHubState(Number(value)),
+  gridReverse: (device, value) => device.setGridReverse(Number(value)),
+  gridOffMode: (device, value) => device.setGridOffMode(Number(value)),
+  autoModel: (device, value) => device.setAutoModel(Number(value)),
+  autoRecover: (device, value) => device.setAutoRecover(Boolean(value)),
+  inverseMaxPower: (device, value) => device.setInverseMaxPower(Number(value)),
+  buzzerSwitch: (device, value) => device.setBuzzerSwitch(Boolean(value)),
+  smartMode: (device, value) => device.setSmartMode(Boolean(value)),
+  setDeviceAutomationInOutLimit: (device, value) => device.setDeviceAutomationInOutLimit(Number(value)),
+  hemsState: (device, value) => device.setHemsState(Boolean(value)),
+};
 
 export class ZendureSolarflow extends utils.Adapter {
   public constructor(options: Partial<utils.AdapterOptions> = {}) {
@@ -590,109 +614,77 @@ export class ZendureSolarflow extends utils.Adapter {
   /**
    * Is called if a subscribed state changes
    *
-   * @param id
-   * @param state
+   * @param id full state id, e.g. 'zendure-solarflow.0.<productKey>.<deviceKey>.control.setOutputLimit'
+   * @param state the new state, or null/undefined if it was deleted
    */
   private onStateChange(id: string, state: ioBroker.State | null | undefined): void {
-    if (state) {
-      if (this.config.automationTriggerStateId && id === this.config.automationTriggerStateId) {
-        this.onAutomationTriggerStateChange(state);
-        return;
-      }
-
-      if (id === `${this.namespace}.adapterAutomation.automationEnabled`) {
-        this.onAdapterAutomationEnabledChange(state);
-        return;
-      }
-
-      // The state was changed
-
-      // Read product and device key from string
-      const splitted = id.split(".");
-      const productKey = splitted[2]; // Product Key
-      const deviceKey = splitted[3]; // Device Key
-      const stateName1 = splitted[4]; // Folder/State Name 1 (e.g. 'control')
-      const stateName2 = splitted[5]; // State Name, like 'setOutputLimit'
-
-      const _device = this.zenIobDeviceList.find((x) => x.productKey == productKey && x.deviceKey == deviceKey);
-
-      if (!_device) {
-        this.log.error(`[onStateChange] Device '${deviceKey}' not found in zenHaDeviceList!`);
-        return;
-      }
-
-      // !!! Only stateChanges with ack==false are allowed to be processed.
-      if (state.val != undefined && state.val != null && !state.ack) {
-        switch (stateName1) {
-          case "control":
-            this.log.debug(
-              `[onStateChange] Control state '${stateName2}' changed, new value is ${state.val}, ack = ${state.ack}!`,
-            );
-            switch (stateName2) {
-              case "setOutputLimit":
-                _device.setOutputLimit(Number(state.val));
-                break;
-              case "setInputLimit":
-                _device.setInputLimit(Number(state.val));
-                break;
-              case "chargeLimit":
-                _device.setChargeLimit(Number(state.val));
-                break;
-              case "dischargeLimit":
-                _device.setDischargeLimit(Number(state.val));
-                break;
-              case "passMode":
-                _device.setPassMode(Number(state.val));
-                break;
-              case "dcSwitch":
-                _device.setDcSwitch(state.val ? true : false);
-                break;
-              case "acSwitch":
-                _device.setAcSwitch(state.val ? true : false);
-                break;
-              case "acMode":
-                _device.setAcMode(Number(state.val));
-                break;
-              case "hubState":
-                _device.setHubState(Number(state.val));
-                break;
-              case "gridReverse":
-                _device.setGridReverse(Number(state.val));
-                break;
-              case "gridOffMode":
-                _device.setGridOffMode(Number(state.val));
-                break;
-              case "autoModel":
-                _device.setAutoModel(Number(state.val));
-                break;
-              case "autoRecover":
-                _device.setAutoRecover(state.val ? true : false);
-                break;
-              case "inverseMaxPower":
-                _device.setInverseMaxPower(Number(state.val));
-                break;
-              case "buzzerSwitch":
-                _device.setBuzzerSwitch(state.val ? true : false);
-                break;
-              case "smartMode":
-                _device.setSmartMode(state.val ? true : false);
-                break;
-              case "setDeviceAutomationInOutLimit":
-                _device.setDeviceAutomationInOutLimit(Number(state.val));
-                break;
-              case "hemsState":
-                _device.setHemsState(state.val ? true : false);
-                break;
-            }
-            break;
-          default:
-            break;
-        }
-      } else {
-        // The state was deleted
-        //this.log.debug(`state ${id} deleted`);
-      }
+    if (!state) {
+      return;
     }
+
+    if (this.config.automationTriggerStateId && id === this.config.automationTriggerStateId) {
+      this.onAutomationTriggerStateChange(state);
+      return;
+    }
+
+    if (id === `${this.namespace}.adapterAutomation.automationEnabled`) {
+      this.onAdapterAutomationEnabledChange(state);
+      return;
+    }
+
+    // Device state: '<namespace>.<productKey>.<deviceKey>.<folder>.<stateName>'
+    const [, , productKey, deviceKey, folder, stateName] = id.split(".");
+
+    const device = this.zenIobDeviceList.find((x) => x.productKey == productKey && x.deviceKey == deviceKey);
+    if (!device) {
+      this.log.error(`[onStateChange] Device '${deviceKey}' not found in zenHaDeviceList!`);
+      return;
+    }
+
+    // !!! Only commands (ack == false) are processed - acknowledged updates are the adapter's own writes.
+    if (state.val == null || state.ack) {
+      return;
+    }
+
+    if (folder === "control") {
+      this.onControlStateChange(device, stateName, state.val);
+    } else if (folder === "adapterAutomation" && stateName === "automationEnabled") {
+      this.onDeviceAutomationEnabledChange(device, state);
+    }
+  }
+
+  /**
+   * Is called when a device's control state was written (ack == false): forwards the value to the device.
+   *
+   * @param device the device the control state belongs to
+   * @param stateName name of the control state, like 'setOutputLimit'
+   * @param value the new value
+   */
+  private onControlStateChange(device: ZenIobDevice, stateName: string, value: ioBroker.StateValue): void {
+    this.log.debug(`[onStateChange] Control state '${stateName}' changed, new value is ${value}!`);
+
+    const handler = CONTROL_STATE_HANDLERS[stateName];
+    if (handler) {
+      void handler(device, value);
+    }
+  }
+
+  /**
+   * Is called when a device's 'adapterAutomation.automationEnabled' was written (ack == false): releases the
+   * device's automation limit to 0 when automation was switched off for it.
+   *
+   * @param device the device the state belongs to
+   * @param state the new state
+   */
+  private onDeviceAutomationEnabledChange(device: ZenIobDevice, state: ioBroker.State): void {
+    // Only on an actual on -> off change (lc === ts), so re-writing 'false' doesn't override a limit that
+    // was set manually while automation is off for this device.
+    if (state.val === true || state.lc !== state.ts) {
+      return;
+    }
+
+    this.log.info(`[onDeviceAutomationEnabledChange] Adapter automation disabled for device '${device.deviceKey}'!`);
+    void stopDeviceAutomation(this, device);
   }
 
   /**
@@ -714,8 +706,9 @@ export class ZendureSolarflow extends utils.Adapter {
   }
 
   /**
-   * Is called when 'adapterAutomation.automationEnabled' changes value. Logs the new state, and warns if
-   * automation was enabled without an automation trigger state configured, since it would then never run.
+   * Is called when 'adapterAutomation.automationEnabled' changes value. Logs the new state, sets all automation
+   * device limits to 0 when automation is switched off, and warns if automation was enabled without an
+   * automation trigger state configured, since it would then never run.
    *
    * @param state the new state of 'adapterAutomation.automationEnabled'
    */
@@ -727,6 +720,12 @@ export class ZendureSolarflow extends utils.Adapter {
     // Reset the PI controller on every on/off transition, so a windup accumulated before automation was
     // switched off (or before it starts fresh now) doesn't apply a stale correction based on old conditions.
     resetAdapterAutomationController(this);
+
+    // Only on an actual on -> off change (lc === ts), so re-writing 'false' doesn't override limits that
+    // were set manually while automation is off.
+    if (!enabled && state.lc === state.ts) {
+      void stopAdapterAutomation(this);
+    }
 
     if (enabled && !this.config.automationTriggerStateId) {
       this.log.error(

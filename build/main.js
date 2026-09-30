@@ -40,6 +40,26 @@ var import_cloudMqttService = require("./services/mqtt/cloudMqttService");
 var import_helpers = require("./helpers/helpers");
 var import_fileHelper = require("./helpers/fileHelper");
 var import_mdnsHelper = require("./helpers/mdnsHelper");
+const CONTROL_STATE_HANDLERS = {
+  setOutputLimit: (device, value) => device.setOutputLimit(Number(value)),
+  setInputLimit: (device, value) => device.setInputLimit(Number(value)),
+  chargeLimit: (device, value) => device.setChargeLimit(Number(value)),
+  dischargeLimit: (device, value) => device.setDischargeLimit(Number(value)),
+  passMode: (device, value) => device.setPassMode(Number(value)),
+  dcSwitch: (device, value) => device.setDcSwitch(Boolean(value)),
+  acSwitch: (device, value) => device.setAcSwitch(Boolean(value)),
+  acMode: (device, value) => device.setAcMode(Number(value)),
+  hubState: (device, value) => device.setHubState(Number(value)),
+  gridReverse: (device, value) => device.setGridReverse(Number(value)),
+  gridOffMode: (device, value) => device.setGridOffMode(Number(value)),
+  autoModel: (device, value) => device.setAutoModel(Number(value)),
+  autoRecover: (device, value) => device.setAutoRecover(Boolean(value)),
+  inverseMaxPower: (device, value) => device.setInverseMaxPower(Number(value)),
+  buzzerSwitch: (device, value) => device.setBuzzerSwitch(Boolean(value)),
+  smartMode: (device, value) => device.setSmartMode(Boolean(value)),
+  setDeviceAutomationInOutLimit: (device, value) => device.setDeviceAutomationInOutLimit(Number(value)),
+  hemsState: (device, value) => device.setHemsState(Boolean(value))
+};
 class ZendureSolarflow extends utils.Adapter {
   constructor(options = {}) {
     super({
@@ -145,7 +165,7 @@ class ZendureSolarflow extends utils.Adapter {
         type: "state",
         common: {
           name: {
-            de: "Empfohlene maximale Ausgangsleistung ignorieren",
+            de: "Vom Adapter empfohlene maximale Ausgangsleistung ignorieren",
             en: "Ignore suggested maximum inverter output power"
           },
           type: "boolean",
@@ -191,6 +211,39 @@ class ZendureSolarflow extends utils.Adapter {
         },
         native: {}
       });
+      await this.extendObject("adapterAutomation.acOnlyPenalty", {
+        type: "state",
+        common: {
+          name: {
+            de: "Bewertungsabschlag f\xFCr reine AC-Ger\xE4te",
+            en: "Score penalty for AC-only devices"
+          },
+          type: "number",
+          desc: "acOnlyPenalty",
+          role: "level",
+          read: true,
+          write: true,
+          unit: "%",
+          min: 0,
+          def: 50
+        },
+        native: {}
+      });
+      await this.extendObject("adapterAutomation.deviceOrder", {
+        type: "state",
+        common: {
+          name: {
+            de: "Ger\xE4tereihenfolge",
+            en: "Device order"
+          },
+          type: "string",
+          desc: "deviceOrder",
+          role: "text",
+          read: true,
+          write: false
+        },
+        native: {}
+      });
       const ensureDefaultValue = async (id, def) => {
         const current = await this.getStateAsync(id);
         if ((current == null ? void 0 : current.val) == null) {
@@ -201,6 +254,7 @@ class ZendureSolarflow extends utils.Adapter {
       await ensureDefaultValue("adapterAutomation.ignoreSuggestedInverseMaxPower", false);
       await ensureDefaultValue("adapterAutomation.setPoint", 10);
       await ensureDefaultValue("adapterAutomation.setPointNearlyFull", -100);
+      await ensureDefaultValue("adapterAutomation.acOnlyPenalty", 50);
     }
     switch (this.config.connectionMode) {
       case "authKey": {
@@ -464,98 +518,63 @@ class ZendureSolarflow extends utils.Adapter {
   /**
    * Is called if a subscribed state changes
    *
-   * @param id
-   * @param state
+   * @param id full state id, e.g. 'zendure-solarflow.0.<productKey>.<deviceKey>.control.setOutputLimit'
+   * @param state the new state, or null/undefined if it was deleted
    */
   onStateChange(id, state) {
-    if (state) {
-      if (this.config.automationTriggerStateId && id === this.config.automationTriggerStateId) {
-        this.onAutomationTriggerStateChange(state);
-        return;
-      }
-      if (id === `${this.namespace}.adapterAutomation.automationEnabled`) {
-        this.onAdapterAutomationEnabledChange(state);
-        return;
-      }
-      const splitted = id.split(".");
-      const productKey = splitted[2];
-      const deviceKey = splitted[3];
-      const stateName1 = splitted[4];
-      const stateName2 = splitted[5];
-      const _device = this.zenIobDeviceList.find((x) => x.productKey == productKey && x.deviceKey == deviceKey);
-      if (!_device) {
-        this.log.error(`[onStateChange] Device '${deviceKey}' not found in zenHaDeviceList!`);
-        return;
-      }
-      if (state.val != void 0 && state.val != null && !state.ack) {
-        switch (stateName1) {
-          case "control":
-            this.log.debug(
-              `[onStateChange] Control state '${stateName2}' changed, new value is ${state.val}, ack = ${state.ack}!`
-            );
-            switch (stateName2) {
-              case "setOutputLimit":
-                _device.setOutputLimit(Number(state.val));
-                break;
-              case "setInputLimit":
-                _device.setInputLimit(Number(state.val));
-                break;
-              case "chargeLimit":
-                _device.setChargeLimit(Number(state.val));
-                break;
-              case "dischargeLimit":
-                _device.setDischargeLimit(Number(state.val));
-                break;
-              case "passMode":
-                _device.setPassMode(Number(state.val));
-                break;
-              case "dcSwitch":
-                _device.setDcSwitch(state.val ? true : false);
-                break;
-              case "acSwitch":
-                _device.setAcSwitch(state.val ? true : false);
-                break;
-              case "acMode":
-                _device.setAcMode(Number(state.val));
-                break;
-              case "hubState":
-                _device.setHubState(Number(state.val));
-                break;
-              case "gridReverse":
-                _device.setGridReverse(Number(state.val));
-                break;
-              case "gridOffMode":
-                _device.setGridOffMode(Number(state.val));
-                break;
-              case "autoModel":
-                _device.setAutoModel(Number(state.val));
-                break;
-              case "autoRecover":
-                _device.setAutoRecover(state.val ? true : false);
-                break;
-              case "inverseMaxPower":
-                _device.setInverseMaxPower(Number(state.val));
-                break;
-              case "buzzerSwitch":
-                _device.setBuzzerSwitch(state.val ? true : false);
-                break;
-              case "smartMode":
-                _device.setSmartMode(state.val ? true : false);
-                break;
-              case "setDeviceAutomationInOutLimit":
-                _device.setDeviceAutomationInOutLimit(Number(state.val));
-                break;
-              case "hemsState":
-                _device.setHemsState(state.val ? true : false);
-                break;
-            }
-            break;
-          default:
-            break;
-        }
-      } else {
-      }
+    if (!state) {
+      return;
     }
+    if (this.config.automationTriggerStateId && id === this.config.automationTriggerStateId) {
+      this.onAutomationTriggerStateChange(state);
+      return;
+    }
+    if (id === `${this.namespace}.adapterAutomation.automationEnabled`) {
+      this.onAdapterAutomationEnabledChange(state);
+      return;
+    }
+    const [, , productKey, deviceKey, folder, stateName] = id.split(".");
+    const device = this.zenIobDeviceList.find((x) => x.productKey == productKey && x.deviceKey == deviceKey);
+    if (!device) {
+      this.log.error(`[onStateChange] Device '${deviceKey}' not found in zenHaDeviceList!`);
+      return;
+    }
+    if (state.val == null || state.ack) {
+      return;
+    }
+    if (folder === "control") {
+      this.onControlStateChange(device, stateName, state.val);
+    } else if (folder === "adapterAutomation" && stateName === "automationEnabled") {
+      this.onDeviceAutomationEnabledChange(device, state);
+    }
+  }
+  /**
+   * Is called when a device's control state was written (ack == false): forwards the value to the device.
+   *
+   * @param device the device the control state belongs to
+   * @param stateName name of the control state, like 'setOutputLimit'
+   * @param value the new value
+   */
+  onControlStateChange(device, stateName, value) {
+    this.log.debug(`[onStateChange] Control state '${stateName}' changed, new value is ${value}!`);
+    const handler = CONTROL_STATE_HANDLERS[stateName];
+    if (handler) {
+      void handler(device, value);
+    }
+  }
+  /**
+   * Is called when a device's 'adapterAutomation.automationEnabled' was written (ack == false): releases the
+   * device's automation limit to 0 when automation was switched off for it.
+   *
+   * @param device the device the state belongs to
+   * @param state the new state
+   */
+  onDeviceAutomationEnabledChange(device, state) {
+    if (state.val === true || state.lc !== state.ts) {
+      return;
+    }
+    this.log.info(`[onDeviceAutomationEnabledChange] Adapter automation disabled for device '${device.deviceKey}'!`);
+    void (0, import_adapterAutomation.stopDeviceAutomation)(this, device);
   }
   /**
    * Is called when the user-configured automation trigger state (an external state outside this adapter,
@@ -574,8 +593,9 @@ class ZendureSolarflow extends utils.Adapter {
     void (0, import_adapterAutomation.runZeroFeedInAutomation)(this, Number(state.val));
   }
   /**
-   * Is called when 'adapterAutomation.automationEnabled' changes value. Logs the new state, and warns if
-   * automation was enabled without an automation trigger state configured, since it would then never run.
+   * Is called when 'adapterAutomation.automationEnabled' changes value. Logs the new state, sets all automation
+   * device limits to 0 when automation is switched off, and warns if automation was enabled without an
+   * automation trigger state configured, since it would then never run.
    *
    * @param state the new state of 'adapterAutomation.automationEnabled'
    */
@@ -583,6 +603,9 @@ class ZendureSolarflow extends utils.Adapter {
     const enabled = state.val === true;
     this.log.info(`[onAdapterAutomationEnabledChange] Adapter automation ${enabled ? "enabled" : "disabled"}!`);
     (0, import_adapterAutomation.resetAdapterAutomationController)(this);
+    if (!enabled && state.lc === state.ts) {
+      void (0, import_adapterAutomation.stopAdapterAutomation)(this);
+    }
     if (enabled && !this.config.automationTriggerStateId) {
       this.log.error(
         "[onAdapterAutomationEnabledChange] Adapter automation was enabled, but no automation trigger state is configured in the adapter settings - automation will never run!"

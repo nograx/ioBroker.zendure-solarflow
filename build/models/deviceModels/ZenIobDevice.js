@@ -188,7 +188,7 @@ class ZenIobDevice {
     }
   }
   async createSolarFlowStates() {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r;
     const productKey = this.productKey.replace(this.adapter.FORBIDDEN_CHARS, "");
     const deviceKey = this.deviceKey.replace(this.adapter.FORBIDDEN_CHARS, "");
     this.adapter.log.debug(
@@ -325,8 +325,23 @@ class ZenIobDevice {
           },
           native: {}
         }));
+        await ((_i = this.adapter) == null ? void 0 : _i.extendObject(`${productKey}.${deviceKey}.adapterAutomation.status`, {
+          type: "state",
+          common: {
+            name: {
+              de: "Aktuelle Aufgabe des Ger\xE4ts",
+              en: "Current task of the device"
+            },
+            type: "string",
+            desc: "status",
+            role: "text",
+            read: true,
+            write: false
+          },
+          native: {}
+        }));
         const automationEnabledStateId = `${productKey}.${deviceKey}.adapterAutomation.automationEnabled`;
-        await ((_i = this.adapter) == null ? void 0 : _i.extendObject(automationEnabledStateId, {
+        await ((_j = this.adapter) == null ? void 0 : _j.extendObject(automationEnabledStateId, {
           type: "state",
           common: {
             name: {
@@ -342,12 +357,13 @@ class ZenIobDevice {
           },
           native: {}
         }));
-        const currentAutomationEnabled = await ((_j = this.adapter) == null ? void 0 : _j.getStateAsync(automationEnabledStateId));
+        const currentAutomationEnabled = await ((_k = this.adapter) == null ? void 0 : _k.getStateAsync(automationEnabledStateId));
         if ((currentAutomationEnabled == null ? void 0 : currentAutomationEnabled.val) == null) {
-          await ((_k = this.adapter) == null ? void 0 : _k.setState(automationEnabledStateId, false, true));
+          await ((_l = this.adapter) == null ? void 0 : _l.setState(automationEnabledStateId, false, true));
         }
+        (_m = this.adapter) == null ? void 0 : _m.subscribeStates(automationEnabledStateId);
         const forceAcChargingStateId = `${productKey}.${deviceKey}.adapterAutomation.forceAcCharging`;
-        await ((_l = this.adapter) == null ? void 0 : _l.extendObject(forceAcChargingStateId, {
+        await ((_n = this.adapter) == null ? void 0 : _n.extendObject(forceAcChargingStateId, {
           type: "state",
           common: {
             name: {
@@ -363,14 +379,14 @@ class ZenIobDevice {
           },
           native: {}
         }));
-        const currentForceAcCharging = await ((_m = this.adapter) == null ? void 0 : _m.getStateAsync(forceAcChargingStateId));
+        const currentForceAcCharging = await ((_o = this.adapter) == null ? void 0 : _o.getStateAsync(forceAcChargingStateId));
         if ((currentForceAcCharging == null ? void 0 : currentForceAcCharging.val) == null) {
-          await ((_n = this.adapter) == null ? void 0 : _n.setState(forceAcChargingStateId, false, true));
+          await ((_p = this.adapter) == null ? void 0 : _p.setState(forceAcChargingStateId, false, true));
         }
       }
     }
     if (this.isZenSdkSupported) {
-      await ((_o = this.adapter) == null ? void 0 : _o.extendObject(`${productKey}.${deviceKey}.settings`, {
+      await ((_q = this.adapter) == null ? void 0 : _q.extendObject(`${productKey}.${deviceKey}.settings`, {
         type: "channel",
         common: {
           name: {
@@ -413,7 +429,7 @@ class ZenIobDevice {
       await this.syncZenSdkPollingSchedule();
     }
     if (this.adapter.config.useCalculation) {
-      await ((_p = this.adapter) == null ? void 0 : _p.extendObject(`${productKey}.${deviceKey}.calculations`, {
+      await ((_r = this.adapter) == null ? void 0 : _r.extendObject(`${productKey}.${deviceKey}.calculations`, {
         type: "channel",
         common: {
           name: {

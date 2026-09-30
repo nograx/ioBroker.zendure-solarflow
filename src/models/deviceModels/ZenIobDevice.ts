@@ -411,6 +411,9 @@ export class ZenIobDevice {
           await this.adapter?.setState(automationEnabledStateId, false, true);
         }
 
+        // Subscribe, so the device's automation limit can be released to 0 when automation is disabled for it
+        this.adapter?.subscribeStates(automationEnabledStateId);
+
         const forceAcChargingStateId = `${productKey}.${deviceKey}.adapterAutomation.forceAcCharging`;
         await this.adapter?.extendObject(forceAcChargingStateId, {
           type: "state",
