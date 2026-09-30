@@ -708,6 +708,15 @@ export class ZenIobDevice {
       this.mdnsConnectNotBefore = 0;
     }
 
+    // The device just answered via mDNS, so it's reachable again: end a zenSDK polling pause caused by earlier errors
+    if (Date.now() < this.zenSdkPausedUntil) {
+      this.adapter.log.info(
+        `[connectViaMdns] Device ${this.deviceKey} was found via mDNS, resuming paused zenSDK polling!`,
+      );
+      this.zenSdkErrorCount = 0;
+      this.zenSdkPausedUntil = 0;
+    }
+
     if (!this.adapter.config.useZenSDK || !this.isZenSdkSupported) {
       this.adapter.log.debug(
         `[connectViaMdns] Skipping zenSDK connect for device ${this.deviceKey} (useZenSDK=${this.adapter.config.useZenSDK}, isZenSdkSupported=${this.isZenSdkSupported})!`,
