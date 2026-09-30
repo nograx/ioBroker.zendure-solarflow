@@ -604,7 +604,8 @@ class ZenIobDevice {
     }
   }
   /**
-   * Called by mdnsHelper when this device was discovered locally via mDNS. Fills in the
+   * Called by mdnsHelper when this device was discovered locally via mDNS, and by the ManualZenSdkDeviceService
+   * when it answered on a manually configured IP address. Fills in the
    * ipAddress if it is not yet known, or corrects it if it no longer matches the
    * mDNS-discovered address (e.g. a stale/wrong IP from the cloud device list, or a new
    * IP from DHCP), then switches the device to a zenSDK connection (instead of Cloud/MQTT)
@@ -614,14 +615,15 @@ class ZenIobDevice {
    * zenSDK connect is retried on later calls, with an increasing delay between attempts.
    *
    * @param ipAddress the IP address the device was discovered at
-   * @param serviceName the mDNS service name the device was discovered with (for logging)
+   * @param serviceName the mDNS service name the device was discovered with, or another description of the
+   * source of the IP address (for logging)
    * @param serviceHost the mDNS service host the device was discovered with (for logging)
    */
   connectViaMdns(ipAddress, serviceName, serviceHost) {
     if (this.ipAddress !== ipAddress) {
       if (this.ipAddress) {
         this.adapter.log.info(
-          `[connectViaMdns] Correcting stale IP for device ${this.deviceKey}: ${this.ipAddress} -> ${ipAddress} (mDNS service: ${serviceName})!`
+          `[connectViaMdns] Correcting stale IP for device ${this.deviceKey}: ${this.ipAddress} -> ${ipAddress} (source: ${serviceName})!`
         );
       }
       this.ipAddress = ipAddress;
@@ -633,7 +635,7 @@ class ZenIobDevice {
     }
     if (Date.now() < this.zenSdkPausedUntil) {
       this.adapter.log.info(
-        `[connectViaMdns] Device ${this.deviceKey} was found via mDNS, resuming paused zenSDK polling!`
+        `[connectViaMdns] Device ${this.deviceKey} was found locally (${serviceName}), resuming paused zenSDK polling!`
       );
       this.zenSdkErrorCount = 0;
       this.zenSdkPausedUntil = 0;
@@ -660,7 +662,7 @@ class ZenIobDevice {
         this.updateSolarFlowState("wifiState", 1);
         this.unsubscribeMqttTopics();
         this.adapter.log.info(
-          `[connectViaMdns] Switched device ${this.deviceKey} to zenSDK connection via mDNS-discovered IP ${ipAddress} (service: ${serviceName}, host: ${serviceHost})!`
+          `[connectViaMdns] Switched device ${this.deviceKey} to zenSDK connection via local IP ${ipAddress} (source: ${serviceName}, host: ${serviceHost != null ? serviceHost : "-"})!`
         );
       } else {
         this.scheduleMdnsConnectRetry();

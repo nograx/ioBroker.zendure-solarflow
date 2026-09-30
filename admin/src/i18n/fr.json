@@ -52,5 +52,11 @@
   "useRestart": "Utilisez le redémarrage de l'adaptateur toutes les 3 heures pour actualiser le jeton d'accès",
   "useZenSDK": "Utilisez zenSDK (si pris en charge par l'appareil)",
   "userName": "Nom d'utilisateur",
-  "usrPwd": "Nom d'utilisateur et mot de passe"
+  "usrPwd": "Nom d'utilisateur et mot de passe",
+  "sectionZenSdkDeviceIps": "Appareils zenSDK par adresse IP",
+  "zenSdkDeviceIpsDesc": "Saisissez les adresses IP de vos appareils zenSDK s'ils ne peuvent pas être trouvés via mDNS (p. ex. appareils dans un autre segment réseau / VLAN). L'appareil est identifié par son numéro de série : un appareil déjà connu du cloud Zendure conserve ses états et est piloté localement via zenSDK, un appareil inconnu est créé avec son numéro de série comme clé.",
+  "addZenSdkDeviceIp": "Ajouter une adresse IP",
+  "removeZenSdkDeviceIp": "Supprimer l'adresse IP",
+  "zenSdkDeviceIpInvalid": "Adresse IP ou nom d'hôte invalide",
+  "zenSdkOnly": "zenSDK uniquement (mDNS / IP, sans cloud ni MQTT)"
 }

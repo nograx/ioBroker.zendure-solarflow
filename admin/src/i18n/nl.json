@@ -52,5 +52,11 @@
   "useRestart": "Gebruik de herstart van de adapter om de 3 uur om de toegangstoken te vernieuwen",
   "useZenSDK": "Gebruik zenSDK (indien ondersteund door apparaat)",
   "userName": "Gebruikersnaam",
-  "usrPwd": "Gebruikersnaam & wachtwoord"
+  "usrPwd": "Gebruikersnaam & wachtwoord",
+  "sectionZenSdkDeviceIps": "zenSDK-apparaten via IP-adres",
+  "zenSdkDeviceIpsDesc": "Voer de IP-adressen van je zenSDK-apparaten in als ze niet via mDNS gevonden kunnen worden (bijv. apparaten in een ander netwerksegment / VLAN). Het apparaat wordt herkend aan zijn serienummer: een apparaat dat al bekend is uit de Zendure-cloud behoudt zijn states en wordt lokaal via zenSDK aangestuurd, een onbekend apparaat wordt aangemaakt met zijn serienummer als sleutel.",
+  "addZenSdkDeviceIp": "IP-adres toevoegen",
+  "removeZenSdkDeviceIp": "IP-adres verwijderen",
+  "zenSdkDeviceIpInvalid": "Ongeldig IP-adres of ongeldige hostnaam",
+  "zenSdkOnly": "Alleen zenSDK (mDNS / IP, geen cloud of MQTT)"
 }

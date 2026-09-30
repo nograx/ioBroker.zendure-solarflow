@@ -52,5 +52,11 @@
   "useRestart": "Use el reinicio del adaptador cada 3 horas para actualizar el token de acceso",
   "useZenSDK": "Utilice zenSDK (si el dispositivo lo admite)",
   "userName": "Nombre de usuario",
-  "usrPwd": "Nombre de usuario y contraseña"
+  "usrPwd": "Nombre de usuario y contraseña",
+  "sectionZenSdkDeviceIps": "Dispositivos zenSDK por dirección IP",
+  "zenSdkDeviceIpsDesc": "Introduzca las direcciones IP de sus dispositivos zenSDK si no se pueden encontrar mediante mDNS (p. ej. dispositivos en otro segmento de red / VLAN). El dispositivo se identifica por su número de serie: un dispositivo ya conocido de la nube de Zendure conserva sus estados y se controla localmente mediante zenSDK; un dispositivo desconocido se crea con su número de serie como clave.",
+  "addZenSdkDeviceIp": "Añadir dirección IP",
+  "removeZenSdkDeviceIp": "Eliminar dirección IP",
+  "zenSdkDeviceIpInvalid": "Dirección IP o nombre de host no válido",
+  "zenSdkOnly": "Solo zenSDK (mDNS / IP, sin nube ni MQTT)"
 }

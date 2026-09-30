@@ -52,5 +52,11 @@
   "useRestart": "每3小时使用重新启动适配器来刷新访问令牌",
   "useZenSDK": "使用zenSDK（如果设备支持）",
   "userName": "用户名",
-  "usrPwd": "用户名和密码"
+  "usrPwd": "用户名和密码",
+  "sectionZenSdkDeviceIps": "按 IP 地址添加 zenSDK 设备",
+  "zenSdkDeviceIpsDesc": "如果无法通过 mDNS 找到 zenSDK 设备（例如设备位于其他网段 / VLAN），请在此输入其 IP 地址。设备通过序列号识别：已在 Zendure 云中已知的设备保留其状态并通过 zenSDK 本地控制，未知设备将以其序列号作为键创建。",
+  "addZenSdkDeviceIp": "添加 IP 地址",
+  "removeZenSdkDeviceIp": "删除 IP 地址",
+  "zenSdkDeviceIpInvalid": "无效的 IP 地址或主机名",
+  "zenSdkOnly": "仅 zenSDK（mDNS / IP，无云和 MQTT）"
 }

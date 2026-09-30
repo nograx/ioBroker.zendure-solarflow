@@ -52,5 +52,11 @@
   "useRestart": "Utilizzare il riavvio dell'adattatore ogni 3 ore per aggiornare il token di accesso",
   "useZenSDK": "Utilizza zenSDK (se supportato dal dispositivo)",
   "userName": "Nome utente",
-  "usrPwd": "Nome utente e password"
+  "usrPwd": "Nome utente e password",
+  "sectionZenSdkDeviceIps": "Dispositivi zenSDK tramite indirizzo IP",
+  "zenSdkDeviceIpsDesc": "Inserisci gli indirizzi IP dei tuoi dispositivi zenSDK se non possono essere trovati tramite mDNS (ad es. dispositivi in un altro segmento di rete / VLAN). Il dispositivo viene identificato dal suo numero di serie: un dispositivo già noto dal cloud Zendure mantiene i suoi stati e viene controllato localmente tramite zenSDK, un dispositivo sconosciuto viene creato con il suo numero di serie come chiave.",
+  "addZenSdkDeviceIp": "Aggiungi indirizzo IP",
+  "removeZenSdkDeviceIp": "Rimuovi indirizzo IP",
+  "zenSdkDeviceIpInvalid": "Indirizzo IP o nome host non valido",
+  "zenSdkOnly": "Solo zenSDK (mDNS / IP, nessun cloud o MQTT)"
 }
