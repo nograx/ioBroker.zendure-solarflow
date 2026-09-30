@@ -2,6 +2,7 @@ import { scheduleJob } from "node-schedule";
 import type { ZendureSolarflow } from "../main";
 import {
   checkAutomationCurrentLimit,
+  refreshAutomationStatuses,
   sortAutomationDevices,
   updateAutomationDeviceMetrics,
 } from "./adapterAutomation/adapterAutomation";
@@ -156,11 +157,13 @@ export const startAdapterAutomationJob = (adapter: ZendureSolarflow): void => {
   void (async () => {
     await updateAutomationDeviceMetrics(adapter);
     await sortAutomationDevices(adapter);
+    await refreshAutomationStatuses(adapter);
   })();
 
   adapter.adapterAutomationMetricsJob = scheduleJob("*/1 * * * *", async () => {
     await updateAutomationDeviceMetrics(adapter);
     await checkAutomationCurrentLimit(adapter);
+    await refreshAutomationStatuses(adapter);
   });
 
   adapter.adapterAutomationSortJob = scheduleJob("0 * * * *", async () => {

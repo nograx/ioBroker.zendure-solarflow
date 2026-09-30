@@ -19,6 +19,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 var adapterAutomation_exports = {};
 __export(adapterAutomation_exports, {
   checkAutomationCurrentLimit: () => checkAutomationCurrentLimit,
+  refreshAutomationStatuses: () => refreshAutomationStatuses,
   resetAdapterAutomationController: () => resetAdapterAutomationController,
   runZeroFeedInAutomation: () => runZeroFeedInAutomation,
   sortAutomationDevices: () => sortAutomationDevices,
@@ -70,6 +71,7 @@ let inDeadBand = false;
 let lastGridMeterValue;
 let shortTermGridAvgW;
 let chargeStartGridAvgW;
+let shortTermHomeUsageW;
 let stabilizedInverterCount = 0;
 let stabilizedUntilMs = 0;
 let stabilizedChargeDeviceCount = 0;
@@ -132,6 +134,7 @@ const chargePid = createPidController(CHARGE_PI);
 const resetAdapterAutomationController = (adapter) => {
   feedInPid.reset();
   chargePid.reset();
+  shortTermHomeUsageW = void 0;
   adapter.log.debug(`${LOG} PID controllers reset`);
 };
 const trackLimitTransition = (state, previousLimit, nextLimit, now) => {
@@ -167,7 +170,8 @@ const DEVICE_TASK_TEXTS = {
       disabled: "Automation disabled for this device"
     },
     leadSuffix: " (lead device)",
-    automationDisabled: "Automation disabled globally"
+    automationDisabled: "Automation disabled globally",
+    waitingForTrigger: "Waiting for a change of the automation trigger state"
   },
   de: {
     tasks: {
@@ -183,7 +187,8 @@ const DEVICE_TASK_TEXTS = {
       disabled: "Automatisierung f\xFCr dieses Ger\xE4t deaktiviert"
     },
     leadSuffix: " (f\xFChrendes Ger\xE4t)",
-    automationDisabled: "Automatisierung global deaktiviert"
+    automationDisabled: "Automatisierung global deaktiviert",
+    waitingForTrigger: "Wartet auf eine \xC4nderung des Ausl\xF6ser-Datenpunkts"
   }
 };
 let statusLanguage;
@@ -234,6 +239,22 @@ const isDeviceEnabled = async (adapter, device) => {
 const isForceAcCharging = async (adapter, device) => {
   const state = await adapter.getStateAsync(`${deviceId(device)}.adapterAutomation.forceAcCharging`);
   return (state == null ? void 0 : state.val) === true;
+};
+const refreshAutomationStatuses = async (adapter) => {
+  var _a;
+  const texts = DEVICE_TASK_TEXTS[await getStatusLanguage(adapter)];
+  const nonTaskTexts = [texts.automationDisabled, texts.tasks.disabled, texts.waitingForTrigger];
+  const automationEnabled = ((_a = await adapter.getStateAsync("adapterAutomation.automationEnabled")) == null ? void 0 : _a.val) === true;
+  for (const device of getAutomationDevices(adapter)) {
+    const lastText = lastDeviceStatusTexts.get(deviceId(device));
+    if (!automationEnabled) {
+      await publishDeviceStatusText(adapter, device, texts.automationDisabled);
+    } else if (!await isDeviceEnabled(adapter, device)) {
+      await publishDeviceStatusText(adapter, device, texts.tasks.disabled);
+    } else if (lastText === void 0 || nonTaskTexts.includes(lastText)) {
+      await publishDeviceStatusText(adapter, device, texts.waitingForTrigger);
+    }
+  }
 };
 const releaseDeviceToZero = async (adapter, device, reason) => {
   const state = getDeviceState(device);
@@ -456,9 +477,15 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       adapter.log.debug(`${LOG} currentGridMeterValue=${currentGridMeterValue}, leaving dead band!`);
       inDeadBand = false;
     }
-    const currentHomeUsage = shortTermGridAvgW + currentFeedIn - currentTotalChargePowerAll;
-    const setPointDiff = shortTermGridAvgW - deadBandTarget;
+    const rawHomeUsage = currentGridMeterValue + currentFeedIn - currentTotalChargePowerAll;
+    shortTermHomeUsageW = shortTermHomeUsageW == null ? rawHomeUsage : shortTermHomeUsageW + SHORT_TERM_GRID_ALPHA * (rawHomeUsage - shortTermHomeUsageW);
+    const currentHomeUsage = shortTermHomeUsageW;
+    const expectedGridW = currentHomeUsage - currentFeedIn + currentTotalChargePowerAll;
+    const setPointDiff = expectedGridW - deadBandTarget;
     const piCorrection = feedInPid.calculate(setPointDiff, now);
+    adapter.log.debug(
+      `${LOG} Feed-in: grid=${currentGridMeterValue} rawHomeUsage=${rawHomeUsage.toFixed(1)} homeUsageAvg=${currentHomeUsage.toFixed(1)} currentFeedIn=${currentFeedIn} expectedGrid=${expectedGridW.toFixed(1)} piCorrection=${piCorrection.toFixed(1)}`
+    );
     let piAdjustedHomeUsage = currentHomeUsage + piCorrection;
     const isSoleEnabledDevice = devices.filter((device) => getDeviceState(device).enabled).length === 1;
     const hasHomeDemand = currentHomeUsage > setPoint + SOLE_DEVICE_FEED_IN_RETURN_W;
@@ -736,6 +763,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   checkAutomationCurrentLimit,
+  refreshAutomationStatuses,
   resetAdapterAutomationController,
   runZeroFeedInAutomation,
   sortAutomationDevices,

@@ -124,10 +124,12 @@ const startAdapterAutomationJob = (adapter) => {
   void (async () => {
     await (0, import_adapterAutomation.updateAutomationDeviceMetrics)(adapter);
     await (0, import_adapterAutomation.sortAutomationDevices)(adapter);
+    await (0, import_adapterAutomation.refreshAutomationStatuses)(adapter);
   })();
   adapter.adapterAutomationMetricsJob = (0, import_node_schedule.scheduleJob)("*/1 * * * *", async () => {
     await (0, import_adapterAutomation.updateAutomationDeviceMetrics)(adapter);
     await (0, import_adapterAutomation.checkAutomationCurrentLimit)(adapter);
+    await (0, import_adapterAutomation.refreshAutomationStatuses)(adapter);
   });
   adapter.adapterAutomationSortJob = (0, import_node_schedule.scheduleJob)("0 * * * *", async () => {
     adapter.log.debug("[adapterAutomation] Full hour reached, re-sorting devices!");

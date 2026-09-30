@@ -535,8 +535,6 @@ export class ZenIobDevice {
       return Promise.resolve(false);
     }
 
-    this.adapter.log.debug(`[getZenSdkProperties] Getting properties with zenSDK for device ${this.deviceKey}!`);
-
     if (this.ipAddress) {
       const headers = {
         "Content-Type": "application/json",
@@ -554,10 +552,6 @@ export class ZenIobDevice {
 
           // Device is online, so set error count to 0!
           this.zenSdkErrorCount = 0;
-
-          this.adapter.log.debug(
-            `[getZenSdkProperties] Successfully got properties for device ${this.deviceKey} with zenSDK!}`,
-          );
 
           // Some devices (e.g. Smart Meter 3CT/D0) report their measurements directly on the
           // top-level response instead of nesting them under 'properties'

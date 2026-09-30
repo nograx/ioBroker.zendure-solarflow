@@ -467,7 +467,6 @@ class ZenIobDevice {
       );
       return Promise.resolve(false);
     }
-    this.adapter.log.debug(`[getZenSdkProperties] Getting properties with zenSDK for device ${this.deviceKey}!`);
     if (this.ipAddress) {
       const headers = {
         "Content-Type": "application/json"
@@ -480,9 +479,6 @@ class ZenIobDevice {
         var _a;
         const data = await response.data;
         this.zenSdkErrorCount = 0;
-        this.adapter.log.debug(
-          `[getZenSdkProperties] Successfully got properties for device ${this.deviceKey} with zenSDK!}`
-        );
         const {
           properties,
           packData,

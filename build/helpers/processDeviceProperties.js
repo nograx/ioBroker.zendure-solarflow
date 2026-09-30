@@ -370,11 +370,6 @@ const processDeviceProperties = async (device, properties, isSolarFlow) => {
     const coercedValue = coerceToStateType(key, rawValue);
     await ensureState(device, key, coercedValue);
     device.updateSolarFlowState(key, coercedValue);
-    if (device.adapter.log.level == "debug") {
-      device.adapter.log.debug(
-        `[onMessage] ${device.deviceKey}: ${key} = ${JSON.stringify(coercedValue)} stored via fallback handler`
-      );
-    }
   }
 };
 // Annotate the CommonJS export names for ESM import in node:

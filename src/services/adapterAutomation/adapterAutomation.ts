@@ -167,6 +167,11 @@ let lastGridMeterValue: number | undefined;
 // Fast / slow moving averages of the grid meter value, see SHORT_TERM_GRID_ALPHA and CHARGE_START_GRID_ALPHA.
 let shortTermGridAvgW: number | undefined;
 let chargeStartGridAvgW: number | undefined;
+// Fast moving average (SHORT_TERM_GRID_ALPHA) of the home usage (grid + own feed-in - own charge power), the
+// feed-forward base for feed-in control. Smoothing the home usage rather than the grid value matters: a new
+// limit shifts the grid value by the same amount at once, which a lagging grid average would only partly
+// reflect - adding the full new feed-in to it overestimates the home usage and makes the limit overshoot.
+let shortTermHomeUsageW: number | undefined;
 let stabilizedInverterCount = 0;
 let stabilizedUntilMs = 0;
 // Same as stabilizedInverterCount, but for the number of AC-only devices charging at once - keeps it from
@@ -272,6 +277,8 @@ const chargePid = createPidController(CHARGE_PI);
 export const resetAdapterAutomationController = (adapter: ZendureSolarflow): void => {
   feedInPid.reset();
   chargePid.reset();
+  // Not updated while automation is off, so it may be long stale - re-seed from the next measurement.
+  shortTermHomeUsageW = undefined;
   adapter.log.debug(`${LOG} PID controllers reset`);
 };
 
@@ -343,6 +350,7 @@ const DEVICE_TASK_TEXTS: Record<
     tasks: Record<DeviceTask, string>;
     leadSuffix: string;
     automationDisabled: string;
+    waitingForTrigger: string;
   }
 > = {
   en: {
@@ -360,6 +368,7 @@ const DEVICE_TASK_TEXTS: Record<
     },
     leadSuffix: " (lead device)",
     automationDisabled: "Automation disabled globally",
+    waitingForTrigger: "Waiting for a change of the automation trigger state",
   },
   de: {
     tasks: {
@@ -376,6 +385,7 @@ const DEVICE_TASK_TEXTS: Record<
     },
     leadSuffix: " (führendes Gerät)",
     automationDisabled: "Automatisierung global deaktiviert",
+    waitingForTrigger: "Wartet auf eine Änderung des Auslöser-Datenpunkts",
   },
 };
 
@@ -450,6 +460,31 @@ const isDeviceEnabled = async (adapter: ZendureSolarflow, device: ZenIobDevice):
 const isForceAcCharging = async (adapter: ZendureSolarflow, device: ZenIobDevice): Promise<boolean> => {
   const state = await adapter.getStateAsync(`${deviceId(device)}.adapterAutomation.forceAcCharging`);
   return state?.val === true;
+};
+
+/**
+ * Publishes '<device>.adapterAutomation.status' for states the control cycle can't report itself: the cycle
+ * only runs when the automation trigger state changes, so without this the status stays empty (or stale
+ * after an on/off switch) until the grid meter value changes. Tasks already published by the cycle are kept.
+ *
+ * @param adapter the adapter instance
+ */
+export const refreshAutomationStatuses = async (adapter: ZendureSolarflow): Promise<void> => {
+  const texts = DEVICE_TASK_TEXTS[await getStatusLanguage(adapter)];
+  const nonTaskTexts = [texts.automationDisabled, texts.tasks.disabled, texts.waitingForTrigger];
+  const automationEnabled = (await adapter.getStateAsync("adapterAutomation.automationEnabled"))?.val === true;
+
+  for (const device of getAutomationDevices(adapter)) {
+    const lastText = lastDeviceStatusTexts.get(deviceId(device));
+
+    if (!automationEnabled) {
+      await publishDeviceStatusText(adapter, device, texts.automationDisabled);
+    } else if (!(await isDeviceEnabled(adapter, device))) {
+      await publishDeviceStatusText(adapter, device, texts.tasks.disabled);
+    } else if (lastText === undefined || nonTaskTexts.includes(lastText)) {
+      await publishDeviceStatusText(adapter, device, texts.waitingForTrigger);
+    }
+  }
 };
 
 // Cancels a device's pending (delayed) limit command and sets its 'control.setDeviceAutomationInOutLimit'
@@ -854,12 +889,27 @@ export const runZeroFeedInAutomation = async (
       inDeadBand = false;
     }
 
-    // Based on the short-term grid average rather than the raw meter value, so strongly fluctuating loads
+    // Based on the short-term home usage average rather than the raw meter value, so strongly fluctuating loads
     // don't produce a new, strongly fluctuating limit on every trigger while the actual trend barely changes.
-    const currentHomeUsage = shortTermGridAvgW + currentFeedIn - currentTotalChargePowerAll;
+    // Only updated here, i.e. not while a device is waking up or settling (see above): the grid value doesn't
+    // reflect the commanded limit yet then, so it would wrongly count that limit as extra home usage.
+    const rawHomeUsage = currentGridMeterValue + currentFeedIn - currentTotalChargePowerAll;
+    shortTermHomeUsageW =
+      shortTermHomeUsageW == null
+        ? rawHomeUsage
+        : shortTermHomeUsageW + SHORT_TERM_GRID_ALPHA * (rawHomeUsage - shortTermHomeUsageW);
+    const currentHomeUsage = shortTermHomeUsageW;
 
-    const setPointDiff = shortTermGridAvgW - deadBandTarget;
+    // Grid value expected from the smoothed home usage and the current limits - unlike shortTermGridAvgW,
+    // it follows a limit change immediately, so the PI controller doesn't keep pushing in the same direction.
+    const expectedGridW = currentHomeUsage - currentFeedIn + currentTotalChargePowerAll;
+    const setPointDiff = expectedGridW - deadBandTarget;
     const piCorrection = feedInPid.calculate(setPointDiff, now);
+
+    adapter.log.debug(
+      `${LOG} Feed-in: grid=${currentGridMeterValue} rawHomeUsage=${rawHomeUsage.toFixed(1)} homeUsageAvg=${currentHomeUsage.toFixed(1)} ` +
+        `currentFeedIn=${currentFeedIn} expectedGrid=${expectedGridW.toFixed(1)} piCorrection=${piCorrection.toFixed(1)}`,
+    );
 
     let piAdjustedHomeUsage = currentHomeUsage + piCorrection;
 
