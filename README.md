@@ -143,6 +143,7 @@ For more details and for information on how to disable error reporting, see the 
 - Add adapter automation (zero feed-in control), see section "Adapter Automation" above.
 - mDNS discovery now runs as long as the adapter is running instead of only 10s after start. Devices connected later are added automatically, IP changes are detected, and failed zenSDK connects are retried.
 - Fix using the saved device list when Zendure Cloud is not reachable on startup.
+- Devices created via mDNS keep their states when they appear in the Zendure cloud device list later (cloud MQTT still works for them). Devices with an unknown productKey in the cloud device list are logged as info instead of error.
 - Disconnect MQTT clients cleanly when the adapter is stopped or restarted.
 
 ## Changelog

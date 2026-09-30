@@ -136,7 +136,7 @@ class SfHub1200 extends import_ZenIobDevice.ZenIobDevice {
         arguments: _arguments,
         function: "deviceAutomation",
         messageId: this.messageId,
-        deviceKey: this.deviceKey,
+        deviceKey: this.mqttDeviceKey,
         timestamp: timestamp.getTime() / 1e3
       };
       this.invokeMqttFunction(JSON.stringify(deviceAutomation));

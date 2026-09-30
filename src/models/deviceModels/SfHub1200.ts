@@ -146,7 +146,7 @@ export class SfHub1200 extends ZenIobDevice {
         arguments: _arguments,
         function: "deviceAutomation",
         messageId: this.messageId,
-        deviceKey: this.deviceKey,
+        deviceKey: this.mqttDeviceKey,
         timestamp: timestamp.getTime() / 1000,
       };
 

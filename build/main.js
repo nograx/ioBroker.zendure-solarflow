@@ -91,6 +91,7 @@ class ZendureSolarflow extends utils.Adapter {
    * Is called when databases are connected and adapter received configuration.
    */
   async onReady() {
+    var _a;
     if (this.config.useMdnsDiscovery === void 0) {
       this.config.useMdnsDiscovery = true;
       await this.extendForeignObjectAsync(`system.adapter.${this.namespace}`, { native: { useMdnsDiscovery: true } });
@@ -305,20 +306,26 @@ class ZendureSolarflow extends utils.Adapter {
         }
         if (deviceList) {
           this.log.debug(`[onReady] Creating ${deviceList.length} devices...`);
-          deviceList.forEach((device) => {
-            var _a;
-            const deviceModel = (0, import_helpers.createDeviceModel)(this, device.productKey, device.deviceKey, device);
+          const existingDeviceTreeIds = await this.getExistingDeviceTreeIds();
+          for (const device of deviceList) {
+            const treeKeys = this.getStateTreeKeys(device, existingDeviceTreeIds);
+            let deviceModel = (0, import_helpers.createDeviceModel)(this, treeKeys.productKey, treeKeys.deviceKey, device);
+            if (!deviceModel && treeKeys.productKey != device.productKey) {
+              deviceModel = (0, import_helpers.createDeviceModel)(this, device.productKey, device.deviceKey, device);
+            }
             if (deviceModel) {
               this.zenIobDeviceList.push(deviceModel);
             } else {
-              const message = `[onReady] Error creating device with productKey '${device.productKey}' / deviceKey '${device.deviceKey}' / productModel '${device.productModel}'`;
-              this.log.error(message);
+              const message = `[onReady] Unknown device with productKey '${device.productKey}' / deviceKey '${device.deviceKey}' / productModel '${device.productModel}'`;
+              this.log.info(
+                `${message}, can't create it from the cloud device list. If it supports zenSDK, it is added via mDNS discovery instead.`
+              );
               if (this.supportsFeature && this.supportsFeature("PLUGINS")) {
                 const sentryInstance = this.getPluginInstance("sentry");
                 (_a = sentryInstance == null ? void 0 : sentryInstance.getSentryObject()) == null ? void 0 : _a.captureMessage(message, "error");
               }
             }
-          });
+          }
         }
         this.startMdnsDiscovery();
         if (this.config.useZenSDK) {
@@ -409,6 +416,42 @@ class ZendureSolarflow extends utils.Adapter {
       },
       5 * 60 * 1e3
     );
+  }
+  /**
+   * Returns the ids ('<productKey>.<deviceKey>') of all existing device state trees of this instance.
+   */
+  async getExistingDeviceTreeIds() {
+    const channels = await this.getObjectViewAsync("system", "channel", {
+      startkey: `${this.namespace}.`,
+      endkey: `${this.namespace}.\u9999`
+    });
+    return channels.rows.map((row) => row.id.substring(this.namespace.length + 1)).filter((id) => id.split(".").length === 2);
+  }
+  /**
+   * Returns the keys of the state tree for a device from the cloud device list. A device that was created via mDNS
+   * before (placeholder productKey and/or serial number as deviceKey) keeps its existing state tree, so scripts,
+   * visualizations and history keep working. MQTT still uses the cloud keys (see ZenIobDevice.mqttProductKey).
+   * An existing state tree with the cloud keys always has priority.
+   *
+   * @param device the device from the cloud device list
+   * @param existingDeviceTreeIds the existing device state trees (see getExistingDeviceTreeIds)
+   */
+  getStateTreeKeys(device, existingDeviceTreeIds) {
+    const cloudKeys = { productKey: device.productKey, deviceKey: device.deviceKey };
+    const cloudTreeId = `${device.productKey.replace(this.FORBIDDEN_CHARS, "")}.${device.deviceKey.replace(this.FORBIDDEN_CHARS, "")}`;
+    if (!device.snNumber || existingDeviceTreeIds.includes(cloudTreeId)) {
+      return cloudKeys;
+    }
+    const snNumber = device.snNumber.toUpperCase();
+    const existingTreeId = existingDeviceTreeIds.find((id) => id.split(".")[1].toUpperCase() === snNumber);
+    if (!existingTreeId) {
+      return cloudKeys;
+    }
+    const [productKey, deviceKey] = existingTreeId.split(".");
+    this.log.info(
+      `[onReady] Device '${device.productModel}' (${device.productKey}/${device.deviceKey}) was created via mDNS before, keeping its existing states at '${existingTreeId}'!`
+    );
+    return { productKey, deviceKey };
   }
   /**
    * Starts the continuous mDNS discovery of Zendure devices, if enabled.

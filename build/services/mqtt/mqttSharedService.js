@@ -50,10 +50,10 @@ const initAdapter = (_adapter) => {
   adapter.log.debug("[initAdapter] Init adapter in mqttSharedService!");
   return true;
 };
-const isKnownDevice = (deviceKey) => !!(adapter == null ? void 0 : adapter.zenIobDeviceList.some((x) => x.deviceKey == deviceKey));
+const isKnownDevice = (deviceKey) => !!(adapter == null ? void 0 : adapter.zenIobDeviceList.some((x) => x.mqttDeviceKey == deviceKey));
 const onMessage = async (productKey, deviceKey, obj) => {
   if (adapter) {
-    const _device = adapter == null ? void 0 : adapter.zenIobDeviceList.find((x) => x.deviceKey == deviceKey);
+    const _device = adapter == null ? void 0 : adapter.zenIobDeviceList.find((x) => x.mqttDeviceKey == deviceKey);
     if (!_device) {
       adapter.log.debug(`[onMessage] DeviceKey '${deviceKey}' not found in device list!`);
       return;
@@ -71,7 +71,7 @@ const onMessage = async (productKey, deviceKey, obj) => {
     if (obj.function && obj.success != null && obj.success != void 0) {
       if ((obj.function == "deviceAutomation" || obj.function == "hemsEP") && obj.success == 1) {
         const currentValue = await adapter.getStateAsync(
-          `${productKey}.${deviceKey}.control.setDeviceAutomationInOutLimit`
+          `${_device.productKey}.${_device.deviceKey}.control.setDeviceAutomationInOutLimit`
         );
         _device == null ? void 0 : _device.updateSolarFlowControlState("setDeviceAutomationInOutLimit", (currentValue == null ? void 0 : currentValue.val) ? currentValue.val : 0);
       } else if ((obj.function == "deviceAutomation" || obj.function == "hemsEP") && obj.success == 0) {
@@ -185,7 +185,9 @@ const onSubscribeIotTopic = (error, productKey, deviceKey) => {
     adapter == null ? void 0 : adapter.log.error(`Subscription to MQTT failed! Error: ${error}`);
   } else if (adapter) {
     adapter == null ? void 0 : adapter.log.debug(`Subscription of IOT Topic successful! ProductKey: ${productKey}, DeviceKey: ${deviceKey}`);
-    const _device = adapter.zenIobDeviceList.find((x) => x.productKey == productKey && x.deviceKey == deviceKey);
+    const _device = adapter.zenIobDeviceList.find(
+      (x) => x.mqttProductKey == productKey && x.mqttDeviceKey == deviceKey
+    );
     if (_device) {
       const randomDelay = Math.floor(Math.random() * 10) + 3;
       adapter.setTimeout(() => {

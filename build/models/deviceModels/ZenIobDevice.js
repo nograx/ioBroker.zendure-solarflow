@@ -70,8 +70,16 @@ class ZenIobDevice {
   zenIobDeviceDetails;
   adapter;
   deviceConnectionMode = void 0;
+  /** productKey / deviceKey of the device's state tree ('<productKey>.<deviceKey>.*'). */
   productKey;
   deviceKey;
+  /**
+   * productKey / deviceKey used for MQTT topics and payloads, as known to the Zendure cloud. Usually identical to
+   * productKey / deviceKey, but differs for a device that was first created via mDNS (placeholder productKey,
+   * serial number as deviceKey) and appeared in the cloud device list later: it keeps its existing state tree.
+   */
+  mqttProductKey;
+  mqttDeviceKey;
   snNumber = void 0;
   productName;
   deviceName;
@@ -114,16 +122,18 @@ class ZenIobDevice {
     this.adapter = _adapter;
     this.productKey = _productKey;
     this.deviceKey = _deviceKey;
+    this.mqttProductKey = (_zenIobDeviceDetails == null ? void 0 : _zenIobDeviceDetails.productKey) || _productKey;
+    this.mqttDeviceKey = (_zenIobDeviceDetails == null ? void 0 : _zenIobDeviceDetails.deviceKey) || _deviceKey;
     this.deviceName = _deviceName;
     this.productName = _productName;
     this.isZenSdkSupported = isZenSdkSupported;
-    this.iotTopic = `iot/${_productKey}/${_deviceKey}/properties/write`;
-    this.functionTopic = `iot/${_productKey}/${_deviceKey}/function/invoke`;
+    this.iotTopic = `iot/${this.mqttProductKey}/${this.mqttDeviceKey}/properties/write`;
+    this.functionTopic = `iot/${this.mqttProductKey}/${this.mqttDeviceKey}/function/invoke`;
     this.createSolarFlowStates();
     if (_zenIobDeviceDetails) {
       this.updateSolarFlowStatesFromDeviceDetails(_zenIobDeviceDetails);
     }
-    this.password = (0, import_node_crypto.createHash)("md5").update(_deviceKey, "utf8").digest("hex").toUpperCase().substring(8, 24);
+    this.password = (0, import_node_crypto.createHash)("md5").update(this.mqttDeviceKey, "utf8").digest("hex").toUpperCase().substring(8, 24);
     this.adapter.log.debug(
       `[ZenIobDevice] useZenSDK for device ${this.deviceKey}: Supported=${this.isZenSdkSupported} Config=${this.adapter.config.useZenSDK}`
     );
@@ -655,8 +665,8 @@ class ZenIobDevice {
   }
   unsubscribeMqttTopics() {
     var _a, _b, _c, _d;
-    const reportTopic = `/${this.productKey}/${this.deviceKey}/#`;
-    const iotSubscribeTopic = `iot/${this.productKey}/${this.deviceKey}/#`;
+    const reportTopic = `/${this.mqttProductKey}/${this.mqttDeviceKey}/#`;
+    const iotSubscribeTopic = `iot/${this.mqttProductKey}/${this.mqttDeviceKey}/#`;
     if ((_b = (_a = this.adapter) == null ? void 0 : _a.cloudMqttService) == null ? void 0 : _b.mqttClient) {
       this.adapter.log.debug(
         `[unsubscribeMqttTopics] Unsubscribing from MQTT Topics for device ${this.deviceKey} (Cloud)`
@@ -755,7 +765,7 @@ class ZenIobDevice {
   }
   subscribeReportTopic() {
     var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s;
-    const reportTopic = `/${this.productKey}/${this.deviceKey}/#`;
+    const reportTopic = `/${this.mqttProductKey}/${this.mqttDeviceKey}/#`;
     if (this.adapter) {
       if ((_b = (_a = this.adapter) == null ? void 0 : _a.cloudMqttService) == null ? void 0 : _b.mqttClient) {
         this.adapter.log.debug(`[subscribeReportTopic] Subscribing to MQTT Topic: ${reportTopic} (Cloud)`);
@@ -793,18 +803,18 @@ class ZenIobDevice {
   }
   subscribeIotTopic() {
     var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j;
-    const iotTopic = `iot/${this.productKey}/${this.deviceKey}/#`;
+    const iotTopic = `iot/${this.mqttProductKey}/${this.mqttDeviceKey}/#`;
     if (this.adapter) {
       if ((_b = (_a = this.adapter) == null ? void 0 : _a.cloudMqttService) == null ? void 0 : _b.mqttClient) {
         (_c = this.adapter) == null ? void 0 : _c.log.debug(`[subscribeIotTopic] Subscribing to MQTT Topic: '${iotTopic}' (Cloud)`);
         (_e = (_d = this.adapter) == null ? void 0 : _d.cloudMqttService) == null ? void 0 : _e.mqttClient.subscribe(iotTopic, (error) => {
-          (0, import_mqttSharedService.onSubscribeIotTopic)(error, this.productKey, this.deviceKey);
+          (0, import_mqttSharedService.onSubscribeIotTopic)(error, this.mqttProductKey, this.mqttDeviceKey);
         });
       }
       if ((_g = (_f = this.adapter) == null ? void 0 : _f.localMqttService) == null ? void 0 : _g.mqttClient) {
         (_h = this.adapter) == null ? void 0 : _h.log.debug(`[subscribeIotTopic] Subscribing to MQTT Topic: '${iotTopic}' (Local)`);
         (_j = (_i = this.adapter) == null ? void 0 : _i.localMqttService) == null ? void 0 : _j.mqttClient.subscribe(iotTopic, (error) => {
-          (0, import_mqttSharedService.onSubscribeIotTopic)(error, this.productKey, this.deviceKey);
+          (0, import_mqttSharedService.onSubscribeIotTopic)(error, this.mqttProductKey, this.mqttDeviceKey);
         });
       }
     }
@@ -901,7 +911,7 @@ class ZenIobDevice {
       arguments: _arguments,
       function: "hemsEP",
       messageId: this.messageId,
-      deviceKey: this.deviceKey,
+      deviceKey: this.mqttDeviceKey,
       timestamp: timestamp.getTime() / 1e3
     };
     this.invokeMqttFunction(JSON.stringify(hemsEP));
@@ -1155,7 +1165,7 @@ class ZenIobDevice {
       this.adapter.log.debug(
         `[triggerFullTelemetryUpdate] Triggering full telemetry update for device key ${this.deviceKey}!`
       );
-      const topic = `iot/${this.productKey}/${this.deviceKey}/properties/read`;
+      const topic = `iot/${this.mqttProductKey}/${this.mqttDeviceKey}/properties/read`;
       this.messageId += 1;
       if ((_b = (_a = this.adapter) == null ? void 0 : _a.localMqttService) == null ? void 0 : _b.mqttClient) {
         (_e = (_d = (_c = this.adapter) == null ? void 0 : _c.localMqttService) == null ? void 0 : _d.mqttClient) == null ? void 0 : _e.publish(topic, JSON.stringify(getAllContent), { qos: 1 });
