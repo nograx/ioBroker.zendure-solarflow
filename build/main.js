@@ -273,24 +273,21 @@ class ZendureSolarflow extends utils.Adapter {
         }
         if (typeof data === "string" || data == void 0) {
           this.setState("info.connection", false, true);
-          fileHelper.readDeviceListFromFile().then((data2) => {
-            if (data2) {
-              deviceList = data2;
-              this.log.debug(
+          try {
+            const fileDeviceList = await fileHelper.readDeviceListFromFile();
+            if (fileDeviceList) {
+              deviceList = fileDeviceList;
+              this.log.info(
                 "[onReady] No connection to Zendure Cloud possible, but device list found in file. Using device list from file."
               );
             } else {
-              this.log.error(
-                "[onReady] No connection to Zendure Cloud possible and no device list found in file. Cannot continue."
-              );
-              return;
+              this.log.error("[onReady] No connection to Zendure Cloud possible and no device list found in file!");
             }
-          }).catch((err) => {
+          } catch (err) {
             this.log.error(
-              `[onReady] No connection to Zendure Cloud possible and error reading device list from file: ${err.message}. Cannot continue.`
+              `[onReady] No connection to Zendure Cloud possible and error reading device list from file: ${err == null ? void 0 : err.message}!`
             );
-            return;
-          });
+          }
         } else {
           this.mqttSettings = data.mqtt;
           this.cloudMqttService = new import_cloudMqttService.CloudMqttService(this);

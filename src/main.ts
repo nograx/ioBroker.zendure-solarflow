@@ -294,28 +294,24 @@ export class ZendureSolarflow extends utils.Adapter {
           // Error, try to read device list from file, if possible. This allows the adapter to continue working with the last known devices, even if the connection to Zendure Cloud is currently not possible (e.g. due to network issues).
           this.setState("info.connection", false, true);
 
-          fileHelper
-            .readDeviceListFromFile()
-            .then((data) => {
-              if (data) {
-                deviceList = data;
+          // Must be awaited: the device list is processed right below
+          try {
+            const fileDeviceList = await fileHelper.readDeviceListFromFile();
 
-                this.log.debug(
-                  "[onReady] No connection to Zendure Cloud possible, but device list found in file. Using device list from file.",
-                );
-              } else {
-                this.log.error(
-                  "[onReady] No connection to Zendure Cloud possible and no device list found in file. Cannot continue.",
-                );
-                return;
-              }
-            })
-            .catch((err) => {
-              this.log.error(
-                `[onReady] No connection to Zendure Cloud possible and error reading device list from file: ${err.message}. Cannot continue.`,
+            if (fileDeviceList) {
+              deviceList = fileDeviceList;
+
+              this.log.info(
+                "[onReady] No connection to Zendure Cloud possible, but device list found in file. Using device list from file.",
               );
-              return;
-            });
+            } else {
+              this.log.error("[onReady] No connection to Zendure Cloud possible and no device list found in file!");
+            }
+          } catch (err: any) {
+            this.log.error(
+              `[onReady] No connection to Zendure Cloud possible and error reading device list from file: ${err?.message}!`,
+            );
+          }
         } else {
           // Connection successful, continue as normal
           this.mqttSettings = data.mqtt;
