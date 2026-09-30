@@ -87,6 +87,7 @@ const getDeviceState = (device) => {
     state = {
       enabled: false,
       forceAcCharging: false,
+      acChargingAllowed: false,
       name: "",
       soc: 0,
       minSoc: 0,
@@ -240,6 +241,14 @@ const isForceAcCharging = async (adapter, device) => {
   const state = await adapter.getStateAsync(`${deviceId(device)}.adapterAutomation.forceAcCharging`);
   return (state == null ? void 0 : state.val) === true;
 };
+const isAcChargingAllowed = async (adapter, device) => {
+  if (!device.canChargeByAc || device.isAcOnly) {
+    return false;
+  }
+  const state = await adapter.getStateAsync(`${deviceId(device)}.adapterAutomation.acChargingAllowed`);
+  return (state == null ? void 0 : state.val) === true;
+};
+const canSurplusCharge = (device) => device.isAcOnly || getDeviceState(device).acChargingAllowed;
 const refreshAutomationStatuses = async (adapter) => {
   var _a;
   const texts = DEVICE_TASK_TEXTS[await getStatusLanguage(adapter)];
@@ -408,6 +417,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       const state = getDeviceState(device);
       state.enabled = await isDeviceEnabled(adapter, device);
       state.forceAcCharging = await isForceAcCharging(adapter, device);
+      state.acChargingAllowed = await isAcChargingAllowed(adapter, device);
       const solarInputPowerState = await adapter.getStateAsync(`${id}.solarInputPower`);
       state.solarInputPower = (solarInputPowerState == null ? void 0 : solarInputPowerState.val) != null ? Number(solarInputPowerState.val) : 0;
       if (state.solarInputPower > 100 && state.soc > 35) {
@@ -491,7 +501,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
     const hasHomeDemand = currentHomeUsage > setPoint + SOLE_DEVICE_FEED_IN_RETURN_W;
     const isReleasedForSurplusCharging = (device) => {
       const state = getDeviceState(device);
-      return state.enabled && !state.forceAcCharging && device.isAcOnly && state.soc < 100 && state.currentLimit <= 0 && !(isSoleEnabledDevice && hasHomeDemand) && (hasGridSurplus || state.currentLimit < -getMinLimit(device));
+      return state.enabled && !state.forceAcCharging && canSurplusCharge(device) && state.soc < 100 && state.currentLimit <= 0 && !(isSoleEnabledDevice && hasHomeDemand) && (hasGridSurplus || state.currentLimit < -getMinLimit(device));
     };
     const inputDevices = [];
     const otherDevices = [];
@@ -541,7 +551,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
     let unmetDemand = 0;
     const isSurplusChargeCandidate = (device) => {
       const state = getDeviceState(device);
-      return state.enabled && !state.forceAcCharging && device.isAcOnly;
+      return state.enabled && !state.forceAcCharging && canSurplusCharge(device);
     };
     const chargeEligibleDevices = otherDevices.filter(
       (device) => isSurplusChargeCandidate(device) && getDeviceState(device).soc < 100
@@ -582,7 +592,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       }
       if (state.forceAcCharging && state.soc < 100) {
         state.newLimit = -state.chargeMaxLimit;
-      } else if (device.isAcOnly && state.soc < 100) {
+      } else if (canSurplusCharge(device) && state.soc < 100) {
         const share = chargeShares.get(deviceId(device));
         let perDeviceBudget = share != null ? Math.round(Math.min(chargeBudgetTotal * share, state.chargeMaxLimit)) : 0;
         if (perDeviceBudget <= CHARGE_DEAD_ZONE_MAX_W || perDeviceBudget < getMinLimit(device)) {
@@ -609,7 +619,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
         state.newLimit = Math.max(100, state.newLimit);
       }
       const minLimit = getMinLimit(device);
-      const baseLimit = device.isAcOnly ? chargeKeepAliveOrZero(device, state) : minLimit;
+      const baseLimit = device.isAcOnly || state.acChargingAllowed && state.currentLimit < 0 ? chargeKeepAliveOrZero(device, state) : minLimit;
       state.newLimit = state.newLimit < minLimit ? baseLimit : state.newLimit;
       if (state.newLimit > state.maxLimit) {
         unmetDemand += state.newLimit - state.maxLimit;
@@ -677,7 +687,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       if (state.soc >= 100) {
         return "full";
       }
-      if (device.isAcOnly && !state.forceAcCharging && otherDevices.includes(device)) {
+      if (canSurplusCharge(device) && !state.forceAcCharging && otherDevices.includes(device)) {
         return "waitingForSurplus";
       }
       return "idle";

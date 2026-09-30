@@ -453,6 +453,32 @@ export class ZenIobDevice {
         if (currentForceAcCharging?.val == null) {
           await this.adapter?.setState(forceAcChargingStateId, false, true);
         }
+
+        // AC-only devices always charge from surplus; devices with their own solar input only if allowed here.
+        if (this.canChargeByAc && !this.isAcOnly) {
+          const acChargingAllowedStateId = `${productKey}.${deviceKey}.adapterAutomation.acChargingAllowed`;
+          await this.adapter?.extendObject(acChargingAllowedStateId, {
+            type: "state",
+            common: {
+              name: {
+                de: "Laden mit Netzüberschuss erlauben (wie AC-Geräte)",
+                en: "Allow charging from grid surplus (like AC-only devices)",
+              },
+              type: "boolean",
+              desc: "acChargingAllowed",
+              role: "switch",
+              read: true,
+              write: true,
+              def: false,
+            },
+            native: {},
+          });
+
+          const currentAcChargingAllowed = await this.adapter?.getStateAsync(acChargingAllowedStateId);
+          if (currentAcChargingAllowed?.val == null) {
+            await this.adapter?.setState(acChargingAllowedStateId, false, true);
+          }
+        }
       }
     }
 

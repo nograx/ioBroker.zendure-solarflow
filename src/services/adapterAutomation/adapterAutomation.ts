@@ -132,6 +132,11 @@ interface IAutomationDeviceState {
   enabled: boolean;
   /** Whether this device's 'adapterAutomation.forceAcCharging' switch is on, refreshed once per cycle. */
   forceAcCharging: boolean;
+  /**
+   * Whether this (non AC-only) device's 'adapterAutomation.acChargingAllowed' switch is on, refreshed once per
+   * cycle: it then charges from surplus like an AC-only device (see canSurplusCharge).
+   */
+  acChargingAllowed: boolean;
   /** Device's 'name' state, refreshed by updateAutomationDeviceMetrics; empty until first read. */
   name: string;
   soc: number;
@@ -197,6 +202,7 @@ const getDeviceState = (device: ZenIobDevice): IAutomationDeviceState => {
     state = {
       enabled: false,
       forceAcCharging: false,
+      acChargingAllowed: false,
       name: "",
       soc: 0,
       minSoc: 0,
@@ -461,6 +467,18 @@ const isForceAcCharging = async (adapter: ZendureSolarflow, device: ZenIobDevice
   const state = await adapter.getStateAsync(`${deviceId(device)}.adapterAutomation.forceAcCharging`);
   return state?.val === true;
 };
+
+// The state only exists for devices that can charge by AC but aren't AC-only (see ZenIobDevice).
+const isAcChargingAllowed = async (adapter: ZendureSolarflow, device: ZenIobDevice): Promise<boolean> => {
+  if (!device.canChargeByAc || device.isAcOnly) {
+    return false;
+  }
+  const state = await adapter.getStateAsync(`${deviceId(device)}.adapterAutomation.acChargingAllowed`);
+  return state?.val === true;
+};
+
+// Whether the device may charge from grid surplus: always for AC-only devices, for others only if allowed.
+const canSurplusCharge = (device: ZenIobDevice): boolean => device.isAcOnly || getDeviceState(device).acChargingAllowed;
 
 /**
  * Publishes '<device>.adapterAutomation.status' for states the control cycle can't report itself: the cycle
@@ -783,6 +801,7 @@ export const runZeroFeedInAutomation = async (
 
       state.enabled = await isDeviceEnabled(adapter, device);
       state.forceAcCharging = await isForceAcCharging(adapter, device);
+      state.acChargingAllowed = await isAcChargingAllowed(adapter, device);
 
       const solarInputPowerState = await adapter.getStateAsync(`${id}.solarInputPower`);
       state.solarInputPower = solarInputPowerState?.val != null ? Number(solarInputPowerState.val) : 0;
@@ -928,7 +947,7 @@ export const runZeroFeedInAutomation = async (
       return (
         state.enabled &&
         !state.forceAcCharging &&
-        device.isAcOnly &&
+        canSurplusCharge(device) &&
         state.soc < 100 &&
         state.currentLimit <= 0 &&
         !(isSoleEnabledDevice && hasHomeDemand) &&
@@ -1016,7 +1035,7 @@ export const runZeroFeedInAutomation = async (
     // handled separately below).
     const isSurplusChargeCandidate = (device: ZenIobDevice): boolean => {
       const state = getDeviceState(device);
-      return state.enabled && !state.forceAcCharging && device.isAcOnly;
+      return state.enabled && !state.forceAcCharging && canSurplusCharge(device);
     };
     const chargeEligibleDevices = otherDevices.filter(
       (device) => isSurplusChargeCandidate(device) && getDeviceState(device).soc < 100,
@@ -1093,7 +1112,7 @@ export const runZeroFeedInAutomation = async (
       if (state.forceAcCharging && state.soc < 100) {
         // Manual override: charge at the device's full chargeMaxLimit, ignoring solar surplus/SOC heuristics.
         state.newLimit = -state.chargeMaxLimit;
-      } else if (device.isAcOnly && state.soc < 100) {
+      } else if (canSurplusCharge(device) && state.soc < 100) {
         const share = chargeShares.get(deviceId(device));
         let perDeviceBudget = share != null ? Math.round(Math.min(chargeBudgetTotal * share, state.chargeMaxLimit)) : 0;
 
@@ -1136,9 +1155,13 @@ export const runZeroFeedInAutomation = async (
       }
 
       // Anything below the device's minimum limit can't be set: floor it to that minimum (feed-in standby),
-      // or to 0W for AC-only devices (or their charge keep-alive, if they just rejoined feed-in from charging).
+      // or to 0W for AC-only devices (or their charge keep-alive, if they just rejoined feed-in from charging -
+      // this also applies to other devices that charge from surplus via 'adapterAutomation.acChargingAllowed').
       const minLimit = getMinLimit(device);
-      const baseLimit = device.isAcOnly ? chargeKeepAliveOrZero(device, state) : minLimit;
+      const baseLimit =
+        device.isAcOnly || (state.acChargingAllowed && state.currentLimit < 0)
+          ? chargeKeepAliveOrZero(device, state)
+          : minLimit;
       state.newLimit = state.newLimit < minLimit ? baseLimit : state.newLimit;
 
       if (state.newLimit > state.maxLimit) {
@@ -1232,7 +1255,7 @@ export const runZeroFeedInAutomation = async (
       if (state.soc >= 100) {
         return "full";
       }
-      if (device.isAcOnly && !state.forceAcCharging && otherDevices.includes(device)) {
+      if (canSurplusCharge(device) && !state.forceAcCharging && otherDevices.includes(device)) {
         return "waitingForSurplus";
       }
       return "idle";
