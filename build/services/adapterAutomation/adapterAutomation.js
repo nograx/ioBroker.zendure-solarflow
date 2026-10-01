@@ -39,7 +39,6 @@ const MIN_STANDBY_TIME_MS = 3 * 60 * 1e3;
 const ZEN_SDK_MIN_LIMIT_W = 30;
 const DEFAULT_MIN_LIMIT_W = 10;
 const MIN_IDLE_BEFORE_CHARGE_MS = 5 * 60 * 1e3;
-const EXTRA_FEED_IN_CONFIRM_MS = 30 * 1e3;
 const MAX_FEED_IN_STEP_W = 100;
 const SHORT_TERM_GRID_ALPHA = 0.3;
 const HOME_USAGE_STEP_W = 300;
@@ -157,7 +156,7 @@ const trackLimitTransition = (state, previousLimit, nextLimit, now) => {
   }
 };
 const releaseStaleKeepAlive = (device, state, keepAliveLimit, now) => {
-  if (state.lastChangeMs < MIN_STANDBY_TIME_MS || state.currentLimit !== keepAliveLimit || state.soc >= 99) {
+  if (state.lastChangeMs < MIN_STANDBY_TIME_MS || state.currentLimit !== keepAliveLimit || state.soc >= 99 && state.solarInputPower > 0) {
     return;
   }
   trackLimitTransition(state, state.currentLimit, 0, now);
@@ -403,7 +402,7 @@ const getChargeShares = (devices) => {
   );
 };
 const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
-  var _a, _b;
+  var _a;
   if (isRunning || lastGridMeterValue === currentGridMeterValue) {
     return;
   }
@@ -433,11 +432,6 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       state.acChargingAllowed = await isAcChargingAllowed(adapter, device);
       const solarInputPowerState = await adapter.getStateAsync(`${id}.solarInputPower`);
       state.solarInputPower = (solarInputPowerState == null ? void 0 : solarInputPowerState.val) != null ? Number(solarInputPowerState.val) : 0;
-      if (state.solarInputPower > 100 && state.soc > 35) {
-        (_b = state.extraFeedInCandidateSinceMs) != null ? _b : state.extraFeedInCandidateSinceMs = now;
-      } else {
-        state.extraFeedInCandidateSinceMs = void 0;
-      }
       const currentLimitState = await adapter.getStateAsync(`${id}.control.setDeviceAutomationInOutLimit`);
       state.lastChangeMs = (currentLimitState == null ? void 0 : currentLimitState.lc) ? now - currentLimitState.lc : Number.MAX_SAFE_INTEGER;
       const freshLimit = (currentLimitState == null ? void 0 : currentLimitState.val) != null ? Number(currentLimitState.val) : 0;
@@ -554,8 +548,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       const utilization = currentAllocatedMaxPower > 0 ? piAdjustedHomeUsage / currentAllocatedMaxPower : 1;
       const isLead = index === 0;
       const isFullAndCapable = state.soc >= 95 && !device.isAcOnly;
-      const hasSpareSolar = state.extraFeedInCandidateSinceMs != null && now - state.extraFeedInCandidateSinceMs >= EXTRA_FEED_IN_CONFIRM_MS;
-      if (state.enabled && (isLead || isFullAndCapable || hasSpareSolar)) {
+      if (state.enabled && (isLead || isFullAndCapable)) {
         inputDevices.push(device);
         currentAllocatedMaxPower += state.maxLimit;
       } else if (state.enabled && // AC-only devices may step in too, as a last resort once the active feed-in devices are well utilized.
@@ -659,7 +652,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       let baseLimit = minLimit;
       if ((device.isAcOnly || state.acChargingAllowed) && state.currentLimit < 0) {
         baseLimit = chargeKeepAliveOrZero(device, state);
-      } else if (device.isAcOnly && state.currentLimit < minLimit) {
+      } else if ((device.isAcOnly || device !== devices[0]) && state.currentLimit < minLimit) {
         baseLimit = 0;
       }
       if (state.maxLimit <= 0 || !state.share) {

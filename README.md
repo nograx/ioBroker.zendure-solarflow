@@ -120,7 +120,7 @@ Per device (`<productKey>.<deviceKey>.adapterAutomation.*`):
 
 - **PI controller:** The required output is calculated from the current home usage (grid power + current output) plus a PI correction towards the setpoint. Within a small dead band (setpoint to setpoint + 10 W) nothing is changed, to avoid constant adjustments.
 - **Power sharing:** The required power is distributed across the active devices weighted by their SOC - fuller devices take a bigger share. Devices below their own `minSoc` get no share. Power a device cannot deliver (above its maximum) is passed on to devices with headroom.
-- **Lead device:** Devices are ranked by SOC and solar input (re-sorted every full hour). The lead device is always active; further devices are added when demand rises (above 70% utilization of the active devices), when they have spare solar power, or when they are nearly full. Once added, devices stay active for at least 5 minutes to avoid flapping. Idle devices are kept at 10 W standby for a few minutes, so they react faster.
+- **Lead device:** Devices are ranked by SOC and solar input (re-sorted every full hour). The lead device is always active; further devices are added when demand rises (above 70% utilization of the active devices) or when they are nearly full. Once added, devices stay active for at least 5 minutes to avoid flapping. Idle devices are kept at 10 W standby for a few minutes, so they react faster.
 - **Battery protection:** `suggestedInverseMaxPower` limits the output at low SOC / low cell voltage (e.g. only 60-500 W when cells are weak) and at night (0-5 h) the limit is derived from the SOC. It never exceeds the device's `inverseMaxPower`.
 - **AC-only devices** (e.g. SF 2400 AC, SF 1600 AC+, SF 3000/4000 Mix AC+) are preferred less as lead device once the other batteries are above 35%. When the grid meter shows a surplus (export at least `surplusChargeTrigger` W beyond the setpoint, default 100 W), idle AC-only devices (and devices with `acChargingAllowed`) charge with that surplus, up to their `chargeMaxLimit` (Power in W).
 - **Charging safety:** A device only switches to charging after it has been idle at 0 W for at least 5 minutes, so it does not flip directly between discharging and charging.
@@ -139,6 +139,11 @@ For more details and for information on how to disable error reporting, see the 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+### **WORK IN PROGRESS**
+
+- Zero-feed in: non-lead devices no longer get pulled out of idle into 30/10 W standby for a tiny share, and fully charged devices without solar input are released from standby to 0 W.
+- Zero-feed in: devices are no longer added as extra feed-in device just because they have more than 100 W solar input.
+
 ### 6.0.0-alpha.3 (2026-10-01)
 
 - Remove 0-5h reduction of suggested inverseMaxPower as this was related to Octopus Energy in personal setup.

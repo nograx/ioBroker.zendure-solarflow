@@ -36,11 +36,6 @@ const DEFAULT_MIN_LIMIT_W = 10;
 // for at least this long, so it doesn't flip directly from discharging to charging (or back) too often.
 const MIN_IDLE_BEFORE_CHARGE_MS = 5 * 60 * 1000;
 
-// A non-lead device with its own solar input is only recruited as an additional feed-in device once
-// solarInputPower > 100W && soc > 35% has held continuously for this long, so a single short load spike
-// doesn't pull it out of standby only to ramp it back down seconds later.
-const EXTRA_FEED_IN_CONFIRM_MS = 30 * 1000;
-
 // Rate limit for feed-in adjustments: only applied when the adjustment reverses direction compared to the
 // last one. A fluctuating load (e.g. a washing machine) reverses direction nearly every cycle and should be
 // damped; a genuine sustained change in demand keeps moving in the same direction and passes unthrottled.
@@ -171,8 +166,6 @@ interface IAutomationDeviceState {
   chargingStoppedMs?: number;
   /** Last transition from feeding in (positive) to not feeding in (<= 0); undefined = never fed in. */
   dischargingStoppedMs?: number;
-  /** Since when solarInputPower > 100W && soc > 35% has held continuously; undefined = not currently met. */
-  extraFeedInCandidateSinceMs?: number;
   /** Direction (-1/0/1) of the last feed-in adjustment, see MAX_FEED_IN_STEP_W. */
   lastFeedInDeltaSign?: number;
   pendingTimeout?: ioBroker.Timeout;
@@ -338,7 +331,8 @@ const trackLimitTransition = (
 /**
  * Releases a device that has been sitting unchanged at the given keep-alive limit for MIN_STANDBY_TIME_MS
  * back to a real 0W, directly (not via the regular delayed pipeline, since this check runs independently
- * of the rest of the cycle). Devices at >= 99% SOC are kept at their keep-alive limit.
+ * of the rest of the cycle). Devices at >= 99% SOC with solar input are kept at their keep-alive limit, so
+ * they don't curtail their own solar; without solar input there's nothing to export, so they're released too.
  *
  * @param device the device
  * @param state the device's automation state
@@ -351,7 +345,11 @@ const releaseStaleKeepAlive = (
   keepAliveLimit: number,
   now: number,
 ): void => {
-  if (state.lastChangeMs < MIN_STANDBY_TIME_MS || state.currentLimit !== keepAliveLimit || state.soc >= 99) {
+  if (
+    state.lastChangeMs < MIN_STANDBY_TIME_MS ||
+    state.currentLimit !== keepAliveLimit ||
+    (state.soc >= 99 && state.solarInputPower > 0)
+  ) {
     return;
   }
 
@@ -844,14 +842,6 @@ export const runZeroFeedInAutomation = async (
       const solarInputPowerState = await adapter.getStateAsync(`${id}.solarInputPower`);
       state.solarInputPower = solarInputPowerState?.val != null ? Number(solarInputPowerState.val) : 0;
 
-      // Confirmation timer for recruiting this device as an additional feed-in device (see
-      // EXTRA_FEED_IN_CONFIRM_MS) - must hold continuously, so it's reset as soon as the condition fails.
-      if (state.solarInputPower > 100 && state.soc > 35) {
-        state.extraFeedInCandidateSinceMs ??= now;
-      } else {
-        state.extraFeedInCandidateSinceMs = undefined;
-      }
-
       const currentLimitState = await adapter.getStateAsync(`${id}.control.setDeviceAutomationInOutLimit`);
       state.lastChangeMs = currentLimitState?.lc ? now - currentLimitState.lc : Number.MAX_SAFE_INTEGER;
 
@@ -1044,11 +1034,8 @@ export const runZeroFeedInAutomation = async (
 
       const isLead = index === 0;
       const isFullAndCapable = state.soc >= 95 && !device.isAcOnly;
-      const hasSpareSolar =
-        state.extraFeedInCandidateSinceMs != null &&
-        now - state.extraFeedInCandidateSinceMs >= EXTRA_FEED_IN_CONFIRM_MS;
 
-      if (state.enabled && (isLead || isFullAndCapable || hasSpareSolar)) {
+      if (state.enabled && (isLead || isFullAndCapable)) {
         inputDevices.push(device);
         currentAllocatedMaxPower += state.maxLimit;
       } else if (
@@ -1228,13 +1215,14 @@ export const runZeroFeedInAutomation = async (
 
       // Anything below the device's minimum limit can't be set: floor it to that minimum (feed-in standby).
       // A device that just rejoined feed-in from charging gets its charge keep-alive instead (AC-only devices,
-      // and other devices that charge from surplus via 'adapterAutomation.acChargingAllowed'). An AC-only
-      // device that isn't feeding in yet stays at 0W, so a tiny share doesn't pull it out of idle.
+      // and other devices that charge from surplus via 'adapterAutomation.acChargingAllowed'). An AC-only or
+      // non-lead device that isn't feeding in yet stays at 0W, so a tiny share doesn't pull it out of idle -
+      // only the lead device is kept at its feed-in standby.
       const minLimit = getMinLimit(device);
       let baseLimit = minLimit;
       if ((device.isAcOnly || state.acChargingAllowed) && state.currentLimit < 0) {
         baseLimit = chargeKeepAliveOrZero(device, state);
-      } else if (device.isAcOnly && state.currentLimit < minLimit) {
+      } else if ((device.isAcOnly || device !== devices[0]) && state.currentLimit < minLimit) {
         baseLimit = 0;
       }
 
