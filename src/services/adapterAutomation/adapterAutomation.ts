@@ -20,7 +20,7 @@ const AUTO_MODEL_SETTLE_MS = 7000;
 const WAKE_UP_MS = 9000;
 
 // Skip a control cycle if any device's output limit state changed more recently than this (still settling).
-const RECENT_CHANGE_SKIP_MS = 3000;
+const RECENT_CHANGE_SKIP_MS = 2000;
 
 // A device is kept at a keep-alive limit (feed-in standby at +minLimit, or charge keep-alive at -minLimit, see
 // getMinLimit) instead of a full stop to 0W once idle, so it reacts faster once needed again; after this long
@@ -51,6 +51,12 @@ const MAX_FEED_IN_STEP_W = 100;
 // feedback signal for feed-in and charge control - reacts to a genuine trend within a few cycles, but smooths
 // out single noisy readings (e.g. a washing machine flipping between -250W and +280W every few seconds).
 const SHORT_TERM_GRID_ALPHA = 0.3;
+
+// A genuine load step (e.g. a 2000W heater switching on/off) would take the smoothed home usage many cycles to
+// follow. If the current home usage deviates from the smoothed one by more than this (W) in two control cycles
+// in a row, in the same direction, the average jumps straight to the current value instead. A load flipping
+// back and forth (e.g. a washing machine) never deviates the same way twice in a row, so it stays smoothed.
+const HOME_USAGE_STEP_W = 300;
 
 // Much slower moving average of the grid meter value, only used to decide whether to start (or stop) surplus
 // charging - a single brief excursion of the fast average must not start a new charge, otherwise the device
@@ -100,13 +106,17 @@ interface IPidConfig {
 }
 
 // Feed-in controller. KD damps fast changes (brakes the controller before it overshoots); kept small since
-// even the smoothed grid average still partly follows short load jumps.
+// even the smoothed grid average still partly follows short load jumps. The integral limits allow a
+// correction of up to +-100W (KI * limit), enough to remove a lasting offset of the feed-forward estimate
+// (e.g. a device not delivering exactly its limit); windup is prevented by freezing it while the feed-in
+// can't move further in the error's direction, and while the error is outside FEED_IN_INTEGRAL_BAND_W (see
+// runZeroFeedInAutomation).
 const PI_CONTROLLER: IPidConfig = {
   KP: 0.15,
   KI: 0.02,
   KD: 0.05,
-  INTEGRAL_MIN: -200,
-  INTEGRAL_MAX: 200,
+  INTEGRAL_MIN: -5000,
+  INTEGRAL_MAX: 5000,
 };
 
 // Charge controller for the AC-only surplus charge budget. KP is deliberately low: per cycle only a quarter
@@ -126,6 +136,11 @@ const CHARGE_PI: IPidConfig = {
 // re-enabled), doesn't apply a large instantaneous windup as if that whole gap had been a sustained error.
 // A gap longer than this also drops the derivative term for that call, since the previous error is stale.
 const MAX_PI_DT_SECONDS = 10;
+
+// The feed-in integral only builds up while the error is at most this large (W). Large errors (e.g. a load
+// step) are covered by the feed-forward of the home usage within a few cycles anyway; integrating them too
+// would fill the integral up to its limit during the ramp, and make the feed-in overshoot afterwards.
+const FEED_IN_INTEGRAL_BAND_W = 100;
 
 interface IAutomationDeviceState {
   /** Whether this device's own 'adapterAutomation.automationEnabled' switch is on, refreshed once per cycle. */
@@ -177,6 +192,9 @@ let chargeStartGridAvgW: number | undefined;
 // limit shifts the grid value by the same amount at once, which a lagging grid average would only partly
 // reflect - adding the full new feed-in to it overestimates the home usage and makes the limit overshoot.
 let shortTermHomeUsageW: number | undefined;
+// Direction (-1/1) of a home usage deviation beyond HOME_USAGE_STEP_W in the last control cycle, waiting for
+// confirmation by the next one; 0 = none.
+let pendingHomeUsageStepSign = 0;
 let stabilizedInverterCount = 0;
 let stabilizedUntilMs = 0;
 // Same as stabilizedInverterCount, but for the number of AC-only devices charging at once - keeps it from
@@ -240,19 +258,32 @@ const getMinLimit = (device: ZenIobDevice): number =>
  */
 const createPidController = (
   config: IPidConfig,
-): { calculate: (error: number, now: number) => number; reset: () => void } => {
+): {
+  calculate: (error: number, now: number, canIntegrate?: boolean, integralOnly?: boolean) => number;
+  reset: () => void;
+} => {
   let integral = 0;
   let previousError: number | undefined;
   let lastUpdateMs: number | undefined;
 
-  const calculate = (error: number, now: number): number => {
+  // canIntegrate = false freezes the integral (anti-windup), e.g. while the output is already saturated.
+  // integralOnly = true returns only the integral term (no P/D) and drops the previous error, e.g. when the
+  // feed-forward already jumped to a new load level, so P/D don't correct the same step a second time.
+  const calculate = (error: number, now: number, canIntegrate = true, integralOnly = false): number => {
     const elapsedSeconds = lastUpdateMs != null ? (now - lastUpdateMs) / 1000 : undefined;
     const dtSeconds = elapsedSeconds != null ? Math.min(elapsedSeconds, MAX_PI_DT_SECONDS) : 0;
     lastUpdateMs = now;
 
     const proportional = config.KP * error;
 
-    integral = clamp(integral + error * dtSeconds, config.INTEGRAL_MIN, config.INTEGRAL_MAX);
+    if (canIntegrate) {
+      integral = clamp(integral + error * dtSeconds, config.INTEGRAL_MIN, config.INTEGRAL_MAX);
+    }
+
+    if (integralOnly) {
+      previousError = undefined;
+      return config.KI * integral;
+    }
 
     const derivative =
       previousError != null && elapsedSeconds != null && elapsedSeconds <= MAX_PI_DT_SECONDS
@@ -285,6 +316,7 @@ export const resetAdapterAutomationController = (adapter: ZendureSolarflow): voi
   chargePid.reset();
   // Not updated while automation is off, so it may be long stale - re-seed from the next measurement.
   shortTermHomeUsageW = undefined;
+  pendingHomeUsageStepSign = 0;
   adapter.log.debug(`${LOG} PID controllers reset`);
 };
 
@@ -324,6 +356,12 @@ const releaseStaleKeepAlive = (
   }
 
   trackLimitTransition(state, state.currentLimit, 0, now);
+  if (keepAliveLimit > 0) {
+    // It has been sitting at its feed-in standby (practically idle) for MIN_STANDBY_TIME_MS already - that
+    // counts as the idle time before a new charge, so it may start charging right away instead of waiting
+    // another MIN_IDLE_BEFORE_CHARGE_MS (see the charge gate in runZeroFeedInAutomation).
+    state.dischargingStoppedMs = undefined;
+  }
   state.currentLimit = 0;
   state.newLimit = 0;
   device.setDeviceAutomationInOutLimit(0);
@@ -794,7 +832,7 @@ export const runZeroFeedInAutomation = async (
     const now = Date.now();
 
     // Refresh enabled status, solar input and current limit for every device; release stale keep-alive
-    // limits of enabled devices to 0 (the lead device is never sent from feed-in standby to 0).
+    // limits of enabled devices to 0 (the lead device only from feed-in standby to 0 if it may charge from surplus).
     for (const [index, device] of devices.entries()) {
       const id = deviceId(device);
       const state = getDeviceState(device);
@@ -822,7 +860,10 @@ export const runZeroFeedInAutomation = async (
       state.currentLimit = freshLimit;
 
       if (state.enabled) {
-        if (index !== 0) {
+        // The lead device is normally kept at its feed-in standby - except devices that may charge from surplus
+        // (AC-only, or 'adapterAutomation.acChargingAllowed'): they have to get down to 0W eventually,
+        // otherwise they could never be released for surplus charging.
+        if (index !== 0 || canSurplusCharge(device)) {
           releaseStaleKeepAlive(device, state, getMinLimit(device), now);
         }
         releaseStaleKeepAlive(device, state, -getMinLimit(device), now);
@@ -850,15 +891,22 @@ export const runZeroFeedInAutomation = async (
       return;
     }
 
-    const currentFeedIn = devices.reduce((sum, device) => sum + Math.max(getDeviceState(device).currentLimit, 0), 0);
-    // Power currently being charged from AC (all devices) - subtracted from the home usage below, so the
-    // feed-in controller doesn't mistake the devices' own charging for home consumption and feed in even
+    // Only devices under automation control count here: a device with automation disabled may be controlled
+    // manually, and its power is already part of the grid meter value - counting its limit as own feed-in
+    // would add it to the home usage, so the automated devices would cover that power a second time.
+    const enabledDevices = devices.filter((device) => getDeviceState(device).enabled);
+    const currentFeedIn = enabledDevices.reduce(
+      (sum, device) => sum + Math.max(getDeviceState(device).currentLimit, 0),
+      0,
+    );
+    // Power currently being charged from AC (all enabled devices) - subtracted from the home usage below, so
+    // the feed-in controller doesn't mistake the devices' own charging for home consumption and feed in even
     // more to cover it (which would then let the charge power rise further, without any real limit).
-    const currentTotalChargePowerAll = devices.reduce(
+    const currentTotalChargePowerAll = enabledDevices.reduce(
       (sum, device) => sum + Math.max(0, -getDeviceState(device).currentLimit),
       0,
     );
-    const maxFeedIn = devices.reduce((sum, device) => sum + getDeviceState(device).maxLimit, 0);
+    const maxFeedIn = enabledDevices.reduce((sum, device) => sum + getDeviceState(device).maxLimit, 0);
     const solarInput = devices.reduce((sum, device) => sum + getDeviceState(device).solarInputPower, 0);
     const fleetMinSoc = Math.min(...devices.map((device) => getDeviceState(device).soc));
 
@@ -913,21 +961,46 @@ export const runZeroFeedInAutomation = async (
     // Only updated here, i.e. not while a device is waking up or settling (see above): the grid value doesn't
     // reflect the commanded limit yet then, so it would wrongly count that limit as extra home usage.
     const rawHomeUsage = currentGridMeterValue + currentFeedIn - currentTotalChargePowerAll;
-    shortTermHomeUsageW =
-      shortTermHomeUsageW == null
-        ? rawHomeUsage
-        : shortTermHomeUsageW + SHORT_TERM_GRID_ALPHA * (rawHomeUsage - shortTermHomeUsageW);
+    // Confirmed load step (see HOME_USAGE_STEP_W): jump to the current home usage instead of smoothing.
+    let isHomeUsageStep = false;
+    if (shortTermHomeUsageW == null) {
+      shortTermHomeUsageW = rawHomeUsage;
+      pendingHomeUsageStepSign = 0;
+    } else {
+      const deviation = rawHomeUsage - shortTermHomeUsageW;
+      const deviationSign = Math.abs(deviation) > HOME_USAGE_STEP_W ? Math.sign(deviation) : 0;
+      isHomeUsageStep = deviationSign !== 0 && deviationSign === pendingHomeUsageStepSign;
+
+      if (isHomeUsageStep) {
+        shortTermHomeUsageW = rawHomeUsage;
+        pendingHomeUsageStepSign = 0;
+      } else {
+        shortTermHomeUsageW += SHORT_TERM_GRID_ALPHA * deviation;
+        pendingHomeUsageStepSign = deviationSign;
+      }
+    }
     const currentHomeUsage = shortTermHomeUsageW;
 
     // Grid value expected from the smoothed home usage and the current limits - unlike shortTermGridAvgW,
     // it follows a limit change immediately, so the PI controller doesn't keep pushing in the same direction.
     const expectedGridW = currentHomeUsage - currentFeedIn + currentTotalChargePowerAll;
     const setPointDiff = expectedGridW - deadBandTarget;
-    const piCorrection = feedInPid.calculate(setPointDiff, now);
+    // Anti-windup: don't build up the integral while the feed-in can't follow anyway - importing with all
+    // devices already at their maximum, or exporting with nothing feeding in (e.g. solar surplus) - or while
+    // the error is large (see FEED_IN_INTEGRAL_BAND_W).
+    const isFeedInSaturated =
+      (setPointDiff > 0 && currentFeedIn >= maxFeedIn) || (setPointDiff < 0 && currentFeedIn <= 0);
+    const piCorrection = feedInPid.calculate(
+      setPointDiff,
+      now,
+      !isFeedInSaturated && Math.abs(setPointDiff) <= FEED_IN_INTEGRAL_BAND_W,
+      // After a step jump the feed-forward already covers the whole new load - P/D on top would count it twice.
+      isHomeUsageStep,
+    );
 
     adapter.log.debug(
       `${LOG} Feed-in: grid=${currentGridMeterValue} rawHomeUsage=${rawHomeUsage.toFixed(1)} homeUsageAvg=${currentHomeUsage.toFixed(1)} ` +
-        `currentFeedIn=${currentFeedIn} expectedGrid=${expectedGridW.toFixed(1)} piCorrection=${piCorrection.toFixed(1)}`,
+        `step=${isHomeUsageStep} currentFeedIn=${currentFeedIn} expectedGrid=${expectedGridW.toFixed(1)} piCorrection=${piCorrection.toFixed(1)}`,
     );
 
     let piAdjustedHomeUsage = currentHomeUsage + piCorrection;
@@ -939,7 +1012,7 @@ export const runZeroFeedInAutomation = async (
     // If it's the only enabled device, nothing else can cover the home while it charges - so it rejoins
     // immediately once there's real home demand (excluding its own charge power), taking precedence over the
     // lagging slow surplus average.
-    const isSoleEnabledDevice = devices.filter((device) => getDeviceState(device).enabled).length === 1;
+    const isSoleEnabledDevice = enabledDevices.length === 1;
     const hasHomeDemand = currentHomeUsage > setPoint + SOLE_DEVICE_FEED_IN_RETURN_W;
 
     const isReleasedForSurplusCharging = (device: ZenIobDevice): boolean => {
@@ -1037,8 +1110,13 @@ export const runZeroFeedInAutomation = async (
       const state = getDeviceState(device);
       return state.enabled && !state.forceAcCharging && canSurplusCharge(device);
     };
+    // A device still feeding in (e.g. at its feed-in standby) can't start charging right away anyway (see the
+    // charge gate below), so it gets no share of the charge budget - that goes to devices that can use it.
     const chargeEligibleDevices = otherDevices.filter(
-      (device) => isSurplusChargeCandidate(device) && getDeviceState(device).soc < 100,
+      (device) =>
+        isSurplusChargeCandidate(device) &&
+        getDeviceState(device).soc < 100 &&
+        getDeviceState(device).currentLimit <= 0,
     );
 
     // Charge power the surplus charging devices are currently drawing - base for the PID adjustment below.
@@ -1121,9 +1199,18 @@ export const runZeroFeedInAutomation = async (
           perDeviceBudget = 0;
         }
 
-        // No (further) budget for this device: end charging explicitly (via the charge keep-alive)
-        // rather than leaving a possibly still running old limit in place.
-        state.newLimit = perDeviceBudget > 0 ? -perDeviceBudget : chargeKeepAliveOrZero(device, state);
+        if (perDeviceBudget > 0) {
+          state.newLimit = -perDeviceBudget;
+        } else if (state.currentLimit >= getMinLimit(device)) {
+          // Was feeding in: back off to its feed-in standby like any other device, not straight to 0W - it
+          // reacts faster once needed again, and is released to 0W later (see releaseStaleKeepAlive).
+          state.newLimit = getMinLimit(device);
+          piAdjustedHomeUsage -= getMinLimit(device);
+        } else {
+          // No (further) budget for this device: end charging explicitly (via the charge keep-alive)
+          // rather than leaving a possibly still running old limit in place.
+          state.newLimit = chargeKeepAliveOrZero(device, state);
+        }
       } else if (state.currentLimit >= getMinLimit(device)) {
         // Keep the device at its feed-in standby rather than a full stop - it reacts faster once needed again.
         state.newLimit = getMinLimit(device);
@@ -1139,7 +1226,23 @@ export const runZeroFeedInAutomation = async (
       const state = getDeviceState(device);
       state.isAtCapacity = false;
 
+      // Anything below the device's minimum limit can't be set: floor it to that minimum (feed-in standby).
+      // A device that just rejoined feed-in from charging gets its charge keep-alive instead (AC-only devices,
+      // and other devices that charge from surplus via 'adapterAutomation.acChargingAllowed'). An AC-only
+      // device that isn't feeding in yet stays at 0W, so a tiny share doesn't pull it out of idle.
+      const minLimit = getMinLimit(device);
+      let baseLimit = minLimit;
+      if ((device.isAcOnly || state.acChargingAllowed) && state.currentLimit < 0) {
+        baseLimit = chargeKeepAliveOrZero(device, state);
+      } else if (device.isAcOnly && state.currentLimit < minLimit) {
+        baseLimit = 0;
+      }
+
       if (state.maxLimit <= 0 || !state.share) {
+        // No share (e.g. below minSoc, or no output headroom): without this, newLimit would still hold the value
+        // from the previous cycle and be sent again unchanged, although this cycle never assigned it. Park the
+        // device at its base limit instead, so its limit is always the result of the current calculation.
+        state.newLimit = baseLimit;
         return;
       }
 
@@ -1154,14 +1257,6 @@ export const runZeroFeedInAutomation = async (
         state.newLimit = Math.max(100, state.newLimit);
       }
 
-      // Anything below the device's minimum limit can't be set: floor it to that minimum (feed-in standby),
-      // or to 0W for AC-only devices (or their charge keep-alive, if they just rejoined feed-in from charging -
-      // this also applies to other devices that charge from surplus via 'adapterAutomation.acChargingAllowed').
-      const minLimit = getMinLimit(device);
-      const baseLimit =
-        device.isAcOnly || (state.acChargingAllowed && state.currentLimit < 0)
-          ? chargeKeepAliveOrZero(device, state)
-          : minLimit;
       state.newLimit = state.newLimit < minLimit ? baseLimit : state.newLimit;
 
       if (state.newLimit > state.maxLimit) {
@@ -1215,6 +1310,52 @@ export const runZeroFeedInAutomation = async (
           getDeviceState(device).newLimit += unmetDemand / availableDeviceCount;
         });
     }
+
+    // The shares above split piAdjustedHomeUsage, but flooring a small share up to the device's minimum limit
+    // (or parking a device without share at its feed-in standby) adds power nobody accounted for: e.g. a
+    // required 243W with shares 0.9/0.1 gives 218W + 24W, the 24W is floored to 30W, so the group feeds in
+    // 248W. With one device always at standby this is a constant offset of up to its minimum limit, which the
+    // PI controller would have to remove first. Take that excess off the devices above their minimum instead,
+    // proportional to their headroom above it, so the sum of all limits matches the required power.
+    // Fully charged devices exporting their own solar are left alone - that surplus is intended (see above).
+    inputDevices.forEach((device) => {
+      // Cap at maxLimit first (the final clamp below does the same anyway), so a device asked for more than it
+      // can deliver doesn't inflate the excess with power it will never feed in.
+      const state = getDeviceState(device);
+      state.newLimit = Math.min(state.newLimit, state.maxLimit);
+    });
+    const assignedFeedIn = inputDevices.reduce((sum, device) => sum + Math.max(getDeviceState(device).newLimit, 0), 0);
+    const excessFeedIn = assignedFeedIn - Math.max(piAdjustedHomeUsage, 0);
+
+    if (excessFeedIn > 0) {
+      const reducibleDevices = inputDevices.filter((device) => {
+        const state = getDeviceState(device);
+        return !fullSocDevices.includes(device) && state.newLimit > getMinLimit(device);
+      });
+      const totalHeadroom = reducibleDevices.reduce(
+        (sum, device) => sum + getDeviceState(device).newLimit - getMinLimit(device),
+        0,
+      );
+
+      if (totalHeadroom > 0) {
+        // Never below a device's minimum limit: if the headroom isn't enough, the remaining excess stays.
+        const reductionFactor = Math.min(1, excessFeedIn / totalHeadroom);
+        reducibleDevices.forEach((device) => {
+          const state = getDeviceState(device);
+          state.newLimit -= (state.newLimit - getMinLimit(device)) * reductionFactor;
+        });
+      }
+    }
+
+    // Final per-device limits of the feed-in group, to check the allocation against the 'Feed-in:' line above.
+    adapter.log.debug(
+      `${LOG} Allocation: piAdjustedHomeUsage=${piAdjustedHomeUsage.toFixed(1)} excessFeedIn=${excessFeedIn.toFixed(1)} ` +
+        `inputDevices=${
+          inputDevices
+            .map((device) => `${deviceLabel(device)}:${Math.round(getDeviceState(device).newLimit)}`)
+            .join(",") || "-"
+        }`,
+    );
 
     // If a device is (or is about to start) ramping up from standby, keep other feed-in standby limits in sync
     // with the same delay so they don't apply before the ramping device has settled.

@@ -24,6 +24,15 @@ __export(mdnsHelper_exports, {
 module.exports = __toCommonJS(mdnsHelper_exports);
 var import_helpers = require("./helpers");
 const ZENDURE_DEVICE_NAME_PREFIX = "Zendure-";
+const reportedToSentry = /* @__PURE__ */ new Set();
+function reportToSentry(adapter, serviceName, message) {
+  var _a, _b, _c;
+  if (reportedToSentry.has(serviceName) || !((_a = adapter.supportsFeature) == null ? void 0 : _a.call(adapter, "PLUGINS"))) {
+    return;
+  }
+  reportedToSentry.add(serviceName);
+  (_c = (_b = adapter.getPluginInstance("sentry")) == null ? void 0 : _b.getSentryObject()) == null ? void 0 : _c.captureMessage(message, "error");
+}
 function isZendureService(service) {
   var _a;
   return !!((_a = service.name) == null ? void 0 : _a.startsWith(ZENDURE_DEVICE_NAME_PREFIX));
@@ -58,6 +67,7 @@ function createDeviceFromMdns(adapter, serviceName, ipAddress) {
     adapter.log.warn(
       `[mdnsHelper] Discovered Zendure device '${serviceName}' via mDNS, but its model '${parsed.modelName}' is not known and can't be created automatically. Please connect it via the Zendure Cloud instead!`
     );
+    reportToSentry(adapter, serviceName, `[mdnsHelper] Unknown mDNS model '${parsed.modelName}' ('${serviceName}')`);
     return;
   }
   adapter.log.info(
@@ -83,7 +93,9 @@ function createDeviceFromMdns(adapter, serviceName, ipAddress) {
   if (deviceModel) {
     adapter.zenIobDeviceList.push(deviceModel);
   } else {
-    adapter.log.error(`[mdnsHelper] Error creating device model for mDNS-discovered device '${serviceName}'!`);
+    const message = `[mdnsHelper] Error creating device model for mDNS-discovered device '${serviceName}' (productKey '${product.productKey}')`;
+    adapter.log.error(`${message}!`);
+    reportToSentry(adapter, serviceName, message);
   }
 }
 function handleDiscoveredService(adapter, service) {

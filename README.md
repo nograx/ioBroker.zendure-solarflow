@@ -139,6 +139,11 @@ For more details and for information on how to disable error reporting, see the 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+
+### **WORK IN PROGRESS**
+
+- Improvements on zero-feed in
+
 ### 6.0.0-alpha.1 (2026-09-30)
 
 - Fix setDeviceAutomationInOutLimit not correctly set on non-zenSDK devices when automation is used.

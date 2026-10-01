@@ -34,7 +34,7 @@ const INVERTER_MIN_HOLD_MS = 5 * 60 * 1e3;
 const NEARLY_FULL_SOC = 90;
 const AUTO_MODEL_SETTLE_MS = 7e3;
 const WAKE_UP_MS = 9e3;
-const RECENT_CHANGE_SKIP_MS = 3e3;
+const RECENT_CHANGE_SKIP_MS = 2e3;
 const MIN_STANDBY_TIME_MS = 3 * 60 * 1e3;
 const ZEN_SDK_MIN_LIMIT_W = 30;
 const DEFAULT_MIN_LIMIT_W = 10;
@@ -42,6 +42,7 @@ const MIN_IDLE_BEFORE_CHARGE_MS = 5 * 60 * 1e3;
 const EXTRA_FEED_IN_CONFIRM_MS = 30 * 1e3;
 const MAX_FEED_IN_STEP_W = 100;
 const SHORT_TERM_GRID_ALPHA = 0.3;
+const HOME_USAGE_STEP_W = 300;
 const CHARGE_START_GRID_ALPHA = 0.05;
 const CHARGE_DEAD_ZONE_MAX_W = 20;
 const CHARGE_MIN_PER_DEVICE_W = 100;
@@ -55,8 +56,8 @@ const PI_CONTROLLER = {
   KP: 0.15,
   KI: 0.02,
   KD: 0.05,
-  INTEGRAL_MIN: -200,
-  INTEGRAL_MAX: 200
+  INTEGRAL_MIN: -5e3,
+  INTEGRAL_MAX: 5e3
 };
 const CHARGE_PI = {
   KP: 0.25,
@@ -66,12 +67,14 @@ const CHARGE_PI = {
   INTEGRAL_MAX: 400
 };
 const MAX_PI_DT_SECONDS = 10;
+const FEED_IN_INTEGRAL_BAND_W = 100;
 const deviceStates = /* @__PURE__ */ new Map();
 let inDeadBand = false;
 let lastGridMeterValue;
 let shortTermGridAvgW;
 let chargeStartGridAvgW;
 let shortTermHomeUsageW;
+let pendingHomeUsageStepSign = 0;
 let stabilizedInverterCount = 0;
 let stabilizedUntilMs = 0;
 let stabilizedChargeDeviceCount = 0;
@@ -113,12 +116,18 @@ const createPidController = (config) => {
   let integral = 0;
   let previousError;
   let lastUpdateMs;
-  const calculate = (error, now) => {
+  const calculate = (error, now, canIntegrate = true, integralOnly = false) => {
     const elapsedSeconds = lastUpdateMs != null ? (now - lastUpdateMs) / 1e3 : void 0;
     const dtSeconds = elapsedSeconds != null ? Math.min(elapsedSeconds, MAX_PI_DT_SECONDS) : 0;
     lastUpdateMs = now;
     const proportional = config.KP * error;
-    integral = clamp(integral + error * dtSeconds, config.INTEGRAL_MIN, config.INTEGRAL_MAX);
+    if (canIntegrate) {
+      integral = clamp(integral + error * dtSeconds, config.INTEGRAL_MIN, config.INTEGRAL_MAX);
+    }
+    if (integralOnly) {
+      previousError = void 0;
+      return config.KI * integral;
+    }
     const derivative = previousError != null && elapsedSeconds != null && elapsedSeconds <= MAX_PI_DT_SECONDS ? config.KD * (error - previousError) : 0;
     previousError = error;
     return proportional + config.KI * integral + derivative;
@@ -136,6 +145,7 @@ const resetAdapterAutomationController = (adapter) => {
   feedInPid.reset();
   chargePid.reset();
   shortTermHomeUsageW = void 0;
+  pendingHomeUsageStepSign = 0;
   adapter.log.debug(`${LOG} PID controllers reset`);
 };
 const trackLimitTransition = (state, previousLimit, nextLimit, now) => {
@@ -151,6 +161,9 @@ const releaseStaleKeepAlive = (device, state, keepAliveLimit, now) => {
     return;
   }
   trackLimitTransition(state, state.currentLimit, 0, now);
+  if (keepAliveLimit > 0) {
+    state.dischargingStoppedMs = void 0;
+  }
   state.currentLimit = 0;
   state.newLimit = 0;
   device.setDeviceAutomationInOutLimit(0);
@@ -431,7 +444,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       trackLimitTransition(state, state.currentLimit, freshLimit, now);
       state.currentLimit = freshLimit;
       if (state.enabled) {
-        if (index !== 0) {
+        if (index !== 0 || canSurplusCharge(device)) {
           releaseStaleKeepAlive(device, state, getMinLimit(device), now);
         }
         releaseStaleKeepAlive(device, state, -getMinLimit(device), now);
@@ -453,12 +466,16 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       );
       return;
     }
-    const currentFeedIn = devices.reduce((sum, device) => sum + Math.max(getDeviceState(device).currentLimit, 0), 0);
-    const currentTotalChargePowerAll = devices.reduce(
+    const enabledDevices = devices.filter((device) => getDeviceState(device).enabled);
+    const currentFeedIn = enabledDevices.reduce(
+      (sum, device) => sum + Math.max(getDeviceState(device).currentLimit, 0),
+      0
+    );
+    const currentTotalChargePowerAll = enabledDevices.reduce(
       (sum, device) => sum + Math.max(0, -getDeviceState(device).currentLimit),
       0
     );
-    const maxFeedIn = devices.reduce((sum, device) => sum + getDeviceState(device).maxLimit, 0);
+    const maxFeedIn = enabledDevices.reduce((sum, device) => sum + getDeviceState(device).maxLimit, 0);
     const solarInput = devices.reduce((sum, device) => sum + getDeviceState(device).solarInputPower, 0);
     const fleetMinSoc = Math.min(...devices.map((device) => getDeviceState(device).soc));
     const setPointState = await adapter.getStateAsync("adapterAutomation.setPoint");
@@ -488,16 +505,38 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       inDeadBand = false;
     }
     const rawHomeUsage = currentGridMeterValue + currentFeedIn - currentTotalChargePowerAll;
-    shortTermHomeUsageW = shortTermHomeUsageW == null ? rawHomeUsage : shortTermHomeUsageW + SHORT_TERM_GRID_ALPHA * (rawHomeUsage - shortTermHomeUsageW);
+    let isHomeUsageStep = false;
+    if (shortTermHomeUsageW == null) {
+      shortTermHomeUsageW = rawHomeUsage;
+      pendingHomeUsageStepSign = 0;
+    } else {
+      const deviation = rawHomeUsage - shortTermHomeUsageW;
+      const deviationSign = Math.abs(deviation) > HOME_USAGE_STEP_W ? Math.sign(deviation) : 0;
+      isHomeUsageStep = deviationSign !== 0 && deviationSign === pendingHomeUsageStepSign;
+      if (isHomeUsageStep) {
+        shortTermHomeUsageW = rawHomeUsage;
+        pendingHomeUsageStepSign = 0;
+      } else {
+        shortTermHomeUsageW += SHORT_TERM_GRID_ALPHA * deviation;
+        pendingHomeUsageStepSign = deviationSign;
+      }
+    }
     const currentHomeUsage = shortTermHomeUsageW;
     const expectedGridW = currentHomeUsage - currentFeedIn + currentTotalChargePowerAll;
     const setPointDiff = expectedGridW - deadBandTarget;
-    const piCorrection = feedInPid.calculate(setPointDiff, now);
+    const isFeedInSaturated = setPointDiff > 0 && currentFeedIn >= maxFeedIn || setPointDiff < 0 && currentFeedIn <= 0;
+    const piCorrection = feedInPid.calculate(
+      setPointDiff,
+      now,
+      !isFeedInSaturated && Math.abs(setPointDiff) <= FEED_IN_INTEGRAL_BAND_W,
+      // After a step jump the feed-forward already covers the whole new load - P/D on top would count it twice.
+      isHomeUsageStep
+    );
     adapter.log.debug(
-      `${LOG} Feed-in: grid=${currentGridMeterValue} rawHomeUsage=${rawHomeUsage.toFixed(1)} homeUsageAvg=${currentHomeUsage.toFixed(1)} currentFeedIn=${currentFeedIn} expectedGrid=${expectedGridW.toFixed(1)} piCorrection=${piCorrection.toFixed(1)}`
+      `${LOG} Feed-in: grid=${currentGridMeterValue} rawHomeUsage=${rawHomeUsage.toFixed(1)} homeUsageAvg=${currentHomeUsage.toFixed(1)} step=${isHomeUsageStep} currentFeedIn=${currentFeedIn} expectedGrid=${expectedGridW.toFixed(1)} piCorrection=${piCorrection.toFixed(1)}`
     );
     let piAdjustedHomeUsage = currentHomeUsage + piCorrection;
-    const isSoleEnabledDevice = devices.filter((device) => getDeviceState(device).enabled).length === 1;
+    const isSoleEnabledDevice = enabledDevices.length === 1;
     const hasHomeDemand = currentHomeUsage > setPoint + SOLE_DEVICE_FEED_IN_RETURN_W;
     const isReleasedForSurplusCharging = (device) => {
       const state = getDeviceState(device);
@@ -554,7 +593,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       return state.enabled && !state.forceAcCharging && canSurplusCharge(device);
     };
     const chargeEligibleDevices = otherDevices.filter(
-      (device) => isSurplusChargeCandidate(device) && getDeviceState(device).soc < 100
+      (device) => isSurplusChargeCandidate(device) && getDeviceState(device).soc < 100 && getDeviceState(device).currentLimit <= 0
     );
     const currentTotalChargePower = otherDevices.filter(isSurplusChargeCandidate).reduce((sum, device) => sum + Math.max(0, -getDeviceState(device).currentLimit), 0);
     const chargeError = surplusSetPoint - shortTermGridAvgW;
@@ -598,7 +637,14 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
         if (perDeviceBudget <= CHARGE_DEAD_ZONE_MAX_W || perDeviceBudget < getMinLimit(device)) {
           perDeviceBudget = 0;
         }
-        state.newLimit = perDeviceBudget > 0 ? -perDeviceBudget : chargeKeepAliveOrZero(device, state);
+        if (perDeviceBudget > 0) {
+          state.newLimit = -perDeviceBudget;
+        } else if (state.currentLimit >= getMinLimit(device)) {
+          state.newLimit = getMinLimit(device);
+          piAdjustedHomeUsage -= getMinLimit(device);
+        } else {
+          state.newLimit = chargeKeepAliveOrZero(device, state);
+        }
       } else if (state.currentLimit >= getMinLimit(device)) {
         state.newLimit = getMinLimit(device);
         piAdjustedHomeUsage -= getMinLimit(device);
@@ -609,7 +655,15 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
     inputDevices.forEach((device) => {
       const state = getDeviceState(device);
       state.isAtCapacity = false;
+      const minLimit = getMinLimit(device);
+      let baseLimit = minLimit;
+      if ((device.isAcOnly || state.acChargingAllowed) && state.currentLimit < 0) {
+        baseLimit = chargeKeepAliveOrZero(device, state);
+      } else if (device.isAcOnly && state.currentLimit < minLimit) {
+        baseLimit = 0;
+      }
       if (state.maxLimit <= 0 || !state.share) {
+        state.newLimit = baseLimit;
         return;
       }
       const solar = state.solarInputPower;
@@ -618,8 +672,6 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       if (!device.isAcOnly && state.soc === 99 && solar > 40) {
         state.newLimit = Math.max(100, state.newLimit);
       }
-      const minLimit = getMinLimit(device);
-      const baseLimit = device.isAcOnly || state.acChargingAllowed && state.currentLimit < 0 ? chargeKeepAliveOrZero(device, state) : minLimit;
       state.newLimit = state.newLimit < minLimit ? baseLimit : state.newLimit;
       if (state.newLimit > state.maxLimit) {
         unmetDemand += state.newLimit - state.maxLimit;
@@ -659,6 +711,32 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
         getDeviceState(device).newLimit += unmetDemand / availableDeviceCount;
       });
     }
+    inputDevices.forEach((device) => {
+      const state = getDeviceState(device);
+      state.newLimit = Math.min(state.newLimit, state.maxLimit);
+    });
+    const assignedFeedIn = inputDevices.reduce((sum, device) => sum + Math.max(getDeviceState(device).newLimit, 0), 0);
+    const excessFeedIn = assignedFeedIn - Math.max(piAdjustedHomeUsage, 0);
+    if (excessFeedIn > 0) {
+      const reducibleDevices = inputDevices.filter((device) => {
+        const state = getDeviceState(device);
+        return !fullSocDevices.includes(device) && state.newLimit > getMinLimit(device);
+      });
+      const totalHeadroom = reducibleDevices.reduce(
+        (sum, device) => sum + getDeviceState(device).newLimit - getMinLimit(device),
+        0
+      );
+      if (totalHeadroom > 0) {
+        const reductionFactor = Math.min(1, excessFeedIn / totalHeadroom);
+        reducibleDevices.forEach((device) => {
+          const state = getDeviceState(device);
+          state.newLimit -= (state.newLimit - getMinLimit(device)) * reductionFactor;
+        });
+      }
+    }
+    adapter.log.debug(
+      `${LOG} Allocation: piAdjustedHomeUsage=${piAdjustedHomeUsage.toFixed(1)} excessFeedIn=${excessFeedIn.toFixed(1)} inputDevices=${inputDevices.map((device) => `${deviceLabel(device)}:${Math.round(getDeviceState(device).newLimit)}`).join(",") || "-"}`
+    );
     const globalWakingDelayMs = devices.reduce((max, device) => {
       const state = getDeviceState(device);
       if (state.wakingUntilMs > now) {

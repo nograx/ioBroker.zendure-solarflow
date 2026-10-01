@@ -145,8 +145,9 @@ export abstract class ZenSdkIobDevice extends ZenIobDevice {
             }
           }, 2000);
 
-          // Keep smartMode on for a while after idling, so a brief standby doesn't immediately turn it
-          // off again if the device is asked to resume charging/discharging shortly after.
+          // Keep smartMode on for a while after idling, so a brief standby doesn't immediately turn it off again
+          // if the device is asked to resume charging/discharging shortly after. maxclaudi suggested a longer
+          // delay; 10 minutes was chosen.
           this.resetSmartModeTimeout = this.adapter.setTimeout(
             async () => {
               this.resetSmartModeTimeout = undefined;

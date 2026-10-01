@@ -5,6 +5,26 @@ import type { ZendureSolarflow } from "../main";
 
 const ZENDURE_DEVICE_NAME_PREFIX = "Zendure-";
 
+// Service names already reported to Sentry - a device is announced again on every mDNS query, so without
+// this the same problem would be reported over and over while the adapter is running.
+const reportedToSentry = new Set<string>();
+
+/**
+ * Reports a problem with an mDNS-discovered device to Sentry (like unknown devices from the cloud device
+ * list in main.ts), at most once per service name and adapter run.
+ *
+ * @param adapter the adapter instance
+ * @param serviceName the full mDNS service name of the device
+ * @param message the message to report
+ */
+function reportToSentry(adapter: ZendureSolarflow, serviceName: string, message: string): void {
+  if (reportedToSentry.has(serviceName) || !adapter.supportsFeature?.("PLUGINS")) {
+    return;
+  }
+  reportedToSentry.add(serviceName);
+  adapter.getPluginInstance("sentry")?.getSentryObject()?.captureMessage(message, "error");
+}
+
 /**
  * Whether the mDNS service was announced by a Zendure device.
  *
@@ -69,6 +89,7 @@ function createDeviceFromMdns(adapter: ZendureSolarflow, serviceName: string, ip
     adapter.log.warn(
       `[mdnsHelper] Discovered Zendure device '${serviceName}' via mDNS, but its model '${parsed.modelName}' is not known and can't be created automatically. Please connect it via the Zendure Cloud instead!`,
     );
+    reportToSentry(adapter, serviceName, `[mdnsHelper] Unknown mDNS model '${parsed.modelName}' ('${serviceName}')`);
     return;
   }
 
@@ -98,7 +119,9 @@ function createDeviceFromMdns(adapter: ZendureSolarflow, serviceName: string, ip
   if (deviceModel) {
     adapter.zenIobDeviceList.push(deviceModel);
   } else {
-    adapter.log.error(`[mdnsHelper] Error creating device model for mDNS-discovered device '${serviceName}'!`);
+    const message = `[mdnsHelper] Error creating device model for mDNS-discovered device '${serviceName}' (productKey '${product.productKey}')`;
+    adapter.log.error(`${message}!`);
+    reportToSentry(adapter, serviceName, message);
   }
 }
 
