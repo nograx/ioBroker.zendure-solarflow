@@ -139,7 +139,7 @@ For more details and for information on how to disable error reporting, see the 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
-### **WORK IN PROGRESS**
+### 6.0.0-alpha.4 (2026-10-01)
 
 - Zero-feed in: non-lead devices no longer get pulled out of idle into 30/10 W standby for a tiny share, and fully charged devices without solar input are released from standby to 0 W.
 - Zero-feed in: devices are no longer added as extra feed-in device just because they have more than 100 W solar input.
@@ -165,10 +165,6 @@ For more details and for information on how to disable error reporting, see the 
 - Devices created via mDNS keep their states when they appear in the Zendure cloud device list later (cloud MQTT still works for them). Devices with an unknown productKey in the cloud device list are logged as info instead of error.
 - Disconnect MQTT clients cleanly when the adapter is stopped or restarted.
 - Added Sentry (default ioBroker) for error reporting and device statistics.
-
-### 5.3.2 (2026-09-28)
-
-- Fix to ignore MQTT messages from unknown devices
 
 For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 

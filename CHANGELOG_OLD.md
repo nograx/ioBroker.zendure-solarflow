@@ -157,6 +157,10 @@
 
 - Add 'packPower' state, which shows combined power from (packInputPower and outputPackPower). Discharging will be shown with a negative value.
 - Add 'hyperTmp' to Solarflow 800 devices in hope this will show the temperature of the Solarflow 800 (can not test it due to lack of test device).
+## 5.3.2 (2026-09-28)
+
+- Fix to ignore MQTT messages from unknown devices
+
 ## 5.3.1 (2026-09-21)
 
 - Fixed an issue to ignore empty properties
