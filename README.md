@@ -139,6 +139,11 @@ For more details and for information on how to disable error reporting, see the 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+
+### **WORK IN PROGRESS**
+
+- Remove 0-5h reduction of suggested inverseMaxPower as this was related to Octopus Energy in personal setup.
+
 ### 6.0.0-alpha.2 (2026-10-01)
 
 - Improvements on zero-feed in
