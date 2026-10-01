@@ -139,8 +139,7 @@ For more details and for information on how to disable error reporting, see the 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
-
-### **WORK IN PROGRESS**
+### 6.0.0-alpha.2 (2026-10-01)
 
 - Improvements on zero-feed in
 
@@ -165,14 +164,6 @@ For more details and for information on how to disable error reporting, see the 
 ### 5.3.1 (2026-09-21)
 
 - Fixed an issue to ignore empty properties
-
-### 5.3.0 (2026-09-02)
-
-- Add folder "settings" for zenSDK devices. Here you can turn device polling on/off and control the polling interval for individual devices.
-- Round hyperTmp to nearest int.
-- Adjust checkVoltage function to take account of the 24V architecture of the new Mix series.
-- Start mDNS discovery start after fetching deviceList from Zendure cloud.
-- Fix lower case bug in comparing product keys for new mDNS device creation
 
 For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 

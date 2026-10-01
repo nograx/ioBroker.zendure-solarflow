@@ -157,6 +157,14 @@
 
 - Add 'packPower' state, which shows combined power from (packInputPower and outputPackPower). Discharging will be shown with a negative value.
 - Add 'hyperTmp' to Solarflow 800 devices in hope this will show the temperature of the Solarflow 800 (can not test it due to lack of test device).
+## 5.3.0 (2026-09-02)
+
+- Add folder "settings" for zenSDK devices. Here you can turn device polling on/off and control the polling interval for individual devices.
+- Round hyperTmp to nearest int.
+- Adjust checkVoltage function to take account of the 24V architecture of the new Mix series.
+- Start mDNS discovery start after fetching deviceList from Zendure cloud.
+- Fix lower case bug in comparing product keys for new mDNS device creation
+
 ## 5.2.1 (2026-08-30)
 
 - BREAKING: `setDeviceAutomationInOutLimit` on Hyper 2000 uses simulated HEMS now and requires `hemsState = 1` and `autoModel = 0` to control the device (automatically set by the adapter). Please check your control parameters (e.g. inverseMaxPower) after updating if you use setDeviceAutomationInOutLimit.
