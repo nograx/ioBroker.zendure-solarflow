@@ -139,8 +139,7 @@ For more details and for information on how to disable error reporting, see the 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
-
-### **WORK IN PROGRESS**
+### 6.0.0-alpha.3 (2026-10-01)
 
 - Remove 0-5h reduction of suggested inverseMaxPower as this was related to Octopus Energy in personal setup.
 
@@ -165,10 +164,6 @@ For more details and for information on how to disable error reporting, see the 
 ### 5.3.2 (2026-09-28)
 
 - Fix to ignore MQTT messages from unknown devices
-
-### 5.3.1 (2026-09-21)
-
-- Fixed an issue to ignore empty properties
 
 For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 

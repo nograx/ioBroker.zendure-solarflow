@@ -1423,29 +1423,16 @@ class ZenIobDevice {
   }
   /**
    * Suggests a maximum inverter output power (inverseMaxPower) based on the weakest cell voltage
-   * across all battery packs and the device SOC. Between 0-5 o'clock the suggestion is SOC-only,
-   * as voltage readings in that window are unreliable.
+   * across all battery packs and the device SOC.
    *
    * minVoltage is the lowest single-cell voltage (V) seen across all packs, not the pack's totalVol -
    * a weak individual cell can drop below a safe threshold long before the pack's summed voltage does.
-   * The voltage thresholds below are the pack-level thresholds (48.5V/47.4V/46.4V for a 15S pack) divided
-   * by 15 to bring them to the same per-cell scale as minVoltage.
    *
    * @param minVoltage lowest single-cell voltage (V) across all battery packs of this device
    * @param soc device state of charge (%)
    * @param maxLimit the device's currently configured inverseMaxPower (W), used as the upper bound
    */
   getSuggestedInverseMaxPower(minVoltage, soc, maxLimit) {
-    const hour = (/* @__PURE__ */ new Date()).getHours();
-    if (hour >= 0 && hour < 5) {
-      if (soc <= 10) {
-        return { limit: 0, reason: `Night mode (0-5h): SOC (${soc}%) <= 10% - output disabled` };
-      }
-      return {
-        limit: Math.min(Math.ceil(soc / 10) * 100, maxLimit),
-        reason: `Night mode (0-5h): limit derived from SOC (${soc}%)`
-      };
-    }
     const HIGH_VOLTAGE = 3.23;
     const MID_VOLTAGE = 3.2;
     const LOW_VOLTAGE = 3.1;
