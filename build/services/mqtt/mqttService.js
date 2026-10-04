@@ -103,10 +103,13 @@ class MqttService {
         () => false
       ),
       new Promise((resolve) => {
-        timeout = setTimeout(() => resolve(true), timeoutMs);
+        timeout = this.adapter.setTimeout(() => resolve(true), timeoutMs);
+        if (timeout === void 0) {
+          resolve(true);
+        }
       })
     ]);
-    clearTimeout(timeout);
+    this.adapter.clearTimeout(timeout);
     if (timedOut) {
       (_a = client.stream) == null ? void 0 : _a.destroy();
     }

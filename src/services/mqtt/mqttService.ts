@@ -95,17 +95,21 @@ export abstract class MqttService {
     // Pending QoS 1 messages or no connection: a clean disconnect is not possible, close immediately
     const force = !client.connected || Object.keys(client.outgoing).length > 0;
 
-    let timeout: NodeJS.Timeout | undefined;
+    let timeout: ioBroker.Timeout | undefined;
     const timedOut = await Promise.race([
       client.endAsync(force).then(
         () => false,
         () => false,
       ),
       new Promise<boolean>((resolve) => {
-        timeout = setTimeout(() => resolve(true), timeoutMs);
+        timeout = this.adapter.setTimeout(() => resolve(true), timeoutMs);
+        // The adapter refuses new timers once it is stopping: treat that as an immediate timeout
+        if (timeout === undefined) {
+          resolve(true);
+        }
       }),
     ]);
-    clearTimeout(timeout);
+    this.adapter.clearTimeout(timeout);
 
     if (timedOut) {
       // end() can't be forced once it is in progress, so destroy the underlying socket
