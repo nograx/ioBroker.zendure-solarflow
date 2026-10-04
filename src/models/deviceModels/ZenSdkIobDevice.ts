@@ -28,7 +28,26 @@ export abstract class ZenSdkIobDevice extends ZenIobDevice {
   }
 
   private resetAcModeTimeout?: ioBroker.Timeout;
-  private resetSmartModeTimeout?: ioBroker.Timeout;
+  private resetSmartModeInterval?: ioBroker.Interval;
+
+  /**
+   * smartMode may only be turned off when it is still on, solar input is below 50 W
+   * and the battery level is below 98 %.
+   */
+  private async shouldResetSmartMode(): Promise<boolean> {
+    const smartMode = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.smartMode`);
+    if (!smartMode || smartMode.val == 0) {
+      return false;
+    }
+
+    const solarInputPower = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.solarInputPower`);
+    const electricLevel = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.electricLevel`);
+
+    const solar = solarInputPower?.val != null ? Number(solarInputPower.val) : 0;
+    const soc = electricLevel?.val != null ? Number(electricLevel.val) : 0;
+
+    return solar < 50 && soc < 98;
+  }
 
   public async setDeviceAutomationInOutLimit(
     limit: number, // can be negative, negative will trigger charging mode
@@ -41,9 +60,9 @@ export abstract class ZenSdkIobDevice extends ZenIobDevice {
         this.resetAcModeTimeout = undefined;
       }
 
-      if (this.resetSmartModeTimeout) {
-        this.adapter.clearTimeout(this.resetSmartModeTimeout);
-        this.resetSmartModeTimeout = undefined;
+      if (this.resetSmartModeInterval) {
+        this.adapter.clearInterval(this.resetSmartModeInterval);
+        this.resetSmartModeInterval = undefined;
       }
 
       if (limit) {
@@ -96,12 +115,13 @@ export abstract class ZenSdkIobDevice extends ZenIobDevice {
 
         if (limit < 0) {
           // Charging mode
-          if (currentAcMode && currentAcMode.val != 1) {
-            results.push(await this.updateProperty("acMode", 1));
-          }
-
+          // Enable smartMode first, so the following writes go to RAM instead of flash
           if (currentSmartMode && currentSmartMode.val != 1) {
             results.push(await this.updateProperty("smartMode", 1));
+          }
+
+          if (currentAcMode && currentAcMode.val != 1) {
+            results.push(await this.updateProperty("acMode", 1));
           }
 
           if (currentOutputLimit && currentOutputLimit.val != 0) {
@@ -113,12 +133,13 @@ export abstract class ZenSdkIobDevice extends ZenIobDevice {
           }
         } else if (limit > 0) {
           // Discharging mode
-          if (currentAcMode && currentAcMode.val != 2) {
-            results.push(await this.updateProperty("acMode", 2));
-          }
-
+          // Enable smartMode first, so the following writes go to RAM instead of flash
           if (currentSmartMode && currentSmartMode.val != 1) {
             results.push(await this.updateProperty("smartMode", 1));
+          }
+
+          if (currentAcMode && currentAcMode.val != 2) {
+            results.push(await this.updateProperty("acMode", 2));
           }
 
           if (currentOutputLimit && currentOutputLimit.val != limit) {
@@ -147,16 +168,21 @@ export abstract class ZenSdkIobDevice extends ZenIobDevice {
 
           // Keep smartMode on for a while after idling, so a brief standby doesn't immediately turn it off again
           // if the device is asked to resume charging/discharging shortly after. maxclaudi suggested a longer
-          // delay; 10 minutes was chosen.
-          this.resetSmartModeTimeout = this.adapter.setTimeout(
-            async () => {
-              this.resetSmartModeTimeout = undefined;
-              if (currentSmartMode && currentSmartMode.val != 0) {
-                results.push(await this.updateProperty("smartMode", 0));
+          // delay; 10 minutes was chosen. After that, smartMode is only turned off once solar input is low
+          // and the battery is not (nearly) full, which is checked periodically while in standby.
+          const standbySince = Date.now();
+          this.resetSmartModeInterval = this.adapter.setInterval(async () => {
+            if (Date.now() - standbySince < 10 * 60 * 1000) {
+              return;
+            }
+            if (await this.shouldResetSmartMode()) {
+              if (this.resetSmartModeInterval) {
+                this.adapter.clearInterval(this.resetSmartModeInterval);
+                this.resetSmartModeInterval = undefined;
               }
-            },
-            10 * 60 * 1000,
-          );
+              await this.updateProperty("smartMode", 0);
+            }
+          }, 60 * 1000);
         }
 
         // Check if all updates were successful
