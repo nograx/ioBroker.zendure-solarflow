@@ -157,6 +157,16 @@
 
 - Add 'packPower' state, which shows combined power from (packInputPower and outputPackPower). Discharging will be shown with a negative value.
 - Add 'hyperTmp' to Solarflow 800 devices in hope this will show the temperature of the Solarflow 800 (can not test it due to lack of test device).
+## 6.0.0-alpha.0 (2026-09-30)
+
+- Add adapter automation (zero feed-in control), see section "Adapter Automation" above.
+- Add connection mode "zenSDK only (mDNS)": no Zendure cloud and no MQTT server, devices are found via mDNS and controlled via zenSDK.
+- mDNS discovery now runs as long as the adapter is running instead of only 10s after start. Devices connected later are added automatically, IP changes are detected, and failed zenSDK connects are retried.
+- Fix using the saved device list when Zendure Cloud is not reachable on startup.
+- Devices created via mDNS keep their states when they appear in the Zendure cloud device list later (cloud MQTT still works for them). Devices with an unknown productKey in the cloud device list are logged as info instead of error.
+- Disconnect MQTT clients cleanly when the adapter is stopped or restarted.
+- Added Sentry (default ioBroker) for error reporting and device statistics.
+
 ## 5.3.2 (2026-09-28)
 
 - Fix to ignore MQTT messages from unknown devices

@@ -145,7 +145,7 @@ For more details and for information on how to disable error reporting, see the 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
-### **WORK IN PROGRESS**
+### 6.0.0-alpha.5 (2026-10-04)
 
 - zenSDK devices: in standby (automation limit 0), smartMode is now only turned off after at least 10 minutes and only when solar input is below 50 W and the battery level is below 98%. This is checked every minute, so the internal inverter stays on and the device reacts faster when the limit changes again.
 - zenSDK devices: smartMode is now enabled before acMode when switching to charging/discharging, so these writes go to RAM instead of flash.
@@ -166,16 +166,6 @@ For more details and for information on how to disable error reporting, see the 
 ### 6.0.0-alpha.1 (2026-09-30)
 
 - Fix setDeviceAutomationInOutLimit not correctly set on non-zenSDK devices when automation is used.
-
-### 6.0.0-alpha.0 (2026-09-30)
-
-- Add adapter automation (zero feed-in control), see section "Adapter Automation" above.
-- Add connection mode "zenSDK only (mDNS)": no Zendure cloud and no MQTT server, devices are found via mDNS and controlled via zenSDK.
-- mDNS discovery now runs as long as the adapter is running instead of only 10s after start. Devices connected later are added automatically, IP changes are detected, and failed zenSDK connects are retried.
-- Fix using the saved device list when Zendure Cloud is not reachable on startup.
-- Devices created via mDNS keep their states when they appear in the Zendure cloud device list later (cloud MQTT still works for them). Devices with an unknown productKey in the cloud device list are logged as info instead of error.
-- Disconnect MQTT clients cleanly when the adapter is stopped or restarted.
-- Added Sentry (default ioBroker) for error reporting and device statistics.
 
 For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 

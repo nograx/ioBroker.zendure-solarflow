@@ -37,7 +37,22 @@ class ZenSdkIobDevice extends import_ZenIobDevice.ZenIobDevice {
     );
   }
   resetAcModeTimeout;
-  resetSmartModeTimeout;
+  resetSmartModeInterval;
+  /**
+   * smartMode may only be turned off when it is still on, solar input is below 50 W
+   * and the battery level is below 98 %.
+   */
+  async shouldResetSmartMode() {
+    const smartMode = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.smartMode`);
+    if (!smartMode || smartMode.val == 0) {
+      return false;
+    }
+    const solarInputPower = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.solarInputPower`);
+    const electricLevel = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.electricLevel`);
+    const solar = (solarInputPower == null ? void 0 : solarInputPower.val) != null ? Number(solarInputPower.val) : 0;
+    const soc = (electricLevel == null ? void 0 : electricLevel.val) != null ? Number(electricLevel.val) : 0;
+    return solar < 50 && soc < 98;
+  }
   async setDeviceAutomationInOutLimit(limit) {
     if (this.productKey && this.deviceKey) {
       this.adapter.log.debug(`[setDeviceAutomationInOutLimit] Set device Automation limit to ${limit}!`);
@@ -45,9 +60,9 @@ class ZenSdkIobDevice extends import_ZenIobDevice.ZenIobDevice {
         this.adapter.clearTimeout(this.resetAcModeTimeout);
         this.resetAcModeTimeout = void 0;
       }
-      if (this.resetSmartModeTimeout) {
-        this.adapter.clearTimeout(this.resetSmartModeTimeout);
-        this.resetSmartModeTimeout = void 0;
+      if (this.resetSmartModeInterval) {
+        this.adapter.clearInterval(this.resetSmartModeInterval);
+        this.resetSmartModeInterval = void 0;
       }
       if (limit) {
         limit = Math.round(limit);
@@ -89,11 +104,11 @@ class ZenSdkIobDevice extends import_ZenIobDevice.ZenIobDevice {
         const currentOutputLimit = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.outputLimit`);
         const results = [];
         if (limit < 0) {
-          if (currentAcMode && currentAcMode.val != 1) {
-            results.push(await this.updateProperty("acMode", 1));
-          }
           if (currentSmartMode && currentSmartMode.val != 1) {
             results.push(await this.updateProperty("smartMode", 1));
+          }
+          if (currentAcMode && currentAcMode.val != 1) {
+            results.push(await this.updateProperty("acMode", 1));
           }
           if (currentOutputLimit && currentOutputLimit.val != 0) {
             results.push(await this.updateProperty("outputLimit", 0));
@@ -102,11 +117,11 @@ class ZenSdkIobDevice extends import_ZenIobDevice.ZenIobDevice {
             results.push(await this.updateProperty("inputLimit", Math.abs(limit)));
           }
         } else if (limit > 0) {
-          if (currentAcMode && currentAcMode.val != 2) {
-            results.push(await this.updateProperty("acMode", 2));
-          }
           if (currentSmartMode && currentSmartMode.val != 1) {
             results.push(await this.updateProperty("smartMode", 1));
+          }
+          if (currentAcMode && currentAcMode.val != 2) {
+            results.push(await this.updateProperty("acMode", 2));
           }
           if (currentOutputLimit && currentOutputLimit.val != limit) {
             results.push(await this.updateProperty("outputLimit", limit));
@@ -127,15 +142,19 @@ class ZenSdkIobDevice extends import_ZenIobDevice.ZenIobDevice {
               results.push(await this.updateProperty("acMode", 0));
             }
           }, 2e3);
-          this.resetSmartModeTimeout = this.adapter.setTimeout(
-            async () => {
-              this.resetSmartModeTimeout = void 0;
-              if (currentSmartMode && currentSmartMode.val != 0) {
-                results.push(await this.updateProperty("smartMode", 0));
+          const standbySince = Date.now();
+          this.resetSmartModeInterval = this.adapter.setInterval(async () => {
+            if (Date.now() - standbySince < 10 * 60 * 1e3) {
+              return;
+            }
+            if (await this.shouldResetSmartMode()) {
+              if (this.resetSmartModeInterval) {
+                this.adapter.clearInterval(this.resetSmartModeInterval);
+                this.resetSmartModeInterval = void 0;
               }
-            },
-            10 * 60 * 1e3
-          );
+              await this.updateProperty("smartMode", 0);
+            }
+          }, 60 * 1e3);
         }
         const success = results.every((result) => result === true);
         if (success) {

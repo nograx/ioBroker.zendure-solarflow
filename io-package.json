@@ -9,8 +9,21 @@
         ]
       }
     },
-    "version": "6.0.0-alpha.4",
+    "version": "6.0.0-alpha.5",
     "news": {
+      "6.0.0-alpha.5": {
+        "en": "zenSDK devices: in standby (automation limit 0), smartMode is now only turned off after at least 10 minutes and only when solar input is below 50 W and the battery level is below 98%. This is checked every minute, so the internal inverter stays on and the device reacts faster when the limit changes again.\nzenSDK devices: smartMode is now enabled before acMode when switching to charging/discharging, so these writes go to RAM instead of flash.",
+        "de": "ZenSDK-Geräte: im Standby (Automationslimit 0), SmartMode geht jetzt erst nach mindestens 10 Minuten aus, wenn Solarstrom unter 50 W und Akkustand unter 98% Das wird jede Minute geprüft, der interne Inverter bleibt an und das Gerät reagiert schneller.\nZenSDK-Geräte: SmartMode ist jetzt beim Laden/Entladen vor ACMode aktiviert, also schreiben sie ins RAM statt in Flash.",
+        "ru": "Устройства ZenSDK: в режиме ожидания (ограничение автоматизации 0) SmartMode теперь отключается не менее чем через 10 минут и только тогда, когда мощность солнечной энергии составляет менее 50 Вт, а уровень заряда батареи ниже 98%. Это проверяется каждую минуту, поэтому внутренний инвертор остается включенным, а устройство реагирует быстрее при повторном изменении предельного значения.\nУстройства ZenSDK: SmartMode теперь включается раньше режима ACMode при переключении на зарядку/разрядку, поэтому эти записи поступают в оперативную память, а не во флэш-память.",
+        "pt": "Dispositivos ZenSDK: em espera (limite de automação 0), o SmartMode agora só é desligado após 10 minutos, com entrada solar abaixo de 50 W e bateria abaixo de 98%. Isso é verificado a cada minuto para manter o inversor interno ligado e reagir mais rápido quando o limite muda.\nDispositivos ZenSDK: o SmartMode agora é ativado antes do ACMode para carga/descarga, então essas gravações vão para RAM em vez de flash.",
+        "nl": "ZenSDK-apparaten: in stand-by (automatiseringslimiet 0) wordt de SmartMode nu pas na minstens 10 minuten uitgeschakeld en alleen als het zonnevermogen lager is dan 50 W en het batterijniveau lager is dan 98%. Dit wordt elke minuut gecontroleerd, zodat de interne omvormer aan blijft en het apparaat sneller reageert als de limiet opnieuw verandert.\nZenSDK-apparaten: SmartMode is nu ingeschakeld vóór ACMode wanneer wordt overgeschakeld op opladen/ontladen, dus deze schrijfbewerkingen gaan naar het RAM-geheugen in plaats van naar de flash.",
+        "fr": "Appareils ZenSDK : en mode veille (limite d'automatisation 0), le SmartMode ne s'éteint qu'après au moins 10 minutes, uniquement lorsque l'apport solaire est inférieur à 50 W et à 98 %. C'est vérifié toutes les minutes. L'onduleur interne reste allumé et l'appareil réagit plus vite en cas de nouveau dépassement.\nAppareils ZenSDK : le SmartMode est désormais activé avant le mode AC lors du passage en charge/décharge. Ces écritures sont donc passées en RAM.",
+        "it": "Dispositivi ZenSDK: in standby (limite automatico 0), SmartMode ora si spegne solo dopo almeno 10 minuti e solo se l'input solare è inferiore a 50 W e la batteria è al di sotto del 98%. Viene controllato ogni minuto, quindi l'inverter interno è acceso e reagisce più velocemente al cambio.\nDispositivi ZenSDK: SmartMode è ora abilitato prima di ACMode quando si carica e si scarica, quindi le scritture vanno nella RAM.",
+        "es": "Dispositivos ZenSDK: en espera (límite de automatización 0), SmartMode solo se apaga al menos 10 minutos y solo cuando la entrada solar es inferior a 50 W y el nivel de la batería es inferior al 98%. Esto se comprueba cada minuto para que el inversor interno esté encendido y reaccione más rápido si el límite cambia.\nDispositivos ZenSDK: SmartMode ahora se activa antes que AcMode al cambiar a carga/descarga, por lo que las escrituras van a la RAM en lugar de al flash.",
+        "pl": "Urządzenia ZenSDK: w trybie gotowości (limit automatyzacji 0) SmartMode jest teraz wyłączony dopiero po co najmniej 10 minutach i tylko wtedy, gdy wejście słoneczne jest poniżej 50 W, a poziom naładowania baterii poniżej 98%. Jest to sprawdzane co minutę, więc wewnętrzny falownik pozostaje włączony, a urządzenie reaguje szybciej, gdy limit się ponownie zmieni.\nUrządzenia ZenSDK: SmartMode jest teraz włączony przed ACMode podczas przełączania na ładowanie/rozładowywanie, więc te zapisy przechodzą do pamięci RAM zamiast lampy błyskowej.",
+        "uk": "Пристрої ZenSDK: у режимі очікування (обмеження автоматизації 0) SmartMode тепер вимикається лише через принаймні 10 хвилин і лише тоді, коли сонячна потужність нижче 50 Вт, а рівень заряду акумулятора нижче 98%. Це перевіряється щохвилини, тому внутрішній інвертор залишається увімкненим, і пристрій швидше реагує, коли ліміт знову змінюється.\nПристрої ZenSDK: SmartMode тепер увімкнено перед ACMode при переході на зарядку/розряд, тому ці записи переходять в оперативну пам'ять замість флеш.",
+        "zh-cn": "ZensDK 设备：处于待机状态（自动化限值 0），智能模式现在仅在至少 10 分钟后关闭，并且仅在太阳能输入功率低于 50 W 且电池电量低于 98% 时关闭。每分钟检查一次，因此当极限再次发生变化时，内部逆变器将保持开启状态，并且设备的反应速度更快。\nZenSDK 设备：现在，在切换到充电/放电时，智能模式在 AcMode 之前启用，因此这些写入将转到内存而不是闪存。"
+      },
       "6.0.0-alpha.4": {
         "en": "Zero-feed in: non-lead devices no longer get pulled out of idle into 30/10 W standby for a tiny share, and fully charged devices without solar input are released from standby to 0 W.\nZero-feed in: devices are no longer added as extra feed-in device just because they have more than 100 W solar input.",
         "de": "Nulleinspeisung: Bleifreie Geräte werden nicht mehr für einen geringen Teil in 30/10 W Standby gezogen, und voll aufgeladene Geräte ohne Solarstrom gehen von 0 W aus.\nNulleinspeisung: Geräte werden nicht mehr extra eingespeist, nur weil sie mehr als 100 W Solarstrom haben.",
@@ -88,19 +101,6 @@
         "pl": "Poprawka ignorowania wiadomości MQTT z nieznanych urządzeń",
         "uk": "Виправлено ігнорування повідомлень MQTT з невідомих пристроїв",
         "zh-cn": "修复了忽略来自未知设备的 MQTT 消息的问题"
-      },
-      "5.3.1": {
-        "en": "Fixed an issue to ignore empty properties",
-        "de": "Fehler beim Ignorieren leerer Objekte behoben",
-        "ru": "Исправлена ошибка, из-за которой пустые свойства игнорировались",
-        "pt": "Corrigido o erro de ignorar imóveis vazios",
-        "nl": "Er is een probleem opgelost waarbij lege eigendommen werden genegeerd",
-        "fr": "Problème résolu : les propriétés vides sont ignorées",
-        "it": "Risolto un problema per ignorare le proprietà vuote",
-        "es": "Se solucionó un error al ignorar propiedades vacías",
-        "pl": "Naprawiono błąd polegający na ignorowaniu pustych właściwości",
-        "uk": "Виправлена проблема ігнорування порожніх властивостей",
-        "zh-cn": "修复了忽略空属性的问题"
       }
     },
     "titleLang": {
