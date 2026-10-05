@@ -1,5 +1,6 @@
 import type Bonjour from "bonjour-service";
 import { createDeviceModel, findProductByMdnsModelName } from "./helpers";
+import { reportErrorToSentry } from "./sentryHelper";
 import type { IZenIobDeviceDetails } from "../models/IZenIobDeviceDetails";
 import type { ZendureSolarflow } from "../main";
 
@@ -18,11 +19,11 @@ const reportedToSentry = new Set<string>();
  * @param message the message to report
  */
 function reportToSentry(adapter: ZendureSolarflow, serviceName: string, message: string): void {
-  if (reportedToSentry.has(serviceName) || !adapter.supportsFeature?.("PLUGINS")) {
+  if (reportedToSentry.has(serviceName)) {
     return;
   }
   reportedToSentry.add(serviceName);
-  adapter.getPluginInstance("sentry")?.getSentryObject()?.captureMessage(message, "error");
+  reportErrorToSentry(adapter, message);
 }
 
 /**

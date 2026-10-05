@@ -30,6 +30,7 @@ import type { IZenIobMqttData } from "./models/IZenIobMqttData";
 import type { ZenIobDevice } from "./models/deviceModels/ZenIobDevice";
 import { createDeviceModel } from "./helpers/helpers";
 import { FileHelper } from "./helpers/fileHelper";
+import { reportErrorToSentry, reportUsageStatistics } from "./helpers/sentryHelper";
 
 // Maps each writable '<device>.control.<stateName>' to the device method that sends it to the device.
 const CONTROL_STATE_HANDLERS: Record<string, (device: ZenIobDevice, value: ioBroker.StateValue) => unknown> = {
@@ -385,11 +386,7 @@ export class ZendureSolarflow extends utils.Adapter {
                 `${message}, can't create it from the cloud device list. If it supports zenSDK, it is added via mDNS discovery instead.`,
               );
 
-              // Report unknown device to Sentry
-              if (this.supportsFeature && this.supportsFeature("PLUGINS")) {
-                const sentryInstance = this.getPluginInstance("sentry");
-                sentryInstance?.getSentryObject()?.captureMessage(message, "error");
-              }
+              reportErrorToSentry(this, message);
             }
           }
         }
@@ -544,8 +541,8 @@ export class ZendureSolarflow extends utils.Adapter {
     // Report used device classes to Sentry. First report is delayed, as mDNS discovered devices are created asynchronously.
     this.deviceStatisticsTimeout = this.setTimeout(
       () => {
-        this.reportDeviceStatistics();
-        this.deviceStatisticsInterval = this.setInterval(() => this.reportDeviceStatistics(), 24 * 60 * 60 * 1000);
+        void reportUsageStatistics(this);
+        this.deviceStatisticsInterval = this.setInterval(() => void reportUsageStatistics(this), 24 * 60 * 60 * 1000);
       },
       5 * 60 * 1000,
     );
@@ -612,39 +609,6 @@ export class ZendureSolarflow extends utils.Adapter {
 
     this.mdnsDiscoveryService = new MdnsDiscoveryService(this);
     this.mdnsDiscoveryService.start();
-  }
-
-  /**
-   * Reports each used device class (once per instance) to Sentry, to get statistics about the used devices.
-   */
-  private reportDeviceStatistics(): void {
-    if (!this.supportsFeature || !this.supportsFeature("PLUGINS")) {
-      return;
-    }
-
-    const sentry = this.getPluginInstance("sentry")?.getSentryObject();
-    if (!sentry) {
-      return;
-    }
-
-    const reported = new Set<string>();
-    this.zenIobDeviceList.forEach((device) => {
-      const deviceClass = device.constructor.name;
-      if (reported.has(deviceClass)) {
-        return;
-      }
-      reported.add(deviceClass);
-
-      sentry.withScope((scope: any) => {
-        scope.setLevel("info");
-        scope.setTag("deviceClass", deviceClass);
-        scope.setTag("productKey", device.productKey);
-        scope.setTag("productName", device.productName);
-        scope.setTag("connectionMode", this.config.connectionMode);
-        scope.setFingerprint(["device-statistics", deviceClass]);
-        sentry.captureMessage(`Device statistics: ${deviceClass}`);
-      });
-    });
   }
 
   /**
