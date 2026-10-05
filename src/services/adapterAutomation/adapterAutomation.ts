@@ -169,6 +169,12 @@ interface IAutomationDeviceState {
   /** Direction (-1/0/1) of the last feed-in adjustment, see MAX_FEED_IN_STEP_W. */
   lastFeedInDeltaSign?: number;
   pendingTimeout?: ioBroker.Timeout;
+  /**
+   * Number of limit commands sent but not yet completed (see sendDeviceLimit). zenSDK devices need several
+   * HTTP requests per limit and only update 'control.setDeviceAutomationInOutLimit' once all succeeded, so
+   * that state lags behind currentLimit until then.
+   */
+  limitCommandsInFlight: number;
 }
 
 // Runtime automation state per device (keyed by '<productKey>.<deviceKey>'), kept outside ZenIobDevice
@@ -226,6 +232,7 @@ const getDeviceState = (device: ZenIobDevice): IAutomationDeviceState => {
       isAtCapacity: false,
       lastChangeMs: 0,
       wakingUntilMs: 0,
+      limitCommandsInFlight: 0,
     };
     deviceStates.set(id, state);
   }
@@ -234,6 +241,29 @@ const getDeviceState = (device: ZenIobDevice): IAutomationDeviceState => {
 
 // Device name for logging (from its 'name' state), falling back to the device model's class name (e.g. 'Sf800').
 const deviceLabel = (device: ZenIobDevice): string => getDeviceState(device).name || device.constructor.name;
+
+/**
+ * Sends a limit to the device and tracks it as in flight until the device model has finished processing it
+ * (see limitCommandsInFlight), so a lagging 'control.setDeviceAutomationInOutLimit' isn't mistaken for drift.
+ *
+ * @param device the device
+ * @param state the device's automation state
+ * @param limit the limit to send
+ */
+const sendDeviceLimit = async (device: ZenIobDevice, state: IAutomationDeviceState, limit: number): Promise<void> => {
+  state.limitCommandsInFlight++;
+  try {
+    // Some device models implement this synchronously, others return a promise.
+    await Promise.resolve(device.setDeviceAutomationInOutLimit(limit));
+  } finally {
+    state.limitCommandsInFlight--;
+  }
+};
+
+// Whether a limit command for this device is scheduled or still being processed, i.e. its
+// 'control.setDeviceAutomationInOutLimit' may not reflect currentLimit yet.
+const isLimitCommandPending = (state: IAutomationDeviceState): boolean =>
+  state.pendingTimeout !== undefined || state.limitCommandsInFlight > 0;
 
 const clamp = (value: number, min: number, max: number): number => Math.min(Math.max(value, min), max);
 const roundShare = (value: number): number => Math.round(value * 100) / 100;
@@ -362,7 +392,7 @@ const releaseStaleKeepAlive = (
   }
   state.currentLimit = 0;
   state.newLimit = 0;
-  device.setDeviceAutomationInOutLimit(0);
+  void sendDeviceLimit(device, state, 0);
 };
 
 // For an AC-only device without (further) charge budget: if it was just charging, don't drop straight to
@@ -560,7 +590,7 @@ const releaseDeviceToZero = async (adapter: ZendureSolarflow, device: ZenIobDevi
 
   if (currentLimit !== 0) {
     adapter.log.info(`${LOG} ${reason}, setting limit of '${deviceLabel(device)}' to 0W`);
-    device.setDeviceAutomationInOutLimit(0);
+    void sendDeviceLimit(device, state, 0);
   }
 };
 
@@ -728,10 +758,16 @@ export const updateAutomationDeviceMetrics = async (adapter: ZendureSolarflow): 
 export const checkAutomationCurrentLimit = async (adapter: ZendureSolarflow): Promise<void> => {
   for (const device of getAutomationDevices(adapter)) {
     const state = getDeviceState(device);
+    if (isLimitCommandPending(state)) {
+      // The control state is only updated once the device has processed the command - not drifted, just lagging.
+      continue;
+    }
+
     const currentLimitState = await adapter.getStateAsync(`${deviceId(device)}.control.setDeviceAutomationInOutLimit`);
     const currentLimit = currentLimitState?.val != null ? Number(currentLimitState.val) : 0;
 
-    if (state.currentLimit != currentLimit) {
+    // Re-check: a command may have been sent while awaiting the state above.
+    if (!isLimitCommandPending(state) && state.currentLimit != currentLimit) {
       adapter.log.warn(
         `${LOG} currentLimit (${state.currentLimit}) for '${device.deviceKey}' differs from state (${currentLimit}), re-syncing!`,
       );
@@ -845,9 +881,12 @@ export const runZeroFeedInAutomation = async (
       const currentLimitState = await adapter.getStateAsync(`${id}.control.setDeviceAutomationInOutLimit`);
       state.lastChangeMs = currentLimitState?.lc ? now - currentLimitState.lc : Number.MAX_SAFE_INTEGER;
 
-      const freshLimit = currentLimitState?.val != null ? Number(currentLimitState.val) : 0;
-      trackLimitTransition(state, state.currentLimit, freshLimit, now);
-      state.currentLimit = freshLimit;
+      // While a limit command is still being processed, the control state lags behind - keep the cached limit.
+      if (state.limitCommandsInFlight === 0) {
+        const freshLimit = currentLimitState?.val != null ? Number(currentLimitState.val) : 0;
+        trackLimitTransition(state, state.currentLimit, freshLimit, now);
+        state.currentLimit = freshLimit;
+      }
 
       if (state.enabled) {
         // The lead device is normally kept at its feed-in standby - except devices that may charge from surplus
@@ -1492,7 +1531,7 @@ export const runZeroFeedInAutomation = async (
         const wasZero = state.currentLimit === 0;
         trackLimitTransition(state, state.currentLimit, newLimit, Date.now());
         state.currentLimit = newLimit;
-        device.setDeviceAutomationInOutLimit(newLimit);
+        void sendDeviceLimit(device, state, newLimit);
 
         if (wasZero && state.currentLimit > 0) {
           state.wakingUntilMs = Date.now() + WAKE_UP_MS;
