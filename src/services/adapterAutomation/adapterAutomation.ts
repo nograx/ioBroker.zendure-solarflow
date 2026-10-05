@@ -161,7 +161,16 @@ interface IAutomationDeviceState {
   /** Whether this device was asked for more power than its maxLimit allows (no headroom left). */
   isAtCapacity: boolean;
   lastChangeMs: number;
+  /**
+   * Until when the device is still waking up (ramping up from standby, or settling after an autoModel change):
+   * it keeps its current limit and gets no new one until then, while the other devices are still controlled.
+   */
   wakingUntilMs: number;
+  /**
+   * Measured AC output to the home (W, from 'outputHomePower'), only refreshed while the device is waking up:
+   * replaces its commanded limit in the home usage estimate, since it doesn't deliver that limit yet.
+   */
+  measuredOutputPower: number;
   /** Last transition from charging (negative) to not charging (>= 0); undefined = never charged. */
   chargingStoppedMs?: number;
   /** Last transition from feeding in (positive) to not feeding in (<= 0); undefined = never fed in. */
@@ -232,6 +241,7 @@ const getDeviceState = (device: ZenIobDevice): IAutomationDeviceState => {
       isAtCapacity: false,
       lastChangeMs: 0,
       wakingUntilMs: 0,
+      measuredOutputPower: 0,
       limitCommandsInFlight: 0,
     };
     deviceStates.set(id, state);
@@ -264,6 +274,9 @@ const sendDeviceLimit = async (device: ZenIobDevice, state: IAutomationDeviceSta
 // 'control.setDeviceAutomationInOutLimit' may not reflect currentLimit yet.
 const isLimitCommandPending = (state: IAutomationDeviceState): boolean =>
   state.pendingTimeout !== undefined || state.limitCommandsInFlight > 0;
+
+// Whether the device is still waking up (see wakingUntilMs) - it keeps its current limit until then.
+const isWaking = (state: IAutomationDeviceState, now: number): boolean => state.enabled && state.wakingUntilMs > now;
 
 const clamp = (value: number, min: number, max: number): number => Math.min(Math.max(value, min), max);
 const roundShare = (value: number): number => Math.round(value * 100) / 100;
@@ -888,6 +901,11 @@ export const runZeroFeedInAutomation = async (
         state.currentLimit = freshLimit;
       }
 
+      if (isWaking(state, now)) {
+        const outputHomePowerState = await adapter.getStateAsync(`${id}.outputHomePower`);
+        state.measuredOutputPower = outputHomePowerState?.val != null ? Number(outputHomePowerState.val) : 0;
+      }
+
       if (state.enabled) {
         // The lead device is normally kept at its feed-in standby - except devices that may charge from surplus
         // (AC-only, or 'adapterAutomation.acChargingAllowed'): they have to get down to 0W eventually,
@@ -909,16 +927,15 @@ export const runZeroFeedInAutomation = async (
       return;
     }
 
-    const wakingDevice = devices.find((device) => {
+    // Devices still waking up keep their current limit (see wakingUntilMs) - the others are controlled as usual.
+    const wakingDevices = devices.filter((device) => isWaking(getDeviceState(device), now));
+    wakingDevices.forEach((device) => {
       const state = getDeviceState(device);
-      return state.enabled && state.wakingUntilMs > now;
-    });
-    if (wakingDevice) {
       adapter.log.debug(
-        `${LOG} Device '${wakingDevice.deviceKey}' is still waking up, waiting ${Math.round((getDeviceState(wakingDevice).wakingUntilMs - now) / 1000)}s`,
+        `${LOG} Device '${device.deviceKey}' is still waking up (${Math.round((state.wakingUntilMs - now) / 1000)}s left, ` +
+          `limit=${state.currentLimit} measured=${state.measuredOutputPower}), keeping its limit`,
       );
-      return;
-    }
+    });
 
     // Only devices under automation control count here: a device with automation disabled may be controlled
     // manually, and its power is already part of the grid meter value - counting its limit as own feed-in
@@ -928,6 +945,16 @@ export const runZeroFeedInAutomation = async (
       (sum, device) => sum + Math.max(getDeviceState(device).currentLimit, 0),
       0,
     );
+    // Feed-in actually delivered right now: a device still waking up doesn't deliver its limit yet, so its
+    // measured output counts instead - otherwise the missing power would be mistaken for extra home usage, and
+    // the other devices would cover it as well (overshooting once the waking device delivers).
+    const actualFeedIn = enabledDevices.reduce((sum, device) => {
+      const state = getDeviceState(device);
+      const feedIn = isWaking(state, now)
+        ? Math.min(state.measuredOutputPower, state.currentLimit)
+        : state.currentLimit;
+      return sum + Math.max(feedIn, 0);
+    }, 0);
     // Power currently being charged from AC (all enabled devices) - subtracted from the home usage below, so
     // the feed-in controller doesn't mistake the devices' own charging for home consumption and feed in even
     // more to cover it (which would then let the charge power rise further, without any real limit).
@@ -987,9 +1014,9 @@ export const runZeroFeedInAutomation = async (
 
     // Based on the short-term home usage average rather than the raw meter value, so strongly fluctuating loads
     // don't produce a new, strongly fluctuating limit on every trigger while the actual trend barely changes.
-    // Only updated here, i.e. not while a device is waking up or settling (see above): the grid value doesn't
-    // reflect the commanded limit yet then, so it would wrongly count that limit as extra home usage.
-    const rawHomeUsage = currentGridMeterValue + currentFeedIn - currentTotalChargePowerAll;
+    // Not updated while a device's limit is settling (see RECENT_CHANGE_SKIP_MS): the grid value doesn't reflect
+    // the commanded limit yet then. Devices still waking up count with their measured output (see actualFeedIn).
+    const rawHomeUsage = currentGridMeterValue + actualFeedIn - currentTotalChargePowerAll;
     // Confirmed load step (see HOME_USAGE_STEP_W): jump to the current home usage instead of smoothing.
     let isHomeUsageStep = false;
     if (shortTermHomeUsageW == null) {
@@ -1029,7 +1056,7 @@ export const runZeroFeedInAutomation = async (
 
     adapter.log.debug(
       `${LOG} Feed-in: grid=${currentGridMeterValue} rawHomeUsage=${rawHomeUsage.toFixed(1)} homeUsageAvg=${currentHomeUsage.toFixed(1)} ` +
-        `step=${isHomeUsageStep} currentFeedIn=${currentFeedIn} expectedGrid=${expectedGridW.toFixed(1)} piCorrection=${piCorrection.toFixed(1)}`,
+        `step=${isHomeUsageStep} currentFeedIn=${currentFeedIn} actualFeedIn=${actualFeedIn} expectedGrid=${expectedGridW.toFixed(1)} piCorrection=${piCorrection.toFixed(1)}`,
     );
 
     let piAdjustedHomeUsage = currentHomeUsage + piCorrection;
@@ -1124,7 +1151,18 @@ export const runZeroFeedInAutomation = async (
         otherDevices.push(device);
       });
 
-    setDeviceShares(inputDevices);
+    // Input devices still waking up keep their current limit: take it off the power to distribute, so the other
+    // input devices only share the rest.
+    const wakingInputDevices = inputDevices.filter((device) => wakingDevices.includes(device));
+    const adjustableInputDevices = inputDevices.filter((device) => !wakingDevices.includes(device));
+    wakingInputDevices.forEach((device) => {
+      const state = getDeviceState(device);
+      state.newLimit = state.currentLimit;
+      state.isAtCapacity = false;
+      piAdjustedHomeUsage -= Math.max(state.currentLimit, 0);
+    });
+
+    setDeviceShares(adjustableInputDevices);
 
     // Total power that couldn't be assigned to a device because it exceeded that device's maxLimit; needs
     // to be redistributed to devices that still have headroom.
@@ -1248,7 +1286,7 @@ export const runZeroFeedInAutomation = async (
 
     // Assign each input device its share of the required power, prioritizing fully charged devices so
     // they at least export their own solar input instead of curtailing it.
-    inputDevices.forEach((device) => {
+    adjustableInputDevices.forEach((device) => {
       const state = getDeviceState(device);
       state.isAtCapacity = false;
 
@@ -1294,7 +1332,9 @@ export const runZeroFeedInAutomation = async (
 
     // A fully charged device that's capped below its calculated share frees up power for AC-only devices
     // to absorb instead (they'd otherwise just curtail solar or sit idle).
-    const fullSocDevices = inputDevices.filter((device) => getDeviceState(device).soc >= 99 && !device.isAcOnly);
+    const fullSocDevices = adjustableInputDevices.filter(
+      (device) => getDeviceState(device).soc >= 99 && !device.isAcOnly,
+    );
 
     if (fullSocDevices.length > 0) {
       let totalExtraPower = 0;
@@ -1309,7 +1349,7 @@ export const runZeroFeedInAutomation = async (
       });
 
       if (totalExtraPower > 0) {
-        const reducibleDevices = inputDevices.filter((device) => device.isAcOnly);
+        const reducibleDevices = adjustableInputDevices.filter((device) => device.isAcOnly);
         const totalReducibleShare = reducibleDevices.reduce((sum, device) => sum + getDeviceState(device).share, 0);
 
         if (totalReducibleShare > 0) {
@@ -1325,10 +1365,10 @@ export const runZeroFeedInAutomation = async (
 
     // Redistribute unmet demand (devices that were asked for more than their own maxLimit allows) across
     // devices that still have headroom.
-    const availableDeviceCount = inputDevices.filter((device) => !getDeviceState(device).isAtCapacity).length;
+    const availableDeviceCount = adjustableInputDevices.filter((device) => !getDeviceState(device).isAtCapacity).length;
 
     if (availableDeviceCount > 0 && unmetDemand > 0) {
-      inputDevices
+      adjustableInputDevices
         .filter((device) => {
           const state = getDeviceState(device);
           return !state.isAtCapacity && state.newLimit < state.maxLimit;
@@ -1345,17 +1385,20 @@ export const runZeroFeedInAutomation = async (
     // PI controller would have to remove first. Take that excess off the devices above their minimum instead,
     // proportional to their headroom above it, so the sum of all limits matches the required power.
     // Fully charged devices exporting their own solar are left alone - that surplus is intended (see above).
-    inputDevices.forEach((device) => {
+    adjustableInputDevices.forEach((device) => {
       // Cap at maxLimit first (the final clamp below does the same anyway), so a device asked for more than it
       // can deliver doesn't inflate the excess with power it will never feed in.
       const state = getDeviceState(device);
       state.newLimit = Math.min(state.newLimit, state.maxLimit);
     });
-    const assignedFeedIn = inputDevices.reduce((sum, device) => sum + Math.max(getDeviceState(device).newLimit, 0), 0);
+    const assignedFeedIn = adjustableInputDevices.reduce(
+      (sum, device) => sum + Math.max(getDeviceState(device).newLimit, 0),
+      0,
+    );
     const excessFeedIn = assignedFeedIn - Math.max(piAdjustedHomeUsage, 0);
 
     if (excessFeedIn > 0) {
-      const reducibleDevices = inputDevices.filter((device) => {
+      const reducibleDevices = adjustableInputDevices.filter((device) => {
         const state = getDeviceState(device);
         return !fullSocDevices.includes(device) && state.newLimit > getMinLimit(device);
       });
@@ -1437,6 +1480,12 @@ export const runZeroFeedInAutomation = async (
         // Automation is disabled for this device - leave it alone entirely (no command sent), rather
         // than forcing it to a specific limit.
         await publishDeviceTask(adapter, device, "disabled", false);
+        continue;
+      }
+
+      if (wakingInputDevices.includes(device)) {
+        // Still waking up - keeps its current limit (set above), no new command until it delivers.
+        await publishDeviceTask(adapter, device, getDeviceTask(device, state, false), device === leadDevice);
         continue;
       }
 
