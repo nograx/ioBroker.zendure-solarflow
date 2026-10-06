@@ -145,6 +145,12 @@ For more details and for information on how to disable error reporting, see the 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+
+### **WORK IN PROGRESS**
+
+- Better tracking if device command is accepted
+- Wait for wake up of specific device - don't set the whole script to sleep
+
 ### 6.0.0-alpha.5 (2026-10-04)
 
 - zenSDK devices: in standby (automation limit 0), smartMode is now only turned off after at least 10 minutes and only when solar input is below 50 W and the battery level is below 98%. This is checked every minute, so the internal inverter stays on and the device reacts faster when the limit changes again.
