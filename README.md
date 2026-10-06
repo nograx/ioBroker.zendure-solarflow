@@ -152,6 +152,8 @@ For more details and for information on how to disable error reporting, see the 
 ### **WORK IN PROGRESS**
 
 - (Schattenwelt) Add setting "zenSDK devices by IP address": zenSDK devices can be configured by IP address, so they also work if mDNS doesn't reach them (e.g. devices in another network segment / VLAN). Known devices are matched by serial number and keep their states, unknown devices are created with their serial number as key.
+- Zero-feed in: charging devices are now accounted with their measured AC input power (gridInputPower) instead of their commanded charge limit once settled. Fixes grid import when a nearly full battery charges with much less power than requested (e.g. 80 W instead of 600 W).
+- Output limit can now be set on devices without an autoModel state (previously rejected because autoModel was not '0').
 
 ### 6.0.0-alpha.6 (2026-10-06)
 
