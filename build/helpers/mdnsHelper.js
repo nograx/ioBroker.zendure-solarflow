@@ -23,15 +23,15 @@ __export(mdnsHelper_exports, {
 });
 module.exports = __toCommonJS(mdnsHelper_exports);
 var import_helpers = require("./helpers");
+var import_sentryHelper = require("./sentryHelper");
 const ZENDURE_DEVICE_NAME_PREFIX = "Zendure-";
 const reportedToSentry = /* @__PURE__ */ new Set();
 function reportToSentry(adapter, serviceName, message) {
-  var _a, _b, _c;
-  if (reportedToSentry.has(serviceName) || !((_a = adapter.supportsFeature) == null ? void 0 : _a.call(adapter, "PLUGINS"))) {
+  if (reportedToSentry.has(serviceName)) {
     return;
   }
   reportedToSentry.add(serviceName);
-  (_c = (_b = adapter.getPluginInstance("sentry")) == null ? void 0 : _b.getSentryObject()) == null ? void 0 : _c.captureMessage(message, "error");
+  (0, import_sentryHelper.reportErrorToSentry)(adapter, message);
 }
 function isZendureService(service) {
   var _a;

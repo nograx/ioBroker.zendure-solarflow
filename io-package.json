@@ -9,8 +9,21 @@
         ]
       }
     },
-    "version": "6.0.0-alpha.5",
+    "version": "6.0.0-alpha.6",
     "news": {
+      "6.0.0-alpha.6": {
+        "en": "Better tracking if device command is accepted\nWait for wake up of specific device - don't set the whole script to sleep",
+        "de": "Bessere Ortung, ob Gerätebefehle akzeptiert\nGerät abwarten — nicht das ganze Script in Ruhezustand versetzen",
+        "ru": "Лучшее отслеживание, если команда устройства принята\nДождитесь пробуждения определенного устройства — не переведите весь скрипт в спящий режим",
+        "pt": "Rastreie melhor se o comando do dispositivo é aceito\nAguarde o dispositivo específico - não adormeça todo o script",
+        "nl": "Betere tracking als de opdracht van het apparaat wordt geaccepteerd\nWacht tot een specifiek apparaat wakker wordt - zet niet het hele script in de sluimerstand",
+        "fr": "Meilleur suivi si la commande est acceptée\nAttendez que l'appareil se réveille, ne mettez pas tout le script en veille",
+        "it": "Tracciamento migliore se si accetta\nAttendi il risveglio del dispositivo. Non spenga l'intero script",
+        "es": "Mejor seguimiento si se acepta el comando del equipo\nEspere a que se despierte en un dispositivo específico, no ponga todo el guion",
+        "pl": "Lepsze śledzenie, jeśli polecenie urządzenia jest akceptowane\nPoczekaj na wybudzenie określonego urządzenia - nie ustawiaj całego skryptu na tryb uśpienia",
+        "uk": "Краще відстеження, якщо команда пристрою приймається\nЗачекайте пробудження певного пристрою - не встановлюйте весь сценарій у режим сну",
+        "zh-cn": "更好地跟踪设备命令是否被接受\n等待特定设备唤醒-不要将整个脚本设置为睡眠"
+      },
       "6.0.0-alpha.5": {
         "en": "zenSDK devices: in standby (automation limit 0), smartMode is now only turned off after at least 10 minutes and only when solar input is below 50 W and the battery level is below 98%. This is checked every minute, so the internal inverter stays on and the device reacts faster when the limit changes again.\nzenSDK devices: smartMode is now enabled before acMode when switching to charging/discharging, so these writes go to RAM instead of flash.",
         "de": "ZenSDK-Geräte: im Standby (Automationslimit 0), SmartMode geht jetzt erst nach mindestens 10 Minuten aus, wenn Solarstrom unter 50 W und Akkustand unter 98% Das wird jede Minute geprüft, der interne Inverter bleibt an und das Gerät reagiert schneller.\nZenSDK-Geräte: SmartMode ist jetzt beim Laden/Entladen vor ACMode aktiviert, also schreiben sie ins RAM statt in Flash.",
@@ -88,19 +101,6 @@
         "pl": "Dodaj automatyzację adaptera (sterowanie zerowym zasilaniem), patrz sekcja „Automatyzacja adaptera” powyżej.\nDodaj tryb połączenia „tylko ZenSDK (mDNS)”: brak chmury Zendre i nie ma serwera MQTT, urządzenia są znalezione przez mDNS i sterowane przez ZenSDK.\nWykrywanie mDNS działa teraz tak długo, jak działa adapter, a nie tylko 10 s po uruchomieniu. Urządzenia podłączone później są dodawane automatycznie, zmiany IP są wykrywane, a nieudane połączenia ZenSDK są ponownie próbowane.\nNapraw przy użyciu listy zapisanych urządzeń, gdy Zendre Cloud nie jest dostępny podczas uruchamiania.\nUrządzenia utworzone za pomocą mDNS zachowują swoje stany, gdy pojawią się później na liście urządzeń w chmurze Zendre (MQTT w chmurze nadal działa dla nich). Urządzenia z nieznanym kluczem produktu na liście urządzeń w chmurze są rejestrowane jako informacje zamiast błędu.\nPo zatrzymaniu lub ponownym uruchomieniu adaptera czysto odłącz klientów MQTT.\nDodano Sentry (domyślny ioBroker) do raportowania błędów i statystyk urządzeń.",
         "uk": "Додайте автоматизацію адаптера (нульове управління подачею), див. Розділ «Автоматизація адаптера» вище.\nДодати режим підключення «Тільки ZenSDK (mDNS)»: немає хмари Zendura та сервера MQTT, пристрої знаходяться через mDNS та контролюються через ZenSDK.\nВідкриття mDNS тепер працює до тих пір, поки адаптер працює, а не лише 10 секунд після запуску. Пристрої, підключені пізніше, додаються автоматично, виявляються зміни IP, а невдалі підключення ZenSDK повторюються.\nВиправлено використання збереженого списку пристроїв, коли ZendureCloud недоступний під час запуску.\nПристрої, створені за допомогою mDNS, зберігають свої стани, коли пізніше з'являться у списку хмарних пристроїв Zendura (хмарний MQTT все ще працює для них). Пристрої з невідомим ProductKey у списку хмарних пристроїв реєструються як інформація замість помилки.\nЧітко відключіть клієнтів MQTT, коли адаптер зупинено або перезапущено.\nДодано Sentry (за замовчуванням IObroker) для звітування про помилки та статистики пристроїв.",
         "zh-cn": "添加适配器自动化（零进给控制），参见上面的 “适配器自动化” 部分。\n添加 “仅限 ZenSDK（mDNS）” 的连接模式：没有 Zendure 云，没有 MQTT 服务器，设备通过 mDNS 找到，通过 ZenSDK 控制。\n现在，只要适配器处于运行状态，mDNS 发现就会运行，而不是在启动后只运行 10 秒。将自动添加稍后连接的设备，检测 IP 更改，并重试失败的 ZenSDK 连接。\n修复了在启动时无法访问 Zendure Cloud 时使用已保存的设备列表的问题。\n通过 mDNS 创建的设备稍后出现在 Zendure 云设备列表中时会保持其状态（云 MQTT 仍然适用于它们）。云设备列表中带有未知 ProductKey 的设备将记录为信息而不是错误。\n当适配器停止或重新启动时，请彻底断开 MQTT 客户端的连接。\n为错误报告和设备统计添加了 Sentry（默认 IOBroker）。"
-      },
-      "5.3.2": {
-        "en": "Fix to ignore MQTT messages from unknown devices",
-        "de": "Fix zum Ignorieren von MQTTs unbekannter Geräte",
-        "ru": "Исправлено игнорирование сообщений MQTT с неизвестных устройств",
-        "pt": "Correção para ignorar mensagens MQTT de PC",
-        "nl": "Oplossing om MQTT-berichten van onbekende apparaten te negeren",
-        "fr": "Corrigé pour ignorer les MQTT d'appareils inconnus",
-        "it": "Risolto il problema di ignorare MQTT da sconosciuti",
-        "es": "Arreglo para ignorar los mensajes MQTT de desconocidos",
-        "pl": "Poprawka ignorowania wiadomości MQTT z nieznanych urządzeń",
-        "uk": "Виправлено ігнорування повідомлень MQTT з невідомих пристроїв",
-        "zh-cn": "修复了忽略来自未知设备的 MQTT 消息的问题"
       }
     },
     "titleLang": {

@@ -40,6 +40,7 @@ var import_cloudMqttService = require("./services/mqtt/cloudMqttService");
 var import_mdnsDiscoveryService = require("./services/mdnsDiscoveryService");
 var import_helpers = require("./helpers/helpers");
 var import_fileHelper = require("./helpers/fileHelper");
+var import_sentryHelper = require("./helpers/sentryHelper");
 const CONTROL_STATE_HANDLERS = {
   setOutputLimit: (device, value) => device.setOutputLimit(Number(value)),
   setInputLimit: (device, value) => device.setInputLimit(Number(value)),
@@ -91,7 +92,7 @@ class ZendureSolarflow extends utils.Adapter {
    * Is called when databases are connected and adapter received configuration.
    */
   async onReady() {
-    var _a, _b, _c;
+    var _a, _b;
     if (this.config.useMdnsDiscovery === void 0) {
       this.config.useMdnsDiscovery = true;
       await this.extendForeignObjectAsync(`system.adapter.${this.namespace}`, { native: { useMdnsDiscovery: true } });
@@ -343,10 +344,7 @@ class ZendureSolarflow extends utils.Adapter {
               this.log.info(
                 `${message}, can't create it from the cloud device list. If it supports zenSDK, it is added via mDNS discovery instead.`
               );
-              if (this.supportsFeature && this.supportsFeature("PLUGINS")) {
-                const sentryInstance = this.getPluginInstance("sentry");
-                (_a = sentryInstance == null ? void 0 : sentryInstance.getSentryObject()) == null ? void 0 : _a.captureMessage(message, "error");
-              }
+              (0, import_sentryHelper.reportErrorToSentry)(this, message);
             }
           }
         }
@@ -439,9 +437,9 @@ class ZendureSolarflow extends utils.Adapter {
     if (this.config.enableAutomation) {
       if (this.config.automationTriggerStateId) {
         const triggerStateObj = await this.getForeignObjectAsync(this.config.automationTriggerStateId);
-        if ((triggerStateObj == null ? void 0 : triggerStateObj.type) !== "state" || ((_b = triggerStateObj.common) == null ? void 0 : _b.type) !== "number") {
+        if ((triggerStateObj == null ? void 0 : triggerStateObj.type) !== "state" || ((_a = triggerStateObj.common) == null ? void 0 : _a.type) !== "number") {
           this.log.error(
-            `[onReady] Automation trigger state '${this.config.automationTriggerStateId}' ${triggerStateObj ? `is not a number state (type: ${(_c = triggerStateObj.common) == null ? void 0 : _c.type})` : "does not exist"}, adapter automation will never run! Please select the number state of your smart meter in the adapter settings.`
+            `[onReady] Automation trigger state '${this.config.automationTriggerStateId}' ${triggerStateObj ? `is not a number state (type: ${(_b = triggerStateObj.common) == null ? void 0 : _b.type})` : "does not exist"}, adapter automation will never run! Please select the number state of your smart meter in the adapter settings.`
           );
         } else {
           this.subscribeForeignStates(this.config.automationTriggerStateId);
@@ -453,8 +451,8 @@ class ZendureSolarflow extends utils.Adapter {
     }
     this.deviceStatisticsTimeout = this.setTimeout(
       () => {
-        this.reportDeviceStatistics();
-        this.deviceStatisticsInterval = this.setInterval(() => this.reportDeviceStatistics(), 24 * 60 * 60 * 1e3);
+        void (0, import_sentryHelper.reportUsageStatistics)(this);
+        this.deviceStatisticsInterval = this.setInterval(() => void (0, import_sentryHelper.reportUsageStatistics)(this), 24 * 60 * 60 * 1e3);
       },
       5 * 60 * 1e3
     );
@@ -505,36 +503,6 @@ class ZendureSolarflow extends utils.Adapter {
     }
     this.mdnsDiscoveryService = new import_mdnsDiscoveryService.MdnsDiscoveryService(this);
     this.mdnsDiscoveryService.start();
-  }
-  /**
-   * Reports each used device class (once per instance) to Sentry, to get statistics about the used devices.
-   */
-  reportDeviceStatistics() {
-    var _a;
-    if (!this.supportsFeature || !this.supportsFeature("PLUGINS")) {
-      return;
-    }
-    const sentry = (_a = this.getPluginInstance("sentry")) == null ? void 0 : _a.getSentryObject();
-    if (!sentry) {
-      return;
-    }
-    const reported = /* @__PURE__ */ new Set();
-    this.zenIobDeviceList.forEach((device) => {
-      const deviceClass = device.constructor.name;
-      if (reported.has(deviceClass)) {
-        return;
-      }
-      reported.add(deviceClass);
-      sentry.withScope((scope) => {
-        scope.setLevel("info");
-        scope.setTag("deviceClass", deviceClass);
-        scope.setTag("productKey", device.productKey);
-        scope.setTag("productName", device.productName);
-        scope.setTag("connectionMode", this.config.connectionMode);
-        scope.setFingerprint(["device-statistics", deviceClass]);
-        sentry.captureMessage(`Device statistics: ${deviceClass}`);
-      });
-    });
   }
   /**
    * Is called when adapter shuts down - callback has to be called under any circumstances!

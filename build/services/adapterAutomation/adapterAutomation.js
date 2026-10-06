@@ -101,13 +101,25 @@ const getDeviceState = (device) => {
       share: 0,
       isAtCapacity: false,
       lastChangeMs: 0,
-      wakingUntilMs: 0
+      wakingUntilMs: 0,
+      measuredOutputPower: 0,
+      limitCommandsInFlight: 0
     };
     deviceStates.set(id, state);
   }
   return state;
 };
 const deviceLabel = (device) => getDeviceState(device).name || device.constructor.name;
+const sendDeviceLimit = async (device, state, limit) => {
+  state.limitCommandsInFlight++;
+  try {
+    await Promise.resolve(device.setDeviceAutomationInOutLimit(limit));
+  } finally {
+    state.limitCommandsInFlight--;
+  }
+};
+const isLimitCommandPending = (state) => state.pendingTimeout !== void 0 || state.limitCommandsInFlight > 0;
+const isWaking = (state, now) => state.enabled && state.wakingUntilMs > now;
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 const roundShare = (value) => Math.round(value * 100) / 100;
 const getMinLimit = (device) => device.isZenSdkSupported ? ZEN_SDK_MIN_LIMIT_W : DEFAULT_MIN_LIMIT_W;
@@ -165,7 +177,7 @@ const releaseStaleKeepAlive = (device, state, keepAliveLimit, now) => {
   }
   state.currentLimit = 0;
   state.newLimit = 0;
-  device.setDeviceAutomationInOutLimit(0);
+  void sendDeviceLimit(device, state, 0);
 };
 const chargeKeepAliveOrZero = (device, state) => state.currentLimit < 0 ? -getMinLimit(device) : 0;
 const DEVICE_TASK_TEXTS = {
@@ -290,7 +302,7 @@ const releaseDeviceToZero = async (adapter, device, reason) => {
   state.newLimit = 0;
   if (currentLimit !== 0) {
     adapter.log.info(`${LOG} ${reason}, setting limit of '${deviceLabel(device)}' to 0W`);
-    device.setDeviceAutomationInOutLimit(0);
+    void sendDeviceLimit(device, state, 0);
   }
 };
 const stopAdapterAutomation = async (adapter) => {
@@ -377,9 +389,12 @@ const updateAutomationDeviceMetrics = async (adapter) => {
 const checkAutomationCurrentLimit = async (adapter) => {
   for (const device of getAutomationDevices(adapter)) {
     const state = getDeviceState(device);
+    if (isLimitCommandPending(state)) {
+      continue;
+    }
     const currentLimitState = await adapter.getStateAsync(`${deviceId(device)}.control.setDeviceAutomationInOutLimit`);
     const currentLimit = (currentLimitState == null ? void 0 : currentLimitState.val) != null ? Number(currentLimitState.val) : 0;
-    if (state.currentLimit != currentLimit) {
+    if (!isLimitCommandPending(state) && state.currentLimit != currentLimit) {
       adapter.log.warn(
         `${LOG} currentLimit (${state.currentLimit}) for '${device.deviceKey}' differs from state (${currentLimit}), re-syncing!`
       );
@@ -434,9 +449,15 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       state.solarInputPower = (solarInputPowerState == null ? void 0 : solarInputPowerState.val) != null ? Number(solarInputPowerState.val) : 0;
       const currentLimitState = await adapter.getStateAsync(`${id}.control.setDeviceAutomationInOutLimit`);
       state.lastChangeMs = (currentLimitState == null ? void 0 : currentLimitState.lc) ? now - currentLimitState.lc : Number.MAX_SAFE_INTEGER;
-      const freshLimit = (currentLimitState == null ? void 0 : currentLimitState.val) != null ? Number(currentLimitState.val) : 0;
-      trackLimitTransition(state, state.currentLimit, freshLimit, now);
-      state.currentLimit = freshLimit;
+      if (state.limitCommandsInFlight === 0) {
+        const freshLimit = (currentLimitState == null ? void 0 : currentLimitState.val) != null ? Number(currentLimitState.val) : 0;
+        trackLimitTransition(state, state.currentLimit, freshLimit, now);
+        state.currentLimit = freshLimit;
+      }
+      if (isWaking(state, now)) {
+        const outputHomePowerState = await adapter.getStateAsync(`${id}.outputHomePower`);
+        state.measuredOutputPower = (outputHomePowerState == null ? void 0 : outputHomePowerState.val) != null ? Number(outputHomePowerState.val) : 0;
+      }
       if (state.enabled) {
         if (index !== 0 || canSurplusCharge(device)) {
           releaseStaleKeepAlive(device, state, getMinLimit(device), now);
@@ -450,21 +471,23 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
     })) {
       return;
     }
-    const wakingDevice = devices.find((device) => {
+    const wakingDevices = devices.filter((device) => isWaking(getDeviceState(device), now));
+    wakingDevices.forEach((device) => {
       const state = getDeviceState(device);
-      return state.enabled && state.wakingUntilMs > now;
-    });
-    if (wakingDevice) {
       adapter.log.debug(
-        `${LOG} Device '${wakingDevice.deviceKey}' is still waking up, waiting ${Math.round((getDeviceState(wakingDevice).wakingUntilMs - now) / 1e3)}s`
+        `${LOG} Device '${device.deviceKey}' is still waking up (${Math.round((state.wakingUntilMs - now) / 1e3)}s left, limit=${state.currentLimit} measured=${state.measuredOutputPower}), keeping its limit`
       );
-      return;
-    }
+    });
     const enabledDevices = devices.filter((device) => getDeviceState(device).enabled);
     const currentFeedIn = enabledDevices.reduce(
       (sum, device) => sum + Math.max(getDeviceState(device).currentLimit, 0),
       0
     );
+    const actualFeedIn = enabledDevices.reduce((sum, device) => {
+      const state = getDeviceState(device);
+      const feedIn = isWaking(state, now) ? Math.min(state.measuredOutputPower, state.currentLimit) : state.currentLimit;
+      return sum + Math.max(feedIn, 0);
+    }, 0);
     const currentTotalChargePowerAll = enabledDevices.reduce(
       (sum, device) => sum + Math.max(0, -getDeviceState(device).currentLimit),
       0
@@ -498,7 +521,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       adapter.log.debug(`${LOG} currentGridMeterValue=${currentGridMeterValue}, leaving dead band!`);
       inDeadBand = false;
     }
-    const rawHomeUsage = currentGridMeterValue + currentFeedIn - currentTotalChargePowerAll;
+    const rawHomeUsage = currentGridMeterValue + actualFeedIn - currentTotalChargePowerAll;
     let isHomeUsageStep = false;
     if (shortTermHomeUsageW == null) {
       shortTermHomeUsageW = rawHomeUsage;
@@ -527,7 +550,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       isHomeUsageStep
     );
     adapter.log.debug(
-      `${LOG} Feed-in: grid=${currentGridMeterValue} rawHomeUsage=${rawHomeUsage.toFixed(1)} homeUsageAvg=${currentHomeUsage.toFixed(1)} step=${isHomeUsageStep} currentFeedIn=${currentFeedIn} expectedGrid=${expectedGridW.toFixed(1)} piCorrection=${piCorrection.toFixed(1)}`
+      `${LOG} Feed-in: grid=${currentGridMeterValue} rawHomeUsage=${rawHomeUsage.toFixed(1)} homeUsageAvg=${currentHomeUsage.toFixed(1)} step=${isHomeUsageStep} currentFeedIn=${currentFeedIn} actualFeedIn=${actualFeedIn} expectedGrid=${expectedGridW.toFixed(1)} piCorrection=${piCorrection.toFixed(1)}`
     );
     let piAdjustedHomeUsage = currentHomeUsage + piCorrection;
     const isSoleEnabledDevice = enabledDevices.length === 1;
@@ -579,7 +602,15 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       inputDevices.splice(inputDevices.indexOf(device), 1);
       otherDevices.push(device);
     });
-    setDeviceShares(inputDevices);
+    const wakingInputDevices = inputDevices.filter((device) => wakingDevices.includes(device));
+    const adjustableInputDevices = inputDevices.filter((device) => !wakingDevices.includes(device));
+    wakingInputDevices.forEach((device) => {
+      const state = getDeviceState(device);
+      state.newLimit = state.currentLimit;
+      state.isAtCapacity = false;
+      piAdjustedHomeUsage -= Math.max(state.currentLimit, 0);
+    });
+    setDeviceShares(adjustableInputDevices);
     let unmetDemand = 0;
     const isSurplusChargeCandidate = (device) => {
       const state = getDeviceState(device);
@@ -645,7 +676,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
         state.newLimit = 0;
       }
     }
-    inputDevices.forEach((device) => {
+    adjustableInputDevices.forEach((device) => {
       const state = getDeviceState(device);
       state.isAtCapacity = false;
       const minLimit = getMinLimit(device);
@@ -671,7 +702,9 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
         state.isAtCapacity = true;
       }
     });
-    const fullSocDevices = inputDevices.filter((device) => getDeviceState(device).soc >= 99 && !device.isAcOnly);
+    const fullSocDevices = adjustableInputDevices.filter(
+      (device) => getDeviceState(device).soc >= 99 && !device.isAcOnly
+    );
     if (fullSocDevices.length > 0) {
       let totalExtraPower = 0;
       fullSocDevices.forEach((device) => {
@@ -683,7 +716,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
         }
       });
       if (totalExtraPower > 0) {
-        const reducibleDevices = inputDevices.filter((device) => device.isAcOnly);
+        const reducibleDevices = adjustableInputDevices.filter((device) => device.isAcOnly);
         const totalReducibleShare = reducibleDevices.reduce((sum, device) => sum + getDeviceState(device).share, 0);
         if (totalReducibleShare > 0) {
           reducibleDevices.forEach((device) => {
@@ -695,23 +728,26 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
         }
       }
     }
-    const availableDeviceCount = inputDevices.filter((device) => !getDeviceState(device).isAtCapacity).length;
+    const availableDeviceCount = adjustableInputDevices.filter((device) => !getDeviceState(device).isAtCapacity).length;
     if (availableDeviceCount > 0 && unmetDemand > 0) {
-      inputDevices.filter((device) => {
+      adjustableInputDevices.filter((device) => {
         const state = getDeviceState(device);
         return !state.isAtCapacity && state.newLimit < state.maxLimit;
       }).forEach((device) => {
         getDeviceState(device).newLimit += unmetDemand / availableDeviceCount;
       });
     }
-    inputDevices.forEach((device) => {
+    adjustableInputDevices.forEach((device) => {
       const state = getDeviceState(device);
       state.newLimit = Math.min(state.newLimit, state.maxLimit);
     });
-    const assignedFeedIn = inputDevices.reduce((sum, device) => sum + Math.max(getDeviceState(device).newLimit, 0), 0);
+    const assignedFeedIn = adjustableInputDevices.reduce(
+      (sum, device) => sum + Math.max(getDeviceState(device).newLimit, 0),
+      0
+    );
     const excessFeedIn = assignedFeedIn - Math.max(piAdjustedHomeUsage, 0);
     if (excessFeedIn > 0) {
-      const reducibleDevices = inputDevices.filter((device) => {
+      const reducibleDevices = adjustableInputDevices.filter((device) => {
         const state = getDeviceState(device);
         return !fullSocDevices.includes(device) && state.newLimit > getMinLimit(device);
       });
@@ -768,6 +804,10 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       const state = getDeviceState(device);
       if (!state.enabled) {
         await publishDeviceTask(adapter, device, "disabled", false);
+        continue;
+      }
+      if (wakingInputDevices.includes(device)) {
+        await publishDeviceTask(adapter, device, getDeviceTask(device, state, false), device === leadDevice);
         continue;
       }
       let isChargeBlocked = false;
@@ -828,7 +868,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
         const wasZero = state.currentLimit === 0;
         trackLimitTransition(state, state.currentLimit, newLimit, Date.now());
         state.currentLimit = newLimit;
-        device.setDeviceAutomationInOutLimit(newLimit);
+        void sendDeviceLimit(device, state, newLimit);
         if (wasZero && state.currentLimit > 0) {
           state.wakingUntilMs = Date.now() + WAKE_UP_MS;
           adapter.log.debug(
