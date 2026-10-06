@@ -157,6 +157,10 @@
 
 - Add 'packPower' state, which shows combined power from (packInputPower and outputPackPower). Discharging will be shown with a negative value.
 - Add 'hyperTmp' to Solarflow 800 devices in hope this will show the temperature of the Solarflow 800 (can not test it due to lack of test device).
+## 6.0.0-alpha.2 (2026-10-01)
+
+- Improvements on zero-feed in
+
 ## 6.0.0-alpha.1 (2026-09-30)
 
 - Fix setDeviceAutomationInOutLimit not correctly set on non-zenSDK devices when automation is used.
