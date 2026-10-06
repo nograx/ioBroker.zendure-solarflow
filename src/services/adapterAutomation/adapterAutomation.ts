@@ -92,6 +92,13 @@ const SURPLUS_SETPOINT_BUFFER_W = 30;
 // around setPoint from flipping it between charging and feeding in.
 const SOLE_DEVICE_FEED_IN_RETURN_W = 50;
 
+// A charging device doesn't necessarily draw its commanded charge limit: e.g. a nearly full battery tapers its
+// charge power down (BMS), so a device set to -600W may only draw 80W. Once its limit has been unchanged this
+// long (ramp-up done), its measured AC input ('gridInputPower') is used as its charge power instead of the
+// commanded limit - otherwise the home usage is underestimated by the difference (causing grid import), and
+// the charge budget keeps assigning power the device can't absorb.
+const CHARGE_SETTLE_MS = 30 * 1000;
+
 interface IPidConfig {
   KP: number;
   KI: number;
@@ -171,6 +178,11 @@ interface IAutomationDeviceState {
    * replaces its commanded limit in the home usage estimate, since it doesn't deliver that limit yet.
    */
   measuredOutputPower: number;
+  /**
+   * Measured AC charge power (W, from 'gridInputPower'), only refreshed while the device is charging; undefined
+   * if the device doesn't report it. See getEffectiveChargePower.
+   */
+  measuredChargePower?: number;
   /** Last transition from charging (negative) to not charging (>= 0); undefined = never charged. */
   chargingStoppedMs?: number;
   /** Last transition from feeding in (positive) to not feeding in (<= 0); undefined = never fed in. */
@@ -277,6 +289,21 @@ const isLimitCommandPending = (state: IAutomationDeviceState): boolean =>
 
 // Whether the device is still waking up (see wakingUntilMs) - it keeps its current limit until then.
 const isWaking = (state: IAutomationDeviceState, now: number): boolean => state.enabled && state.wakingUntilMs > now;
+
+// Charge power (W, >= 0) the device actually draws: its commanded charge limit, or less once settled if its
+// measured AC input is lower (see CHARGE_SETTLE_MS).
+const getEffectiveChargePower = (state: IAutomationDeviceState): number => {
+  const commanded = Math.max(0, -state.currentLimit);
+  if (
+    commanded === 0 ||
+    state.measuredChargePower == null ||
+    state.lastChangeMs < CHARGE_SETTLE_MS ||
+    isLimitCommandPending(state)
+  ) {
+    return commanded;
+  }
+  return Math.min(commanded, state.measuredChargePower);
+};
 
 const clamp = (value: number, min: number, max: number): number => Math.min(Math.max(value, min), max);
 const roundShare = (value: number): number => Math.round(value * 100) / 100;
@@ -906,6 +933,12 @@ export const runZeroFeedInAutomation = async (
         state.measuredOutputPower = outputHomePowerState?.val != null ? Number(outputHomePowerState.val) : 0;
       }
 
+      if (state.currentLimit < 0) {
+        const gridInputPowerState = await adapter.getStateAsync(`${id}.gridInputPower`);
+        state.measuredChargePower =
+          gridInputPowerState?.val != null ? Math.max(0, Number(gridInputPowerState.val)) : undefined;
+      }
+
       if (state.enabled) {
         // The lead device is normally kept at its feed-in standby - except devices that may charge from surplus
         // (AC-only, or 'adapterAutomation.acChargingAllowed'): they have to get down to 0W eventually,
@@ -957,9 +990,10 @@ export const runZeroFeedInAutomation = async (
     }, 0);
     // Power currently being charged from AC (all enabled devices) - subtracted from the home usage below, so
     // the feed-in controller doesn't mistake the devices' own charging for home consumption and feed in even
-    // more to cover it (which would then let the charge power rise further, without any real limit).
+    // more to cover it (which would then let the charge power rise further, without any real limit). Uses the
+    // power actually drawn (see CHARGE_SETTLE_MS), not the commanded limit.
     const currentTotalChargePowerAll = enabledDevices.reduce(
-      (sum, device) => sum + Math.max(0, -getDeviceState(device).currentLimit),
+      (sum, device) => sum + getEffectiveChargePower(getDeviceState(device)),
       0,
     );
     const maxFeedIn = enabledDevices.reduce((sum, device) => sum + getDeviceState(device).maxLimit, 0);
@@ -1183,10 +1217,12 @@ export const runZeroFeedInAutomation = async (
         getDeviceState(device).currentLimit <= 0,
     );
 
-    // Charge power the surplus charging devices are currently drawing - base for the PID adjustment below.
+    // Charge power the surplus charging devices are currently drawing - base for the PID adjustment below. The
+    // actually drawn power (see CHARGE_SETTLE_MS), so a device that can't absorb its limit (nearly full) pulls the
+    // budget down to what it really takes, instead of the budget being wound down from the commanded limit.
     const currentTotalChargePower = otherDevices
       .filter(isSurplusChargeCandidate)
-      .reduce((sum, device) => sum + Math.max(0, -getDeviceState(device).currentLimit), 0);
+      .reduce((sum, device) => sum + getEffectiveChargePower(getDeviceState(device)), 0);
 
     const chargeError = surplusSetPoint - shortTermGridAvgW;
 

@@ -145,6 +145,12 @@ For more details and for information on how to disable error reporting, see the 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+
+### **WORK IN PROGRESS**
+
+- Zero-feed in: charging devices are now accounted with their measured AC input power (gridInputPower) instead of their commanded charge limit once settled. Fixes grid import when a nearly full battery charges with much less power than requested (e.g. 80 W instead of 600 W).
+- Output limit can now be set on devices without an autoModel state (previously rejected because autoModel was not '0').
+
 ### 6.0.0-alpha.6 (2026-10-06)
 
 - Better tracking if device command is accepted

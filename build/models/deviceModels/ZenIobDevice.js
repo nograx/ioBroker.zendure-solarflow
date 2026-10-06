@@ -1091,7 +1091,7 @@ class ZenIobDevice {
     var _a, _b;
     if (this.productKey && this.deviceKey) {
       const autoModel = (_a = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.autoModel`)) == null ? void 0 : _a.val;
-      if (autoModel != 0) {
+      if (autoModel != null && autoModel != 0) {
         this.adapter.log.warn(
           `[setOutputLimit] Operation mode (autoModel) for device ${this.deviceName} (${this.deviceKey}) is not set to '0', we can't set the output limit!`
         );

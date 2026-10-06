@@ -1283,10 +1283,10 @@ export class ZenIobDevice {
 
   public async setOutputLimit(limit: number): Promise<void> {
     if (this.productKey && this.deviceKey) {
-      // Check if autoModel is set to 0 (Nothing) or 8 (Smart Matching)
+      // Check if autoModel is set to 0 (Nothing) - devices without an autoModel state are not restricted
       const autoModel = (await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.autoModel`))?.val;
 
-      if (autoModel != 0) {
+      if (autoModel != null && autoModel != 0) {
         this.adapter.log.warn(
           `[setOutputLimit] Operation mode (autoModel) for device ${this.deviceName} (${this.deviceKey}) is not set to '0', we can't set the output limit!`,
         );

@@ -51,6 +51,7 @@ const DEFAULT_AC_ONLY_PENALTY = 50;
 const DEFAULT_SURPLUS_CHARGE_TRIGGER_W = 100;
 const SURPLUS_SETPOINT_BUFFER_W = 30;
 const SOLE_DEVICE_FEED_IN_RETURN_W = 50;
+const CHARGE_SETTLE_MS = 30 * 1e3;
 const PI_CONTROLLER = {
   KP: 0.15,
   KI: 0.02,
@@ -120,6 +121,13 @@ const sendDeviceLimit = async (device, state, limit) => {
 };
 const isLimitCommandPending = (state) => state.pendingTimeout !== void 0 || state.limitCommandsInFlight > 0;
 const isWaking = (state, now) => state.enabled && state.wakingUntilMs > now;
+const getEffectiveChargePower = (state) => {
+  const commanded = Math.max(0, -state.currentLimit);
+  if (commanded === 0 || state.measuredChargePower == null || state.lastChangeMs < CHARGE_SETTLE_MS || isLimitCommandPending(state)) {
+    return commanded;
+  }
+  return Math.min(commanded, state.measuredChargePower);
+};
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 const roundShare = (value) => Math.round(value * 100) / 100;
 const getMinLimit = (device) => device.isZenSdkSupported ? ZEN_SDK_MIN_LIMIT_W : DEFAULT_MIN_LIMIT_W;
@@ -458,6 +466,10 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
         const outputHomePowerState = await adapter.getStateAsync(`${id}.outputHomePower`);
         state.measuredOutputPower = (outputHomePowerState == null ? void 0 : outputHomePowerState.val) != null ? Number(outputHomePowerState.val) : 0;
       }
+      if (state.currentLimit < 0) {
+        const gridInputPowerState = await adapter.getStateAsync(`${id}.gridInputPower`);
+        state.measuredChargePower = (gridInputPowerState == null ? void 0 : gridInputPowerState.val) != null ? Math.max(0, Number(gridInputPowerState.val)) : void 0;
+      }
       if (state.enabled) {
         if (index !== 0 || canSurplusCharge(device)) {
           releaseStaleKeepAlive(device, state, getMinLimit(device), now);
@@ -489,7 +501,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       return sum + Math.max(feedIn, 0);
     }, 0);
     const currentTotalChargePowerAll = enabledDevices.reduce(
-      (sum, device) => sum + Math.max(0, -getDeviceState(device).currentLimit),
+      (sum, device) => sum + getEffectiveChargePower(getDeviceState(device)),
       0
     );
     const maxFeedIn = enabledDevices.reduce((sum, device) => sum + getDeviceState(device).maxLimit, 0);
@@ -619,7 +631,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
     const chargeEligibleDevices = otherDevices.filter(
       (device) => isSurplusChargeCandidate(device) && getDeviceState(device).soc < 100 && getDeviceState(device).currentLimit <= 0
     );
-    const currentTotalChargePower = otherDevices.filter(isSurplusChargeCandidate).reduce((sum, device) => sum + Math.max(0, -getDeviceState(device).currentLimit), 0);
+    const currentTotalChargePower = otherDevices.filter(isSurplusChargeCandidate).reduce((sum, device) => sum + getEffectiveChargePower(getDeviceState(device)), 0);
     const chargeError = surplusSetPoint - shortTermGridAvgW;
     let chargeBudgetTotal = 0;
     if (hasGridSurplus || currentTotalChargePower > 0) {
