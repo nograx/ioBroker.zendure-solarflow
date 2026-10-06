@@ -16,6 +16,8 @@ import {
   IconButton,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import AddIcon from "@mui/icons-material/Add";
+import Button from "@mui/material/Button";
 import SearchIcon from "@mui/icons-material/Search";
 import type { GenericApp } from "@iobroker/adapter-react-v5";
 import { I18n, SelectID } from "@iobroker/adapter-react-v5";
@@ -43,6 +45,10 @@ const productKeys: { value; title }[] = [
 
 const productKeysWithoutEmpty = productKeys.filter((item) => item.value);
 
+// IPv4 address or host name, optionally with a leading "http://" and a port (e.g. "192.168.3.34" or "sf800.lan:80")
+const deviceAddressRegex =
+  /^(https?:\/\/)?(((25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(25[0-5]|2[0-4]\d|1?\d?\d)|[a-zA-Z0-9]([a-zA-Z0-9-]{0,62})(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,62}))*)(:\d{1,5})?\/?$/;
+
 interface SettingsProps {
   app: GenericApp;
   native: Record<string, any>;
@@ -69,6 +75,25 @@ function Settings(props: SettingsProps) {
 
   const [showStatePicker, setShowStatePicker] = useState(false);
 
+  const zenSdkDeviceIps: string[] = Array.isArray(props.native.zenSdkDeviceIps) ? props.native.zenSdkDeviceIps : [];
+
+  function updateZenSdkDeviceIp(index: number, value: string) {
+    const ips = [...zenSdkDeviceIps];
+    ips[index] = value;
+    props.onChange("zenSdkDeviceIps", ips);
+  }
+
+  function addZenSdkDeviceIp() {
+    props.onChange("zenSdkDeviceIps", [...zenSdkDeviceIps, ""]);
+  }
+
+  function removeZenSdkDeviceIp(index: number) {
+    props.onChange(
+      "zenSdkDeviceIps",
+      zenSdkDeviceIps.filter((_, i) => i !== index),
+    );
+  }
+
   useEffect(() => {
     if (props.native.connectionMode !== "authKey" && props.native.useAddionalLocalMqtt) {
       props.onChange("useAddionalLocalMqtt", false);
@@ -84,7 +109,13 @@ function Settings(props: SettingsProps) {
       }
     }
 
-    if (props.native.connectionMode === "local" && !props.native.useMdnsDiscovery && props.native.useZenSDK) {
+    // Without mDNS, zenSDK is only needed in local mode if devices are configured by IP address
+    if (
+      props.native.connectionMode === "local" &&
+      !props.native.useMdnsDiscovery &&
+      props.native.useZenSDK &&
+      !zenSdkDeviceIps.length
+    ) {
       props.onChange("useZenSDK", false);
     }
   }, [props.native.connectionMode]);
@@ -260,6 +291,49 @@ function Settings(props: SettingsProps) {
             <Box>{renderCheckbox("useMdnsDiscovery", "useMdnsDiscovery", isZenSdkOnly)}</Box>
           </Stack>,
         )}
+
+        {/* Section: zenSDK devices configured by IP address (no mDNS needed, e.g. devices in another VLAN) */}
+        {(props.native.useZenSDK || isZenSdkOnly) &&
+          renderSection(
+            I18n.t("sectionZenSdkDeviceIps"),
+            <Stack spacing={1}>
+              <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                {I18n.t("zenSdkDeviceIpsDesc")}
+              </Typography>
+
+              {zenSdkDeviceIps.map((ip, index) => {
+                const invalid = !!ip && !deviceAddressRegex.test(ip.trim());
+                return (
+                  <Box key={`zenSdkDeviceIp-${index}`} sx={{ display: "flex", alignItems: "center" }}>
+                    <TextField
+                      variant="standard"
+                      autoComplete="off"
+                      sx={{ ...inputSx, ...controlElementSx }}
+                      value={ip}
+                      placeholder="192.168.1.50"
+                      error={invalid}
+                      helperText={invalid ? I18n.t("zenSdkDeviceIpInvalid") : undefined}
+                      onChange={(e) => updateZenSdkDeviceIp(index, e.target.value)}
+                      slotProps={{ input: { disableUnderline: true } }}
+                    />
+                    <IconButton
+                      size="small"
+                      title={I18n.t("removeZenSdkDeviceIp")}
+                      onClick={() => removeZenSdkDeviceIp(index)}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+                );
+              })}
+
+              <Box>
+                <Button size="small" variant="outlined" startIcon={<AddIcon />} onClick={addZenSdkDeviceIp}>
+                  {I18n.t("addZenSdkDeviceIp")}
+                </Button>
+              </Box>
+            </Stack>,
+          )}
 
         {/* Section: Local MQTT */}
         {showLocalMqttSection &&

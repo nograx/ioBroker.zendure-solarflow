@@ -13,7 +13,7 @@
   "eu": "EU (Zendure App Cloud)",
   "global": "Global (Zendure App Cloud)",
   "local": "Local Mqtt Server",
-  "zenSdkOnly": "zenSDK only (mDNS, no Cloud or MQTT)",
+  "zenSdkOnly": "zenSDK only (mDNS / IP, no Cloud or MQTT)",
   "setOutputLimit": "Set the output limit",
   "socSet": "Defined SOC limit",
   "remainOutTime": "Remaining output time",
@@ -60,5 +60,10 @@
   "automationTriggerStateDesc": "Select the state of your smart meter (number, grid power in W) whose changes should trigger the adapter's automation logic.",
   "automationTriggerStateNotNumber": "The state '%s' can't be used as trigger state: only number states (e.g. the grid power of a smart meter) are allowed, but its type is '%s'.",
   "selectState": "Select state",
-  "clear": "Clear"
+  "clear": "Clear",
+  "sectionZenSdkDeviceIps": "zenSDK devices by IP address",
+  "zenSdkDeviceIpsDesc": "Enter the IP addresses of your zenSDK devices if they can't be found via mDNS (e.g. devices in another network segment / VLAN). The device is identified by its serial number: a device already known from the Zendure Cloud keeps its states and is controlled locally via zenSDK, an unknown device is created with its serial number as key.",
+  "addZenSdkDeviceIp": "Add IP address",
+  "removeZenSdkDeviceIp": "Remove IP address",
+  "zenSdkDeviceIpInvalid": "Invalid IP address or host name"
 }

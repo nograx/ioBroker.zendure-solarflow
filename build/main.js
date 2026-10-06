@@ -38,6 +38,7 @@ var import_adapterAutomation = require("./services/adapterAutomation/adapterAuto
 var import_localMqttService = require("./services/mqtt/localMqttService");
 var import_cloudMqttService = require("./services/mqtt/cloudMqttService");
 var import_mdnsDiscoveryService = require("./services/mdnsDiscoveryService");
+var import_manualZenSdkDeviceService = require("./services/manualZenSdkDeviceService");
 var import_helpers = require("./helpers/helpers");
 var import_fileHelper = require("./helpers/fileHelper");
 var import_sentryHelper = require("./helpers/sentryHelper");
@@ -78,6 +79,7 @@ class ZendureSolarflow extends utils.Adapter {
   localMqttService = void 0;
   cloudMqttService = void 0;
   mdnsDiscoveryService = void 0;
+  manualZenSdkDeviceService = void 0;
   resetValuesJob = void 0;
   checkStatesJob = void 0;
   calculationJob = void 0;
@@ -349,6 +351,7 @@ class ZendureSolarflow extends utils.Adapter {
           }
         }
         this.startMdnsDiscovery();
+        this.startManualZenSdkDevices();
         if (this.config.useZenSDK) {
           (0, import_jobSchedule.startZenSdkDataRefreshJob)(this);
         }
@@ -412,13 +415,16 @@ class ZendureSolarflow extends utils.Adapter {
           (0, import_jobSchedule.startRefreshAccessTokenTimerJob)(this);
         }
         this.startMdnsDiscovery();
+        this.startManualZenSdkDevices();
         if (this.config.useZenSDK) {
           (0, import_jobSchedule.startZenSdkDataRefreshJob)(this);
         }
         break;
       }
       case "zenSDK": {
-        this.log.info("[onReady] Using zenSDK only (devices found via mDNS, no Zendure Cloud or MQTT server)!");
+        this.log.info(
+          "[onReady] Using zenSDK only (devices found via mDNS or configured by IP, no Zendure Cloud or MQTT server)!"
+        );
         this.setState("info.connection", true, true);
         (0, import_jobSchedule.startResetValuesJob)(this);
         (0, import_jobSchedule.startCheckStatesAndConnectionJob)(this);
@@ -426,6 +432,7 @@ class ZendureSolarflow extends utils.Adapter {
           (0, import_jobSchedule.startCalculationJob)(this);
         }
         this.startMdnsDiscovery();
+        this.startManualZenSdkDevices();
         (0, import_jobSchedule.startZenSdkDataRefreshJob)(this);
         break;
       }
@@ -505,12 +512,30 @@ class ZendureSolarflow extends utils.Adapter {
     this.mdnsDiscoveryService.start();
   }
   /**
+   * Connects the zenSDK devices configured by IP address (setting 'zenSdkDeviceIps'), if zenSDK is enabled. This
+   * works without mDNS, e.g. if the devices are in another network segment (VLAN) than ioBroker.
+   */
+  startManualZenSdkDevices() {
+    const addresses = (0, import_manualZenSdkDeviceService.getConfiguredDeviceAddresses)(this.config.zenSdkDeviceIps);
+    if (addresses.length === 0) {
+      return;
+    }
+    if (!this.config.useZenSDK) {
+      this.log.warn(
+        `[onReady] ${addresses.length} zenSDK device IP(s) configured, but zenSDK is disabled - please enable zenSDK to use them!`
+      );
+      return;
+    }
+    this.manualZenSdkDeviceService = new import_manualZenSdkDeviceService.ManualZenSdkDeviceService(this, addresses);
+    this.manualZenSdkDeviceService.start();
+  }
+  /**
    * Is called when adapter shuts down - callback has to be called under any circumstances!
    *
    * @param callback
    */
   async onUnload(callback) {
-    var _a, _b, _c, _d;
+    var _a, _b, _c, _d, _e;
     try {
       if (this.refreshAccessTokenInterval) {
         this.clearInterval(this.refreshAccessTokenInterval);
@@ -542,6 +567,8 @@ class ZendureSolarflow extends utils.Adapter {
       this.zenIobDeviceList.forEach((device) => device.stopZenSdkPollingSchedule());
       (_b = this.mdnsDiscoveryService) == null ? void 0 : _b.stop();
       this.mdnsDiscoveryService = void 0;
+      (_c = this.manualZenSdkDeviceService) == null ? void 0 : _c.stop();
+      this.manualZenSdkDeviceService = void 0;
       if (this.retryTimeout) {
         this.clearTimeout(this.retryTimeout);
       }
@@ -561,14 +588,14 @@ class ZendureSolarflow extends utils.Adapter {
       ]);
       if (cloudMqttService) {
         if (cloudResult.status === "rejected") {
-          this.log.error(`[onUnload] Error stopping MQTT cloud client: ${(_c = cloudResult.reason) == null ? void 0 : _c.message}`);
+          this.log.error(`[onUnload] Error stopping MQTT cloud client: ${(_d = cloudResult.reason) == null ? void 0 : _d.message}`);
         } else {
           this.log.info("[onUnload] MQTT cloud client stopped!");
         }
       }
       if (localMqttService) {
         if (localResult.status === "rejected") {
-          this.log.error(`[onUnload] Error stopping MQTT local client: ${(_d = localResult.reason) == null ? void 0 : _d.message}`);
+          this.log.error(`[onUnload] Error stopping MQTT local client: ${(_e = localResult.reason) == null ? void 0 : _e.message}`);
         } else {
           this.log.info("[onUnload] MQTT local client stopped!");
         }

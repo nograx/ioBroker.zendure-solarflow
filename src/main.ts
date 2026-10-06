@@ -26,6 +26,7 @@ import { LocalMqttService } from "./services/mqtt/localMqttService";
 import type { IZenIobDeviceDetails } from "./models/IZenIobDeviceDetails";
 import { CloudMqttService } from "./services/mqtt/cloudMqttService";
 import { MdnsDiscoveryService } from "./services/mdnsDiscoveryService";
+import { ManualZenSdkDeviceService, getConfiguredDeviceAddresses } from "./services/manualZenSdkDeviceService";
 import type { IZenIobMqttData } from "./models/IZenIobMqttData";
 import type { ZenIobDevice } from "./models/deviceModels/ZenIobDevice";
 import { createDeviceModel } from "./helpers/helpers";
@@ -73,6 +74,7 @@ export class ZendureSolarflow extends utils.Adapter {
   public localMqttService: LocalMqttService | undefined = undefined;
   public cloudMqttService: CloudMqttService | undefined = undefined;
   public mdnsDiscoveryService: MdnsDiscoveryService | undefined = undefined;
+  public manualZenSdkDeviceService: ManualZenSdkDeviceService | undefined = undefined;
 
   public resetValuesJob: Job | undefined = undefined;
   public checkStatesJob: Job | undefined = undefined;
@@ -99,7 +101,7 @@ export class ZendureSolarflow extends utils.Adapter {
       this.log.info("[onReady] Enabled mDNS discovery by default (was not previously configured)!");
     }
 
-    // 'zenSDK only' mode works exclusively with devices found via mDNS and controlled via zenSDK
+    // 'zenSDK only' mode works exclusively with devices found via mDNS (or configured by IP) and controlled via zenSDK
     if (this.config.connectionMode === "zenSDK") {
       this.config.useZenSDK = true;
       this.config.useMdnsDiscovery = true;
@@ -394,6 +396,7 @@ export class ZendureSolarflow extends utils.Adapter {
         // Started after the device list was processed, so discovered devices are matched against the known devices
         // instead of being created a second time
         this.startMdnsDiscovery();
+        this.startManualZenSdkDevices();
 
         // Devices discovered via mDNS are always zenSDK-only devices (see handleDiscoveredService), and may be
         // created at any time while the adapter is running, so we start the job whenever zenSDK is enabled at all
@@ -485,6 +488,7 @@ export class ZendureSolarflow extends utils.Adapter {
         }
 
         this.startMdnsDiscovery();
+        this.startManualZenSdkDevices();
 
         // Devices discovered via mDNS are always zenSDK-only devices (see handleDiscoveredService), and are
         // created asynchronously as they're found, so we can't check zenIobDeviceList for a zenSDK device yet here.
@@ -494,8 +498,10 @@ export class ZendureSolarflow extends utils.Adapter {
         break;
       }
       case "zenSDK": {
-        // No cloud and no MQTT server: devices are found via mDNS and polled / controlled via zenSDK only
-        this.log.info("[onReady] Using zenSDK only (devices found via mDNS, no Zendure Cloud or MQTT server)!");
+        // No cloud and no MQTT server: devices are found via mDNS (or configured by IP) and polled / controlled via zenSDK only
+        this.log.info(
+          "[onReady] Using zenSDK only (devices found via mDNS or configured by IP, no Zendure Cloud or MQTT server)!",
+        );
 
         // There is no MQTT connection that could be broken - the adapter is "connected" as soon as it listens via mDNS
         this.setState("info.connection", true, true);
@@ -507,6 +513,7 @@ export class ZendureSolarflow extends utils.Adapter {
         }
 
         this.startMdnsDiscovery();
+        this.startManualZenSdkDevices();
         startZenSdkDataRefreshJob(this);
         break;
       }
@@ -612,6 +619,28 @@ export class ZendureSolarflow extends utils.Adapter {
   }
 
   /**
+   * Connects the zenSDK devices configured by IP address (setting 'zenSdkDeviceIps'), if zenSDK is enabled. This
+   * works without mDNS, e.g. if the devices are in another network segment (VLAN) than ioBroker.
+   */
+  private startManualZenSdkDevices(): void {
+    const addresses = getConfiguredDeviceAddresses(this.config.zenSdkDeviceIps);
+
+    if (addresses.length === 0) {
+      return;
+    }
+
+    if (!this.config.useZenSDK) {
+      this.log.warn(
+        `[onReady] ${addresses.length} zenSDK device IP(s) configured, but zenSDK is disabled - please enable zenSDK to use them!`,
+      );
+      return;
+    }
+
+    this.manualZenSdkDeviceService = new ManualZenSdkDeviceService(this, addresses);
+    this.manualZenSdkDeviceService.start();
+  }
+
+  /**
    * Is called when adapter shuts down - callback has to be called under any circumstances!
    *
    * @param callback
@@ -659,6 +688,10 @@ export class ZendureSolarflow extends utils.Adapter {
       // Stop mDNS discovery and release its socket
       this.mdnsDiscoveryService?.stop();
       this.mdnsDiscoveryService = undefined;
+
+      // Stop the periodic checks of devices configured by IP address
+      this.manualZenSdkDeviceService?.stop();
+      this.manualZenSdkDeviceService = undefined;
 
       if (this.retryTimeout) {
         this.clearTimeout(this.retryTimeout);

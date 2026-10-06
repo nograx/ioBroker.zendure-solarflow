@@ -60,5 +60,10 @@
   "useZenSDK": "Użyj zenSDK (jeśli jest obsługiwane przez urządzenie)",
   "userName": "Nazwa użytkownika",
   "usrPwd": "Nazwa użytkownika i hasło",
-  "zenSdkOnly": "Tylko zenSDK (mDNS, bez chmury i MQTT)"
+  "zenSdkOnly": "Tylko zenSDK (mDNS / IP, bez chmury i MQTT)",
+  "sectionZenSdkDeviceIps": "Urządzenia zenSDK według adresu IP",
+  "zenSdkDeviceIpsDesc": "Wprowadź adresy IP urządzeń zenSDK, jeśli nie można ich znaleźć przez mDNS (np. urządzenia w innym segmencie sieci / VLAN). Urządzenie jest rozpoznawane po numerze seryjnym: urządzenie znane już z chmury Zendure zachowuje swoje stany i jest sterowane lokalnie przez zenSDK, nieznane urządzenie jest tworzone z numerem seryjnym jako kluczem.",
+  "addZenSdkDeviceIp": "Dodaj adres IP",
+  "removeZenSdkDeviceIp": "Usuń adres IP",
+  "zenSdkDeviceIpInvalid": "Nieprawidłowy adres IP lub nazwa hosta"
 }
