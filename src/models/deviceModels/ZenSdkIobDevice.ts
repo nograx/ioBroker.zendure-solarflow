@@ -166,23 +166,24 @@ export abstract class ZenSdkIobDevice extends ZenIobDevice {
             }
           }, 2000);
 
-          // Keep smartMode on for a while after idling, so a brief standby doesn't immediately turn it off again
-          // if the device is asked to resume charging/discharging shortly after. maxclaudi suggested a longer
-          // delay; 10 minutes was chosen. After that, smartMode is only turned off once solar input is low
-          // and the battery is not (nearly) full, which is checked periodically while in standby.
-          const standbySince = Date.now();
-          this.resetSmartModeInterval = this.adapter.setInterval(async () => {
-            if (Date.now() - standbySince < 10 * 60 * 1000) {
-              return;
-            }
-            if (await this.shouldResetSmartMode()) {
-              if (this.resetSmartModeInterval) {
-                this.adapter.clearInterval(this.resetSmartModeInterval);
-                this.resetSmartModeInterval = undefined;
-              }
-              await this.updateProperty("smartMode", 0);
-            }
-          }, 60 * 1000);
+          // smartMode is deliberately left on in standby (no longer reset to 0).
+          // // Keep smartMode on for a while after idling, so a brief standby doesn't immediately turn it off again
+          // // if the device is asked to resume charging/discharging shortly after. maxclaudi suggested a longer
+          // // delay; 10 minutes was chosen. After that, smartMode is only turned off once solar input is low
+          // // and the battery is not (nearly) full, which is checked periodically while in standby.
+          // const standbySince = Date.now();
+          // this.resetSmartModeInterval = this.adapter.setInterval(async () => {
+          //   if (Date.now() - standbySince < 10 * 60 * 1000) {
+          //     return;
+          //   }
+          //   if (await this.shouldResetSmartMode()) {
+          //     if (this.resetSmartModeInterval) {
+          //       this.adapter.clearInterval(this.resetSmartModeInterval);
+          //       this.resetSmartModeInterval = undefined;
+          //     }
+          //     await this.updateProperty("smartMode", 0);
+          //   }
+          // }, 60 * 1000);
         }
 
         // Check if all updates were successful
