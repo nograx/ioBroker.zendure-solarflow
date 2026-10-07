@@ -817,8 +817,15 @@ export const checkAutomationCurrentLimit = async (adapter: ZendureSolarflow): Pr
 };
 
 /**
+ * Whether the device has reached its configured minSoc: it may still be charged, but must not feed in.
+ *
+ * @param state the device's automation state
+ */
+const isAtMinSoc = (state: IAutomationDeviceState): boolean => state.soc <= state.minSoc;
+
+/**
  * Distributes required power across the given devices proportional to soc^EXPONENT, so fuller devices
- * carry a bigger share. A device below its own configured minSoc, or without output headroom, gets none.
+ * carry a bigger share. A device at or below its own configured minSoc, or without output headroom, gets none.
  *
  * @param devices candidate devices to assign a share to
  */
@@ -828,7 +835,7 @@ const setDeviceShares = (devices: ZenIobDevice[]): void => {
   devices.forEach((device) => {
     const state = getDeviceState(device);
     state.share =
-      state.maxLimit > 0 && state.soc >= state.minSoc && weightedSum > 0
+      state.maxLimit > 0 && !isAtMinSoc(state) && weightedSum > 0
         ? roundShare(Math.pow(state.soc, EXPONENT) / weightedSum)
         : 0;
   });
@@ -1343,7 +1350,9 @@ export const runZeroFeedInAutomation = async (
         // No share (e.g. below minSoc, or no output headroom): without this, newLimit would still hold the value
         // from the previous cycle and be sent again unchanged, although this cycle never assigned it. Park the
         // device at its base limit instead, so its limit is always the result of the current calculation.
-        state.newLimit = baseLimit;
+        // A device at its minSoc must not feed in at all - not even its feed-in standby - but may keep its
+        // charge keep-alive.
+        state.newLimit = isAtMinSoc(state) ? Math.min(baseLimit, 0) : baseLimit;
         return;
       }
 
@@ -1385,7 +1394,10 @@ export const runZeroFeedInAutomation = async (
       });
 
       if (totalExtraPower > 0) {
-        const reducibleDevices = adjustableInputDevices.filter((device) => device.isAcOnly);
+        // Only devices with a share: one without (e.g. at its minSoc) would otherwise be lifted to its minimum limit.
+        const reducibleDevices = adjustableInputDevices.filter(
+          (device) => device.isAcOnly && getDeviceState(device).share > 0,
+        );
         const totalReducibleShare = reducibleDevices.reduce((sum, device) => sum + getDeviceState(device).share, 0);
 
         if (totalReducibleShare > 0) {
@@ -1401,13 +1413,17 @@ export const runZeroFeedInAutomation = async (
 
     // Redistribute unmet demand (devices that were asked for more than their own maxLimit allows) across
     // devices that still have headroom.
-    const availableDeviceCount = adjustableInputDevices.filter((device) => !getDeviceState(device).isAtCapacity).length;
+    // Devices at their minSoc can't take any of it.
+    const availableDeviceCount = adjustableInputDevices.filter((device) => {
+      const state = getDeviceState(device);
+      return !state.isAtCapacity && !isAtMinSoc(state);
+    }).length;
 
     if (availableDeviceCount > 0 && unmetDemand > 0) {
       adjustableInputDevices
         .filter((device) => {
           const state = getDeviceState(device);
-          return !state.isAtCapacity && state.newLimit < state.maxLimit;
+          return !state.isAtCapacity && !isAtMinSoc(state) && state.newLimit < state.maxLimit;
         })
         .forEach((device) => {
           getDeviceState(device).newLimit += unmetDemand / availableDeviceCount;

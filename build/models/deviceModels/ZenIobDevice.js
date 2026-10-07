@@ -1433,14 +1433,18 @@ class ZenIobDevice {
    * @param minVoltage lowest single-cell voltage (V) across all battery packs of this device
    * @param soc device state of charge (%)
    * @param maxLimit the device's currently configured inverseMaxPower (W), used as the upper bound
+   * @param minSoc the device's configured discharge limit (%); at or below it the suggestion is 0W
    */
-  getSuggestedInverseMaxPower(minVoltage, soc, maxLimit) {
+  getSuggestedInverseMaxPower(minVoltage, soc, maxLimit, minSoc) {
     const HIGH_VOLTAGE = 3.23;
     const MID_VOLTAGE = 3.2;
     const LOW_VOLTAGE = 3.1;
     let newLimit = 0;
     let reason = "";
-    if (soc > 35) {
+    if (minSoc != null && soc <= minSoc) {
+      newLimit = 0;
+      reason = `SOC (${soc}%) reached minSoc (${minSoc}%) - no output`;
+    } else if (soc > 35) {
       newLimit = maxLimit;
       reason = `SOC (${soc}%) > 35% - full power`;
     } else if (minVoltage > HIGH_VOLTAGE && soc > 15) {
@@ -1489,10 +1493,12 @@ class ZenIobDevice {
     if ((inverseMaxPowerState == null ? void 0 : inverseMaxPowerState.val) == null) {
       return;
     }
+    const minSocState = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.minSoc`);
     const { limit, reason } = this.getSuggestedInverseMaxPower(
       minVoltage,
       Number(electricLevelState.val),
-      Number(inverseMaxPowerState.val)
+      Number(inverseMaxPowerState.val),
+      (minSocState == null ? void 0 : minSocState.val) != null ? Number(minSocState.val) : void 0
     );
     await ((_a = this.adapter) == null ? void 0 : _a.setState(
       `${this.productKey}.${this.deviceKey}.adapterAutomation.suggestedInverseMaxPower`,

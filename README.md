@@ -152,32 +152,13 @@ For more details and for information on how to disable error reporting, see the 
 
 ### **WORK IN PROGRESS**
 
-- zenSDK devices: smartMode is no longer turned off in standby (automation limit 0), Note: Currently it'S uncertain whether a permanently enabled smartMode increases the device's standby consumption.
-
-### 6.0.0-alpha.7 (2026-10-06)
-
+- Add adapter automation (zero feed-in control), see section "Adapter Automation" above.
+- Add connection mode "zenSDK only (mDNS)": no Zendure cloud and no MQTT server, devices are found via mDNS and controlled via zenSDK. Discovery with mDNS now runs as long as the adapter is running. New devices are added automatically.
 - (Schattenwelt) Add setting "zenSDK devices by IP address": zenSDK devices can be configured by IP address, so they also work if mDNS doesn't reach them (e.g. devices in another network segment / VLAN). Known devices are matched by serial number and keep their states, unknown devices are created with their serial number as key.
-- Zero-feed in: charging devices are now accounted with their measured AC input power (gridInputPower) instead of their commanded charge limit once settled. Fixes grid import when a nearly full battery charges with much less power than requested (e.g. 80 W instead of 600 W).
+- zenSDK devices: smartMode is no longer turned off in standby (automation limit 0), Note: Currently it's uncertain whether a permanently enabled smartMode increases the device's standby consumption. Thanks to surfer1264 and cliffsolar for input and discussion.
 - Output limit can now be set on devices without an autoModel state (previously rejected because autoModel was not '0').
-
-### 6.0.0-alpha.6 (2026-10-06)
-
-- Better tracking if device command is accepted
-- Wait for wake up of specific device - don't set the whole script to sleep
-
-### 6.0.0-alpha.5 (2026-10-04)
-
-- zenSDK devices: in standby (automation limit 0), smartMode is now only turned off after at least 10 minutes and only when solar input is below 50 W and the battery level is below 98%. This is checked every minute, so the internal inverter stays on and the device reacts faster when the limit changes again.
-- zenSDK devices: smartMode is now enabled before acMode when switching to charging/discharging, so these writes go to RAM instead of flash.
-
-### 6.0.0-alpha.4 (2026-10-01)
-
-- Zero-feed in: non-lead devices no longer get pulled out of idle into 30/10 W standby for a tiny share, and fully charged devices without solar input are released from standby to 0 W.
-- Zero-feed in: devices are no longer added as extra feed-in device just because they have more than 100 W solar input.
-
-### 6.0.0-alpha.3 (2026-10-01)
-
-- Remove 0-5h reduction of suggested inverseMaxPower as this was related to Octopus Energy in personal setup.
+- Disconnect MQTT clients cleanly when the adapter is stopped or restarted.
+- Added Sentry (default ioBroker plugin) for error reporting and device statistics.
 
 For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 

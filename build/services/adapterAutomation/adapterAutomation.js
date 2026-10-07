@@ -410,11 +410,12 @@ const checkAutomationCurrentLimit = async (adapter) => {
     }
   }
 };
+const isAtMinSoc = (state) => state.soc <= state.minSoc;
 const setDeviceShares = (devices) => {
   const weightedSum = devices.reduce((sum, device) => sum + Math.pow(getDeviceState(device).soc, EXPONENT), 0);
   devices.forEach((device) => {
     const state = getDeviceState(device);
-    state.share = state.maxLimit > 0 && state.soc >= state.minSoc && weightedSum > 0 ? roundShare(Math.pow(state.soc, EXPONENT) / weightedSum) : 0;
+    state.share = state.maxLimit > 0 && !isAtMinSoc(state) && weightedSum > 0 ? roundShare(Math.pow(state.soc, EXPONENT) / weightedSum) : 0;
   });
 };
 const getChargeShares = (devices) => {
@@ -699,7 +700,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
         baseLimit = 0;
       }
       if (state.maxLimit <= 0 || !state.share) {
-        state.newLimit = baseLimit;
+        state.newLimit = isAtMinSoc(state) ? Math.min(baseLimit, 0) : baseLimit;
         return;
       }
       const solar = state.solarInputPower;
@@ -728,7 +729,9 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
         }
       });
       if (totalExtraPower > 0) {
-        const reducibleDevices = adjustableInputDevices.filter((device) => device.isAcOnly);
+        const reducibleDevices = adjustableInputDevices.filter(
+          (device) => device.isAcOnly && getDeviceState(device).share > 0
+        );
         const totalReducibleShare = reducibleDevices.reduce((sum, device) => sum + getDeviceState(device).share, 0);
         if (totalReducibleShare > 0) {
           reducibleDevices.forEach((device) => {
@@ -740,11 +743,14 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
         }
       }
     }
-    const availableDeviceCount = adjustableInputDevices.filter((device) => !getDeviceState(device).isAtCapacity).length;
+    const availableDeviceCount = adjustableInputDevices.filter((device) => {
+      const state = getDeviceState(device);
+      return !state.isAtCapacity && !isAtMinSoc(state);
+    }).length;
     if (availableDeviceCount > 0 && unmetDemand > 0) {
       adjustableInputDevices.filter((device) => {
         const state = getDeviceState(device);
-        return !state.isAtCapacity && state.newLimit < state.maxLimit;
+        return !state.isAtCapacity && !isAtMinSoc(state) && state.newLimit < state.maxLimit;
       }).forEach((device) => {
         getDeviceState(device).newLimit += unmetDemand / availableDeviceCount;
       });
