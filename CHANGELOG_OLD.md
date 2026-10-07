@@ -1,30 +1,4 @@
 # Older changes
-
-## 5.3.2 (2026-09-28)
-
-- Fix to ignore MQTT messages from unknown devices
-
-## 5.3.1 (2026-09-21)
-
-- Fixed an issue to ignore empty properties
-
-## 5.3.0 (2026-09-02)
-
-- Add folder "settings" for zenSDK devices. Here you can turn device polling on/off and control the polling interval for individual devices.
-- Round hyperTmp to nearest int.
-- Adjust checkVoltage function to take account of the 24V architecture of the new Mix series.
-- Start mDNS discovery start after fetching deviceList from Zendure cloud.
-- Fix lower case bug in comparing product keys for new mDNS device creation
-
-## 5.2.1 (2026-08-30)
-
-- BREAKING: `setDeviceAutomationInOutLimit` on Hyper 2000 uses simulated HEMS now and requires `hemsState = 1` and `autoModel = 0` to control the device (automatically set by the adapter). Please check your control parameters (e.g. inverseMaxPower) after updating if you use setDeviceAutomationInOutLimit.
-- Add support for Solarflow 3000/4000 Mix AC+ and 4000 Mix Pro via mDNS auto-discovery
-- Add support for Smart Meter 3CT and Smart Meter D0 (read-only zenSDK accessories, with proper power state names/units and no control or packData states)
-- Correct a device's IP via mDNS if it no longer matches the (stale or wrong) IP from the cloud device list
-- Process zenSDK measurements reported directly on the response instead of nested under "properties" (affects Smart Meter 3CT/D0)
-- Enable "mDNS discovery" by default, including for existing instances that never had this setting saved - you must disable this option in settings if not desired
-
 ## 5.1.0 (2026-08-20)
 
 - Fix batCur Reading
