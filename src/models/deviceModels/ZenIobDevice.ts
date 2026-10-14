@@ -1488,34 +1488,10 @@ export class ZenIobDevice {
     if (this.adapter && this.productKey && this.deviceKey) {
       packData.forEach(async (x) => {
         if (x.sn && this.adapter) {
-          let batType = "";
-          if (this.productKey.toLowerCase() == "ywf7hv") {
-            batType = "AIO2400";
-          } else if (x.sn.startsWith("A")) {
-            batType = "AB1000";
-          } else if (x.sn.startsWith("B")) {
-            batType = "AB1000S";
-          } else if (x.sn.startsWith("C")) {
-            if (x.sn[1] === "O" && x.sn[2] === "4") {
-              batType = "I1920";
-            }
-            if (x.sn[3] == "F") {
-              batType = "AB2000S";
-            } else if (x.sn[3] == "E") {
-              batType = "AB2000X";
-            } else {
-              batType = "AB2000";
-            }
-          } else if (x.sn.startsWith("F")) {
-            batType = "AB3000X";
-          } else if (x.sn.startsWith("G")) {
-            batType = "AB3000L";
-          } else if (x.sn.startsWith("J")) {
-            batType = "I2400";
-          }
+          const { type: batType, capacityWh } = this.getBatteryInfo(x.sn, x.packType);
 
           if (!this.batteries.some((y) => y.packSn == x.sn)) {
-            this.batteries.push({ packSn: x.sn, type: batType });
+            this.batteries.push({ packSn: x.sn, type: batType, capacityWh });
             this.adapter.log.debug(
               `[addOrUpdatePackData] Added battery ${batType} with SN ${x.sn} on deviceKey ${this.deviceKey} to batteries array!`,
             );
@@ -1941,6 +1917,55 @@ export class ZenIobDevice {
     });
   }
 
+  /**
+   * Battery type and nominal capacity (Wh) by the pack's serial number, same detection as Zendure-HA
+   * (custom_components/zendure_ha/device.py, ZendureBattery.get_battery_type). Unknown types return an empty
+   * type and no capacity.
+   *
+   * @param sn the pack's serial number
+   * @param packType the pack type code, if reported by the device
+   */
+  private getBatteryInfo(sn: string, packType?: number): { type: string; capacityWh?: number } {
+    if (this.productKey.toLowerCase() == "ywf7hv") {
+      return { type: "AIO2400", capacityWh: 2400 };
+    }
+    switch (sn[0]) {
+      case "A":
+        return sn[3] == "3" ? { type: "AIO2400", capacityWh: 2400 } : { type: "AB1000", capacityWh: 960 };
+      case "B":
+        return packType == 70 ? { type: "I8000", capacityWh: 8000 } : { type: "AB1000S", capacityWh: 960 };
+      case "C":
+        return { type: sn[3] == "F" ? "AB2000S" : sn[3] == "E" ? "AB2000X" : "AB2000", capacityWh: 1920 };
+      case "F":
+        return { type: "AB3000X", capacityWh: 2880 };
+      case "G":
+        return { type: "AB3000L", capacityWh: 2880 };
+      case "J":
+        return { type: "I2400", capacityWh: 2400 };
+      default:
+        return { type: "" };
+    }
+  }
+
+  /**
+   * Nominal capacity (Wh) of all attached batteries; undefined while no battery is known yet, or if the type of
+   * any attached battery is unknown.
+   */
+  public get nominalCapacityWh(): number | undefined {
+    if (this.batteries.length === 0 || this.batteries.some((battery) => battery.capacityWh == null)) {
+      return undefined;
+    }
+    return this.batteries.reduce((sum, battery) => sum + (battery.capacityWh ?? 0), 0);
+  }
+
+  /**
+   * Maximum power (W) the batteries can be charged with in total (AC and solar input combined), depending on the
+   * attached batteries; undefined if not known for this device class (then only chargeMaxLimit applies).
+   */
+  public getMaxBatteryChargePower(): number | undefined {
+    return undefined;
+  }
+
   public calculateSocAndEnergy = async (stateKey: string, value: number): Promise<void> => {
     this.adapter.log.debug(
       `[calculateSocAndEnergy] Calculating for: ${this.productKey}.${this.deviceKey} and stateKey ${stateKey}!`,
@@ -1984,18 +2009,11 @@ export class ZenIobDevice {
       // The device is an AIO 2400, so set maximum Wh to 2400!
       energyWhMax = 2400;
     } else {
-      // Iterate over all batteries!
+      // Iterate over all batteries (unknown types are skipped)!
       for (let i = 0; i < this.batteries.length; i++) {
-        if (this.batteries[i].type.includes("AB1000")) {
-          energyWhMax = (energyWhMax ? energyWhMax : 0) + 960;
-        } else if (this.batteries[i].type.includes("AB2000")) {
-          energyWhMax = (energyWhMax ? energyWhMax : 0) + 1920;
-        } else if (this.batteries[i].type.includes("AB3000")) {
-          energyWhMax = (energyWhMax ? energyWhMax : 0) + 2880;
-        } else if (this.batteries[i].type.includes("I2400")) {
-          energyWhMax = (energyWhMax ? energyWhMax : 0) + 2400;
-        } else if (this.batteries[i].type.includes("I1920")) {
-          energyWhMax = (energyWhMax ? energyWhMax : 0) + 1920;
+        const packCapacity = this.batteries[i].capacityWh;
+        if (packCapacity !== undefined) {
+          energyWhMax = (energyWhMax ? energyWhMax : 0) + packCapacity;
         }
       }
     }

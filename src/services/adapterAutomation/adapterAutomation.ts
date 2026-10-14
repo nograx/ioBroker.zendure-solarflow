@@ -68,11 +68,25 @@ const SHORT_TERM_GRID_ALPHA = 0.3;
 // back and forth (e.g. a washing machine) never deviates the same way twice in a row, so it stays smoothed.
 const HOME_USAGE_STEP_W = 300;
 
-// Much slower moving average of the grid meter value, only used to decide whether to start (or stop) surplus
-// charging - a single brief excursion of the fast average must not start a new charge, otherwise the device
-// keeps flickering between charging and not charging. Ongoing adjustment of an active charge still uses the
-// fast average.
-const CHARGE_START_GRID_ALPHA = 0.05;
+// A grid surplus (fast grid average at least 'adapterAutomation.surplusChargeTrigger' W below setPoint) only
+// counts as confirmed once it has lasted this long without interruption - a brief excursion must not start a
+// new charge, otherwise the device keeps flickering between charging and not charging. Time based, so it's
+// independent of how often the grid meter updates and of the size of the surplus.
+const SURPLUS_CONFIRM_MS = 30 * 1000;
+
+// After a charge limit change, the charge budget is held for at least this long - and up to CHARGE_SETTLE_MS
+// while the device's reported charge power ('gridInputPower') is still more than CHARGE_SETTLED_TOLERANCE_W
+// (or 10%) away from its limit - so the device has time to ramp up and report its new charge power. Until
+// then the grid value and the reported charge power don't match (the meter usually sees the new power first),
+// and the budget would be miscalculated. Only a clear grid import (see CHARGE_HOLD_IMPORT_W) cuts it earlier.
+const CHARGE_HOLD_MS = 10 * 1000;
+const CHARGE_SETTLED_TOLERANCE_W = 50;
+// Grid import (W) beyond setPoint - not explained by a device still drawing more than its new, lower limit -
+// that reduces the charge budget right away, even while it's held (e.g. a cloud ends the surplus).
+const CHARGE_HOLD_IMPORT_W = 300;
+
+// The charge integral only builds up while the error is at most this large (W), see FEED_IN_INTEGRAL_BAND_W.
+const CHARGE_INTEGRAL_BAND_W = 100;
 
 // Charge limits with a magnitude between 1W and this value can't be driven cleanly by the device (charge
 // current too low) - rounded down to 0 instead of sending an ineffective tiny limit.
@@ -136,16 +150,16 @@ const PI_CONTROLLER: IPidConfig = {
   INTEGRAL_MAX: 5000,
 };
 
-// Charge controller for the AC-only surplus charge budget. KP is deliberately low: per cycle only a quarter
-// of the error is applied on top of the current charge power, so the controller doesn't build up a
-// self-reinforcing feedback loop with its own, quickly changeable charge power. KD is a bit larger than for
-// feed-in, since the error is based on the already smoothed short-term grid average.
+// Charge controller for the surplus charge budget. Only a correction on top of the feed-forward (the smoothed
+// grid value without the devices' own charge power, see runZeroFeedInAutomation), which already covers the
+// whole surplus - a P term would count each change twice and overshoot, so only the integral (up to +-50W)
+// removes a lasting offset, e.g. a device drawing slightly more or less than reported.
 const CHARGE_PI: IPidConfig = {
-  KP: 0.25,
+  KP: 0,
   KI: 0.02,
-  KD: 0.1,
-  INTEGRAL_MIN: -400,
-  INTEGRAL_MAX: 400,
+  KD: 0,
+  INTEGRAL_MIN: -2500,
+  INTEGRAL_MAX: 2500,
 };
 
 // Caps how much wall-clock time a single PID calculate() call can inject into the integral term, so a
@@ -229,9 +243,19 @@ const deviceStates = new Map<string, IAutomationDeviceState>();
 
 let inDeadBand = false;
 let lastGridMeterValue: number | undefined;
-// Fast / slow moving averages of the grid meter value, see SHORT_TERM_GRID_ALPHA and CHARGE_START_GRID_ALPHA.
+// Fast moving average of the grid meter value, see SHORT_TERM_GRID_ALPHA.
 let shortTermGridAvgW: number | undefined;
-let chargeStartGridAvgW: number | undefined;
+// Since when the fast grid average has been showing a surplus without interruption (see SURPLUS_CONFIRM_MS);
+// undefined = no surplus right now. isSurplusConfirmed is the result of the last cycle.
+let surplusSinceMs: number | undefined;
+let isSurplusConfirmed = false;
+// Fast moving average (SHORT_TERM_GRID_ALPHA) of the grid value without the surplus charging devices' own
+// charge power - the feed-forward base for the charge budget, like shortTermHomeUsageW for feed-in. While the
+// devices ramp up, the grid value and their measured charge power change together, so this stays steady and
+// doesn't lag behind the ramp like a plain grid average would.
+let shortTermGridWithoutChargeW: number | undefined;
+// Direction (-1/1) of a deviation beyond HOME_USAGE_STEP_W of the value above, see pendingHomeUsageStepSign.
+let pendingGridWithoutChargeStepSign = 0;
 // Fast moving average (SHORT_TERM_GRID_ALPHA) of the home usage (grid + own feed-in - own charge power), the
 // feed-forward base for feed-in control. Smoothing the home usage rather than the grid value matters: a new
 // limit shifts the grid value by the same amount at once, which a lagging grid average would only partly
@@ -408,6 +432,10 @@ export const resetAdapterAutomationController = (adapter: ZendureSolarflow): voi
   // Not updated while automation is off, so it may be long stale - re-seed from the next measurement.
   shortTermHomeUsageW = undefined;
   pendingHomeUsageStepSign = 0;
+  shortTermGridWithoutChargeW = undefined;
+  pendingGridWithoutChargeStepSign = 0;
+  surplusSinceMs = undefined;
+  isSurplusConfirmed = false;
   adapter.log.debug(`${LOG} PID controllers reset`);
 };
 
@@ -427,7 +455,7 @@ const trackLimitTransition = (
 };
 
 /**
- * Releases a device that has been sitting unchanged at the given keep-alive limit for MIN_STANDBY_TIME_MS
+ * Releases a device that has been sitting unchanged at the given keep-alive limit for minStandbyMs
  * back to a real 0W, directly (not via the regular delayed pipeline, since this check runs independently
  * of the rest of the cycle). Devices at >= 99% SOC with solar input are kept at their keep-alive limit, so
  * they don't curtail their own solar; without solar input there's nothing to export, so they're released too.
@@ -436,15 +464,17 @@ const trackLimitTransition = (
  * @param state the device's automation state
  * @param keepAliveLimit the keep-alive limit to check for
  * @param now current timestamp
+ * @param minStandbyMs how long the device has to sit at the keep-alive limit (normally MIN_STANDBY_TIME_MS)
  */
 const releaseStaleKeepAlive = (
   device: ZenIobDevice,
   state: IAutomationDeviceState,
   keepAliveLimit: number,
   now: number,
+  minStandbyMs: number,
 ): void => {
   if (
-    state.lastChangeMs < MIN_STANDBY_TIME_MS ||
+    state.lastChangeMs < minStandbyMs ||
     state.currentLimit !== keepAliveLimit ||
     (state.soc >= 99 && state.solarInputPower > 0)
   ) {
@@ -453,7 +483,7 @@ const releaseStaleKeepAlive = (
 
   trackLimitTransition(state, state.currentLimit, 0, now);
   if (keepAliveLimit > 0) {
-    // It has been sitting at its feed-in standby (practically idle) for MIN_STANDBY_TIME_MS already - that
+    // It has been sitting at its feed-in standby (practically idle) for minStandbyMs already - that
     // counts as the idle time before a new charge, so it may start charging right away instead of waiting
     // another minIdleBeforeCharge (see the charge gate in runZeroFeedInAutomation).
     state.dischargingStoppedMs = undefined;
@@ -650,10 +680,11 @@ export const stopDeviceAutomation = async (adapter: ZendureSolarflow, device: Ze
 
 /**
  * Sorts the automation devices by a weighted score (mostly SOC, a little solar input), so the fullest /
- * most productive device is preferred as the lead device. AC-only devices (no solar input of their own)
- * need a score lead of 'adapterAutomation.acOnlyPenalty' percent (default 50%) once the other devices
- * average above 35% SOC, so they aren't preferred just because they happened to be charged fully from
- * the grid.
+ * most productive device is preferred as the lead device. AC-only devices (no solar input of their own) and
+ * devices with 'adapterAutomation.acChargingAllowed' (charge from surplus like AC-only devices, often without
+ * solar panels) need a score lead of 'adapterAutomation.acOnlyPenalty' percent (default 50%) once the other
+ * devices average above 35% SOC, so they aren't preferred just because they happened to be charged fully from
+ * the grid, and stay free to absorb surplus instead.
  *
  * The current lead device keeps that position unless a challenger beats its score by more than
  * LEAD_HYSTERESIS_MARGIN, so the lead doesn't swap on every re-sort over a marginal SOC difference.
@@ -675,16 +706,24 @@ export const sortAutomationDevices = async (adapter: ZendureSolarflow): Promise<
     return state.solarInputPower * 0.1 + state.soc * 0.6;
   };
 
-  const nonAcOnly = devices.filter((device) => !device.isAcOnly);
-  const avgSocNonAcOnly =
-    nonAcOnly.length > 0
-      ? nonAcOnly.reduce((sum, device) => sum + getDeviceState(device).soc, 0) / nonAcOnly.length
+  // Refreshed here too, since the sort may run before the first control cycle (e.g. at adapter start).
+  for (const device of devices) {
+    getDeviceState(device).acChargingAllowed = await isAcChargingAllowed(adapter, device);
+  }
+
+  // Same devices as canSurplusCharge: AC-only, or allowed to charge from surplus.
+  const isPenalized = (device: ZenIobDevice): boolean => canSurplusCharge(device);
+
+  const nonPenalized = devices.filter((device) => !isPenalized(device));
+  const avgSocNonPenalized =
+    nonPenalized.length > 0
+      ? nonPenalized.reduce((sum, device) => sum + getDeviceState(device).soc, 0) / nonPenalized.length
       : 0;
-  const applyAcOnlyPenalty = avgSocNonAcOnly > 35;
+  const applyAcOnlyPenalty = avgSocNonPenalized > 35;
 
   const getEffectiveScore = (device: ZenIobDevice): number => {
     const score = getScore(device);
-    return applyAcOnlyPenalty && device.isAcOnly ? score / acOnlyPenaltyFactor : score;
+    return applyAcOnlyPenalty && isPenalized(device) ? score / acOnlyPenaltyFactor : score;
   };
 
   const sorted = [...devices].sort((a, b) => getEffectiveScore(b) - getEffectiveScore(a));
@@ -823,19 +862,87 @@ const setDeviceShares = (devices: ZenIobDevice[]): void => {
 };
 
 /**
- * Distributes a charge budget across the given devices proportional to (100 - soc)^EXPONENT - the inverse of
- * setDeviceShares: the device with the LOWEST SOC gets the biggest share, so it catches up faster.
+ * Highest AC charge power (W) the device can take right now: its chargeMaxLimit, and - if its device class knows
+ * the batteries' total charge limit (AC + solar combined, see getMaxBatteryChargePower) - that limit minus its own
+ * solar input.
+ *
+ * @param device the device
+ */
+const getAcChargeCap = (device: ZenIobDevice): number => {
+  const state = getDeviceState(device);
+  const batteryLimit = device.getMaxBatteryChargePower();
+  const cap =
+    batteryLimit != null
+      ? Math.min(state.chargeMaxLimit, batteryLimit - Math.max(state.solarInputPower, 0))
+      : state.chargeMaxLimit;
+  return Math.max(cap, 0);
+};
+
+/**
+ * Splits an AC charge budget across the given devices so that each device's TOTAL charge power (AC plus its own
+ * solar input) is proportional to (100 - soc)^EXPONENT - the inverse of setDeviceShares: the device with the
+ * LOWEST SOC gets the biggest part, so it catches up faster. If the nominal battery capacity of all devices is
+ * known, the weight is also multiplied by it, so devices with more capacity get proportionally more power.
+ *
+ * Example (all at 50% SOC and the same capacity, 1000W AC budget, two devices with 400W solar input each, one
+ * without): total 1800W, 600W each -> 200W / 200W / 600W AC.
+ *
+ * A device whose solar input already covers its part gets no AC, and a device can't take more than its AC cap
+ * (see getAcChargeCap); in both cases the rest is split again across the remaining devices, so the whole
+ * budget is handed out as long as any device can still take it.
  *
  * @param devices devices sharing the charge budget
- * @returns share (0..1) per device id
+ * @param acBudget the AC charge budget (W) of the whole group
+ * @returns AC charge power (W, >= 0) per device id
  */
-const getChargeShares = (devices: ZenIobDevice[]): Map<string, number> => {
-  const weight = (device: ZenIobDevice): number => Math.pow(100 - getDeviceState(device).soc, EXPONENT);
-  const weightedSum = devices.reduce((sum, device) => sum + weight(device), 0);
+const getChargeBudgets = (devices: ZenIobDevice[], acBudget: number): Map<string, number> => {
+  const budgets = new Map<string, number>(devices.map((device) => [deviceId(device), 0]));
+  const capacities = devices.map((device) => device.nominalCapacityWh);
+  const useCapacity = capacities.every((capacity) => capacity != null && capacity > 0);
 
-  return new Map(
-    devices.map((device) => [deviceId(device), weightedSum > 0 ? roundShare(weight(device) / weightedSum) : 0]),
-  );
+  const entries = devices.map((device, index) => {
+    const state = getDeviceState(device);
+    return {
+      id: deviceId(device),
+      solar: Math.max(state.solarInputPower, 0),
+      cap: getAcChargeCap(device),
+      weight: Math.pow(100 - state.soc, EXPONENT) * (useCapacity ? (capacities[index] as number) : 1),
+    };
+  });
+
+  let open = entries.filter((entry) => entry.cap > 0);
+  let remaining = Math.max(acBudget, 0);
+
+  // Each pass fixes at least one device (at 0W or at its cap), so this ends after at most devices.length passes.
+  while (open.length > 0 && remaining > 0) {
+    const totalWeight = open.reduce((sum, entry) => sum + entry.weight, 0);
+    const pie = remaining + open.reduce((sum, entry) => sum + entry.solar, 0);
+    const acOf = (entry: (typeof entries)[number]): number =>
+      pie * (totalWeight > 0 ? entry.weight / totalWeight : 1 / open.length) - entry.solar;
+
+    // Solar input already covers its part: no AC for this device, split the budget again without it.
+    const covered = open.filter((entry) => acOf(entry) <= 0);
+    if (covered.length > 0) {
+      open = open.filter((entry) => !covered.includes(entry));
+      continue;
+    }
+
+    // Can't take its full part: fix it at its cap, split the rest again across the others.
+    const capped = open.filter((entry) => acOf(entry) > entry.cap);
+    if (capped.length > 0) {
+      capped.forEach((entry) => {
+        budgets.set(entry.id, entry.cap);
+        remaining -= entry.cap;
+      });
+      open = open.filter((entry) => !capped.includes(entry));
+      continue;
+    }
+
+    open.forEach((entry) => budgets.set(entry.id, acOf(entry)));
+    break;
+  }
+
+  return budgets;
 };
 
 /**
@@ -854,7 +961,7 @@ const getChargeShares = (devices: ZenIobDevice[]): Map<string, number> => {
  * Forecast-based setpoint adjustments and the externally maintained rolling averages (solar/grid) from the
  * original script have no equivalent here (yet) and were dropped; the current instantaneous solar input is
  * used instead, and the grid meter value is smoothed by internal moving averages (see SHORT_TERM_GRID_ALPHA
- * and CHARGE_START_GRID_ALPHA).
+ * and SURPLUS_CONFIRM_MS).
  *
  * @param adapter the adapter instance
  * @param currentGridMeterValue current grid meter power in W (positive = import, negative = export)
@@ -891,6 +998,12 @@ export const runZeroFeedInAutomation = async (
     }
 
     const now = Date.now();
+
+    const minIdleBeforeChargeState = await adapter.getStateAsync("adapterAutomation.minIdleBeforeCharge");
+    const minIdleBeforeChargeMs =
+      typeof minIdleBeforeChargeState?.val === "number"
+        ? Math.max(minIdleBeforeChargeState.val * 1000, MIN_IDLE_BEFORE_CHARGE_MIN_MS)
+        : DEFAULT_MIN_IDLE_BEFORE_CHARGE_MS;
 
     // Refresh enabled status, solar input and current limit for every device; release stale keep-alive
     // limits of enabled devices to 0 (the lead device only from feed-in standby to 0 if it may charge from surplus).
@@ -932,10 +1045,18 @@ export const runZeroFeedInAutomation = async (
         // The lead device is normally kept at its feed-in standby - except devices that may charge from surplus
         // (AC-only, or 'adapterAutomation.acChargingAllowed'): they have to get down to 0W eventually,
         // otherwise they could never be released for surplus charging.
+        // While a surplus is confirmed (see SURPLUS_CONFIRM_MS, result of the last cycle), a device that may
+        // charge from it only has to wait minIdleBeforeCharge in its feed-in standby, not MIN_STANDBY_TIME_MS -
+        // it can't get any charge budget before it's released to 0W.
+        const isWaitingForSurplusCharge =
+          isSurplusConfirmed && canSurplusCharge(device) && !state.forceAcCharging && state.soc < 100;
+        const feedInStandbyMs = isWaitingForSurplusCharge
+          ? Math.min(minIdleBeforeChargeMs, MIN_STANDBY_TIME_MS)
+          : MIN_STANDBY_TIME_MS;
         if (index !== 0 || canSurplusCharge(device)) {
-          releaseStaleKeepAlive(device, state, getMinLimit(device), now);
+          releaseStaleKeepAlive(device, state, getMinLimit(device), now, feedInStandbyMs);
         }
-        releaseStaleKeepAlive(device, state, -getMinLimit(device), now);
+        releaseStaleKeepAlive(device, state, -getMinLimit(device), now, MIN_STANDBY_TIME_MS);
       }
     }
 
@@ -1000,19 +1121,22 @@ export const runZeroFeedInAutomation = async (
       shortTermGridAvgW == null
         ? currentGridMeterValue
         : shortTermGridAvgW + SHORT_TERM_GRID_ALPHA * (currentGridMeterValue - shortTermGridAvgW);
-    chargeStartGridAvgW =
-      chargeStartGridAvgW == null
-        ? currentGridMeterValue
-        : chargeStartGridAvgW + CHARGE_START_GRID_ALPHA * (currentGridMeterValue - chargeStartGridAvgW);
 
     // Sustained grid export beyond setPoint: clear surplus power that AC-only devices could charge with.
-    // Based on the slow average, so a new charge only starts on a confirmed surplus, not on a brief dip.
+    // Only confirmed once it lasted SURPLUS_CONFIRM_MS without interruption, so a brief dip doesn't start a charge.
     const surplusChargeTriggerState = await adapter.getStateAsync("adapterAutomation.surplusChargeTrigger");
     const surplusChargeTrigger =
       typeof surplusChargeTriggerState?.val === "number"
         ? Math.max(surplusChargeTriggerState.val, SURPLUS_SETPOINT_BUFFER_W)
         : DEFAULT_SURPLUS_CHARGE_TRIGGER_W;
-    const hasGridSurplus = chargeStartGridAvgW <= setPoint - surplusChargeTrigger;
+    if (shortTermGridAvgW <= setPoint - surplusChargeTrigger) {
+      surplusSinceMs ??= now;
+    } else {
+      surplusSinceMs = undefined;
+    }
+    const surplusDurationMs = surplusSinceMs != null ? now - surplusSinceMs : 0;
+    const hasGridSurplus = surplusSinceMs != null && surplusDurationMs >= SURPLUS_CONFIRM_MS;
+    isSurplusConfirmed = hasGridSurplus;
     const surplusSetPoint = setPoint - SURPLUS_SETPOINT_BUFFER_W;
 
     // Bei negativem Setpoint: obere Dead-Band-Grenze auf 0W begrenzen, damit der Regler nicht dauerhaft
@@ -1090,7 +1214,7 @@ export const runZeroFeedInAutomation = async (
     // Once its charge has wound down to the keep-alive and no surplus is left, it rejoins feed-in selection.
     // If it's the only enabled device, nothing else can cover the home while it charges - so it rejoins
     // immediately once there's real home demand (excluding its own charge power), taking precedence over the
-    // lagging slow surplus average.
+    // surplus confirmation.
     const isSoleEnabledDevice = enabledDevices.length === 1;
     const hasHomeDemand = currentHomeUsage > setPoint + SOLE_DEVICE_FEED_IN_RETURN_W;
 
@@ -1206,23 +1330,104 @@ export const runZeroFeedInAutomation = async (
         getDeviceState(device).currentLimit <= 0,
     );
 
-    // Charge power the surplus charging devices are currently drawing - base for the PID adjustment below. The
-    // actually drawn power (see CHARGE_SETTLE_MS), so a device that can't absorb its limit (nearly full) pulls the
-    // budget down to what it really takes, instead of the budget being wound down from the commanded limit.
-    const currentTotalChargePower = otherDevices
-      .filter(isSurplusChargeCandidate)
-      .reduce((sum, device) => sum + getEffectiveChargePower(getDeviceState(device)), 0);
+    const surplusChargeCandidates = otherDevices.filter(isSurplusChargeCandidate);
 
-    const chargeError = surplusSetPoint - shortTermGridAvgW;
+    // Charge power the surplus charging devices are currently drawing (see CHARGE_SETTLE_MS) - decides whether
+    // a charge is ongoing, so the budget is still calculated without a confirmed surplus.
+    const currentTotalChargePower = surplusChargeCandidates.reduce(
+      (sum, device) => sum + getEffectiveChargePower(getDeviceState(device)),
+      0,
+    );
+    // Commanded charge power of the surplus charging devices - the budget is held there while a device is still
+    // ramping up (see CHARGE_HOLD_MS).
+    const commandedChargePower = surplusChargeCandidates.reduce(
+      (sum, device) => sum + Math.max(0, -getDeviceState(device).currentLimit),
+      0,
+    );
+    // Charge power as reported by the devices right now ('gridInputPower'), the commanded limit for devices that
+    // don't report it - this is what the current grid value contains.
+    const getReportedChargePower = (state: IAutomationDeviceState): number =>
+      state.currentLimit < 0 ? (state.measuredChargePower ?? -state.currentLimit) : 0;
+    const measuredTotalChargePower = surplusChargeCandidates.reduce(
+      (sum, device) => sum + getReportedChargePower(getDeviceState(device)),
+      0,
+    );
 
-    // Total charge budget for the whole GROUP (not per device): PID-controlled based on the measured,
-    // smoothed surplus - or, if no surplus is confirmed yet and nothing is charging, a rough estimate from
-    // the solar input. hasGridSurplus deliberately uses a stricter threshold than surplusSetPoint, so a new
-    // charge only starts on a clear surplus, while an ongoing charge is smoothly regulated towards
-    // surplusSetPoint (winding down to 0 by itself over a few cycles) instead of jumping hard to 0.
+    // Whether a charging device may not draw (or report) its new limit yet, see CHARGE_HOLD_MS.
+    const isChargeHeld = surplusChargeCandidates.some((device) => {
+      const state = getDeviceState(device);
+      if (isLimitCommandPending(state)) {
+        return true;
+      }
+      if (state.currentLimit >= 0) {
+        return false;
+      }
+      if (state.lastChangeMs < CHARGE_HOLD_MS) {
+        return true;
+      }
+      const commanded = -state.currentLimit;
+      return (
+        state.lastChangeMs < CHARGE_SETTLE_MS &&
+        state.measuredChargePower != null &&
+        Math.abs(state.measuredChargePower - commanded) > Math.max(CHARGE_SETTLED_TOLERANCE_W, commanded * 0.1)
+      );
+    });
+
+    // Feed-forward: grid value without the devices' own charge power, smoothed like the home usage (incl. the
+    // load step detection, see HOME_USAGE_STEP_W). The charge power that brings the grid to surplusSetPoint
+    // follows directly from it, so the budget can jump close to its target instead of creeping up. Not updated
+    // while the budget is held, since the grid value and the reported charge power don't match then.
+    let isGridWithoutChargeStep = false;
+    if (!isChargeHeld || shortTermGridWithoutChargeW == null) {
+      const rawGridWithoutCharge = currentGridMeterValue - measuredTotalChargePower;
+      if (shortTermGridWithoutChargeW == null) {
+        shortTermGridWithoutChargeW = rawGridWithoutCharge;
+        pendingGridWithoutChargeStepSign = 0;
+      } else {
+        const deviation = rawGridWithoutCharge - shortTermGridWithoutChargeW;
+        const deviationSign = Math.abs(deviation) > HOME_USAGE_STEP_W ? Math.sign(deviation) : 0;
+        isGridWithoutChargeStep = deviationSign !== 0 && deviationSign === pendingGridWithoutChargeStepSign;
+
+        if (isGridWithoutChargeStep) {
+          shortTermGridWithoutChargeW = rawGridWithoutCharge;
+          pendingGridWithoutChargeStepSign = 0;
+        } else {
+          shortTermGridWithoutChargeW += SHORT_TERM_GRID_ALPHA * deviation;
+          pendingGridWithoutChargeStepSign = deviationSign;
+        }
+      }
+    }
+    const chargeFeedForward = surplusSetPoint - shortTermGridWithoutChargeW;
+
+    // Error of the grid value expected with the commanded charge power - at steady state (devices draw their
+    // limit) that's the actual grid error, which the integral removes.
+    const chargeError = surplusSetPoint - (shortTermGridWithoutChargeW + commandedChargePower);
+
+    // Grid import while held, minus the part caused by devices still drawing more than their new, lower limit.
+    const chargeLagW = surplusChargeCandidates.reduce((sum, device) => {
+      const state = getDeviceState(device);
+      return sum + Math.max(0, getReportedChargePower(state) - Math.max(0, -state.currentLimit));
+    }, 0);
+    const heldGridW = currentGridMeterValue - chargeLagW;
+
+    // Total charge budget for the whole GROUP (not per device): feed-forward plus integral correction.
+    // hasGridSurplus uses a stricter threshold than surplusSetPoint (see SURPLUS_CONFIRM_MS), so a new charge only
+    // starts on a clear surplus, while an ongoing charge is regulated towards surplusSetPoint.
     let chargeBudgetTotal = 0;
     if (hasGridSurplus || currentTotalChargePower > 0) {
-      chargeBudgetTotal = Math.max(0, currentTotalChargePower + chargePid.calculate(chargeError, now));
+      const chargePiCorrection = chargePid.calculate(
+        chargeError,
+        now,
+        !isChargeHeld && Math.abs(chargeError) <= CHARGE_INTEGRAL_BAND_W,
+      );
+
+      if (!isChargeHeld) {
+        chargeBudgetTotal = Math.max(0, chargeFeedForward + chargePiCorrection);
+      } else if (heldGridW > setPoint + CHARGE_HOLD_IMPORT_W) {
+        chargeBudgetTotal = Math.max(0, commandedChargePower - (heldGridW - surplusSetPoint));
+      } else {
+        chargeBudgetTotal = commandedChargePower;
+      }
     }
 
     // The LAST device in the device order is picked for charging first - stable, since the order only
@@ -1252,15 +1457,17 @@ export const runZeroFeedInAutomation = async (
     }
 
     const activeChargeDevices = orderedChargeEligible.slice(0, activeChargeDeviceCount);
-    const chargeShares = getChargeShares(activeChargeDevices);
+    const chargeBudgets = getChargeBudgets(activeChargeDevices, chargeBudgetTotal);
 
     if (chargeEligibleDevices.length > 0) {
       adapter.log.debug(
-        `${LOG} AC charge: chargeStartGridAvgW=${chargeStartGridAvgW.toFixed(1)} shortTermGridAvgW=${shortTermGridAvgW.toFixed(1)} ` +
-          `hasGridSurplus=${hasGridSurplus} currentTotalChargePower=${currentTotalChargePower} chargeError=${chargeError.toFixed(1)} ` +
+        `${LOG} AC charge: shortTermGridAvgW=${shortTermGridAvgW.toFixed(1)} surplusFor=${Math.round(surplusDurationMs / 1000)}s ` +
+          `hasGridSurplus=${hasGridSurplus} measuredChargePower=${measuredTotalChargePower} commandedChargePower=${commandedChargePower} ` +
+          `gridWithoutChargeAvg=${shortTermGridWithoutChargeW.toFixed(1)} step=${isGridWithoutChargeStep} held=${isChargeHeld} ` +
+          `feedForward=${chargeFeedForward.toFixed(1)} chargeError=${chargeError.toFixed(1)} ` +
           `chargeBudgetTotal=${chargeBudgetTotal.toFixed(1)} activeChargeDevices=${
             activeChargeDevices
-              .map((device) => `${deviceLabel(device)}:${chargeShares.get(deviceId(device))}`)
+              .map((device) => `${deviceLabel(device)}:${Math.round(chargeBudgets.get(deviceId(device)) ?? 0)}W`)
               .join(",") || "-"
           }`,
       );
@@ -1280,8 +1487,7 @@ export const runZeroFeedInAutomation = async (
         // Manual override: charge at the device's full chargeMaxLimit, ignoring solar surplus/SOC heuristics.
         state.newLimit = -state.chargeMaxLimit;
       } else if (canSurplusCharge(device) && state.soc < 100) {
-        const share = chargeShares.get(deviceId(device));
-        let perDeviceBudget = share != null ? Math.round(Math.min(chargeBudgetTotal * share, state.chargeMaxLimit)) : 0;
+        let perDeviceBudget = Math.round(chargeBudgets.get(deviceId(device)) ?? 0);
 
         // Also below the device's own minimum limit, which it can't be set to anyway.
         if (perDeviceBudget <= CHARGE_DEAD_ZONE_MAX_W || perDeviceBudget < getMinLimit(device)) {
@@ -1524,12 +1730,6 @@ export const runZeroFeedInAutomation = async (
       }
       return "idle";
     };
-
-    const minIdleBeforeChargeState = await adapter.getStateAsync("adapterAutomation.minIdleBeforeCharge");
-    const minIdleBeforeChargeMs =
-      typeof minIdleBeforeChargeState?.val === "number"
-        ? Math.max(minIdleBeforeChargeState.val * 1000, MIN_IDLE_BEFORE_CHARGE_MIN_MS)
-        : DEFAULT_MIN_IDLE_BEFORE_CHARGE_MS;
 
     for (const device of devices) {
       const id = deviceId(device);
