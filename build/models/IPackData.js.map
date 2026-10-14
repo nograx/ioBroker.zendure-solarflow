@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["../../src/models/IPackData.ts"],
-  "sourcesContent": ["export interface IPackData {\n  sn: string;\n  socLevel: number;\n  maxTemp: number;\n  minVol: number;\n  maxVol: number;\n  totalVol: number;\n  soh: number;\n  batcur: number;\n  power?: number;\n  //softVersion: number\n}\n"],
+  "sourcesContent": ["export interface IPackData {\n  sn: string;\n  socLevel: number;\n  maxTemp: number;\n  minVol: number;\n  maxVol: number;\n  totalVol: number;\n  soh: number;\n  batcur: number;\n  power?: number;\n  /** Pack type code, only reported by some devices (e.g. 70 = I8000). */\n  packType?: number;\n  //softVersion: number\n}\n"],
   "mappings": ";;;;;;;;;;;;;;AAAA;AAAA;",
   "names": []
 }

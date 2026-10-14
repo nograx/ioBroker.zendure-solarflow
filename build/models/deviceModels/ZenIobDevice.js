@@ -41,6 +41,7 @@ var import_axios = __toESM(require("axios"));
 var import_processDeviceProperties = require("../../helpers/processDeviceProperties");
 var import_allStates = require("../../constants/sensorStates/allStates");
 var import_node_schedule = require("node-schedule");
+var import_deviceStatus = require("../../services/adapterAutomation/deviceStatus");
 const zenSdkPollingSettingsStates = [
   {
     title: "zenSDKPollingEnabled",
@@ -204,7 +205,7 @@ class ZenIobDevice {
     }
   }
   async createSolarFlowStates() {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x;
     const productKey = this.productKey.replace(this.adapter.FORBIDDEN_CHARS, "");
     const deviceKey = this.deviceKey.replace(this.adapter.FORBIDDEN_CHARS, "");
     this.adapter.log.debug(
@@ -348,9 +349,10 @@ class ZenIobDevice {
               de: "Aktuelle Aufgabe des Ger\xE4ts",
               en: "Current task of the device"
             },
-            type: "string",
+            type: "number",
             desc: "status",
-            role: "text",
+            role: "value",
+            states: await (0, import_deviceStatus.getDeviceStatusStates)(this.adapter),
             read: true,
             write: false
           },
@@ -399,9 +401,32 @@ class ZenIobDevice {
         if ((currentForceAcCharging == null ? void 0 : currentForceAcCharging.val) == null) {
           await ((_p = this.adapter) == null ? void 0 : _p.setState(forceAcChargingStateId, false, true));
         }
+        if (!this.isAcOnly) {
+          const feedInSolarOnlyStateId = `${productKey}.${deviceKey}.adapterAutomation.feedInSolarOnly`;
+          await ((_q = this.adapter) == null ? void 0 : _q.extendObject(feedInSolarOnlyStateId, {
+            type: "state",
+            common: {
+              name: {
+                de: "Nur aktuelle Solarleistung einspeisen (Akku nicht entladen)",
+                en: "Feed in current solar input only (don't discharge battery)"
+              },
+              type: "boolean",
+              desc: "feedInSolarOnly",
+              role: "switch",
+              read: true,
+              write: true,
+              def: false
+            },
+            native: {}
+          }));
+          const currentFeedInSolarOnly = await ((_r = this.adapter) == null ? void 0 : _r.getStateAsync(feedInSolarOnlyStateId));
+          if ((currentFeedInSolarOnly == null ? void 0 : currentFeedInSolarOnly.val) == null) {
+            await ((_s = this.adapter) == null ? void 0 : _s.setState(feedInSolarOnlyStateId, false, true));
+          }
+        }
         if (this.canChargeByAc && !this.isAcOnly) {
           const acChargingAllowedStateId = `${productKey}.${deviceKey}.adapterAutomation.acChargingAllowed`;
-          await ((_q = this.adapter) == null ? void 0 : _q.extendObject(acChargingAllowedStateId, {
+          await ((_t = this.adapter) == null ? void 0 : _t.extendObject(acChargingAllowedStateId, {
             type: "state",
             common: {
               name: {
@@ -417,15 +442,15 @@ class ZenIobDevice {
             },
             native: {}
           }));
-          const currentAcChargingAllowed = await ((_r = this.adapter) == null ? void 0 : _r.getStateAsync(acChargingAllowedStateId));
+          const currentAcChargingAllowed = await ((_u = this.adapter) == null ? void 0 : _u.getStateAsync(acChargingAllowedStateId));
           if ((currentAcChargingAllowed == null ? void 0 : currentAcChargingAllowed.val) == null) {
-            await ((_s = this.adapter) == null ? void 0 : _s.setState(acChargingAllowedStateId, false, true));
+            await ((_v = this.adapter) == null ? void 0 : _v.setState(acChargingAllowedStateId, false, true));
           }
         }
       }
     }
     if (this.isZenSdkSupported) {
-      await ((_t = this.adapter) == null ? void 0 : _t.extendObject(`${productKey}.${deviceKey}.settings`, {
+      await ((_w = this.adapter) == null ? void 0 : _w.extendObject(`${productKey}.${deviceKey}.settings`, {
         type: "channel",
         common: {
           name: {
@@ -468,7 +493,7 @@ class ZenIobDevice {
       await this.syncZenSdkPollingSchedule();
     }
     if (this.adapter.config.useCalculation) {
-      await ((_u = this.adapter) == null ? void 0 : _u.extendObject(`${productKey}.${deviceKey}.calculations`, {
+      await ((_x = this.adapter) == null ? void 0 : _x.extendObject(`${productKey}.${deviceKey}.calculations`, {
         type: "channel",
         common: {
           name: {
@@ -1222,33 +1247,9 @@ class ZenIobDevice {
       packData.forEach(async (x) => {
         var _a, _b, _c;
         if (x.sn && this.adapter) {
-          let batType = "";
-          if (this.productKey.toLowerCase() == "ywf7hv") {
-            batType = "AIO2400";
-          } else if (x.sn.startsWith("A")) {
-            batType = "AB1000";
-          } else if (x.sn.startsWith("B")) {
-            batType = "AB1000S";
-          } else if (x.sn.startsWith("C")) {
-            if (x.sn[1] === "O" && x.sn[2] === "4") {
-              batType = "I1920";
-            }
-            if (x.sn[3] == "F") {
-              batType = "AB2000S";
-            } else if (x.sn[3] == "E") {
-              batType = "AB2000X";
-            } else {
-              batType = "AB2000";
-            }
-          } else if (x.sn.startsWith("F")) {
-            batType = "AB3000X";
-          } else if (x.sn.startsWith("G")) {
-            batType = "AB3000L";
-          } else if (x.sn.startsWith("J")) {
-            batType = "I2400";
-          }
+          const { type: batType, capacityWh } = this.getBatteryInfo(x.sn, x.packType);
           if (!this.batteries.some((y) => y.packSn == x.sn)) {
-            this.batteries.push({ packSn: x.sn, type: batType });
+            this.batteries.push({ packSn: x.sn, type: batType, capacityWh });
             this.adapter.log.debug(
               `[addOrUpdatePackData] Added battery ${batType} with SN ${x.sn} on deviceKey ${this.deviceKey} to batteries array!`
             );
@@ -1589,6 +1590,55 @@ class ZenIobDevice {
       }
     });
   }
+  /**
+   * Battery type and nominal capacity (Wh) by the pack's serial number, same detection as Zendure-HA
+   * (custom_components/zendure_ha/device.py, ZendureBattery.get_battery_type). Unknown types return an empty
+   * type and no capacity.
+   *
+   * @param sn the pack's serial number
+   * @param packType the pack type code, if reported by the device
+   */
+  getBatteryInfo(sn, packType) {
+    if (this.productKey.toLowerCase() == "ywf7hv") {
+      return { type: "AIO2400", capacityWh: 2400 };
+    }
+    switch (sn[0]) {
+      case "A":
+        return sn[3] == "3" ? { type: "AIO2400", capacityWh: 2400 } : { type: "AB1000", capacityWh: 960 };
+      case "B":
+        return packType == 70 ? { type: "I8000", capacityWh: 8e3 } : { type: "AB1000S", capacityWh: 960 };
+      case "C":
+        return { type: sn[3] == "F" ? "AB2000S" : sn[3] == "E" ? "AB2000X" : "AB2000", capacityWh: 1920 };
+      case "F":
+        return { type: "AB3000X", capacityWh: 2880 };
+      case "G":
+        return { type: "AB3000L", capacityWh: 2880 };
+      case "J":
+        return { type: "I2400", capacityWh: 2400 };
+      default:
+        return { type: "" };
+    }
+  }
+  /**
+   * Nominal capacity (Wh) of all attached batteries; undefined while no battery is known yet, or if the type of
+   * any attached battery is unknown.
+   */
+  get nominalCapacityWh() {
+    if (this.batteries.length === 0 || this.batteries.some((battery) => battery.capacityWh == null)) {
+      return void 0;
+    }
+    return this.batteries.reduce((sum, battery) => {
+      var _a;
+      return sum + ((_a = battery.capacityWh) != null ? _a : 0);
+    }, 0);
+  }
+  /**
+   * Maximum power (W) the batteries can be charged with in total (AC and solar input combined), depending on the
+   * attached batteries; undefined if not known for this device class (then only chargeMaxLimit applies).
+   */
+  getMaxBatteryChargePower() {
+    return void 0;
+  }
   calculateSocAndEnergy = async (stateKey, value) => {
     var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q;
     this.adapter.log.debug(
@@ -1621,16 +1671,9 @@ class ZenIobDevice {
       energyWhMax = 2400;
     } else {
       for (let i = 0; i < this.batteries.length; i++) {
-        if (this.batteries[i].type.includes("AB1000")) {
-          energyWhMax = (energyWhMax ? energyWhMax : 0) + 960;
-        } else if (this.batteries[i].type.includes("AB2000")) {
-          energyWhMax = (energyWhMax ? energyWhMax : 0) + 1920;
-        } else if (this.batteries[i].type.includes("AB3000")) {
-          energyWhMax = (energyWhMax ? energyWhMax : 0) + 2880;
-        } else if (this.batteries[i].type.includes("I2400")) {
-          energyWhMax = (energyWhMax ? energyWhMax : 0) + 2400;
-        } else if (this.batteries[i].type.includes("I1920")) {
-          energyWhMax = (energyWhMax ? energyWhMax : 0) + 1920;
+        const packCapacity = this.batteries[i].capacityWh;
+        if (packCapacity !== void 0) {
+          energyWhMax = (energyWhMax ? energyWhMax : 0) + packCapacity;
         }
       }
     }

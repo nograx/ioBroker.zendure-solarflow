@@ -170,8 +170,7 @@ For more details and for information on how to disable error reporting, see the 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
-
-### **WORK IN PROGRESS**
+### 6.1.0 (2026-10-14)
 
 - Adapter automation: New per-device state `feedInSolarOnly` to feed in only the current solar input; has to be switched by your own script, e.g. during a low-price window (Thanks to feedback from lesiflo)
 - Adapter automation: New state `minIdleBeforeCharge` (default 60 s, previously fixed 5 min) (Thanks to feedback from lesiflo)
@@ -209,15 +208,6 @@ For more details and for information on how to disable error reporting, see the 
 - Adjust checkVoltage function to take account of the 24V architecture of the new Mix series.
 - Start mDNS discovery start after fetching deviceList from Zendure cloud.
 - Fix lower case bug in comparing product keys for new mDNS device creation
-
-### 5.2.1 (2026-08-30)
-
-- BREAKING: `setDeviceAutomationInOutLimit` on Hyper 2000 uses simulated HEMS now and requires `hemsState = 1` and `autoModel = 0` to control the device (automatically set by the adapter). Please check your control parameters (e.g. inverseMaxPower) after updating if you use setDeviceAutomationInOutLimit.
-- Add support for Solarflow 3000/4000 Mix AC+ and 4000 Mix Pro via mDNS auto-discovery
-- Add support for Smart Meter 3CT and Smart Meter D0 (read-only zenSDK accessories, with proper power state names/units and no control or packData states)
-- Correct a device's IP via mDNS if it no longer matches the (stale or wrong) IP from the cloud device list
-- Process zenSDK measurements reported directly on the response instead of nested under "properties" (affects Smart Meter 3CT/D0)
-- Enable "mDNS discovery" by default, including for existing instances that never had this setting saved - you must disable this option in settings if not desired
 
 For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 

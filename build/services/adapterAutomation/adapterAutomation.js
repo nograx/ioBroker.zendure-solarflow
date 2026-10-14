@@ -28,6 +28,7 @@ __export(adapterAutomation_exports, {
   updateAutomationDeviceMetrics: () => updateAutomationDeviceMetrics
 });
 module.exports = __toCommonJS(adapterAutomation_exports);
+var import_deviceStatus = require("./deviceStatus");
 const LOG = "[adapterAutomation]";
 const EXPONENT = 1.8;
 const INVERTER_MIN_HOLD_MS = 5 * 60 * 1e3;
@@ -38,11 +39,18 @@ const RECENT_CHANGE_SKIP_MS = 2e3;
 const MIN_STANDBY_TIME_MS = 3 * 60 * 1e3;
 const ZEN_SDK_MIN_LIMIT_W = 30;
 const DEFAULT_MIN_LIMIT_W = 10;
-const MIN_IDLE_BEFORE_CHARGE_MS = 5 * 60 * 1e3;
+const DEFAULT_MIN_IDLE_BEFORE_CHARGE_MS = 60 * 1e3;
+const MIN_IDLE_BEFORE_CHARGE_MIN_MS = 5 * 1e3;
+const SOLAR_ONLY_WARNING_THRESHOLD_W = 50;
+const SOLAR_ONLY_WARNING_INTERVAL_MS = 5 * 60 * 1e3;
 const MAX_FEED_IN_STEP_W = 100;
 const SHORT_TERM_GRID_ALPHA = 0.3;
 const HOME_USAGE_STEP_W = 300;
-const CHARGE_START_GRID_ALPHA = 0.05;
+const SURPLUS_CONFIRM_MS = 30 * 1e3;
+const CHARGE_HOLD_MS = 10 * 1e3;
+const CHARGE_SETTLED_TOLERANCE_W = 50;
+const CHARGE_HOLD_IMPORT_W = 300;
+const CHARGE_INTEGRAL_BAND_W = 100;
 const CHARGE_DEAD_ZONE_MAX_W = 20;
 const CHARGE_MIN_PER_DEVICE_W = 100;
 const UTILIZATION_THRESHOLD = 0.7;
@@ -60,11 +68,11 @@ const PI_CONTROLLER = {
   INTEGRAL_MAX: 5e3
 };
 const CHARGE_PI = {
-  KP: 0.25,
+  KP: 0,
   KI: 0.02,
-  KD: 0.1,
-  INTEGRAL_MIN: -400,
-  INTEGRAL_MAX: 400
+  KD: 0,
+  INTEGRAL_MIN: -2500,
+  INTEGRAL_MAX: 2500
 };
 const MAX_PI_DT_SECONDS = 10;
 const FEED_IN_INTEGRAL_BAND_W = 100;
@@ -72,7 +80,10 @@ const deviceStates = /* @__PURE__ */ new Map();
 let inDeadBand = false;
 let lastGridMeterValue;
 let shortTermGridAvgW;
-let chargeStartGridAvgW;
+let surplusSinceMs;
+let isSurplusConfirmed = false;
+let shortTermGridWithoutChargeW;
+let pendingGridWithoutChargeStepSign = 0;
 let shortTermHomeUsageW;
 let pendingHomeUsageStepSign = 0;
 let stabilizedInverterCount = 0;
@@ -91,9 +102,12 @@ const getDeviceState = (device) => {
       enabled: false,
       forceAcCharging: false,
       acChargingAllowed: false,
+      feedInSolarOnly: false,
+      lastSolarOnlyWarningMs: 0,
       name: "",
       soc: 0,
       minSoc: 0,
+      configuredMaxLimit: 0,
       maxLimit: 0,
       chargeMaxLimit: 0,
       solarInputPower: 0,
@@ -165,6 +179,10 @@ const resetAdapterAutomationController = (adapter) => {
   chargePid.reset();
   shortTermHomeUsageW = void 0;
   pendingHomeUsageStepSign = 0;
+  shortTermGridWithoutChargeW = void 0;
+  pendingGridWithoutChargeStepSign = 0;
+  surplusSinceMs = void 0;
+  isSurplusConfirmed = false;
   adapter.log.debug(`${LOG} PID controllers reset`);
 };
 const trackLimitTransition = (state, previousLimit, nextLimit, now) => {
@@ -175,8 +193,8 @@ const trackLimitTransition = (state, previousLimit, nextLimit, now) => {
     state.dischargingStoppedMs = now;
   }
 };
-const releaseStaleKeepAlive = (device, state, keepAliveLimit, now) => {
-  if (state.lastChangeMs < MIN_STANDBY_TIME_MS || state.currentLimit !== keepAliveLimit || state.soc >= 99 && state.solarInputPower > 0) {
+const releaseStaleKeepAlive = (device, state, keepAliveLimit, now, minStandbyMs) => {
+  if (state.lastChangeMs < minStandbyMs || state.currentLimit !== keepAliveLimit || state.soc >= 99 && state.solarInputPower > 0) {
     return;
   }
   trackLimitTransition(state, state.currentLimit, 0, now);
@@ -188,53 +206,8 @@ const releaseStaleKeepAlive = (device, state, keepAliveLimit, now) => {
   void sendDeviceLimit(device, state, 0);
 };
 const chargeKeepAliveOrZero = (device, state) => state.currentLimit < 0 ? -getMinLimit(device) : 0;
-const DEVICE_TASK_TEXTS = {
-  en: {
-    tasks: {
-      feedIn: "Feeding in",
-      standby: "Standby",
-      surplusCharging: "Charging from surplus",
-      chargeKeepAlive: "Holding the charge keep-alive",
-      forceCharging: "Force charging",
-      chargeBlocked: "Waiting before charging may start",
-      waitingForSurplus: "Waiting for surplus charging",
-      full: "Fully charged, idle",
-      idle: "Idle",
-      disabled: "Automation disabled for this device"
-    },
-    leadSuffix: " (lead device)",
-    automationDisabled: "Automation disabled globally",
-    waitingForTrigger: "Waiting for a change of the automation trigger state"
-  },
-  de: {
-    tasks: {
-      feedIn: "Speist ein",
-      standby: "Standby",
-      surplusCharging: "L\xE4dt aus \xDCberschuss",
-      chargeKeepAlive: "H\xE4lt den Lade-Keep-Alive",
-      forceCharging: "L\xE4dt erzwungen",
-      chargeBlocked: "Wartet, bevor das Laden beginnen darf",
-      waitingForSurplus: "Wartet auf \xDCberschussladung",
-      full: "Voll geladen, inaktiv",
-      idle: "Inaktiv",
-      disabled: "Automatisierung f\xFCr dieses Ger\xE4t deaktiviert"
-    },
-    leadSuffix: " (f\xFChrendes Ger\xE4t)",
-    automationDisabled: "Automatisierung global deaktiviert",
-    waitingForTrigger: "Wartet auf eine \xC4nderung des Ausl\xF6ser-Datenpunkts"
-  }
-};
-let statusLanguage;
 let lastDeviceOrderText;
-const lastDeviceStatusTexts = /* @__PURE__ */ new Map();
-const getStatusLanguage = async (adapter) => {
-  var _a;
-  if (!statusLanguage) {
-    const systemConfig = await adapter.getForeignObjectAsync("system.config");
-    statusLanguage = ((_a = systemConfig == null ? void 0 : systemConfig.common) == null ? void 0 : _a.language) === "de" ? "de" : "en";
-  }
-  return statusLanguage;
-};
+const lastDeviceStatusCodes = /* @__PURE__ */ new Map();
 const publishDeviceOrder = async (adapter, devices) => {
   const text = devices.map((device) => `${deviceLabel(device)} (${device.deviceKey})`).join(" -> ");
   if (text !== lastDeviceOrderText) {
@@ -242,16 +215,15 @@ const publishDeviceOrder = async (adapter, devices) => {
     await adapter.setState("adapterAutomation.deviceOrder", text, true);
   }
 };
-const publishDeviceStatusText = async (adapter, device, text) => {
+const publishDeviceStatus = async (adapter, device, code) => {
   const id = deviceId(device);
-  if (text !== lastDeviceStatusTexts.get(id)) {
-    lastDeviceStatusTexts.set(id, text);
-    await adapter.setState(`${id}.adapterAutomation.status`, text, true);
+  if (code !== lastDeviceStatusCodes.get(id)) {
+    lastDeviceStatusCodes.set(id, code);
+    await adapter.setState(`${id}.adapterAutomation.status`, code, true);
   }
 };
 const publishDeviceTask = async (adapter, device, task, isLead) => {
-  const texts = DEVICE_TASK_TEXTS[await getStatusLanguage(adapter)];
-  await publishDeviceStatusText(adapter, device, `${texts.tasks[task]}${isLead ? texts.leadSuffix : ""}`);
+  await publishDeviceStatus(adapter, device, (0, import_deviceStatus.getDeviceTaskCode)(task, isLead));
 };
 const getAutomationDevices = (adapter) => adapter.zenIobDeviceList.filter((device) => device.hasPackData && device.controlStates.length > 0);
 const getOrderedAutomationDevices = (adapter) => {
@@ -280,20 +252,33 @@ const isAcChargingAllowed = async (adapter, device) => {
   const state = await adapter.getStateAsync(`${deviceId(device)}.adapterAutomation.acChargingAllowed`);
   return (state == null ? void 0 : state.val) === true;
 };
+const isFeedInSolarOnly = async (adapter, device) => {
+  if (device.isAcOnly) {
+    return false;
+  }
+  const state = await adapter.getStateAsync(`${deviceId(device)}.adapterAutomation.feedInSolarOnly`);
+  return (state == null ? void 0 : state.val) === true;
+};
+const applyMaxLimit = (device, state) => {
+  if (!state.feedInSolarOnly) {
+    state.maxLimit = state.configuredMaxLimit;
+    return;
+  }
+  const solarLimit = state.solarInputPower >= getMinLimit(device) ? Math.floor(state.solarInputPower) : 0;
+  state.maxLimit = Math.min(state.configuredMaxLimit, solarLimit);
+};
 const canSurplusCharge = (device) => device.isAcOnly || getDeviceState(device).acChargingAllowed;
 const refreshAutomationStatuses = async (adapter) => {
   var _a;
-  const texts = DEVICE_TASK_TEXTS[await getStatusLanguage(adapter)];
-  const nonTaskTexts = [texts.automationDisabled, texts.tasks.disabled, texts.waitingForTrigger];
   const automationEnabled = ((_a = await adapter.getStateAsync("adapterAutomation.automationEnabled")) == null ? void 0 : _a.val) === true;
   for (const device of getAutomationDevices(adapter)) {
-    const lastText = lastDeviceStatusTexts.get(deviceId(device));
+    const lastCode = lastDeviceStatusCodes.get(deviceId(device));
     if (!automationEnabled) {
-      await publishDeviceStatusText(adapter, device, texts.automationDisabled);
+      await publishDeviceStatus(adapter, device, import_deviceStatus.DEVICE_STATUS_AUTOMATION_DISABLED);
     } else if (!await isDeviceEnabled(adapter, device)) {
-      await publishDeviceStatusText(adapter, device, texts.tasks.disabled);
-    } else if (lastText === void 0 || nonTaskTexts.includes(lastText)) {
-      await publishDeviceStatusText(adapter, device, texts.waitingForTrigger);
+      await publishDeviceStatus(adapter, device, import_deviceStatus.DEVICE_STATUS_DEVICE_DISABLED);
+    } else if (lastCode === void 0 || lastCode === import_deviceStatus.DEVICE_STATUS_AUTOMATION_DISABLED || lastCode === import_deviceStatus.DEVICE_STATUS_DEVICE_DISABLED) {
+      await publishDeviceStatus(adapter, device, import_deviceStatus.DEVICE_STATUS_WAITING_FOR_TRIGGER);
     }
   }
 };
@@ -339,12 +324,16 @@ const sortAutomationDevices = async (adapter) => {
     const state = getDeviceState(device);
     return state.solarInputPower * 0.1 + state.soc * 0.6;
   };
-  const nonAcOnly = devices.filter((device) => !device.isAcOnly);
-  const avgSocNonAcOnly = nonAcOnly.length > 0 ? nonAcOnly.reduce((sum, device) => sum + getDeviceState(device).soc, 0) / nonAcOnly.length : 0;
-  const applyAcOnlyPenalty = avgSocNonAcOnly > 35;
+  for (const device of devices) {
+    getDeviceState(device).acChargingAllowed = await isAcChargingAllowed(adapter, device);
+  }
+  const isPenalized = (device) => canSurplusCharge(device);
+  const nonPenalized = devices.filter((device) => !isPenalized(device));
+  const avgSocNonPenalized = nonPenalized.length > 0 ? nonPenalized.reduce((sum, device) => sum + getDeviceState(device).soc, 0) / nonPenalized.length : 0;
+  const applyAcOnlyPenalty = avgSocNonPenalized > 35;
   const getEffectiveScore = (device) => {
     const score = getScore(device);
-    return applyAcOnlyPenalty && device.isAcOnly ? score / acOnlyPenaltyFactor : score;
+    return applyAcOnlyPenalty && isPenalized(device) ? score / acOnlyPenaltyFactor : score;
   };
   const sorted = [...devices].sort((a, b) => getEffectiveScore(b) - getEffectiveScore(a));
   const currentLead = devices.find((device) => deviceId(device) === deviceOrder[0]);
@@ -371,9 +360,11 @@ const updateAutomationDeviceMetrics = async (adapter) => {
     const state = getDeviceState(device);
     const maxLimitState = ignoreSuggested ? await adapter.getStateAsync(`${id}.inverseMaxPower`) : await adapter.getStateAsync(`${id}.adapterAutomation.suggestedInverseMaxPower`);
     const newMaxLimit = (maxLimitState == null ? void 0 : maxLimitState.val) != null ? Number(maxLimitState.val) : 0;
-    if (newMaxLimit != state.maxLimit) {
-      adapter.log.debug(`${LOG} maxLimit for '${device.deviceKey}' changed: ${state.maxLimit} -> ${newMaxLimit}`);
-      state.maxLimit = newMaxLimit;
+    if (newMaxLimit != state.configuredMaxLimit) {
+      adapter.log.debug(
+        `${LOG} maxLimit for '${device.deviceKey}' changed: ${state.configuredMaxLimit} -> ${newMaxLimit}`
+      );
+      state.configuredMaxLimit = newMaxLimit;
       if (newMaxLimit < 500) {
         needsResort = true;
       }
@@ -388,6 +379,8 @@ const updateAutomationDeviceMetrics = async (adapter) => {
     state.minSoc = (minSocState == null ? void 0 : minSocState.val) != null ? Number(minSocState.val) : 0;
     const chargeMaxLimitState = await adapter.getStateAsync(`${id}.chargeMaxLimit`);
     state.chargeMaxLimit = (chargeMaxLimitState == null ? void 0 : chargeMaxLimitState.val) != null ? Number(chargeMaxLimitState.val) : device.maxInputLimit;
+    state.feedInSolarOnly = await isFeedInSolarOnly(adapter, device);
+    applyMaxLimit(device, state);
   }
   if (needsResort) {
     adapter.log.debug(`${LOG} maxLimit changed significantly, re-sorting devices!`);
@@ -418,15 +411,52 @@ const setDeviceShares = (devices) => {
     state.share = state.maxLimit > 0 && !isAtMinSoc(state) && weightedSum > 0 ? roundShare(Math.pow(state.soc, EXPONENT) / weightedSum) : 0;
   });
 };
-const getChargeShares = (devices) => {
-  const weight = (device) => Math.pow(100 - getDeviceState(device).soc, EXPONENT);
-  const weightedSum = devices.reduce((sum, device) => sum + weight(device), 0);
-  return new Map(
-    devices.map((device) => [deviceId(device), weightedSum > 0 ? roundShare(weight(device) / weightedSum) : 0])
-  );
+const getAcChargeCap = (device) => {
+  const state = getDeviceState(device);
+  const batteryLimit = device.getMaxBatteryChargePower();
+  const cap = batteryLimit != null ? Math.min(state.chargeMaxLimit, batteryLimit - Math.max(state.solarInputPower, 0)) : state.chargeMaxLimit;
+  return Math.max(cap, 0);
+};
+const getChargeBudgets = (devices, acBudget) => {
+  const budgets = new Map(devices.map((device) => [deviceId(device), 0]));
+  const capacities = devices.map((device) => device.nominalCapacityWh);
+  const useCapacity = capacities.every((capacity) => capacity != null && capacity > 0);
+  const entries = devices.map((device, index) => {
+    const state = getDeviceState(device);
+    return {
+      id: deviceId(device),
+      solar: Math.max(state.solarInputPower, 0),
+      cap: getAcChargeCap(device),
+      weight: Math.pow(100 - state.soc, EXPONENT) * (useCapacity ? capacities[index] : 1)
+    };
+  });
+  let open = entries.filter((entry) => entry.cap > 0);
+  let remaining = Math.max(acBudget, 0);
+  while (open.length > 0 && remaining > 0) {
+    const totalWeight = open.reduce((sum, entry) => sum + entry.weight, 0);
+    const pie = remaining + open.reduce((sum, entry) => sum + entry.solar, 0);
+    const acOf = (entry) => pie * (totalWeight > 0 ? entry.weight / totalWeight : 1 / open.length) - entry.solar;
+    const covered = open.filter((entry) => acOf(entry) <= 0);
+    if (covered.length > 0) {
+      open = open.filter((entry) => !covered.includes(entry));
+      continue;
+    }
+    const capped = open.filter((entry) => acOf(entry) > entry.cap);
+    if (capped.length > 0) {
+      capped.forEach((entry) => {
+        budgets.set(entry.id, entry.cap);
+        remaining -= entry.cap;
+      });
+      open = open.filter((entry) => !capped.includes(entry));
+      continue;
+    }
+    open.forEach((entry) => budgets.set(entry.id, acOf(entry)));
+    break;
+  }
+  return budgets;
 };
 const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
-  var _a;
+  var _a, _b;
   if (isRunning || lastGridMeterValue === currentGridMeterValue) {
     return;
   }
@@ -435,9 +465,8 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
   try {
     const automationEnabled = ((_a = await adapter.getStateAsync("adapterAutomation.automationEnabled")) == null ? void 0 : _a.val) === true;
     if (!automationEnabled) {
-      const text = DEVICE_TASK_TEXTS[await getStatusLanguage(adapter)].automationDisabled;
       for (const device of getAutomationDevices(adapter)) {
-        await publishDeviceStatusText(adapter, device, text);
+        await publishDeviceStatus(adapter, device, import_deviceStatus.DEVICE_STATUS_AUTOMATION_DISABLED);
       }
       return;
     }
@@ -448,14 +477,18 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       return;
     }
     const now = Date.now();
+    const minIdleBeforeChargeState = await adapter.getStateAsync("adapterAutomation.minIdleBeforeCharge");
+    const minIdleBeforeChargeMs = typeof (minIdleBeforeChargeState == null ? void 0 : minIdleBeforeChargeState.val) === "number" ? Math.max(minIdleBeforeChargeState.val * 1e3, MIN_IDLE_BEFORE_CHARGE_MIN_MS) : DEFAULT_MIN_IDLE_BEFORE_CHARGE_MS;
     for (const [index, device] of devices.entries()) {
       const id = deviceId(device);
       const state = getDeviceState(device);
       state.enabled = await isDeviceEnabled(adapter, device);
       state.forceAcCharging = await isForceAcCharging(adapter, device);
       state.acChargingAllowed = await isAcChargingAllowed(adapter, device);
+      state.feedInSolarOnly = await isFeedInSolarOnly(adapter, device);
       const solarInputPowerState = await adapter.getStateAsync(`${id}.solarInputPower`);
       state.solarInputPower = (solarInputPowerState == null ? void 0 : solarInputPowerState.val) != null ? Number(solarInputPowerState.val) : 0;
+      applyMaxLimit(device, state);
       const currentLimitState = await adapter.getStateAsync(`${id}.control.setDeviceAutomationInOutLimit`);
       state.lastChangeMs = (currentLimitState == null ? void 0 : currentLimitState.lc) ? now - currentLimitState.lc : Number.MAX_SAFE_INTEGER;
       if (state.limitCommandsInFlight === 0) {
@@ -472,10 +505,12 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
         state.measuredChargePower = (gridInputPowerState == null ? void 0 : gridInputPowerState.val) != null ? Math.max(0, Number(gridInputPowerState.val)) : void 0;
       }
       if (state.enabled) {
+        const isWaitingForSurplusCharge = isSurplusConfirmed && canSurplusCharge(device) && !state.forceAcCharging && state.soc < 100;
+        const feedInStandbyMs = isWaitingForSurplusCharge ? Math.min(minIdleBeforeChargeMs, MIN_STANDBY_TIME_MS) : MIN_STANDBY_TIME_MS;
         if (index !== 0 || canSurplusCharge(device)) {
-          releaseStaleKeepAlive(device, state, getMinLimit(device), now);
+          releaseStaleKeepAlive(device, state, getMinLimit(device), now, feedInStandbyMs);
         }
-        releaseStaleKeepAlive(device, state, -getMinLimit(device), now);
+        releaseStaleKeepAlive(device, state, -getMinLimit(device), now, MIN_STANDBY_TIME_MS);
       }
     }
     if (devices.some((device) => {
@@ -514,10 +549,16 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
     const setPointNearlyFull = (setPointNearlyFullState == null ? void 0 : setPointNearlyFullState.val) != null ? Number(setPointNearlyFullState.val) : -100;
     const setPoint = fleetMinSoc >= NEARLY_FULL_SOC && solarInput > 50 ? setPointNearlyFull : baseSetPoint;
     shortTermGridAvgW = shortTermGridAvgW == null ? currentGridMeterValue : shortTermGridAvgW + SHORT_TERM_GRID_ALPHA * (currentGridMeterValue - shortTermGridAvgW);
-    chargeStartGridAvgW = chargeStartGridAvgW == null ? currentGridMeterValue : chargeStartGridAvgW + CHARGE_START_GRID_ALPHA * (currentGridMeterValue - chargeStartGridAvgW);
     const surplusChargeTriggerState = await adapter.getStateAsync("adapterAutomation.surplusChargeTrigger");
     const surplusChargeTrigger = typeof (surplusChargeTriggerState == null ? void 0 : surplusChargeTriggerState.val) === "number" ? Math.max(surplusChargeTriggerState.val, SURPLUS_SETPOINT_BUFFER_W) : DEFAULT_SURPLUS_CHARGE_TRIGGER_W;
-    const hasGridSurplus = chargeStartGridAvgW <= setPoint - surplusChargeTrigger;
+    if (shortTermGridAvgW <= setPoint - surplusChargeTrigger) {
+      surplusSinceMs != null ? surplusSinceMs : surplusSinceMs = now;
+    } else {
+      surplusSinceMs = void 0;
+    }
+    const surplusDurationMs = surplusSinceMs != null ? now - surplusSinceMs : 0;
+    const hasGridSurplus = surplusSinceMs != null && surplusDurationMs >= SURPLUS_CONFIRM_MS;
+    isSurplusConfirmed = hasGridSurplus;
     const surplusSetPoint = setPoint - SURPLUS_SETPOINT_BUFFER_W;
     const deadBandUpper = setPoint < 0 ? 0 : setPoint + 10;
     const deadBandTarget = (setPoint + deadBandUpper) / 2;
@@ -632,11 +673,77 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
     const chargeEligibleDevices = otherDevices.filter(
       (device) => isSurplusChargeCandidate(device) && getDeviceState(device).soc < 100 && getDeviceState(device).currentLimit <= 0
     );
-    const currentTotalChargePower = otherDevices.filter(isSurplusChargeCandidate).reduce((sum, device) => sum + getEffectiveChargePower(getDeviceState(device)), 0);
-    const chargeError = surplusSetPoint - shortTermGridAvgW;
+    const surplusChargeCandidates = otherDevices.filter(isSurplusChargeCandidate);
+    const currentTotalChargePower = surplusChargeCandidates.reduce(
+      (sum, device) => sum + getEffectiveChargePower(getDeviceState(device)),
+      0
+    );
+    const commandedChargePower = surplusChargeCandidates.reduce(
+      (sum, device) => sum + Math.max(0, -getDeviceState(device).currentLimit),
+      0
+    );
+    const getReportedChargePower = (state) => {
+      var _a2;
+      return state.currentLimit < 0 ? (_a2 = state.measuredChargePower) != null ? _a2 : -state.currentLimit : 0;
+    };
+    const measuredTotalChargePower = surplusChargeCandidates.reduce(
+      (sum, device) => sum + getReportedChargePower(getDeviceState(device)),
+      0
+    );
+    const isChargeHeld = surplusChargeCandidates.some((device) => {
+      const state = getDeviceState(device);
+      if (isLimitCommandPending(state)) {
+        return true;
+      }
+      if (state.currentLimit >= 0) {
+        return false;
+      }
+      if (state.lastChangeMs < CHARGE_HOLD_MS) {
+        return true;
+      }
+      const commanded = -state.currentLimit;
+      return state.lastChangeMs < CHARGE_SETTLE_MS && state.measuredChargePower != null && Math.abs(state.measuredChargePower - commanded) > Math.max(CHARGE_SETTLED_TOLERANCE_W, commanded * 0.1);
+    });
+    let isGridWithoutChargeStep = false;
+    if (!isChargeHeld || shortTermGridWithoutChargeW == null) {
+      const rawGridWithoutCharge = currentGridMeterValue - measuredTotalChargePower;
+      if (shortTermGridWithoutChargeW == null) {
+        shortTermGridWithoutChargeW = rawGridWithoutCharge;
+        pendingGridWithoutChargeStepSign = 0;
+      } else {
+        const deviation = rawGridWithoutCharge - shortTermGridWithoutChargeW;
+        const deviationSign = Math.abs(deviation) > HOME_USAGE_STEP_W ? Math.sign(deviation) : 0;
+        isGridWithoutChargeStep = deviationSign !== 0 && deviationSign === pendingGridWithoutChargeStepSign;
+        if (isGridWithoutChargeStep) {
+          shortTermGridWithoutChargeW = rawGridWithoutCharge;
+          pendingGridWithoutChargeStepSign = 0;
+        } else {
+          shortTermGridWithoutChargeW += SHORT_TERM_GRID_ALPHA * deviation;
+          pendingGridWithoutChargeStepSign = deviationSign;
+        }
+      }
+    }
+    const chargeFeedForward = surplusSetPoint - shortTermGridWithoutChargeW;
+    const chargeError = surplusSetPoint - (shortTermGridWithoutChargeW + commandedChargePower);
+    const chargeLagW = surplusChargeCandidates.reduce((sum, device) => {
+      const state = getDeviceState(device);
+      return sum + Math.max(0, getReportedChargePower(state) - Math.max(0, -state.currentLimit));
+    }, 0);
+    const heldGridW = currentGridMeterValue - chargeLagW;
     let chargeBudgetTotal = 0;
     if (hasGridSurplus || currentTotalChargePower > 0) {
-      chargeBudgetTotal = Math.max(0, currentTotalChargePower + chargePid.calculate(chargeError, now));
+      const chargePiCorrection = chargePid.calculate(
+        chargeError,
+        now,
+        !isChargeHeld && Math.abs(chargeError) <= CHARGE_INTEGRAL_BAND_W
+      );
+      if (!isChargeHeld) {
+        chargeBudgetTotal = Math.max(0, chargeFeedForward + chargePiCorrection);
+      } else if (heldGridW > setPoint + CHARGE_HOLD_IMPORT_W) {
+        chargeBudgetTotal = Math.max(0, commandedChargePower - (heldGridW - surplusSetPoint));
+      } else {
+        chargeBudgetTotal = commandedChargePower;
+      }
     }
     const orderedChargeEligible = [...chargeEligibleDevices].sort((a, b) => devices.indexOf(b) - devices.indexOf(a));
     const rawChargeDeviceCount = chargeBudgetTotal > 0 ? Math.min(orderedChargeEligible.length, Math.max(1, Math.floor(chargeBudgetTotal / CHARGE_MIN_PER_DEVICE_W))) : 0;
@@ -655,10 +762,13 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       activeChargeDeviceCount = rawChargeDeviceCount;
     }
     const activeChargeDevices = orderedChargeEligible.slice(0, activeChargeDeviceCount);
-    const chargeShares = getChargeShares(activeChargeDevices);
+    const chargeBudgets = getChargeBudgets(activeChargeDevices, chargeBudgetTotal);
     if (chargeEligibleDevices.length > 0) {
       adapter.log.debug(
-        `${LOG} AC charge: chargeStartGridAvgW=${chargeStartGridAvgW.toFixed(1)} shortTermGridAvgW=${shortTermGridAvgW.toFixed(1)} hasGridSurplus=${hasGridSurplus} currentTotalChargePower=${currentTotalChargePower} chargeError=${chargeError.toFixed(1)} chargeBudgetTotal=${chargeBudgetTotal.toFixed(1)} activeChargeDevices=${activeChargeDevices.map((device) => `${deviceLabel(device)}:${chargeShares.get(deviceId(device))}`).join(",") || "-"}`
+        `${LOG} AC charge: shortTermGridAvgW=${shortTermGridAvgW.toFixed(1)} surplusFor=${Math.round(surplusDurationMs / 1e3)}s hasGridSurplus=${hasGridSurplus} measuredChargePower=${measuredTotalChargePower} commandedChargePower=${commandedChargePower} gridWithoutChargeAvg=${shortTermGridWithoutChargeW.toFixed(1)} step=${isGridWithoutChargeStep} held=${isChargeHeld} feedForward=${chargeFeedForward.toFixed(1)} chargeError=${chargeError.toFixed(1)} chargeBudgetTotal=${chargeBudgetTotal.toFixed(1)} activeChargeDevices=${activeChargeDevices.map((device) => {
+          var _a2;
+          return `${deviceLabel(device)}:${Math.round((_a2 = chargeBudgets.get(deviceId(device))) != null ? _a2 : 0)}W`;
+        }).join(",") || "-"}`
       );
     }
     for (const device of otherDevices) {
@@ -669,8 +779,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       if (state.forceAcCharging && state.soc < 100) {
         state.newLimit = -state.chargeMaxLimit;
       } else if (canSurplusCharge(device) && state.soc < 100) {
-        const share = chargeShares.get(deviceId(device));
-        let perDeviceBudget = share != null ? Math.round(Math.min(chargeBudgetTotal * share, state.chargeMaxLimit)) : 0;
+        let perDeviceBudget = Math.round((_b = chargeBudgets.get(deviceId(device))) != null ? _b : 0);
         if (perDeviceBudget <= CHARGE_DEAD_ZONE_MAX_W || perDeviceBudget < getMinLimit(device)) {
           perDeviceBudget = 0;
         }
@@ -687,6 +796,15 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
         piAdjustedHomeUsage -= getMinLimit(device);
       } else {
         state.newLimit = 0;
+      }
+    }
+    for (const device of devices) {
+      const state = getDeviceState(device);
+      if (state.enabled && state.feedInSolarOnly && state.solarInputPower < SOLAR_ONLY_WARNING_THRESHOLD_W && piAdjustedHomeUsage > state.solarInputPower && now - state.lastSolarOnlyWarningMs >= SOLAR_ONLY_WARNING_INTERVAL_MS) {
+        state.lastSolarOnlyWarningMs = now;
+        adapter.log.warn(
+          `${LOG} '${deviceLabel(device)}' feeds in solar input only (feedInSolarOnly), but solar input is ${state.solarInputPower}W while ${Math.round(piAdjustedHomeUsage)}W feed-in is required.`
+        );
       }
     }
     adjustableInputDevices.forEach((device) => {
@@ -821,7 +939,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       const id = deviceId(device);
       const state = getDeviceState(device);
       if (!state.enabled) {
-        await publishDeviceTask(adapter, device, "disabled", false);
+        await publishDeviceStatus(adapter, device, import_deviceStatus.DEVICE_STATUS_DEVICE_DISABLED);
         continue;
       }
       if (wakingInputDevices.includes(device)) {
@@ -848,7 +966,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
         const msSinceChargingStopped = state.chargingStoppedMs != null ? now - state.chargingStoppedMs : Number.MAX_SAFE_INTEGER;
         const msSinceDischargingStopped = state.dischargingStoppedMs != null ? now - state.dischargingStoppedMs : Number.MAX_SAFE_INTEGER;
         const msSinceIdle = Math.min(msSinceChargingStopped, msSinceDischargingStopped);
-        if (state.currentLimit > 0 || msSinceIdle < MIN_IDLE_BEFORE_CHARGE_MS) {
+        if (state.currentLimit > 0 || msSinceIdle < minIdleBeforeChargeMs) {
           adapter.log.debug(
             `${LOG} '${deviceLabel(device)}' charge requested (${state.newLimit}W) but blocked: currentLimit=${state.currentLimit} msSinceChargingStopped=${msSinceChargingStopped} msSinceDischargingStopped=${msSinceDischargingStopped}`
           );

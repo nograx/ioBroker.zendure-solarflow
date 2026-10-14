@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["../../src/models/IDevicePack.ts"],
-  "sourcesContent": ["export interface IDevicePack {\n  packSn: string;\n  type: string;\n}\n"],
+  "sourcesContent": ["export interface IDevicePack {\n  packSn: string;\n  type: string;\n  /** Nominal capacity (Wh), undefined for an unknown battery type. */\n  capacityWh?: number;\n}\n"],
   "mappings": ";;;;;;;;;;;;;;AAAA;AAAA;",
   "names": []
 }

@@ -41,6 +41,19 @@ class Hyper2000 extends import_ZenIobDevice.ZenIobDevice {
       _zenHaDeviceDetails
     );
   }
+  /**
+   * Total battery charge power (AC + solar input) per Zendure spec: 950W with one AB1000, 1200W with one AB2000,
+   * 1600W with two or more batteries. Falls back to the lowest value while the batteries aren't known yet.
+   */
+  getMaxBatteryChargePower() {
+    if (this.batteries.length >= 2) {
+      return 1600;
+    }
+    if (this.batteries.length === 1 && this.batteries[0].type.includes("AB2000")) {
+      return 1200;
+    }
+    return 950;
+  }
   setAcMode(acMode) {
     if (this.productKey && this.deviceKey) {
       if (acMode >= 0 && acMode <= 3) {

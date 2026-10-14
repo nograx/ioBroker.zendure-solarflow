@@ -256,6 +256,24 @@ class ZendureSolarflow extends utils.Adapter {
         },
         native: {}
       });
+      await this.extendObject("adapterAutomation.minIdleBeforeCharge", {
+        type: "state",
+        common: {
+          name: {
+            de: "Mindest-Leerlaufzeit vor dem Laden",
+            en: "Minimum idle time before charging"
+          },
+          type: "number",
+          desc: "minIdleBeforeCharge",
+          role: "level",
+          read: true,
+          write: true,
+          unit: "s",
+          min: 5,
+          def: 60
+        },
+        native: {}
+      });
       await this.extendObject("adapterAutomation.deviceOrder", {
         type: "state",
         common: {
@@ -283,6 +301,7 @@ class ZendureSolarflow extends utils.Adapter {
       await ensureDefaultValue("adapterAutomation.setPointNearlyFull", -100);
       await ensureDefaultValue("adapterAutomation.acOnlyPenalty", 50);
       await ensureDefaultValue("adapterAutomation.surplusChargeTrigger", 100);
+      await ensureDefaultValue("adapterAutomation.minIdleBeforeCharge", 60);
     }
     switch (this.config.connectionMode) {
       case "authKey": {
