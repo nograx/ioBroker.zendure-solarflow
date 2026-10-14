@@ -170,6 +170,11 @@ For more details and for information on how to disable error reporting, see the 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+
+### **WORK IN PROGRESS**
+
+- SF 800 Pro 2 is now detected via mDNS / zenSDK (was reported as unknown model `solarFlow800Pro2`)
+
 ### 6.1.0 (2026-10-14)
 
 - Adapter automation: New per-device state `feedInSolarOnly` to feed in only the current solar input; has to be switched by your own script, e.g. during a low-price window (Thanks to feedback from lesiflo)

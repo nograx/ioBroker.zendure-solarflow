@@ -155,6 +155,7 @@ const deviceDefinitions: ZenDeviceDefinition[] = [
     productKeys: ["nVyeqM"],
     productModel: "Solarflow 800 Pro 2",
     ctor: Sf800Pro,
+    mdnsModelNames: ["solarflow800pro2"],
   },
   {
     productKeys: ["8n77V3"],
