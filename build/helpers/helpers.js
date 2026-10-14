@@ -125,7 +125,8 @@ const deviceDefinitions = [
   {
     productKeys: ["nVyeqM"],
     productModel: "Solarflow 800 Pro 2",
-    ctor: import_Sf800Pro.Sf800Pro
+    ctor: import_Sf800Pro.Sf800Pro,
+    mdnsModelNames: ["solarflow800pro2"]
   },
   {
     productKeys: ["8n77V3"],
