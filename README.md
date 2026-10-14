@@ -181,7 +181,7 @@ For more details and for information on how to disable error reporting, see the 
   - The charge power is calculated from the grid value and the devices' reported charge power, so it reaches the surplus in one or two steps
   - The surplus is split so that each device's total charge power (AC + own solar input) follows its missing SOC and battery capacity
 - Adapter automation: `acOnlyPenalty` now also applies to devices with `acChargingAllowed` (e.g. devices without solar panels)
-- Adapter automation (breaking): `<device>.adapterAutomation.status` is now a number with a states list
+- Adapter automation (breaking): `<device>.adapterAutomation.status` is now a number with a states list instead of a text, so it can be used in scripts independent of the system language. The lead device has its own codes (task code + 1), see the status code table.
 - Improved battery type detection
 
 ### 6.0.0 (2026-10-07)
