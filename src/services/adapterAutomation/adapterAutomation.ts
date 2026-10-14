@@ -1,5 +1,12 @@
 import type { ZendureSolarflow } from "../../main";
 import type { ZenIobDevice } from "../../models/deviceModels/ZenIobDevice";
+import {
+  DEVICE_STATUS_AUTOMATION_DISABLED,
+  DEVICE_STATUS_DEVICE_DISABLED,
+  DEVICE_STATUS_WAITING_FOR_TRIGGER,
+  type DeviceTask,
+  getDeviceTaskCode,
+} from "./deviceStatus";
 
 const LOG = "[adapterAutomation]";
 
@@ -33,8 +40,16 @@ const ZEN_SDK_MIN_LIMIT_W = 30;
 const DEFAULT_MIN_LIMIT_W = 10;
 
 // A device may only start a new charge (negative limit) once it has stopped both charging and feeding in
-// for at least this long, so it doesn't flip directly from discharging to charging (or back) too often.
-const MIN_IDLE_BEFORE_CHARGE_MS = 5 * 60 * 1000;
+// for at least 'adapterAutomation.minIdleBeforeCharge' seconds (this is its fallback, in ms), so it doesn't flip
+// directly from discharging to charging (or back) too often. The state can't go below MIN_IDLE_BEFORE_CHARGE_MIN_MS.
+const DEFAULT_MIN_IDLE_BEFORE_CHARGE_MS = 60 * 1000;
+const MIN_IDLE_BEFORE_CHARGE_MIN_MS = 5 * 1000;
+
+// A device with '<device>.adapterAutomation.feedInSolarOnly' set feeds in at most its current solar input, so it
+// doesn't discharge its battery. Below this solar input (W), a feed-in demand higher than the solar input is
+// logged as a warning, at most once per SOLAR_ONLY_WARNING_INTERVAL_MS per device.
+const SOLAR_ONLY_WARNING_THRESHOLD_W = 50;
+const SOLAR_ONLY_WARNING_INTERVAL_MS = 5 * 60 * 1000;
 
 // Rate limit for feed-in adjustments: only applied when the adjustment reverses direction compared to the
 // last one. A fluctuating load (e.g. a washing machine) reverses direction nearly every cycle and should be
@@ -154,10 +169,20 @@ interface IAutomationDeviceState {
    * cycle: it then charges from surplus like an AC-only device (see canSurplusCharge).
    */
   acChargingAllowed: boolean;
+  /**
+   * Whether this (non AC-only) device's 'adapterAutomation.feedInSolarOnly' switch is on, refreshed once per
+   * cycle: its maxLimit is then capped at its current solar input (see applyMaxLimit).
+   */
+  feedInSolarOnly: boolean;
+  /** Last time the feedInSolarOnly warning was logged for this device, see SOLAR_ONLY_WARNING_INTERVAL_MS. */
+  lastSolarOnlyWarningMs: number;
   /** Device's 'name' state, refreshed by updateAutomationDeviceMetrics; empty until first read. */
   name: string;
   soc: number;
   minSoc: number;
+  /** Max output limit from (suggested) inverseMaxPower, refreshed by updateAutomationDeviceMetrics. */
+  configuredMaxLimit: number;
+  /** Effective max output limit: configuredMaxLimit, capped at the solar input if feedInSolarOnly is set. */
   maxLimit: number;
   /** Highest acceptable charge power (W); from the device's reported 'chargeMaxLimit', or maxInputLimit if not (yet) reported. */
   chargeMaxLimit: number;
@@ -241,9 +266,12 @@ const getDeviceState = (device: ZenIobDevice): IAutomationDeviceState => {
       enabled: false,
       forceAcCharging: false,
       acChargingAllowed: false,
+      feedInSolarOnly: false,
+      lastSolarOnlyWarningMs: 0,
       name: "",
       soc: 0,
       minSoc: 0,
+      configuredMaxLimit: 0,
       maxLimit: 0,
       chargeMaxLimit: 0,
       solarInputPower: 0,
@@ -383,7 +411,7 @@ export const resetAdapterAutomationController = (adapter: ZendureSolarflow): voi
   adapter.log.debug(`${LOG} PID controllers reset`);
 };
 
-// Remembers charge/feed-in stop transitions, used to gate a new charge start (see MIN_IDLE_BEFORE_CHARGE_MS).
+// Remembers charge/feed-in stop transitions, used to gate a new charge start (see 'adapterAutomation.minIdleBeforeCharge').
 const trackLimitTransition = (
   state: IAutomationDeviceState,
   previousLimit: number,
@@ -427,7 +455,7 @@ const releaseStaleKeepAlive = (
   if (keepAliveLimit > 0) {
     // It has been sitting at its feed-in standby (practically idle) for MIN_STANDBY_TIME_MS already - that
     // counts as the idle time before a new charge, so it may start charging right away instead of waiting
-    // another MIN_IDLE_BEFORE_CHARGE_MS (see the charge gate in runZeroFeedInAutomation).
+    // another minIdleBeforeCharge (see the charge gate in runZeroFeedInAutomation).
     state.dischargingStoppedMs = undefined;
   }
   state.currentLimit = 0;
@@ -440,79 +468,9 @@ const releaseStaleKeepAlive = (
 const chargeKeepAliveOrZero = (device: ZenIobDevice, state: IAutomationDeviceState): number =>
   state.currentLimit < 0 ? -getMinLimit(device) : 0;
 
-type DeviceTask =
-  | "feedIn"
-  | "standby"
-  | "surplusCharging"
-  | "chargeKeepAlive"
-  | "forceCharging"
-  | "chargeBlocked"
-  | "waitingForSurplus"
-  | "full"
-  | "idle"
-  | "disabled";
-
-type StatusLanguage = "en" | "de";
-
-// Texts for '<device>.adapterAutomation.status', in the ioBroker system language (English fallback). Deliberately
-// without power values (those are in the device states already), so the text only changes when a task changes.
-const DEVICE_TASK_TEXTS: Record<
-  StatusLanguage,
-  {
-    tasks: Record<DeviceTask, string>;
-    leadSuffix: string;
-    automationDisabled: string;
-    waitingForTrigger: string;
-  }
-> = {
-  en: {
-    tasks: {
-      feedIn: "Feeding in",
-      standby: "Standby",
-      surplusCharging: "Charging from surplus",
-      chargeKeepAlive: "Holding the charge keep-alive",
-      forceCharging: "Force charging",
-      chargeBlocked: "Waiting before charging may start",
-      waitingForSurplus: "Waiting for surplus charging",
-      full: "Fully charged, idle",
-      idle: "Idle",
-      disabled: "Automation disabled for this device",
-    },
-    leadSuffix: " (lead device)",
-    automationDisabled: "Automation disabled globally",
-    waitingForTrigger: "Waiting for a change of the automation trigger state",
-  },
-  de: {
-    tasks: {
-      feedIn: "Speist ein",
-      standby: "Standby",
-      surplusCharging: "Lädt aus Überschuss",
-      chargeKeepAlive: "Hält den Lade-Keep-Alive",
-      forceCharging: "Lädt erzwungen",
-      chargeBlocked: "Wartet, bevor das Laden beginnen darf",
-      waitingForSurplus: "Wartet auf Überschussladung",
-      full: "Voll geladen, inaktiv",
-      idle: "Inaktiv",
-      disabled: "Automatisierung für dieses Gerät deaktiviert",
-    },
-    leadSuffix: " (führendes Gerät)",
-    automationDisabled: "Automatisierung global deaktiviert",
-    waitingForTrigger: "Wartet auf eine Änderung des Auslöser-Datenpunkts",
-  },
-};
-
-let statusLanguage: StatusLanguage | undefined;
 // Last written values, so the states are only written on an actual change (the cycle runs very often).
 let lastDeviceOrderText: string | undefined;
-const lastDeviceStatusTexts = new Map<string, string>();
-
-const getStatusLanguage = async (adapter: ZendureSolarflow): Promise<StatusLanguage> => {
-  if (!statusLanguage) {
-    const systemConfig = await adapter.getForeignObjectAsync("system.config");
-    statusLanguage = systemConfig?.common?.language === "de" ? "de" : "en";
-  }
-  return statusLanguage;
-};
+const lastDeviceStatusCodes = new Map<string, number>();
 
 const publishDeviceOrder = async (adapter: ZendureSolarflow, devices: ZenIobDevice[]): Promise<void> => {
   const text = devices.map((device) => `${deviceLabel(device)} (${device.deviceKey})`).join(" -> ");
@@ -522,15 +480,12 @@ const publishDeviceOrder = async (adapter: ZendureSolarflow, devices: ZenIobDevi
   }
 };
 
-const publishDeviceStatusText = async (
-  adapter: ZendureSolarflow,
-  device: ZenIobDevice,
-  text: string,
-): Promise<void> => {
+// Writes '<device>.adapterAutomation.status' (see deviceStatus.ts for the codes).
+const publishDeviceStatus = async (adapter: ZendureSolarflow, device: ZenIobDevice, code: number): Promise<void> => {
   const id = deviceId(device);
-  if (text !== lastDeviceStatusTexts.get(id)) {
-    lastDeviceStatusTexts.set(id, text);
-    await adapter.setState(`${id}.adapterAutomation.status`, text, true);
+  if (code !== lastDeviceStatusCodes.get(id)) {
+    lastDeviceStatusCodes.set(id, code);
+    await adapter.setState(`${id}.adapterAutomation.status`, code, true);
   }
 };
 
@@ -540,8 +495,7 @@ const publishDeviceTask = async (
   task: DeviceTask,
   isLead: boolean,
 ): Promise<void> => {
-  const texts = DEVICE_TASK_TEXTS[await getStatusLanguage(adapter)];
-  await publishDeviceStatusText(adapter, device, `${texts.tasks[task]}${isLead ? texts.leadSuffix : ""}`);
+  await publishDeviceStatus(adapter, device, getDeviceTaskCode(task, isLead));
 };
 
 // Devices that can participate in the zero feed-in automation: battery devices with output control.
@@ -583,6 +537,26 @@ const isAcChargingAllowed = async (adapter: ZendureSolarflow, device: ZenIobDevi
   return state?.val === true;
 };
 
+// The state only exists for devices that aren't AC-only (see ZenIobDevice).
+const isFeedInSolarOnly = async (adapter: ZendureSolarflow, device: ZenIobDevice): Promise<boolean> => {
+  if (device.isAcOnly) {
+    return false;
+  }
+  const state = await adapter.getStateAsync(`${deviceId(device)}.adapterAutomation.feedInSolarOnly`);
+  return state?.val === true;
+};
+
+// Sets the effective maxLimit from configuredMaxLimit: with feedInSolarOnly, capped at the current solar input -
+// or 0 if that's below the device's minimum limit, which it can't be set to anyway.
+const applyMaxLimit = (device: ZenIobDevice, state: IAutomationDeviceState): void => {
+  if (!state.feedInSolarOnly) {
+    state.maxLimit = state.configuredMaxLimit;
+    return;
+  }
+  const solarLimit = state.solarInputPower >= getMinLimit(device) ? Math.floor(state.solarInputPower) : 0;
+  state.maxLimit = Math.min(state.configuredMaxLimit, solarLimit);
+};
+
 // Whether the device may charge from grid surplus: always for AC-only devices, for others only if allowed.
 const canSurplusCharge = (device: ZenIobDevice): boolean => device.isAcOnly || getDeviceState(device).acChargingAllowed;
 
@@ -594,19 +568,21 @@ const canSurplusCharge = (device: ZenIobDevice): boolean => device.isAcOnly || g
  * @param adapter the adapter instance
  */
 export const refreshAutomationStatuses = async (adapter: ZendureSolarflow): Promise<void> => {
-  const texts = DEVICE_TASK_TEXTS[await getStatusLanguage(adapter)];
-  const nonTaskTexts = [texts.automationDisabled, texts.tasks.disabled, texts.waitingForTrigger];
   const automationEnabled = (await adapter.getStateAsync("adapterAutomation.automationEnabled"))?.val === true;
 
   for (const device of getAutomationDevices(adapter)) {
-    const lastText = lastDeviceStatusTexts.get(deviceId(device));
+    const lastCode = lastDeviceStatusCodes.get(deviceId(device));
 
     if (!automationEnabled) {
-      await publishDeviceStatusText(adapter, device, texts.automationDisabled);
+      await publishDeviceStatus(adapter, device, DEVICE_STATUS_AUTOMATION_DISABLED);
     } else if (!(await isDeviceEnabled(adapter, device))) {
-      await publishDeviceStatusText(adapter, device, texts.tasks.disabled);
-    } else if (lastText === undefined || nonTaskTexts.includes(lastText)) {
-      await publishDeviceStatusText(adapter, device, texts.waitingForTrigger);
+      await publishDeviceStatus(adapter, device, DEVICE_STATUS_DEVICE_DISABLED);
+    } else if (
+      lastCode === undefined ||
+      lastCode === DEVICE_STATUS_AUTOMATION_DISABLED ||
+      lastCode === DEVICE_STATUS_DEVICE_DISABLED
+    ) {
+      await publishDeviceStatus(adapter, device, DEVICE_STATUS_WAITING_FOR_TRIGGER);
     }
   }
 };
@@ -756,9 +732,11 @@ export const updateAutomationDeviceMetrics = async (adapter: ZendureSolarflow): 
       : await adapter.getStateAsync(`${id}.adapterAutomation.suggestedInverseMaxPower`);
     const newMaxLimit = maxLimitState?.val != null ? Number(maxLimitState.val) : 0;
 
-    if (newMaxLimit != state.maxLimit) {
-      adapter.log.debug(`${LOG} maxLimit for '${device.deviceKey}' changed: ${state.maxLimit} -> ${newMaxLimit}`);
-      state.maxLimit = newMaxLimit;
+    if (newMaxLimit != state.configuredMaxLimit) {
+      adapter.log.debug(
+        `${LOG} maxLimit for '${device.deviceKey}' changed: ${state.configuredMaxLimit} -> ${newMaxLimit}`,
+      );
+      state.configuredMaxLimit = newMaxLimit;
 
       if (newMaxLimit < 500) {
         needsResort = true;
@@ -781,6 +759,9 @@ export const updateAutomationDeviceMetrics = async (adapter: ZendureSolarflow): 
     // device class's hardware maxInputLimit otherwise.
     const chargeMaxLimitState = await adapter.getStateAsync(`${id}.chargeMaxLimit`);
     state.chargeMaxLimit = chargeMaxLimitState?.val != null ? Number(chargeMaxLimitState.val) : device.maxInputLimit;
+
+    state.feedInSolarOnly = await isFeedInSolarOnly(adapter, device);
+    applyMaxLimit(device, state);
   }
 
   if (needsResort) {
@@ -894,9 +875,8 @@ export const runZeroFeedInAutomation = async (
   try {
     const automationEnabled = (await adapter.getStateAsync("adapterAutomation.automationEnabled"))?.val === true;
     if (!automationEnabled) {
-      const text = DEVICE_TASK_TEXTS[await getStatusLanguage(adapter)].automationDisabled;
       for (const device of getAutomationDevices(adapter)) {
-        await publishDeviceStatusText(adapter, device, text);
+        await publishDeviceStatus(adapter, device, DEVICE_STATUS_AUTOMATION_DISABLED);
       }
       return;
     }
@@ -921,9 +901,11 @@ export const runZeroFeedInAutomation = async (
       state.enabled = await isDeviceEnabled(adapter, device);
       state.forceAcCharging = await isForceAcCharging(adapter, device);
       state.acChargingAllowed = await isAcChargingAllowed(adapter, device);
+      state.feedInSolarOnly = await isFeedInSolarOnly(adapter, device);
 
       const solarInputPowerState = await adapter.getStateAsync(`${id}.solarInputPower`);
       state.solarInputPower = solarInputPowerState?.val != null ? Number(solarInputPowerState.val) : 0;
+      applyMaxLimit(device, state);
 
       const currentLimitState = await adapter.getStateAsync(`${id}.control.setDeviceAutomationInOutLimit`);
       state.lastChangeMs = currentLimitState?.lc ? now - currentLimitState.lc : Number.MAX_SAFE_INTEGER;
@@ -1327,6 +1309,25 @@ export const runZeroFeedInAutomation = async (
       }
     }
 
+    // feedInSolarOnly devices can't cover more than their solar input - warn (rate limited) if it's that low
+    // while more feed-in is required.
+    for (const device of devices) {
+      const state = getDeviceState(device);
+      if (
+        state.enabled &&
+        state.feedInSolarOnly &&
+        state.solarInputPower < SOLAR_ONLY_WARNING_THRESHOLD_W &&
+        piAdjustedHomeUsage > state.solarInputPower &&
+        now - state.lastSolarOnlyWarningMs >= SOLAR_ONLY_WARNING_INTERVAL_MS
+      ) {
+        state.lastSolarOnlyWarningMs = now;
+        adapter.log.warn(
+          `${LOG} '${deviceLabel(device)}' feeds in solar input only (feedInSolarOnly), but solar input is ` +
+            `${state.solarInputPower}W while ${Math.round(piAdjustedHomeUsage)}W feed-in is required.`,
+        );
+      }
+    }
+
     // Assign each input device its share of the required power, prioritizing fully charged devices so
     // they at least export their own solar input instead of curtailing it.
     adjustableInputDevices.forEach((device) => {
@@ -1492,7 +1493,7 @@ export const runZeroFeedInAutomation = async (
       return max;
     }, 0);
 
-    // Human-readable task per device for '<device>.adapterAutomation.status'. The lead device is only flagged
+    // Task per device for '<device>.adapterAutomation.status'. The lead device is only flagged
     // as such while it's actually part of the feed-in group (not while released for surplus charging).
     const leadDevice = inputDevices.includes(devices[0]) ? devices[0] : undefined;
 
@@ -1524,6 +1525,12 @@ export const runZeroFeedInAutomation = async (
       return "idle";
     };
 
+    const minIdleBeforeChargeState = await adapter.getStateAsync("adapterAutomation.minIdleBeforeCharge");
+    const minIdleBeforeChargeMs =
+      typeof minIdleBeforeChargeState?.val === "number"
+        ? Math.max(minIdleBeforeChargeState.val * 1000, MIN_IDLE_BEFORE_CHARGE_MIN_MS)
+        : DEFAULT_MIN_IDLE_BEFORE_CHARGE_MS;
+
     for (const device of devices) {
       const id = deviceId(device);
       const state = getDeviceState(device);
@@ -1531,7 +1538,7 @@ export const runZeroFeedInAutomation = async (
       if (!state.enabled) {
         // Automation is disabled for this device - leave it alone entirely (no command sent), rather
         // than forcing it to a specific limit.
-        await publishDeviceTask(adapter, device, "disabled", false);
+        await publishDeviceStatus(adapter, device, DEVICE_STATUS_DEVICE_DISABLED);
         continue;
       }
 
@@ -1578,7 +1585,7 @@ export const runZeroFeedInAutomation = async (
           state.dischargingStoppedMs != null ? now - state.dischargingStoppedMs : Number.MAX_SAFE_INTEGER;
         const msSinceIdle = Math.min(msSinceChargingStopped, msSinceDischargingStopped);
 
-        if (state.currentLimit > 0 || msSinceIdle < MIN_IDLE_BEFORE_CHARGE_MS) {
+        if (state.currentLimit > 0 || msSinceIdle < minIdleBeforeChargeMs) {
           // Still feeding in, or only just stopped charging/feeding in - hold at 0W instead of flipping
           // straight into charging.
           adapter.log.debug(

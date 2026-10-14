@@ -18,6 +18,7 @@ import axios from "axios";
 import { ensureState, processDeviceProperties } from "../../helpers/processDeviceProperties";
 import { allStates } from "../../constants/sensorStates/allStates";
 import { scheduleJob, type Job } from "node-schedule";
+import { getDeviceStatusStates } from "../../services/adapterAutomation/deviceStatus";
 
 // Settings that control the per-device zenSDK polling schedule, exposed as writable states
 // in the '<productKey>.<deviceKey>.settings' folder.
@@ -396,9 +397,10 @@ export class ZenIobDevice {
               de: "Aktuelle Aufgabe des Geräts",
               en: "Current task of the device",
             },
-            type: "string",
+            type: "number",
             desc: "status",
-            role: "text",
+            role: "value",
+            states: await getDeviceStatusStates(this.adapter),
             read: true,
             write: false,
           },
@@ -452,6 +454,32 @@ export class ZenIobDevice {
         const currentForceAcCharging = await this.adapter?.getStateAsync(forceAcChargingStateId);
         if (currentForceAcCharging?.val == null) {
           await this.adapter?.setState(forceAcChargingStateId, false, true);
+        }
+
+        // Devices with their own solar input may be limited to feeding in only that solar input.
+        if (!this.isAcOnly) {
+          const feedInSolarOnlyStateId = `${productKey}.${deviceKey}.adapterAutomation.feedInSolarOnly`;
+          await this.adapter?.extendObject(feedInSolarOnlyStateId, {
+            type: "state",
+            common: {
+              name: {
+                de: "Nur aktuelle Solarleistung einspeisen (Akku nicht entladen)",
+                en: "Feed in current solar input only (don't discharge battery)",
+              },
+              type: "boolean",
+              desc: "feedInSolarOnly",
+              role: "switch",
+              read: true,
+              write: true,
+              def: false,
+            },
+            native: {},
+          });
+
+          const currentFeedInSolarOnly = await this.adapter?.getStateAsync(feedInSolarOnlyStateId);
+          if (currentFeedInSolarOnly?.val == null) {
+            await this.adapter?.setState(feedInSolarOnlyStateId, false, true);
+          }
         }
 
         // AC-only devices always charge from surplus; devices with their own solar input only if allowed here.
