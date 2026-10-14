@@ -175,10 +175,14 @@ For more details and for information on how to disable error reporting, see the 
 
 - Adapter automation: New per-device state `feedInSolarOnly` to feed in only the current solar input; has to be switched by your own script, e.g. during a low-price window (Thanks to feedback from lesiflo)
 - Adapter automation: New state `minIdleBeforeCharge` (default 60 s, previously fixed 5 min) (Thanks to feedback from lesiflo)
-- Adapter automation: Faster surplus charging, split by missing SOC, battery capacity and own solar input; Hyper 2000 charge power limited by its battery configuration (Thanks to feedback from lesiflo)
+- Adapter automation: Faster and fairer surplus charging (Thanks to feedback from lesiflo)
+  - A surplus counts as confirmed once it has lasted 30 s without interruption (previously a slow average that took longer the smaller the surplus was). Charging then starts as soon as a device is ready, see `minIdleBeforeCharge`
+  - Devices in feed-in standby are released for charging after `minIdleBeforeCharge` instead of 3 minutes
+  - The charge power is calculated from the grid value and the devices' reported charge power, so it reaches the surplus in one or two steps
+  - The surplus is split so that each device's total charge power (AC + own solar input) follows its missing SOC and battery capacity
 - Adapter automation: `acOnlyPenalty` now also applies to devices with `acChargingAllowed` (e.g. devices without solar panels)
 - Adapter automation (breaking): `<device>.adapterAutomation.status` is now a number with a states list
-- Improved battery type detection (AIO 2400, I8000)
+- Improved battery type detection
 
 ### 6.0.0 (2026-10-07)
 
