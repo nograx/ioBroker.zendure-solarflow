@@ -46,10 +46,9 @@ const DEFAULT_MIN_IDLE_BEFORE_CHARGE_MS = 60 * 1000;
 const MIN_IDLE_BEFORE_CHARGE_MIN_MS = 5 * 1000;
 
 // A device with '<device>.adapterAutomation.feedInSolarOnly' set feeds in at most its current solar input, so it
-// doesn't discharge its battery. Below this solar input (W), a feed-in demand higher than the solar input is
-// logged as a warning, at most once per SOLAR_ONLY_WARNING_INTERVAL_MS per device.
-const SOLAR_ONLY_WARNING_THRESHOLD_W = 50;
-const SOLAR_ONLY_WARNING_INTERVAL_MS = 5 * 60 * 1000;
+// doesn't discharge its battery - but only while its solar input is above this threshold (W). At or below it
+// (e.g. at night) the cap doesn't apply and the device may feed in from its battery as usual.
+const SOLAR_ONLY_THRESHOLD_W = 50;
 
 // Rate limit for feed-in adjustments: only applied when the adjustment reverses direction compared to the
 // last one. A fluctuating load (e.g. a washing machine) reverses direction nearly every cycle and should be
@@ -185,18 +184,20 @@ interface IAutomationDeviceState {
   acChargingAllowed: boolean;
   /**
    * Whether this (non AC-only) device's 'adapterAutomation.feedInSolarOnly' switch is on, refreshed once per
-   * cycle: its maxLimit is then capped at its current solar input (see applyMaxLimit).
+   * cycle: its maxLimit is then capped at its current solar input if that's above SOLAR_ONLY_THRESHOLD_W
+   * (see applyMaxLimit).
    */
   feedInSolarOnly: boolean;
-  /** Last time the feedInSolarOnly warning was logged for this device, see SOLAR_ONLY_WARNING_INTERVAL_MS. */
-  lastSolarOnlyWarningMs: number;
   /** Device's 'name' state, refreshed by updateAutomationDeviceMetrics; empty until first read. */
   name: string;
   soc: number;
   minSoc: number;
   /** Max output limit from (suggested) inverseMaxPower, refreshed by updateAutomationDeviceMetrics. */
   configuredMaxLimit: number;
-  /** Effective max output limit: configuredMaxLimit, capped at the solar input if feedInSolarOnly is set. */
+  /**
+   * Effective max output limit: configuredMaxLimit, capped at the solar input if feedInSolarOnly is set and the
+   * solar input is above SOLAR_ONLY_THRESHOLD_W.
+   */
   maxLimit: number;
   /** Highest acceptable charge power (W); from the device's reported 'chargeMaxLimit', or maxInputLimit if not (yet) reported. */
   chargeMaxLimit: number;
@@ -291,7 +292,6 @@ const getDeviceState = (device: ZenIobDevice): IAutomationDeviceState => {
       forceAcCharging: false,
       acChargingAllowed: false,
       feedInSolarOnly: false,
-      lastSolarOnlyWarningMs: 0,
       name: "",
       soc: 0,
       minSoc: 0,
@@ -576,15 +576,14 @@ const isFeedInSolarOnly = async (adapter: ZendureSolarflow, device: ZenIobDevice
   return state?.val === true;
 };
 
-// Sets the effective maxLimit from configuredMaxLimit: with feedInSolarOnly, capped at the current solar input -
-// or 0 if that's below the device's minimum limit, which it can't be set to anyway.
-const applyMaxLimit = (device: ZenIobDevice, state: IAutomationDeviceState): void => {
-  if (!state.feedInSolarOnly) {
+// Sets the effective maxLimit from configuredMaxLimit: with feedInSolarOnly and a solar input above
+// SOLAR_ONLY_THRESHOLD_W, capped at the current solar input. At or below the threshold the battery may be used.
+const applyMaxLimit = (state: IAutomationDeviceState): void => {
+  if (!state.feedInSolarOnly || state.solarInputPower <= SOLAR_ONLY_THRESHOLD_W) {
     state.maxLimit = state.configuredMaxLimit;
     return;
   }
-  const solarLimit = state.solarInputPower >= getMinLimit(device) ? Math.floor(state.solarInputPower) : 0;
-  state.maxLimit = Math.min(state.configuredMaxLimit, solarLimit);
+  state.maxLimit = Math.min(state.configuredMaxLimit, Math.floor(state.solarInputPower));
 };
 
 // Whether the device may charge from grid surplus: always for AC-only devices, for others only if allowed.
@@ -800,7 +799,7 @@ export const updateAutomationDeviceMetrics = async (adapter: ZendureSolarflow): 
     state.chargeMaxLimit = chargeMaxLimitState?.val != null ? Number(chargeMaxLimitState.val) : device.maxInputLimit;
 
     state.feedInSolarOnly = await isFeedInSolarOnly(adapter, device);
-    applyMaxLimit(device, state);
+    applyMaxLimit(state);
   }
 
   if (needsResort) {
@@ -1018,7 +1017,7 @@ export const runZeroFeedInAutomation = async (
 
       const solarInputPowerState = await adapter.getStateAsync(`${id}.solarInputPower`);
       state.solarInputPower = solarInputPowerState?.val != null ? Number(solarInputPowerState.val) : 0;
-      applyMaxLimit(device, state);
+      applyMaxLimit(state);
 
       const currentLimitState = await adapter.getStateAsync(`${id}.control.setDeviceAutomationInOutLimit`);
       state.lastChangeMs = currentLimitState?.lc ? now - currentLimitState.lc : Number.MAX_SAFE_INTEGER;
@@ -1518,25 +1517,6 @@ export const runZeroFeedInAutomation = async (
         piAdjustedHomeUsage -= getMinLimit(device);
       } else {
         state.newLimit = 0;
-      }
-    }
-
-    // feedInSolarOnly devices can't cover more than their solar input - warn (rate limited) if it's that low
-    // while more feed-in is required.
-    for (const device of devices) {
-      const state = getDeviceState(device);
-      if (
-        state.enabled &&
-        state.feedInSolarOnly &&
-        state.solarInputPower < SOLAR_ONLY_WARNING_THRESHOLD_W &&
-        piAdjustedHomeUsage > state.solarInputPower &&
-        now - state.lastSolarOnlyWarningMs >= SOLAR_ONLY_WARNING_INTERVAL_MS
-      ) {
-        state.lastSolarOnlyWarningMs = now;
-        adapter.log.warn(
-          `${LOG} '${deviceLabel(device)}' feeds in solar input only (feedInSolarOnly), but solar input is ` +
-            `${state.solarInputPower}W while ${Math.round(piAdjustedHomeUsage)}W feed-in is required.`,
-        );
       }
     }
 

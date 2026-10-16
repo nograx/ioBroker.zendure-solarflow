@@ -121,7 +121,7 @@ Per device (`<productKey>.<deviceKey>.adapterAutomation.*`):
 | `automationEnabled`            | Include this device in the automation (default `false`).                                                                                                                                                                                                                                                                                                                                            |
 | `forceAcCharging`              | Charge this device from the grid at its full `chargeMaxLimit` until it is full, regardless of the current demand (default `false`).                                                                                                                                                                                                                                                                 |
 | `acChargingAllowed`            | Only for devices that can charge by AC but are not AC-only (e.g. SF 800 / 2400 Pro, Hyper 2000): charge this device from grid surplus like an AC-only device (default `false`).                                                                                                                                                                                                                     |
-| `feedInSolarOnly`              | Not for AC-only devices: feed in at most the current solar input, so the battery is not discharged. Logs a warning (max. every 5 minutes) if solar input is below 50 W and more is required (default `false`). The adapter never switches it by itself - set it from your own script, e.g. during a low-price window of a dynamic electricity tariff, to save the battery for more expensive hours. |
+| `feedInSolarOnly`              | Not for AC-only devices: feed in at most the current solar input, so the battery is not discharged. **Note:** this only applies while the solar input is above 50 W - at or below 50 W (e.g. at night) the device may feed in from its battery as usual (default `false`). The adapter never switches it by itself - set it from your own script, e.g. during a low-price window of a dynamic electricity tariff, to save the battery for more expensive hours. |
 | `suggestedInverseMaxPower`     | Read-only. Maximum output power the automation uses for this device, calculated from SOC and the lowest cell voltage to protect the battery.                                                                                                                                                                                                                                                        |
 | `suggestedInverseMaxPowerInfo` | Read-only. Reason for the current suggested value.                                                                                                                                                                                                                                                                                                                                                  |
 | `status`                       | Read-only. Status code of what the automation currently wants this device to do, see table below.                                                                                                                                                                                                                                                                                                   |
@@ -170,6 +170,12 @@ For more details and for information on how to disable error reporting, see the 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+
+### **WORK IN PROGRESS**
+
+- Adapter automation: `feedInSolarOnly` now only limits feed-in to the solar input while it is above 50 W; at or below 50 W the battery may be used for feed-in (replaces the previous low solar input warning)
+- Fixed adapter crash (`Converting circular structure to JSON`) when the Zendure cloud API does not respond
+
 ### 6.1.2 (2026-10-16)
 
 - Adapter automation: `suggestedInverseMaxPower` changes are now ramped instead of a fixed value (should avoid rapid jumps between values)
@@ -179,9 +185,6 @@ For more details and for information on how to disable error reporting, see the 
 ### 6.1.1 (2026-10-14)
 
 - SF 800 Pro 2 is now detected via mDNS / zenSDK (was reported as unknown model `solarFlow800Pro2`)
-
-### 6.1.0 (2026-10-14)
-
 - Adapter automation: New per-device state `feedInSolarOnly` to feed in only the current solar input; has to be switched by your own script, e.g. during a low-price window (Thanks to feedback from lesiflo)
 - Adapter automation: New state `minIdleBeforeCharge` (default 60 s, previously fixed 5 min) (Thanks to feedback from lesiflo)
 - Adapter automation: Faster and fairer surplus charging (Thanks to feedback from lesiflo)

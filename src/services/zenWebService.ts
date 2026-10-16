@@ -81,14 +81,13 @@ export const zenLogin = async (adapter: ZendureSolarflow): Promise<string | IIob
         adapter.log.error(`[zenLogin] headers: ${JSON.stringify(error.response.headers, null, 2)}`);
       } else if (error.request) {
         // The request was made but no response was received
-        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-        // http.ClientRequest in node.js
-        adapter.log.error(`[zenLogin] Request data: ${JSON.stringify(error.request, null, 2)}`);
+        // (error.request is a http.ClientRequest with circular references, so don't stringify it)
+        adapter.log.error(`[zenLogin] No response from ${apiUrl}: ${error.code ?? ""} ${error.message}`);
       } else {
         // Something happened in setting up the request that triggered an Error
         adapter.log.error(`[zenLogin] Error: ${error.message}`);
       }
-      adapter.log.error(JSON.stringify(error.config, null, 2));
+      adapter.log.debug(`[zenLogin] Request: ${error.config?.method?.toUpperCase()} ${error.config?.url}`);
 
       return undefined;
     });
