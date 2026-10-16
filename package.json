@@ -24,7 +24,7 @@
     "@iobroker/adapter-core": "^3.4.3",
     "axios": "^1.16.1",
     "bonjour-service": "^1.4.4",
-    "mqtt": "^5.15.2",
+    "mqtt": "^5.16.0",
     "node-schedule": "^2.1.1"
   },
   "devDependencies": {
