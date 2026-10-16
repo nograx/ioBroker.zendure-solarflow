@@ -1,4 +1,8 @@
 # Older changes
+## 5.3.1 (2026-09-21)
+
+- Fixed an issue to ignore empty properties
+
 ## 5.3.0 (2026-09-02)
 
 - Add folder "settings" for zenSDK devices. Here you can turn device polling on/off and control the polling interval for individual devices.

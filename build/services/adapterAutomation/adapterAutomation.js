@@ -790,6 +790,9 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
           piAdjustedHomeUsage -= getMinLimit(device);
         } else {
           state.newLimit = chargeKeepAliveOrZero(device, state);
+          if (state.newLimit < 0) {
+            piAdjustedHomeUsage += Math.min(-state.newLimit, getEffectiveChargePower(state));
+          }
         }
       } else if (state.currentLimit >= getMinLimit(device)) {
         state.newLimit = getMinLimit(device);
