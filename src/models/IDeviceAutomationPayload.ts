@@ -12,6 +12,7 @@ export interface IHemsEpPayload {
   mode: number;
   chargeMode?: number;
   minSoc?: number;
+  socSet?: number;
   inverseMaxPower?: number;
 }
 

@@ -8,6 +8,7 @@ export class Hyper2000 extends ZenIobDevice {
   maxInputLimit = 1200;
   maxOutputLimit = 1200;
   canChargeByAc = true;
+  resendSettingsAfterHemsInit = true;
 
   controlStates = [...sharedControlStates, ...hyperControlStates];
 

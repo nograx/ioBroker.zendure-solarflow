@@ -90,6 +90,8 @@ export class ZenIobDevice {
   public isAcOnly: boolean = false;
   /** Whether this device can by charge through AC */
   public canChargeByAc: boolean = false;
+  /** Whether minSoc, socSet and inverseMaxPower are sent again ~10s after HEMS mode was initialized. */
+  protected resendSettingsAfterHemsInit: boolean = false;
 
   private zenSdkErrorCount: number = 0;
   private zenSdkPausedUntil: number = 0;
@@ -106,6 +108,20 @@ export class ZenIobDevice {
   /** Per-device zenSDK polling job, scheduled with the interval configured in 'settings.ZenSDKPollingInverval'. */
   private zenSdkPollingJob?: Job;
   private zenSdkPollingIntervalSeconds?: number;
+
+  /** Last value written to 'adapterAutomation.suggestedInverseMaxPower', used as ramp start point. */
+  private rampedInverseMaxPower?: number;
+  private rampedInverseMaxPowerTimestamp?: number;
+  /** Ramp rates (W/s) for suggestedInverseMaxPower; going down is faster than going up. */
+  private static readonly SUGGESTED_RAMP_DOWN_W_PER_S = 15;
+  private static readonly SUGGESTED_RAMP_UP_W_PER_S = 5;
+  /** Upper bound for the elapsed time used in one ramp step, so a long gap between packData doesn't cause a jump. */
+  private static readonly SUGGESTED_RAMP_MAX_STEP_SECONDS = 60;
+  /** Hysteresis applied before stepping up a tier, so voltage recovering under reduced load doesn't flap the limit. */
+  private static readonly SUGGESTED_VOLTAGE_HYSTERESIS = 0.03;
+  private static readonly SUGGESTED_SOC_HYSTERESIS = 2;
+  /** At or below this cell voltage the suggestion drops immediately instead of ramping down. */
+  private static readonly SUGGESTED_CRITICAL_VOLTAGE = 3.1;
 
   public constructor(
     _adapter: ZendureSolarflow,
@@ -1116,9 +1132,13 @@ export class ZenIobDevice {
     }
 
     let minSoc: number | undefined;
+    let socSet: number | undefined;
     if (isFirstPayload) {
       const minSocState = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.minSoc`);
       minSoc = (minSocState?.val ? Number(minSocState.val) : 1) * 10;
+
+      const socSetState = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.socSet`);
+      socSet = (socSetState?.val ? Number(socSetState.val) : 100) * 10;
     }
 
     const _arguments: IHemsEpPayload =
@@ -1129,7 +1149,7 @@ export class ZenIobDevice {
             chargePower: 0,
             freq: 0,
             mode: 9,
-            ...(isFirstPayload ? { minSoc, inverseMaxPower } : {}),
+            ...(isFirstPayload ? { minSoc, socSet, inverseMaxPower } : {}),
           };
 
     const hemsEP = {
@@ -1143,6 +1163,17 @@ export class ZenIobDevice {
     // Keep the control state in sync with the limit actually sent (also when set by the automation, not via the state).
     await this.updateSolarFlowControlState("setDeviceAutomationInOutLimit", limit);
 
+    if (isFirstPayload && this.resendSettingsAfterHemsInit) {
+      // The device doesn't always apply the settings sent with the first hemsEP payload, so send them again
+      if (this.resendHemsSettingsTimeout) {
+        this.adapter.clearTimeout(this.resendHemsSettingsTimeout);
+      }
+      this.resendHemsSettingsTimeout = this.adapter.setTimeout(() => {
+        this.resendHemsSettingsTimeout = undefined;
+        void this.resendHemsSettings();
+      }, 10000);
+    }
+
     if (limit === 0) {
       // Release HEMS control 3s after idling at 0, unless a new setpoint arrives first (see cancellation above)
       this.releaseHemsControlTimeout = this.adapter.setTimeout(() => {
@@ -1150,6 +1181,48 @@ export class ZenIobDevice {
         this.setHemsState(false);
       }, 3000);
     }
+  }
+
+  private resendHemsSettingsTimeout?: ioBroker.Timeout;
+
+  /**
+   * Sends minSoc, socSet and inverseMaxPower again from their current states. Called ~10s after HEMS mode was
+   * initialized with the first hemsEP payload.
+   */
+  private async resendHemsSettings(): Promise<void> {
+    const hemsState = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.hemsState`);
+    if (!hemsState?.val) {
+      this.adapter.log.debug(`[resendHemsSettings] HEMS is not active anymore on ${this.deviceKey}, nothing to resend`);
+      return;
+    }
+
+    const properties: Record<string, number> = {};
+
+    const minSocState = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.minSoc`);
+    if (minSocState?.val != null) {
+      properties.minSoc = Number(minSocState.val) * 10;
+    }
+
+    const socSetState = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.socSet`);
+    if (socSetState?.val != null) {
+      properties.socSet = Number(socSetState.val) * 10;
+    }
+
+    const inverseMaxPowerState = await this.adapter.getStateAsync(
+      `${this.productKey}.${this.deviceKey}.inverseMaxPower`,
+    );
+    if (inverseMaxPowerState?.val != null) {
+      properties.inverseMaxPower = Math.round(Number(inverseMaxPowerState.val));
+    }
+
+    if (Object.keys(properties).length === 0) {
+      this.adapter.log.warn(`[resendHemsSettings] No minSoc, socSet or inverseMaxPower known for ${this.deviceKey}!`);
+      return;
+    }
+
+    this.adapter.log.debug(`[resendHemsSettings] Resending ${JSON.stringify(properties)} to ${this.deviceKey}`);
+
+    this.writeMqttProperties(JSON.stringify({ properties }));
   }
 
   public setAcMode(acMode: number): void {
@@ -1721,7 +1794,7 @@ export class ZenIobDevice {
   ): { limit: number; reason: string } {
     const HIGH_VOLTAGE = 3.23;
     const MID_VOLTAGE = 3.2;
-    const LOW_VOLTAGE = 3.1;
+    const LOW_VOLTAGE = ZenIobDevice.SUGGESTED_CRITICAL_VOLTAGE;
 
     let newLimit = 0;
     let reason = "";
@@ -1763,6 +1836,77 @@ export class ZenIobDevice {
   }
 
   /**
+   * Smooths getSuggestedInverseMaxPower over time to avoid hard jumps and flapping between tiers.
+   *
+   * - Stepping up uses a conservative target (voltage and SOC reduced by a hysteresis margin), because the
+   *   cell voltage recovers as soon as the limit is lowered - without hysteresis this oscillates (e.g. 130W <-> 500W).
+   * - Going down ramps at SUGGESTED_RAMP_DOWN_W_PER_S, going up at SUGGESTED_RAMP_UP_W_PER_S.
+   * - Reaching minSoc or a critical cell voltage drops the limit immediately.
+   * - Between the conservative and the raw target the current value is held.
+   *
+   * @param minVoltage lowest single-cell voltage (V) across all battery packs of this device
+   * @param soc device state of charge (%)
+   * @param maxLimit the device's currently configured inverseMaxPower (W)
+   * @param minSoc the device's configured discharge limit (%)
+   */
+  private getRampedSuggestedInverseMaxPower(
+    minVoltage: number,
+    soc: number,
+    maxLimit: number,
+    minSoc?: number,
+  ): { limit: number; reason: string } {
+    const raw = this.getSuggestedInverseMaxPower(minVoltage, soc, maxLimit, minSoc);
+    const now = Date.now();
+    const previous = this.rampedInverseMaxPower;
+    const elapsedSeconds =
+      this.rampedInverseMaxPowerTimestamp != null
+        ? Math.min((now - this.rampedInverseMaxPowerTimestamp) / 1000, ZenIobDevice.SUGGESTED_RAMP_MAX_STEP_SECONDS)
+        : 0;
+
+    let limit: number;
+    let reason = raw.reason;
+
+    if (previous == null) {
+      limit = raw.limit;
+    } else if (raw.limit < previous && (raw.limit === 0 || minVoltage <= ZenIobDevice.SUGGESTED_CRITICAL_VOLTAGE)) {
+      limit = raw.limit;
+    } else if (raw.limit < previous) {
+      limit = Math.max(raw.limit, previous - elapsedSeconds * ZenIobDevice.SUGGESTED_RAMP_DOWN_W_PER_S);
+      if (limit > raw.limit) {
+        reason += ` - ramping down to ${raw.limit}W`;
+      }
+    } else {
+      const upTarget = this.getSuggestedInverseMaxPower(
+        minVoltage - ZenIobDevice.SUGGESTED_VOLTAGE_HYSTERESIS,
+        soc - ZenIobDevice.SUGGESTED_SOC_HYSTERESIS,
+        maxLimit,
+        minSoc,
+      ).limit;
+
+      if (upTarget > previous) {
+        limit = Math.min(upTarget, previous + elapsedSeconds * ZenIobDevice.SUGGESTED_RAMP_UP_W_PER_S);
+        if (limit < upTarget) {
+          reason += ` - ramping up to ${upTarget}W`;
+        }
+      } else {
+        limit = previous;
+        if (limit < raw.limit) {
+          reason += ` - holding ${limit}W (hysteresis)`;
+        }
+      }
+    }
+
+    // A lowered inverseMaxPower always applies immediately
+    limit = Math.min(Math.max(limit, 0), maxLimit);
+
+    // Keep the unrounded value, otherwise small steps from frequent updates would be rounded away
+    this.rampedInverseMaxPower = limit;
+    this.rampedInverseMaxPowerTimestamp = now;
+
+    return { limit: Math.round(limit), reason };
+  }
+
+  /**
    * Recalculates and persists 'adapterAutomation.suggestedInverseMaxPower' and
    * 'adapterAutomation.suggestedInverseMaxPowerInfo' for this device.
    *
@@ -1784,12 +1928,11 @@ export class ZenIobDevice {
 
     const minSocState = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.minSoc`);
 
-    const { limit, reason } = this.getSuggestedInverseMaxPower(
-      minVoltage,
-      Number(electricLevelState.val),
-      Number(inverseMaxPowerState.val),
-      minSocState?.val != null ? Number(minSocState.val) : undefined,
-    );
+    const soc = Number(electricLevelState.val);
+    const maxLimit = Number(inverseMaxPowerState.val);
+    const minSoc = minSocState?.val != null ? Number(minSocState.val) : undefined;
+
+    const { limit, reason } = this.getRampedSuggestedInverseMaxPower(minVoltage, soc, maxLimit, minSoc);
 
     await this.adapter?.setState(
       `${this.productKey}.${this.deviceKey}.adapterAutomation.suggestedInverseMaxPower`,

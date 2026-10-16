@@ -1505,6 +1505,12 @@ export const runZeroFeedInAutomation = async (
           // No (further) budget for this device: end charging explicitly (via the charge keep-alive)
           // rather than leaving a possibly still running old limit in place.
           state.newLimit = chargeKeepAliveOrZero(device, state);
+          if (state.newLimit < 0) {
+            // The charge power is excluded from the home usage (see currentTotalChargePowerAll), so the feed-in
+            // devices wouldn't cover the keep-alive draw - it would come from the grid until the integral catches
+            // up. Cover it directly instead (at most what the device actually draws).
+            piAdjustedHomeUsage += Math.min(-state.newLimit, getEffectiveChargePower(state));
+          }
         }
       } else if (state.currentLimit >= getMinLimit(device)) {
         // Keep the device at its feed-in standby rather than a full stop - it reacts faster once needed again.
