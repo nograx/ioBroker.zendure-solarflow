@@ -76,16 +76,17 @@ const zenLogin = async (adapter) => {
     adapter.log.error(`[zenLogin] deviceList response is empty!`);
     return null;
   }).catch(function(error) {
+    var _a, _b, _c, _d;
     if (error.response) {
       adapter.log.error(`[zenLogin] Response data: ${JSON.stringify(error.response.data, null, 2)}`);
       adapter.log.error(`[zenLogin] status: ${error.response.status}`);
       adapter.log.error(`[zenLogin] headers: ${JSON.stringify(error.response.headers, null, 2)}`);
     } else if (error.request) {
-      adapter.log.error(`[zenLogin] Request data: ${JSON.stringify(error.request, null, 2)}`);
+      adapter.log.error(`[zenLogin] No response from ${apiUrl}: ${(_a = error.code) != null ? _a : ""} ${error.message}`);
     } else {
       adapter.log.error(`[zenLogin] Error: ${error.message}`);
     }
-    adapter.log.error(JSON.stringify(error.config, null, 2));
+    adapter.log.debug(`[zenLogin] Request: ${(_c = (_b = error.config) == null ? void 0 : _b.method) == null ? void 0 : _c.toUpperCase()} ${(_d = error.config) == null ? void 0 : _d.url}`);
     return void 0;
   });
 };

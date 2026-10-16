@@ -426,7 +426,7 @@ class ZenIobDevice {
                 en: "Feed in current solar input only (don't discharge battery)"
               },
               type: "boolean",
-              desc: "feedInSolarOnly",
+              desc: "Only applies while solar input is above 50 W - at or below 50 W (e.g. at night) the battery may be used for feed-in as usual",
               role: "switch",
               read: true,
               write: true,

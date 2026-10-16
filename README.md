@@ -170,8 +170,7 @@ For more details and for information on how to disable error reporting, see the 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
-
-### **WORK IN PROGRESS**
+### 6.1.3 (2026-10-16)
 
 - Adapter automation: `feedInSolarOnly` now only limits feed-in to the solar input while it is above 50 W; at or below 50 W the battery may be used for feed-in (replaces the previous low solar input warning)
 - Fixed adapter crash (`Converting circular structure to JSON`) when the Zendure cloud API does not respond

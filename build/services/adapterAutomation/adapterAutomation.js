@@ -41,8 +41,7 @@ const ZEN_SDK_MIN_LIMIT_W = 30;
 const DEFAULT_MIN_LIMIT_W = 10;
 const DEFAULT_MIN_IDLE_BEFORE_CHARGE_MS = 60 * 1e3;
 const MIN_IDLE_BEFORE_CHARGE_MIN_MS = 5 * 1e3;
-const SOLAR_ONLY_WARNING_THRESHOLD_W = 50;
-const SOLAR_ONLY_WARNING_INTERVAL_MS = 5 * 60 * 1e3;
+const SOLAR_ONLY_THRESHOLD_W = 50;
 const MAX_FEED_IN_STEP_W = 100;
 const SHORT_TERM_GRID_ALPHA = 0.3;
 const HOME_USAGE_STEP_W = 300;
@@ -103,7 +102,6 @@ const getDeviceState = (device) => {
       forceAcCharging: false,
       acChargingAllowed: false,
       feedInSolarOnly: false,
-      lastSolarOnlyWarningMs: 0,
       name: "",
       soc: 0,
       minSoc: 0,
@@ -259,13 +257,12 @@ const isFeedInSolarOnly = async (adapter, device) => {
   const state = await adapter.getStateAsync(`${deviceId(device)}.adapterAutomation.feedInSolarOnly`);
   return (state == null ? void 0 : state.val) === true;
 };
-const applyMaxLimit = (device, state) => {
-  if (!state.feedInSolarOnly) {
+const applyMaxLimit = (state) => {
+  if (!state.feedInSolarOnly || state.solarInputPower <= SOLAR_ONLY_THRESHOLD_W) {
     state.maxLimit = state.configuredMaxLimit;
     return;
   }
-  const solarLimit = state.solarInputPower >= getMinLimit(device) ? Math.floor(state.solarInputPower) : 0;
-  state.maxLimit = Math.min(state.configuredMaxLimit, solarLimit);
+  state.maxLimit = Math.min(state.configuredMaxLimit, Math.floor(state.solarInputPower));
 };
 const canSurplusCharge = (device) => device.isAcOnly || getDeviceState(device).acChargingAllowed;
 const refreshAutomationStatuses = async (adapter) => {
@@ -380,7 +377,7 @@ const updateAutomationDeviceMetrics = async (adapter) => {
     const chargeMaxLimitState = await adapter.getStateAsync(`${id}.chargeMaxLimit`);
     state.chargeMaxLimit = (chargeMaxLimitState == null ? void 0 : chargeMaxLimitState.val) != null ? Number(chargeMaxLimitState.val) : device.maxInputLimit;
     state.feedInSolarOnly = await isFeedInSolarOnly(adapter, device);
-    applyMaxLimit(device, state);
+    applyMaxLimit(state);
   }
   if (needsResort) {
     adapter.log.debug(`${LOG} maxLimit changed significantly, re-sorting devices!`);
@@ -488,7 +485,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       state.feedInSolarOnly = await isFeedInSolarOnly(adapter, device);
       const solarInputPowerState = await adapter.getStateAsync(`${id}.solarInputPower`);
       state.solarInputPower = (solarInputPowerState == null ? void 0 : solarInputPowerState.val) != null ? Number(solarInputPowerState.val) : 0;
-      applyMaxLimit(device, state);
+      applyMaxLimit(state);
       const currentLimitState = await adapter.getStateAsync(`${id}.control.setDeviceAutomationInOutLimit`);
       state.lastChangeMs = (currentLimitState == null ? void 0 : currentLimitState.lc) ? now - currentLimitState.lc : Number.MAX_SAFE_INTEGER;
       if (state.limitCommandsInFlight === 0) {
@@ -799,15 +796,6 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
         piAdjustedHomeUsage -= getMinLimit(device);
       } else {
         state.newLimit = 0;
-      }
-    }
-    for (const device of devices) {
-      const state = getDeviceState(device);
-      if (state.enabled && state.feedInSolarOnly && state.solarInputPower < SOLAR_ONLY_WARNING_THRESHOLD_W && piAdjustedHomeUsage > state.solarInputPower && now - state.lastSolarOnlyWarningMs >= SOLAR_ONLY_WARNING_INTERVAL_MS) {
-        state.lastSolarOnlyWarningMs = now;
-        adapter.log.warn(
-          `${LOG} '${deviceLabel(device)}' feeds in solar input only (feedInSolarOnly), but solar input is ${state.solarInputPower}W while ${Math.round(piAdjustedHomeUsage)}W feed-in is required.`
-        );
       }
     }
     adjustableInputDevices.forEach((device) => {
