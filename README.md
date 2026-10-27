@@ -172,8 +172,7 @@ For more details and for information on how to disable error reporting, see the 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
-
-### **WORK IN PROGRESS**
+### 6.1.4 (2026-10-27)
 
 - Adapter automation: Fixed feed-in being too low when a device in the feed-in group is at its minSoc or has no output power available (its share was not given to the other devices)
 - Adapter automation: New status codes `100` (idle, battery at minimum SOC) and `110` (idle, no output power available) instead of the generic `90` (idle)
@@ -214,10 +213,6 @@ For more details and for information on how to disable error reporting, see the 
 - Output limit can now be set on devices without an autoModel state (previously rejected because autoModel was not '0').
 - Disconnect MQTT clients cleanly when the adapter is stopped or restarted.
 - Added Sentry (default ioBroker plugin) for error reporting and device statistics.
-
-### 5.3.2 (2026-09-28)
-
-- Fix to ignore MQTT messages from unknown devices
 
 For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 

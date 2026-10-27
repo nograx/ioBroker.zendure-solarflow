@@ -1,4 +1,8 @@
 # Older changes
+## 5.3.2 (2026-09-28)
+
+- Fix to ignore MQTT messages from unknown devices
+
 ## 5.3.1 (2026-09-21)
 
 - Fixed an issue to ignore empty properties
