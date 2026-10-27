@@ -10,6 +10,10 @@ const ZENDURE_DEVICE_NAME_PREFIX = "Zendure-";
 // this the same problem would be reported over and over while the adapter is running.
 const reportedToSentry = new Set<string>();
 
+// Serial numbers (upper case) of devices currently being created - createZenSdkDevice is async, and the same
+// device may be announced again (or found via its configured IP) before its creation has finished.
+const devicesInCreation = new Set<string>();
+
 /**
  * Reports a problem with an mDNS-discovered or IP-configured device to Sentry (like unknown devices from the cloud device
  * list in main.ts), at most once per service name and adapter run.
@@ -70,10 +74,39 @@ function extractModelAndSerial(serviceName: string): { modelName: string; snNumb
 }
 
 /**
+ * Finds the state tree of a device with the given serial number that was created before, e.g. from the cloud device
+ * list (with the cloud deviceKey, which doesn't contain the serial number) before switching to 'zenSDK only' mode.
+ * Every device writes its serial number to '<productKey>.<deviceKey>.snNumber'.
+ *
+ * @param adapter the adapter instance
+ * @param snNumber the serial number of the device
+ * @returns the productKey/deviceKey of the existing state tree, or undefined if there is none
+ */
+async function findExistingStateTreeKeys(
+  adapter: ZendureSolarflow,
+  snNumber: string,
+): Promise<{ productKey: string; deviceKey: string } | undefined> {
+  const states = await adapter.getStatesAsync("*.snNumber");
+  const normalizedSnNumber = snNumber.toUpperCase();
+
+  for (const [id, state] of Object.entries(states ?? {})) {
+    const parts = id.substring(adapter.namespace.length + 1).split(".");
+
+    if (parts.length === 3 && typeof state?.val === "string" && state.val.toUpperCase() === normalizedSnNumber) {
+      return { productKey: parts[0], deviceKey: parts[1] };
+    }
+  }
+
+  return undefined;
+}
+
+/**
  * Creates a new device model for a zenSDK-compatible device that is not (yet) known from the cloud device list
- * (e.g. no cloud account configured, or the device was not yet synced to the cloud). The device's serial number is
- * used as its deviceKey, since no cloud-assigned deviceKey is available for it. Used for devices discovered via
- * mDNS as well as for devices configured with a fixed IP address (see manualZenSdkDeviceService.ts).
+ * (e.g. no cloud account configured, or the device was not yet synced to the cloud). If a state tree for the
+ * device's serial number already exists (e.g. created from the cloud device list before), it is kept, so scripts,
+ * visualizations and history keep working. Otherwise the device's serial number is used as its deviceKey, since no
+ * cloud-assigned deviceKey is available for it. Used for devices discovered via mDNS as well as for devices
+ * configured with a fixed IP address (see manualZenSdkDeviceService.ts).
  *
  * @param adapter the adapter instance, used for logging and to register the new device
  * @param modelName the model name as reported by the device (mDNS service name part or zenSDK 'product' field)
@@ -82,15 +115,20 @@ function extractModelAndSerial(serviceName: string): { modelName: string; snNumb
  * @param source description of where the device was found, for logging (e.g. the mDNS service name)
  * @returns whether the device exists now (was created, or was already created before)
  */
-export function createZenSdkDevice(
+export async function createZenSdkDevice(
   adapter: ZendureSolarflow,
   modelName: string,
   snNumber: string,
   ipAddress: string,
   source: string,
-): boolean {
-  if (adapter.zenIobDeviceList.some((x) => x.snNumber?.toUpperCase() === snNumber.toUpperCase())) {
-    // Already created before (e.g. for a previous mDNS announcement of the same device)
+): Promise<boolean> {
+  const normalizedSnNumber = snNumber.toUpperCase();
+
+  if (
+    devicesInCreation.has(normalizedSnNumber) ||
+    adapter.zenIobDeviceList.some((x) => x.snNumber?.toUpperCase() === normalizedSnNumber)
+  ) {
+    // Already created before (e.g. for a previous mDNS announcement of the same device), or currently being created
     return true;
   }
 
@@ -102,6 +140,39 @@ export function createZenSdkDevice(
     );
     reportToSentry(adapter, source, `[mdnsHelper] Unknown zenSDK model '${modelName}' ('${source}')`);
     return false;
+  }
+
+  devicesInCreation.add(normalizedSnNumber);
+
+  try {
+    return await createZenSdkDeviceModel(adapter, product, snNumber, ipAddress, source);
+  } finally {
+    devicesInCreation.delete(normalizedSnNumber);
+  }
+}
+
+async function createZenSdkDeviceModel(
+  adapter: ZendureSolarflow,
+  product: { productKey: string; productModel: string },
+  snNumber: string,
+  ipAddress: string,
+  source: string,
+): Promise<boolean> {
+  let treeKeys = { productKey: product.productKey, deviceKey: snNumber };
+
+  try {
+    const existingTreeKeys = await findExistingStateTreeKeys(adapter, snNumber);
+
+    if (existingTreeKeys) {
+      adapter.log.info(
+        `[mdnsHelper] Device '${source}' (serial: ${snNumber}) was created before, keeping its existing states at '${existingTreeKeys.productKey}.${existingTreeKeys.deviceKey}'!`,
+      );
+      treeKeys = existingTreeKeys;
+    }
+  } catch (error: any) {
+    adapter.log.warn(
+      `[mdnsHelper] Could not check for existing states of device '${source}': ${error?.message ?? error}`,
+    );
   }
 
   adapter.log.info(
@@ -125,7 +196,12 @@ export function createZenSdkDevice(
     username: "",
   };
 
-  const deviceModel = createDeviceModel(adapter, product.productKey, snNumber, zenHaDeviceDetails);
+  let deviceModel = createDeviceModel(adapter, treeKeys.productKey, treeKeys.deviceKey, zenHaDeviceDetails);
+
+  if (!deviceModel && treeKeys.productKey !== product.productKey) {
+    // Existing state tree has a productKey which is no longer known, use the default keys instead
+    deviceModel = createDeviceModel(adapter, product.productKey, snNumber, zenHaDeviceDetails);
+  }
 
   if (deviceModel) {
     adapter.zenIobDeviceList.push(deviceModel);
@@ -146,14 +222,14 @@ export function createZenSdkDevice(
  * @param serviceName the full mDNS service name the device was discovered with
  * @param ipAddress the IP address the device was discovered at
  */
-function createDeviceFromMdns(adapter: ZendureSolarflow, serviceName: string, ipAddress: string): void {
+async function createDeviceFromMdns(adapter: ZendureSolarflow, serviceName: string, ipAddress: string): Promise<void> {
   const parsed = extractModelAndSerial(serviceName);
 
   if (!parsed) {
     return;
   }
 
-  createZenSdkDevice(adapter, parsed.modelName, parsed.snNumber, ipAddress, `mDNS: ${serviceName}`);
+  await createZenSdkDevice(adapter, parsed.modelName, parsed.snNumber, ipAddress, `mDNS: ${serviceName}`);
 }
 
 /**
@@ -200,5 +276,7 @@ export function handleDiscoveredService(adapter: ZendureSolarflow, service: Bonj
     return;
   }
 
-  createDeviceFromMdns(adapter, service.name, ipAddress);
+  createDeviceFromMdns(adapter, service.name, ipAddress).catch((error: any) => {
+    adapter.log.error(`[mdnsHelper] Error creating device for '${service.name}': ${error?.message ?? error}`);
+  });
 }

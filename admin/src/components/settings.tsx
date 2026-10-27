@@ -36,6 +36,7 @@ const productKeys: { value; title }[] = [
   { value: "BC8B7F", title: "SolarFlow 2400 AC (BC8B7F)" },
   { value: "5fG27j", title: "SolarFlow 2400 AC+ (5fG27j)" },
   { value: "2Qe7C9", title: "SolarFlow 2400 Pro (2Qe7C9)" },
+  { value: "g0wyvD", title: "SolarFlow 3000 Mix AC+ (g0wyvD)" },
   { value: "B1NHMC", title: "SolarFlow 800 (B1NHMC)" },
   { value: "a4ss5P", title: "SolarFlow 800 (a4ss5P)" },
   { value: "R3mn8U", title: "SolarFlow 800 Pro (R3mn8U)" },

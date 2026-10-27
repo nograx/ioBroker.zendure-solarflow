@@ -140,7 +140,7 @@ export class ManualZenSdkDeviceService {
         return;
       }
 
-      createZenSdkDevice(this.adapter, product, snNumber, address, source);
+      await createZenSdkDevice(this.adapter, product, snNumber, address, source);
     } catch (error: any) {
       this.logFailure(address, `Device at ${address} is not reachable via zenSDK: ${error?.message ?? error}`);
     } finally {

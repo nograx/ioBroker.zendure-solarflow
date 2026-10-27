@@ -126,8 +126,9 @@ const deviceDefinitions: ZenDeviceDefinition[] = [
     mdnsModelNames: ["solarflow4000mixpro"],
   },
   {
-    // No cloud productKey known for this device yet - it's only ever created via mDNS auto-discovery.
-    productKeys: ["solarflow3000mixacplus"],
+    // "solarflow3000mixacplus" stays first: it's the productKey of devices created via mDNS before the cloud
+    // productKey "g0wyvD" was known (their state trees are kept, see getStateTreeKeys in main.ts).
+    productKeys: ["solarflow3000mixacplus", "g0wyvD"],
     productModel: "Solarflow 3000 Mix AC+",
     ctor: Sf3000MixAcPlus,
     mdnsModelNames: ["solarflow3000mixacplus"],

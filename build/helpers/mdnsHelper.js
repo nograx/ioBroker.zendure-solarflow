@@ -28,6 +28,7 @@ var import_helpers = require("./helpers");
 var import_sentryHelper = require("./sentryHelper");
 const ZENDURE_DEVICE_NAME_PREFIX = "Zendure-";
 const reportedToSentry = /* @__PURE__ */ new Set();
+const devicesInCreation = /* @__PURE__ */ new Set();
 function reportToSentry(adapter, serviceName, message) {
   if (reportedToSentry.has(serviceName)) {
     return;
@@ -53,10 +54,22 @@ function extractModelAndSerial(serviceName) {
     snNumber: withoutPrefix.slice(lastDashIndex + 1)
   };
 }
-function createZenSdkDevice(adapter, modelName, snNumber, ipAddress, source) {
-  if (adapter.zenIobDeviceList.some((x) => {
+async function findExistingStateTreeKeys(adapter, snNumber) {
+  const states = await adapter.getStatesAsync("*.snNumber");
+  const normalizedSnNumber = snNumber.toUpperCase();
+  for (const [id, state] of Object.entries(states != null ? states : {})) {
+    const parts = id.substring(adapter.namespace.length + 1).split(".");
+    if (parts.length === 3 && typeof (state == null ? void 0 : state.val) === "string" && state.val.toUpperCase() === normalizedSnNumber) {
+      return { productKey: parts[0], deviceKey: parts[1] };
+    }
+  }
+  return void 0;
+}
+async function createZenSdkDevice(adapter, modelName, snNumber, ipAddress, source) {
+  const normalizedSnNumber = snNumber.toUpperCase();
+  if (devicesInCreation.has(normalizedSnNumber) || adapter.zenIobDeviceList.some((x) => {
     var _a;
-    return ((_a = x.snNumber) == null ? void 0 : _a.toUpperCase()) === snNumber.toUpperCase();
+    return ((_a = x.snNumber) == null ? void 0 : _a.toUpperCase()) === normalizedSnNumber;
   })) {
     return true;
   }
@@ -67,6 +80,29 @@ function createZenSdkDevice(adapter, modelName, snNumber, ipAddress, source) {
     );
     reportToSentry(adapter, source, `[mdnsHelper] Unknown zenSDK model '${modelName}' ('${source}')`);
     return false;
+  }
+  devicesInCreation.add(normalizedSnNumber);
+  try {
+    return await createZenSdkDeviceModel(adapter, product, snNumber, ipAddress, source);
+  } finally {
+    devicesInCreation.delete(normalizedSnNumber);
+  }
+}
+async function createZenSdkDeviceModel(adapter, product, snNumber, ipAddress, source) {
+  var _a;
+  let treeKeys = { productKey: product.productKey, deviceKey: snNumber };
+  try {
+    const existingTreeKeys = await findExistingStateTreeKeys(adapter, snNumber);
+    if (existingTreeKeys) {
+      adapter.log.info(
+        `[mdnsHelper] Device '${source}' (serial: ${snNumber}) was created before, keeping its existing states at '${existingTreeKeys.productKey}.${existingTreeKeys.deviceKey}'!`
+      );
+      treeKeys = existingTreeKeys;
+    }
+  } catch (error) {
+    adapter.log.warn(
+      `[mdnsHelper] Could not check for existing states of device '${source}': ${(_a = error == null ? void 0 : error.message) != null ? _a : error}`
+    );
   }
   adapter.log.info(
     `[mdnsHelper] Creating new device for '${source}' (model: ${product.productModel}, serial: ${snNumber}) at IP ${ipAddress}!`
@@ -87,7 +123,10 @@ function createZenSdkDevice(adapter, modelName, snNumber, ipAddress, source) {
     snNumber,
     username: ""
   };
-  const deviceModel = (0, import_helpers.createDeviceModel)(adapter, product.productKey, snNumber, zenHaDeviceDetails);
+  let deviceModel = (0, import_helpers.createDeviceModel)(adapter, treeKeys.productKey, treeKeys.deviceKey, zenHaDeviceDetails);
+  if (!deviceModel && treeKeys.productKey !== product.productKey) {
+    deviceModel = (0, import_helpers.createDeviceModel)(adapter, product.productKey, snNumber, zenHaDeviceDetails);
+  }
   if (deviceModel) {
     adapter.zenIobDeviceList.push(deviceModel);
     return true;
@@ -97,12 +136,12 @@ function createZenSdkDevice(adapter, modelName, snNumber, ipAddress, source) {
   reportToSentry(adapter, source, message);
   return false;
 }
-function createDeviceFromMdns(adapter, serviceName, ipAddress) {
+async function createDeviceFromMdns(adapter, serviceName, ipAddress) {
   const parsed = extractModelAndSerial(serviceName);
   if (!parsed) {
     return;
   }
-  createZenSdkDevice(adapter, parsed.modelName, parsed.snNumber, ipAddress, `mDNS: ${serviceName}`);
+  await createZenSdkDevice(adapter, parsed.modelName, parsed.snNumber, ipAddress, `mDNS: ${serviceName}`);
 }
 function handleDiscoveredService(adapter, service) {
   var _a, _b, _c, _d, _e, _f, _g;
@@ -128,7 +167,10 @@ function handleDiscoveredService(adapter, service) {
     device.connectViaMdns(ipAddress, service.name, service.host);
     return;
   }
-  createDeviceFromMdns(adapter, service.name, ipAddress);
+  createDeviceFromMdns(adapter, service.name, ipAddress).catch((error) => {
+    var _a2;
+    adapter.log.error(`[mdnsHelper] Error creating device for '${service.name}': ${(_a2 = error == null ? void 0 : error.message) != null ? _a2 : error}`);
+  });
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

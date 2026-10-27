@@ -128,7 +128,7 @@ class ManualZenSdkDeviceService {
         );
         return;
       }
-      (0, import_mdnsHelper.createZenSdkDevice)(this.adapter, product, snNumber, address, source);
+      await (0, import_mdnsHelper.createZenSdkDevice)(this.adapter, product, snNumber, address, source);
     } catch (error) {
       this.logFailure(address, `Device at ${address} is not reachable via zenSDK: ${(_a = error == null ? void 0 : error.message) != null ? _a : error}`);
     } finally {
