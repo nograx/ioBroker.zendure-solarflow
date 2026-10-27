@@ -9,8 +9,21 @@
         ]
       }
     },
-    "version": "6.1.4",
+    "version": "6.1.5",
     "news": {
+      "6.1.5": {
+        "en": "Adapter automation: A lead device that reached its minSoc or has no output power available (e.g. `suggestedInverseMaxPower` is 0) is now released from feed-in and another device takes over as lead device",
+        "de": "Adapterautomatisierung: Ein Lead-Gerät, das seinen MinSOC erreicht hat oder keine Ausgangsleistung hat (z. B. `SuggestedInverseMaxPower` ist 0), wird nun aus dem Netz genommen und ein anderes Gerät",
+        "ru": "Автоматизация адаптера: ведущее устройство, вышедшее на уровень minSoC или не имеющее выходной мощности (например, значение «SuggestedInverseMaxPower» равно 0), теперь отключается от питания, а другое устройство становится ведущим устройством",
+        "pt": "Automação do adaptador: um dispositivo líder que atingiu seu MinSoC ou não tem potência de saída disponível (por exemplo, `sugestedInverseMaxPower` é 0) agora é liberado e outro assume o controle",
+        "nl": "Automatisering van de adapter: Een hoofdapparaat dat zijn MinSoC heeft bereikt of geen uitgangsvermogen beschikbaar heeft (bijv. `SuggestedInverseMaxPower` is 0) wordt nu niet meer ingevoerd en een ander apparaat neemt het over als hoofdapparaat",
+        "fr": "Automatisation de l'adaptateur : un appareil qui a atteint son MinSoC ou qui n'a pas de puissance de sortie (par exemple, « SuggestedInverseMaxPower » vaut 0) est maintenant retiré de l'alimentation et un autre prend la relève",
+        "it": "Automazione dell'adattatore: un dispositivo lead che ha raggiunto il suo MinSoC o non ha potenza di uscita (ad esempio `SuggestedInverseMaxPower` è 0) e un altro dispositivo lo sostituisce",
+        "es": "Automatización del adaptador: un dispositivo principal que llegó a su minSoC o no tiene potencia de salida disponible (por ejemplo, `SuggesterseMaxPower` es 0) ahora se libera de la alimentación y otro dispositivo pasa a ser",
+        "pl": "Automatyzacja adaptera: urządzenie ołowiające, które osiągnęło swój MinSoC lub nie ma dostępnej mocy wyjściowej (np. „SuggestedInverseMaxPower” wynosi 0), jest teraz uwalniane z zasilania, a inne urządzenie przejmuje kontrolę jako urządzenie ołowiające",
+        "uk": "Автоматизація адаптера: провідний пристрій, який досяг свого MinSoC або не має доступної вихідної потужності (наприклад, `SuggestedInverseMaxPower` дорівнює 0) тепер звільняється від подачі, а інший пристрій бере на себе провідний пристрій",
+        "zh-cn": "适配器自动化：达到其 minSoC 或没有可用输出功率（例如 “SuggedInverseMaxPower” 为 0）的主导设备现已从馈电中释放，另一个设备接管为主设备"
+      },
       "6.1.4": {
         "en": "Adapter automation: Fixed feed-in being too low when a device in the feed-in group is at its minSoc or has no output power available (its share was not given to the other devices)\nAdapter automation: New status codes `100` (idle, battery at minimum SOC) and `110` (idle, no output power available) instead of the generic `90` (idle)\nAdd productKey 'g0wyvD' for Solarflow 3000 Mix AC+ (now also created from the cloud device list, not only via mDNS discovery)\nDevices found via mDNS or a configured IP now keep their existing states (matched by serial number), e.g. after switching from the cloud key to 'zenSDK only' mode",
         "de": "Adapterautomatisierung: Zu niedrige Einspeisung, wenn ein Gerät in der Gruppe seinen MinSOC hat oder keine Ausgangsleistung hat (der Anteil ging nicht an die anderen Geräte)\nAdapterautomatisierung: Neue Statuscodes `100` (Idle, Akku mit mindestens SOC) und `110` (Idle, keine Ausgangsleistung) statt `90` (Idle)\nProductKey 'G0wyvd' für Solarflow 3000 Mix AC+ hinzufügen (jetzt auch aus der Cloud-Geräteliste, nicht nur per mDNS Discovery)\nPer mDNS oder konfigurierter IP gefundene Geräte behalten nun ihren Status (Seriennummer), z. B. nach dem Wechsel vom Cloud-Key zum Modus „Nur ZenSDK“",
@@ -88,19 +101,6 @@
         "pl": "Dodaj automatyzację adaptera (sterowanie zerowym zasilaniem), patrz sekcja „Automatyzacja adaptera” powyżej.\nDodaj tryb połączenia „tylko ZenSDK (mDNS)”: brak chmury Zendre i nie ma serwera MQTT, urządzenia są znalezione przez mDNS i sterowane przez ZenSDK. Discovery z MDN działa teraz tak długo, jak działa adapter. Nowe urządzenia są dodawane automatycznie.\nDodaj ustawienie „Urządzenia ZenSDK według adresu IP”: urządzenia ZenSDK mogą być konfigurowane według adresu IP, więc działają również wtedy, gdy mDNS nie dociera do nich (np. urządzenia w innym segmencie sieci/VLAN). Znane urządzenia są dopasowywane według numeru seryjnego i zachowują swoje stany, nieznane urządzenia są tworzone z ich numerem seryjnym jako kluczem.\nUrządzenia ZenSDK: Tryb SmartMode nie jest już wyłączony w trybie gotowości (limit automatyzacji 0), Uwaga: Obecnie nie jest pewne, czy trwale włączony tryb SmartMode zwiększa zużycie urządzenia w trybie czuwania. Podziękowania dla surfer1264 i cliffsolar za wkład i dyskusję.\nLimit wyjściowy można teraz ustawić na urządzeniach bez stanu AutoModel (wcześniej odrzucony, ponieważ AutoModel nie był „0”).\nPo zatrzymaniu lub ponownym uruchomieniu adaptera czysto odłącz klientów MQTT.\nDodano Sentry (domyślna wtyczka ioBroker) do raportowania błędów i statystyk urządzeń.",
         "uk": "Додайте автоматизацію адаптера (нульове управління подачею), див. Розділ «Автоматизація адаптера» вище.\nДодати режим підключення «Тільки ZenSDK (mDNS)»: немає хмари Zendura та сервера MQTT, пристрої знаходяться через mDNS та контролюються через ZenSDK. Відкриття з mDNS тепер працює до тих пір, поки адаптер працює. Нові пристрої додаються автоматично.\nДодати налаштування «пристрої ZenSDK за IP-адресою»: пристрої ZenSDK можна налаштувати за IP-адресою, тому вони також працюють, якщо mDNS не досягають їх (наприклад, пристрої в іншому сегменті мережі/VLAN). Відомі пристрої зіставляються за серійним номером і зберігають їх стан, невідомі пристрої створюються з їх серійним номером як ключем.\nПристрої ZenSDK: SmartMode більше не вимикається в режимі очікування (обмеження автоматизації 0), Примітка: Наразі невідомо, чи постійно увімкнений SmartMode збільшує споживання пристрою в режимі очікування. Дякуємо surfer1264 та cliffsolar за внесок та обговорення.\nЛіміт виводу тепер можна встановити на пристроях без стану AutoModel (раніше відхилено, оскільки AutoModel не був '0').\nЧітко відключіть клієнтів MQTT, коли адаптер зупинено або перезапущено.\nДодано Sentry (плагін IObroker за замовчуванням) для повідомлення про помилки та статистики пристроїв.",
         "zh-cn": "添加适配器自动化（零进给控制），参见上面的 “适配器自动化” 部分。\n添加 “仅限 ZenSDK（mDNS）” 的连接模式：没有 Zendure 云，没有 MQTT 服务器，设备通过 mDNS 找到，通过 ZenSDK 控制。现在，只要适配器处于运行状态，使用 mDNS 进行发现就会运行。新设备会自动添加。\n添加设置 “按 IP 地址配置 ZenSDK 设备”：ZenSDK 设备可以通过 IP 地址进行配置，因此在 mDNS 无法访问它们（例如，另一个网段/VLAN 中的设备）时，它们也可以工作。已知设备通过序列号匹配并保持其状态，未知设备是使用其序列号作为密钥创建的。\nZenSDK 设备：智能模式在待机状态下不再关闭（自动化限制 0），注意：目前尚不确定永久启用的智能模式是否会增加设备的待机功耗。感谢 surfer1264 和 cliffsolar 的意见和讨论。\n现在可以在没有 AutoModel 状态的设备上设置输出限制（之前因为 AutoModel 不是 “0” 而被拒绝）。\n当适配器停止或重新启动时，请彻底断开 MQTT 客户端的连接。\n为错误报告和设备统计添加了 Sentry（默认 IOBroker 插件）。"
-      },
-      "5.3.2": {
-        "en": "Fix to ignore MQTT messages from unknown devices",
-        "de": "Fix zum Ignorieren von MQTTs unbekannter Geräte",
-        "ru": "Исправлено игнорирование сообщений MQTT с неизвестных устройств",
-        "pt": "Correção para ignorar mensagens MQTT de PC",
-        "nl": "Oplossing om MQTT-berichten van onbekende apparaten te negeren",
-        "fr": "Corrigé pour ignorer les MQTT d'appareils inconnus",
-        "it": "Risolto il problema di ignorare MQTT da sconosciuti",
-        "es": "Arreglo para ignorar los mensajes MQTT de desconocidos",
-        "pl": "Poprawka ignorowania wiadomości MQTT z nieznanych urządzeń",
-        "uk": "Виправлено ігнорування повідомлень MQTT з невідомих пристроїв",
-        "zh-cn": "修复了忽略来自未知设备的 MQTT 消息的问题"
       }
     },
     "titleLang": {

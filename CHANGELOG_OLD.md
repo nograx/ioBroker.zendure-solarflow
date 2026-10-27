@@ -1,4 +1,14 @@
 # Older changes
+## 6.0.0 (2026-10-07)
+
+- Add adapter automation (zero feed-in control), see section "Adapter Automation" above.
+- Add connection mode "zenSDK only (mDNS)": no Zendure cloud and no MQTT server, devices are found via mDNS and controlled via zenSDK. Discovery with mDNS now runs as long as the adapter is running. New devices are added automatically.
+- (Schattenwelt) Add setting "zenSDK devices by IP address": zenSDK devices can be configured by IP address, so they also work if mDNS doesn't reach them (e.g. devices in another network segment / VLAN). Known devices are matched by serial number and keep their states, unknown devices are created with their serial number as key.
+- zenSDK devices: smartMode is no longer turned off in standby (automation limit 0), Note: Currently it's uncertain whether a permanently enabled smartMode increases the device's standby consumption. Thanks to surfer1264 and cliffsolar for input and discussion.
+- Output limit can now be set on devices without an autoModel state (previously rejected because autoModel was not '0').
+- Disconnect MQTT clients cleanly when the adapter is stopped or restarted.
+- Added Sentry (default ioBroker plugin) for error reporting and device statistics.
+
 ## 5.3.2 (2026-09-28)
 
 - Fix to ignore MQTT messages from unknown devices

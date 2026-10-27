@@ -172,8 +172,7 @@ For more details and for information on how to disable error reporting, see the 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
-
-### **WORK IN PROGRESS**
+### 6.1.5 (2026-10-27)
 
 - Adapter automation: A lead device that reached its minSoc or has no output power available (e.g. `suggestedInverseMaxPower` is 0) is now released from feed-in and another device takes over as lead device
 
@@ -208,16 +207,6 @@ For more details and for information on how to disable error reporting, see the 
 - Adapter automation: `acOnlyPenalty` now also applies to devices with `acChargingAllowed` (e.g. devices without solar panels)
 - Adapter automation (breaking): `<device>.adapterAutomation.status` is now a number with a states list instead of a text, so it can be used in scripts independent of the system language. The lead device has its own codes (task code + 1), see the status code table.
 - Improved battery type detection
-
-### 6.0.0 (2026-10-07)
-
-- Add adapter automation (zero feed-in control), see section "Adapter Automation" above.
-- Add connection mode "zenSDK only (mDNS)": no Zendure cloud and no MQTT server, devices are found via mDNS and controlled via zenSDK. Discovery with mDNS now runs as long as the adapter is running. New devices are added automatically.
-- (Schattenwelt) Add setting "zenSDK devices by IP address": zenSDK devices can be configured by IP address, so they also work if mDNS doesn't reach them (e.g. devices in another network segment / VLAN). Known devices are matched by serial number and keep their states, unknown devices are created with their serial number as key.
-- zenSDK devices: smartMode is no longer turned off in standby (automation limit 0), Note: Currently it's uncertain whether a permanently enabled smartMode increases the device's standby consumption. Thanks to surfer1264 and cliffsolar for input and discussion.
-- Output limit can now be set on devices without an autoModel state (previously rejected because autoModel was not '0').
-- Disconnect MQTT clients cleanly when the adapter is stopped or restarted.
-- Added Sentry (default ioBroker plugin) for error reporting and device statistics.
 
 For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 
