@@ -172,6 +172,11 @@ For more details and for information on how to disable error reporting, see the 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+
+### **WORK IN PROGRESS**
+
+- Adapter automation: A lead device that reached its minSoc or has no output power available (e.g. `suggestedInverseMaxPower` is 0) is now released from feed-in and another device takes over as lead device
+
 ### 6.1.4 (2026-10-27)
 
 - Adapter automation: Fixed feed-in being too low when a device in the feed-in group is at its minSoc or has no output power available (its share was not given to the other devices)

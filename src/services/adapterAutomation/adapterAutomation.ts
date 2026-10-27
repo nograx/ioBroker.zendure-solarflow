@@ -342,6 +342,17 @@ const isLimitCommandPending = (state: IAutomationDeviceState): boolean =>
 // Whether the device is still waking up (see wakingUntilMs) - it keeps its current limit until then.
 const isWaking = (state: IAutomationDeviceState, now: number): boolean => state.enabled && state.wakingUntilMs > now;
 
+/**
+ * Whether the device has reached its configured minSoc: it may still be charged, but must not feed in.
+ *
+ * @param state the device's automation state
+ */
+const isAtMinSoc = (state: IAutomationDeviceState): boolean => state.soc <= state.minSoc;
+
+// Whether the device can feed in at all: it has output headroom (maxLimit, e.g. 0 from suggestedInverseMaxPower)
+// and its battery is above its minSoc. A device that can't must not get a share, nor stay lead device.
+const canFeedIn = (state: IAutomationDeviceState): boolean => state.maxLimit > 0 && !isAtMinSoc(state);
+
 // Charge power (W, >= 0) the device actually draws: its commanded charge limit, or less once settled if its
 // measured AC input is lower (see CHARGE_SETTLE_MS).
 const getEffectiveChargePower = (state: IAutomationDeviceState): number => {
@@ -725,11 +736,18 @@ export const sortAutomationDevices = async (adapter: ZendureSolarflow): Promise<
     return applyAcOnlyPenalty && isPenalized(device) ? score / acOnlyPenaltyFactor : score;
   };
 
-  const sorted = [...devices].sort((a, b) => getEffectiveScore(b) - getEffectiveScore(a));
+  // Devices that can't feed in (at their minSoc, or no output headroom) go to the back, so another device takes
+  // over as lead - otherwise a lead device at its minSoc would stay lead without feeding in anything.
+  const sorted = [...devices].sort(
+    (a, b) =>
+      Number(canFeedIn(getDeviceState(b))) - Number(canFeedIn(getDeviceState(a))) ||
+      getEffectiveScore(b) - getEffectiveScore(a),
+  );
 
   const currentLead = devices.find((device) => deviceId(device) === deviceOrder[0]);
 
-  if (currentLead && sorted[0] !== currentLead) {
+  // The hysteresis only protects a current lead that can still feed in.
+  if (currentLead && sorted[0] !== currentLead && canFeedIn(getDeviceState(currentLead))) {
     const challengerLead = sorted[0];
 
     if (getEffectiveScore(challengerLead) - getEffectiveScore(currentLead) < LEAD_HYSTERESIS_MARGIN) {
@@ -764,6 +782,7 @@ export const updateAutomationDeviceMetrics = async (adapter: ZendureSolarflow): 
   for (const device of devices) {
     const id = deviceId(device);
     const state = getDeviceState(device);
+    const couldFeedIn = canFeedIn(state);
 
     const maxLimitState = ignoreSuggested
       ? await adapter.getStateAsync(`${id}.inverseMaxPower`)
@@ -800,10 +819,20 @@ export const updateAutomationDeviceMetrics = async (adapter: ZendureSolarflow): 
 
     state.feedInSolarOnly = await isFeedInSolarOnly(adapter, device);
     applyMaxLimit(state);
+
+    if (canFeedIn(state) !== couldFeedIn) {
+      // Reached (or left) its minSoc, or its maxLimit dropped to 0 (or recovered) - another device may have to
+      // take over as lead device (see sortAutomationDevices).
+      adapter.log.debug(
+        `${LOG} '${deviceLabel(device)}' ${canFeedIn(state) ? "can feed in again" : "can't feed in anymore"} ` +
+          `(soc=${state.soc} minSoc=${state.minSoc} maxLimit=${state.maxLimit})`,
+      );
+      needsResort = true;
+    }
   }
 
   if (needsResort) {
-    adapter.log.debug(`${LOG} maxLimit changed significantly, re-sorting devices!`);
+    adapter.log.debug(`${LOG} maxLimit or feed-in ability changed, re-sorting devices!`);
     await sortAutomationDevices(adapter);
   }
 };
@@ -836,30 +865,22 @@ export const checkAutomationCurrentLimit = async (adapter: ZendureSolarflow): Pr
 };
 
 /**
- * Whether the device has reached its configured minSoc: it may still be charged, but must not feed in.
- *
- * @param state the device's automation state
- */
-const isAtMinSoc = (state: IAutomationDeviceState): boolean => state.soc <= state.minSoc;
-
-/**
  * Distributes required power across the given devices proportional to soc^EXPONENT, so fuller devices
  * carry a bigger share. A device at or below its own configured minSoc, or without output headroom, gets none.
  *
  * @param devices candidate devices to assign a share to
  */
 const setDeviceShares = (devices: ZenIobDevice[]): void => {
-  const canTakeShare = (state: IAutomationDeviceState): boolean => state.maxLimit > 0 && !isAtMinSoc(state);
   // Only devices that get a share count here - otherwise the share of a device at its minSoc (or without headroom)
   // would be assigned to nobody, and the other devices would together cover less than the required power.
   const weightedSum = devices.reduce((sum, device) => {
     const state = getDeviceState(device);
-    return canTakeShare(state) ? sum + Math.pow(state.soc, EXPONENT) : sum;
+    return canFeedIn(state) ? sum + Math.pow(state.soc, EXPONENT) : sum;
   }, 0);
 
   devices.forEach((device) => {
     const state = getDeviceState(device);
-    state.share = canTakeShare(state) && weightedSum > 0 ? roundShare(Math.pow(state.soc, EXPONENT) / weightedSum) : 0;
+    state.share = canFeedIn(state) && weightedSum > 0 ? roundShare(Math.pow(state.soc, EXPONENT) / weightedSum) : 0;
   });
 };
 
@@ -1247,14 +1268,17 @@ export const runZeroFeedInAutomation = async (
 
       const utilization = currentAllocatedMaxPower > 0 ? piAdjustedHomeUsage / currentAllocatedMaxPower : 1;
 
-      const isLead = index === 0;
-      const isFullAndCapable = state.soc >= 95 && !device.isAcOnly;
+      // A first device that can't feed in (at its minSoc, or no output headroom) isn't lead - until the next re-sort
+      // (see updateAutomationDeviceMetrics) the others step in via the utilization check below.
+      const isLead = index === 0 && canFeedIn(state);
+      const isFullAndCapable = state.soc >= 95 && !device.isAcOnly && canFeedIn(state);
 
       if (state.enabled && (isLead || isFullAndCapable)) {
         inputDevices.push(device);
         currentAllocatedMaxPower += state.maxLimit;
       } else if (
         state.enabled &&
+        canFeedIn(state) &&
         // AC-only devices may step in too, as a last resort once the active feed-in devices are well utilized.
         (piAdjustedHomeUsage > maxFeedIn || utilization >= UTILIZATION_THRESHOLD)
       ) {
@@ -1277,6 +1301,7 @@ export const runZeroFeedInAutomation = async (
           (device) =>
             getDeviceState(device).enabled &&
             !getDeviceState(device).forceAcCharging &&
+            canFeedIn(getDeviceState(device)) &&
             !isReleasedForSurplusCharging(device),
         )
         .slice(0, needed);
@@ -1498,7 +1523,7 @@ export const runZeroFeedInAutomation = async (
 
         if (perDeviceBudget > 0) {
           state.newLimit = -perDeviceBudget;
-        } else if (state.currentLimit >= getMinLimit(device)) {
+        } else if (state.currentLimit >= getMinLimit(device) && canFeedIn(state)) {
           // Was feeding in: back off to its feed-in standby like any other device, not straight to 0W - it
           // reacts faster once needed again, and is released to 0W later (see releaseStaleKeepAlive).
           state.newLimit = getMinLimit(device);
@@ -1514,8 +1539,9 @@ export const runZeroFeedInAutomation = async (
             piAdjustedHomeUsage += Math.min(-state.newLimit, getEffectiveChargePower(state));
           }
         }
-      } else if (state.currentLimit >= getMinLimit(device)) {
+      } else if (state.currentLimit >= getMinLimit(device) && canFeedIn(state)) {
         // Keep the device at its feed-in standby rather than a full stop - it reacts faster once needed again.
+        // Not a device that can't feed in anymore (e.g. at its minSoc): that one is stopped at 0W right away.
         state.newLimit = getMinLimit(device);
         piAdjustedHomeUsage -= getMinLimit(device);
       } else {
