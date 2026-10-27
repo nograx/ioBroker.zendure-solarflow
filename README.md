@@ -128,20 +128,22 @@ Per device (`<productKey>.<deviceKey>.adapterAutomation.*`):
 
 Status codes of `<device>.adapterAutomation.status`. The labels (`common.states`) are in the ioBroker system language (German or English). The lead device variant of a task is its code + 1 (`code % 10 === 1`).
 
-| Code      | Status                                                        |
-| --------- | ------------------------------------------------------------- |
-| `0`       | Automation disabled globally                                  |
-| `1`       | Automation disabled for this device                           |
-| `2`       | Waiting for a change of the automation trigger state          |
-| `10`/`11` | Feeding in                                                    |
-| `20`/`21` | Standby                                                       |
-| `30`/`31` | Charging from surplus                                         |
-| `40`/`41` | Holding the charge keep-alive                                 |
-| `50`/`51` | Force charging                                                |
-| `60`/`61` | Waiting before charging may start (see `minIdleBeforeCharge`) |
-| `70`/`71` | Waiting for surplus charging                                  |
-| `80`/`81` | Fully charged, idle                                           |
-| `90`/`91` | Idle                                                          |
+| Code        | Status                                                                                 |
+| ----------- | -------------------------------------------------------------------------------------- |
+| `0`         | Automation disabled globally                                                           |
+| `1`         | Automation disabled for this device                                                    |
+| `2`         | Waiting for a change of the automation trigger state                                   |
+| `10`/`11`   | Feeding in                                                                             |
+| `20`/`21`   | Standby                                                                                |
+| `30`/`31`   | Charging from surplus                                                                  |
+| `40`/`41`   | Holding the charge keep-alive                                                          |
+| `50`/`51`   | Force charging                                                                         |
+| `60`/`61`   | Waiting before charging may start (see `minIdleBeforeCharge`)                          |
+| `70`/`71`   | Waiting for surplus charging                                                           |
+| `80`/`81`   | Fully charged, idle                                                                    |
+| `90`/`91`   | Idle                                                                                   |
+| `100`/`101` | Idle, battery at minimum SOC (`minSoc`)                                                |
+| `110`/`111` | Idle, no output power available (`suggestedInverseMaxPower` or `inverseMaxPower` is 0) |
 
 ### How it works
 
@@ -173,6 +175,8 @@ For more details and for information on how to disable error reporting, see the 
 
 ### **WORK IN PROGRESS**
 
+- Adapter automation: Fixed feed-in being too low when a device in the feed-in group is at its minSoc or has no output power available (its share was not given to the other devices)
+- Adapter automation: New status codes `100` (idle, battery at minimum SOC) and `110` (idle, no output power available) instead of the generic `90` (idle)
 - Add productKey 'g0wyvD' for Solarflow 3000 Mix AC+ (now also created from the cloud device list, not only via mDNS discovery)
 - Devices found via mDNS or a configured IP now keep their existing states (matched by serial number), e.g. after switching from the cloud key to 'zenSDK only' mode
 

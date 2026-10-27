@@ -402,10 +402,14 @@ const checkAutomationCurrentLimit = async (adapter) => {
 };
 const isAtMinSoc = (state) => state.soc <= state.minSoc;
 const setDeviceShares = (devices) => {
-  const weightedSum = devices.reduce((sum, device) => sum + Math.pow(getDeviceState(device).soc, EXPONENT), 0);
+  const canTakeShare = (state) => state.maxLimit > 0 && !isAtMinSoc(state);
+  const weightedSum = devices.reduce((sum, device) => {
+    const state = getDeviceState(device);
+    return canTakeShare(state) ? sum + Math.pow(state.soc, EXPONENT) : sum;
+  }, 0);
   devices.forEach((device) => {
     const state = getDeviceState(device);
-    state.share = state.maxLimit > 0 && !isAtMinSoc(state) && weightedSum > 0 ? roundShare(Math.pow(state.soc, EXPONENT) / weightedSum) : 0;
+    state.share = canTakeShare(state) && weightedSum > 0 ? roundShare(Math.pow(state.soc, EXPONENT) / weightedSum) : 0;
   });
 };
 const getAcChargeCap = (device) => {
@@ -852,16 +856,13 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
         }
       }
     }
-    const availableDeviceCount = adjustableInputDevices.filter((device) => {
+    const availableDevices = adjustableInputDevices.filter((device) => {
       const state = getDeviceState(device);
-      return !state.isAtCapacity && !isAtMinSoc(state);
-    }).length;
-    if (availableDeviceCount > 0 && unmetDemand > 0) {
-      adjustableInputDevices.filter((device) => {
-        const state = getDeviceState(device);
-        return !state.isAtCapacity && !isAtMinSoc(state) && state.newLimit < state.maxLimit;
-      }).forEach((device) => {
-        getDeviceState(device).newLimit += unmetDemand / availableDeviceCount;
+      return !state.isAtCapacity && !isAtMinSoc(state) && state.newLimit < state.maxLimit;
+    });
+    if (availableDevices.length > 0 && unmetDemand > 0) {
+      availableDevices.forEach((device) => {
+        getDeviceState(device).newLimit += unmetDemand / availableDevices.length;
       });
     }
     adjustableInputDevices.forEach((device) => {
@@ -923,6 +924,12 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       }
       if (canSurplusCharge(device) && !state.forceAcCharging && otherDevices.includes(device)) {
         return "waitingForSurplus";
+      }
+      if (isAtMinSoc(state)) {
+        return "atMinSoc";
+      }
+      if (state.maxLimit <= 0) {
+        return "noOutputHeadroom";
       }
       return "idle";
     };

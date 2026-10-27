@@ -9,7 +9,9 @@ export type DeviceTask =
   | "chargeBlocked"
   | "waitingForSurplus"
   | "full"
-  | "idle";
+  | "idle"
+  | "atMinSoc"
+  | "noOutputHeadroom";
 
 type StatusLanguage = "en" | "de";
 
@@ -29,6 +31,8 @@ const DEVICE_TASK_CODES: Record<DeviceTask, number> = {
   waitingForSurplus: 70,
   full: 80,
   idle: 90,
+  atMinSoc: 100,
+  noOutputHeadroom: 110,
 };
 
 // Labels for the status codes, in the ioBroker system language (English fallback). Deliberately without power
@@ -54,6 +58,8 @@ const DEVICE_STATUS_TEXTS: Record<
       waitingForSurplus: "Waiting for surplus charging",
       full: "Fully charged, idle",
       idle: "Idle",
+      atMinSoc: "Idle, battery at minimum SOC",
+      noOutputHeadroom: "Idle, no output power available",
     },
     leadSuffix: " (lead device)",
     automationDisabled: "Automation disabled globally",
@@ -71,6 +77,8 @@ const DEVICE_STATUS_TEXTS: Record<
       waitingForSurplus: "Wartet auf Überschussladung",
       full: "Voll geladen, inaktiv",
       idle: "Inaktiv",
+      atMinSoc: "Inaktiv, Akku auf minimalem SOC",
+      noOutputHeadroom: "Inaktiv, keine Ausgangsleistung verfügbar",
     },
     leadSuffix: " (führendes Gerät)",
     automationDisabled: "Automatisierung global deaktiviert",

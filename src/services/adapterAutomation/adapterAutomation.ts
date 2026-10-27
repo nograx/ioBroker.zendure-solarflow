@@ -849,14 +849,17 @@ const isAtMinSoc = (state: IAutomationDeviceState): boolean => state.soc <= stat
  * @param devices candidate devices to assign a share to
  */
 const setDeviceShares = (devices: ZenIobDevice[]): void => {
-  const weightedSum = devices.reduce((sum, device) => sum + Math.pow(getDeviceState(device).soc, EXPONENT), 0);
+  const canTakeShare = (state: IAutomationDeviceState): boolean => state.maxLimit > 0 && !isAtMinSoc(state);
+  // Only devices that get a share count here - otherwise the share of a device at its minSoc (or without headroom)
+  // would be assigned to nobody, and the other devices would together cover less than the required power.
+  const weightedSum = devices.reduce((sum, device) => {
+    const state = getDeviceState(device);
+    return canTakeShare(state) ? sum + Math.pow(state.soc, EXPONENT) : sum;
+  }, 0);
 
   devices.forEach((device) => {
     const state = getDeviceState(device);
-    state.share =
-      state.maxLimit > 0 && !isAtMinSoc(state) && weightedSum > 0
-        ? roundShare(Math.pow(state.soc, EXPONENT) / weightedSum)
-        : 0;
+    state.share = canTakeShare(state) && weightedSum > 0 ? roundShare(Math.pow(state.soc, EXPONENT) / weightedSum) : 0;
   });
 };
 
@@ -1606,21 +1609,17 @@ export const runZeroFeedInAutomation = async (
 
     // Redistribute unmet demand (devices that were asked for more than their own maxLimit allows) across
     // devices that still have headroom.
-    // Devices at their minSoc can't take any of it.
-    const availableDeviceCount = adjustableInputDevices.filter((device) => {
+    // Devices at their minSoc or without headroom can't take any of it - they must not count when splitting it
+    // either, otherwise their part of the unmet demand would be lost.
+    const availableDevices = adjustableInputDevices.filter((device) => {
       const state = getDeviceState(device);
-      return !state.isAtCapacity && !isAtMinSoc(state);
-    }).length;
+      return !state.isAtCapacity && !isAtMinSoc(state) && state.newLimit < state.maxLimit;
+    });
 
-    if (availableDeviceCount > 0 && unmetDemand > 0) {
-      adjustableInputDevices
-        .filter((device) => {
-          const state = getDeviceState(device);
-          return !state.isAtCapacity && !isAtMinSoc(state) && state.newLimit < state.maxLimit;
-        })
-        .forEach((device) => {
-          getDeviceState(device).newLimit += unmetDemand / availableDeviceCount;
-        });
+    if (availableDevices.length > 0 && unmetDemand > 0) {
+      availableDevices.forEach((device) => {
+        getDeviceState(device).newLimit += unmetDemand / availableDevices.length;
+      });
     }
 
     // The shares above split piAdjustedHomeUsage, but flooring a small share up to the device's minimum limit
@@ -1713,6 +1712,12 @@ export const runZeroFeedInAutomation = async (
       }
       if (canSurplusCharge(device) && !state.forceAcCharging && otherDevices.includes(device)) {
         return "waitingForSurplus";
+      }
+      if (isAtMinSoc(state)) {
+        return "atMinSoc";
+      }
+      if (state.maxLimit <= 0) {
+        return "noOutputHeadroom";
       }
       return "idle";
     };

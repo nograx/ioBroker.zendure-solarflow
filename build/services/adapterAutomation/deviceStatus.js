@@ -37,7 +37,9 @@ const DEVICE_TASK_CODES = {
   chargeBlocked: 60,
   waitingForSurplus: 70,
   full: 80,
-  idle: 90
+  idle: 90,
+  atMinSoc: 100,
+  noOutputHeadroom: 110
 };
 const DEVICE_STATUS_TEXTS = {
   en: {
@@ -50,7 +52,9 @@ const DEVICE_STATUS_TEXTS = {
       chargeBlocked: "Waiting before charging may start",
       waitingForSurplus: "Waiting for surplus charging",
       full: "Fully charged, idle",
-      idle: "Idle"
+      idle: "Idle",
+      atMinSoc: "Idle, battery at minimum SOC",
+      noOutputHeadroom: "Idle, no output power available"
     },
     leadSuffix: " (lead device)",
     automationDisabled: "Automation disabled globally",
@@ -67,7 +71,9 @@ const DEVICE_STATUS_TEXTS = {
       chargeBlocked: "Wartet, bevor das Laden beginnen darf",
       waitingForSurplus: "Wartet auf \xDCberschussladung",
       full: "Voll geladen, inaktiv",
-      idle: "Inaktiv"
+      idle: "Inaktiv",
+      atMinSoc: "Inaktiv, Akku auf minimalem SOC",
+      noOutputHeadroom: "Inaktiv, keine Ausgangsleistung verf\xFCgbar"
     },
     leadSuffix: " (f\xFChrendes Ger\xE4t)",
     automationDisabled: "Automatisierung global deaktiviert",
