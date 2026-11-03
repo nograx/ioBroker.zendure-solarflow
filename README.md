@@ -174,8 +174,7 @@ For more details and for information on how to disable error reporting, see the 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
-
-### **WORK IN PROGRESS**
+### 6.2.0 (2026-11-03)
 
 - Adapter automation: New per-device state `disableAcCharging` to disable AC charging (surplus and forced) for a device
 - Added Smart Meter 1CT (`smartMeter1CT-S`), auto-created via mDNS discovery
@@ -201,20 +200,6 @@ For more details and for information on how to disable error reporting, see the 
 - Adapter automation: `suggestedInverseMaxPower` changes are now ramped instead of a fixed value (should avoid rapid jumps between values)
 - Adapter automation: Improvements on handling charge keep alive which could lead to small grid import
 - Hyper 2000: `setDeviceAutomationInOutLimit` will now resend current minSoc, socSet and inverseMaxPower again after 10 seconds to ensure it is set correctly in this mode
-
-### 6.1.1 (2026-10-14)
-
-- SF 800 Pro 2 is now detected via mDNS / zenSDK (was reported as unknown model `solarFlow800Pro2`)
-- Adapter automation: New per-device state `feedInSolarOnly` to feed in only the current solar input; has to be switched by your own script, e.g. during a low-price window (Thanks to feedback from lesiflo)
-- Adapter automation: New state `minIdleBeforeCharge` (default 60 s, previously fixed 5 min) (Thanks to feedback from lesiflo)
-- Adapter automation: Faster and fairer surplus charging (Thanks to feedback from lesiflo)
-  - A surplus counts as confirmed once it has lasted 30 s without interruption (previously a slow average that took longer the smaller the surplus was). Charging then starts as soon as a device is ready, see `minIdleBeforeCharge`
-  - Devices in feed-in standby are released for charging after `minIdleBeforeCharge` instead of 3 minutes
-  - The charge power is calculated from the grid value and the devices' reported charge power, so it reaches the surplus in one or two steps
-  - The surplus is split so that each device's total charge power (AC + own solar input) follows its missing SOC and battery capacity
-- Adapter automation: `acOnlyPenalty` now also applies to devices with `acChargingAllowed` (e.g. devices without solar panels)
-- Adapter automation (breaking): `<device>.adapterAutomation.status` is now a number with a states list instead of a text, so it can be used in scripts independent of the system language. The lead device has its own codes (task code + 1), see the status code table.
-- Improved battery type detection
 
 For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 
