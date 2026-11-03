@@ -122,7 +122,7 @@ Per device (`<productKey>.<deviceKey>.adapterAutomation.*`):
 | `automationEnabled`            | Include this device in the automation (default `false`).                                                                                                                                                                                                                                                                                                                                                                                                        |
 | `forceAcCharging`              | Charge this device from the grid at its full `chargeMaxLimit` until it is full, regardless of the current demand (default `false`).                                                                                                                                                                                                                                                                                                                             |
 | `acChargingAllowed`            | Only for devices that can charge by AC but are not AC-only (e.g. SF 800 / 2400 Pro, Hyper 2000): charge this device from grid surplus like an AC-only device (default `false`).                                                                                                                                                                                                                                                                                 |
-| `disableAcCharging`            | Only for devices that can charge by AC: the automation never charges this device from the grid - neither from surplus nor by `forceAcCharging`. A device that is charging stops at 0 W right away (default `false`).                                                                                                                                                                                                                                            |
+| `disableAcCharging`            | Only for AC-only devices (e.g. SF 2400 AC, SF 1600 AC+, SF 3000/4000 Mix AC+): the automation never charges this device from the grid - neither from surplus nor by `forceAcCharging`. A device that is charging stops at 0 W right away (default `false`).                                                                                                                                                                                                     |
 | `feedInSolarOnly`              | Not for AC-only devices: feed in at most the current solar input, so the battery is not discharged. **Note:** this only applies while the solar input is above 50 W - at or below 50 W (e.g. at night) the device may feed in from its battery as usual (default `false`). The adapter never switches it by itself - set it from your own script, e.g. during a low-price window of a dynamic electricity tariff, to save the battery for more expensive hours. |
 | `suggestedInverseMaxPower`     | Read-only. Maximum output power the automation uses for this device, calculated from SOC and the lowest cell voltage to protect the battery.                                                                                                                                                                                                                                                                                                                    |
 | `suggestedInverseMaxPowerInfo` | Read-only. Reason for the current suggested value.                                                                                                                                                                                                                                                                                                                                                                                                              |
@@ -174,9 +174,14 @@ For more details and for information on how to disable error reporting, see the 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+
+### **WORK IN PROGRESS**
+
+- `disableAcCharging` should only be created on AC only devices (like SF 2400AC)
+
 ### 6.2.0 (2026-11-03)
 
-- Adapter automation: New per-device state `disableAcCharging` to disable AC charging (surplus and forced) for a device
+- Adapter automation: New per-device state `disableAcCharging` to disable AC charging (surplus and forced) for AC-only devices
 - Added Smart Meter 1CT (`smartMeter1CT-S`), auto-created via mDNS discovery
 
 ### 6.1.5 (2026-10-27)

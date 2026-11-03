@@ -462,7 +462,7 @@ class ZenIobDevice {
             await ((_v = this.adapter) == null ? void 0 : _v.setState(acChargingAllowedStateId, false, true));
           }
         }
-        if (this.canChargeByAc) {
+        if (this.isAcOnly) {
           const disableAcChargingStateId = `${productKey}.${deviceKey}.adapterAutomation.disableAcCharging`;
           await ((_w = this.adapter) == null ? void 0 : _w.extendObject(disableAcChargingStateId, {
             type: "state",

@@ -255,7 +255,7 @@ const isAcChargingAllowed = async (adapter, device) => {
   return (state == null ? void 0 : state.val) === true;
 };
 const isAcChargingDisabled = async (adapter, device) => {
-  if (!device.canChargeByAc) {
+  if (!device.isAcOnly) {
     return false;
   }
   const state = await adapter.getStateAsync(`${deviceId(device)}.adapterAutomation.disableAcCharging`);

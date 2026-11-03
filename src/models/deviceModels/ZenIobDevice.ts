@@ -524,8 +524,8 @@ export class ZenIobDevice {
           }
         }
 
-        // Blocks any AC charging by the automation (surplus and forced), e.g. for AC-only devices.
-        if (this.canChargeByAc) {
+        // AC-only devices always charge from surplus; this blocks any AC charging by the automation (surplus and forced).
+        if (this.isAcOnly) {
           const disableAcChargingStateId = `${productKey}.${deviceKey}.adapterAutomation.disableAcCharging`;
           await this.adapter?.extendObject(disableAcChargingStateId, {
             type: "state",

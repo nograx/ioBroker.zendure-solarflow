@@ -183,7 +183,7 @@ interface IAutomationDeviceState {
    */
   acChargingAllowed: boolean;
   /**
-   * Whether this device's 'adapterAutomation.disableAcCharging' switch is on, refreshed once per cycle: it then
+   * Whether this (AC-only) device's 'adapterAutomation.disableAcCharging' switch is on, refreshed once per cycle: it then
    * neither charges from surplus nor by forceAcCharging (see canSurplusCharge).
    */
   disableAcCharging: boolean;
@@ -587,9 +587,9 @@ const isAcChargingAllowed = async (adapter: ZendureSolarflow, device: ZenIobDevi
   return state?.val === true;
 };
 
-// The state only exists for devices that can charge by AC (see ZenIobDevice).
+// The state only exists for AC-only devices (see ZenIobDevice).
 const isAcChargingDisabled = async (adapter: ZendureSolarflow, device: ZenIobDevice): Promise<boolean> => {
-  if (!device.canChargeByAc) {
+  if (!device.isAcOnly) {
     return false;
   }
   const state = await adapter.getStateAsync(`${deviceId(device)}.adapterAutomation.disableAcCharging`);
