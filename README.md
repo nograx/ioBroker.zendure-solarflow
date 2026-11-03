@@ -174,8 +174,7 @@ For more details and for information on how to disable error reporting, see the 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
-
-### **WORK IN PROGRESS**
+### 6.2.1 (2026-11-03)
 
 - `disableAcCharging` should only be created on AC only devices (like SF 2400AC)
 
@@ -199,12 +198,6 @@ For more details and for information on how to disable error reporting, see the 
 
 - Adapter automation: `feedInSolarOnly` now only limits feed-in to the solar input while it is above 50 W; at or below 50 W the battery may be used for feed-in (replaces the previous low solar input warning)
 - Fixed adapter crash (`Converting circular structure to JSON`) when the Zendure cloud API does not respond
-
-### 6.1.2 (2026-10-16)
-
-- Adapter automation: `suggestedInverseMaxPower` changes are now ramped instead of a fixed value (should avoid rapid jumps between values)
-- Adapter automation: Improvements on handling charge keep alive which could lead to small grid import
-- Hyper 2000: `setDeviceAutomationInOutLimit` will now resend current minSoc, socSet and inverseMaxPower again after 10 seconds to ensure it is set correctly in this mode
 
 For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 

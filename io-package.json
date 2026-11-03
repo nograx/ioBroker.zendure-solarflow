@@ -9,8 +9,21 @@
         ]
       }
     },
-    "version": "6.2.0",
+    "version": "6.2.1",
     "news": {
+      "6.2.1": {
+        "en": "`disableAcCharging` should only be created on AC only devices (like SF 2400AC)",
+        "de": "`DisableACCharging` sollte nur auf AC-Geräten (wie SF 2400AC) erstellt werden",
+        "ru": "«DisableAccharging» следует создавать только на устройствах, работающих только с переменным током (например, SF 2400AC)",
+        "pt": "`disableACCharging` só deve ser criado em dispositivos AC (como SF 2400AC)",
+        "nl": "`DisableAcCharging` mag alleen worden aangemaakt op apparaten met alleen wisselstroom (zoals SF 2400AC)",
+        "fr": "`DisableAcCharging` ne doit être créé que sur des appareils AC (comme le SF 2400AC)",
+        "it": "`DisableAccharging` va creato solo su dispositivi AC (come SF 2400AC)",
+        "es": "`DisableAcCharging` solo debe crearse en dispositivos AC (como el SF 2400 AC)",
+        "pl": "`DisableAccharging` powinno być tworzone tylko na urządzeniach AC (takich jak SF 2400AC)",
+        "uk": "`DisableAcharging` слід створювати лише на пристроях змінного струму (наприклад, SF 2400AC)",
+        "zh-cn": "`disableAcCharging`只能在仅限交流电的设备上创建（比如 SF 2400AC）"
+      },
       "6.2.0": {
         "en": "Adapter automation: New per-device state `disableAcCharging` to disable AC charging (surplus and forced) for a device\nAdded Smart Meter 1CT (`smartMeter1CT-S`), auto-created via mDNS discovery",
         "de": "Adapterautomatisierung: Neuer Gerätestatus `DisableACCharging` für Geräte\nSmart Meter 1CT (`SmartMeter1CT-S`) hinzugefügt, automatisch per mDNS",
