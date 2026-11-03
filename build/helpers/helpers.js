@@ -37,6 +37,7 @@ var import_Sf800Plus = require("../models/deviceModels/Sf800Plus");
 var import_Sf800Pro = require("../models/deviceModels/Sf800Pro");
 var import_SfHub1200 = require("../models/deviceModels/SfHub1200");
 var import_SfHub2000 = require("../models/deviceModels/SfHub2000");
+var import_SmartMeter1Ct = require("../models/deviceModels/SmartMeter1Ct");
 var import_SmartMeter3Ct = require("../models/deviceModels/SmartMeter3Ct");
 var import_SmartMeterD0 = require("../models/deviceModels/SmartMeterD0");
 const deviceDefinitions = [
@@ -134,6 +135,14 @@ const deviceDefinitions = [
     productModel: "Solarflow 800 Plus",
     ctor: import_Sf800Plus.Sf800Plus,
     mdnsModelNames: ["solarflow800plus"]
+  },
+  {
+    // No cloud productKey known for this accessory - it's only ever created via mDNS auto-discovery.
+    // Announced via mDNS as "smartMeter1CT-S".
+    productKeys: ["smartmeter1ct"],
+    productModel: "Smart Meter 1CT",
+    ctor: import_SmartMeter1Ct.SmartMeter1Ct,
+    mdnsModelNames: ["smartmeter1cts", "smartmeter1ct"]
   },
   {
     // No cloud productKey known for this accessory - it's only ever created via mDNS auto-discovery.

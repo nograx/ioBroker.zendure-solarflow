@@ -14,6 +14,7 @@ import { Sf800Plus } from "../models/deviceModels/Sf800Plus";
 import { Sf800Pro } from "../models/deviceModels/Sf800Pro";
 import { SfHub1200 } from "../models/deviceModels/SfHub1200";
 import { SfHub2000 } from "../models/deviceModels/SfHub2000";
+import { SmartMeter1Ct } from "../models/deviceModels/SmartMeter1Ct";
 import { SmartMeter3Ct } from "../models/deviceModels/SmartMeter3Ct";
 import { SmartMeterD0 } from "../models/deviceModels/SmartMeterD0";
 
@@ -34,6 +35,7 @@ type ZenDeviceModel =
   | Sf3000MixAcPlus
   | Sf4000MixAcPlus
   | Sf4000MixPro
+  | SmartMeter1Ct
   | SmartMeter3Ct
   | SmartMeterD0;
 
@@ -163,6 +165,14 @@ const deviceDefinitions: ZenDeviceDefinition[] = [
     productModel: "Solarflow 800 Plus",
     ctor: Sf800Plus,
     mdnsModelNames: ["solarflow800plus"],
+  },
+  {
+    // No cloud productKey known for this accessory - it's only ever created via mDNS auto-discovery.
+    // Announced via mDNS as "smartMeter1CT-S".
+    productKeys: ["smartmeter1ct"],
+    productModel: "Smart Meter 1CT",
+    ctor: SmartMeter1Ct,
+    mdnsModelNames: ["smartmeter1cts", "smartmeter1ct"],
   },
   {
     // No cloud productKey known for this accessory - it's only ever created via mDNS auto-discovery.

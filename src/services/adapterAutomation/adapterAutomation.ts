@@ -183,6 +183,11 @@ interface IAutomationDeviceState {
    */
   acChargingAllowed: boolean;
   /**
+   * Whether this device's 'adapterAutomation.disableAcCharging' switch is on, refreshed once per cycle: it then
+   * neither charges from surplus nor by forceAcCharging (see canSurplusCharge).
+   */
+  disableAcCharging: boolean;
+  /**
    * Whether this (non AC-only) device's 'adapterAutomation.feedInSolarOnly' switch is on, refreshed once per
    * cycle: its maxLimit is then capped at its current solar input if that's above SOLAR_ONLY_THRESHOLD_W
    * (see applyMaxLimit).
@@ -291,6 +296,7 @@ const getDeviceState = (device: ZenIobDevice): IAutomationDeviceState => {
       enabled: false,
       forceAcCharging: false,
       acChargingAllowed: false,
+      disableAcCharging: false,
       feedInSolarOnly: false,
       name: "",
       soc: 0,
@@ -506,12 +512,15 @@ const releaseStaleKeepAlive = (
 
 // For an AC-only device without (further) charge budget: if it was just charging, don't drop straight to
 // 0W (see MIN_STANDBY_TIME_MS) - back off to the charge keep-alive instead.
+// With 'adapterAutomation.disableAcCharging' it stops at 0W right away.
 const chargeKeepAliveOrZero = (device: ZenIobDevice, state: IAutomationDeviceState): number =>
-  state.currentLimit < 0 ? -getMinLimit(device) : 0;
+  state.currentLimit < 0 && !state.disableAcCharging ? -getMinLimit(device) : 0;
 
 // Last written values, so the states are only written on an actual change (the cycle runs very often).
 let lastDeviceOrderText: string | undefined;
 const lastDeviceStatusCodes = new Map<string, number>();
+// Devices with both forceAcCharging and disableAcCharging set, so the error is only logged once per conflict.
+const forceAcChargingConflicts = new Set<string>();
 
 const publishDeviceOrder = async (adapter: ZendureSolarflow, devices: ZenIobDevice[]): Promise<void> => {
   const text = devices.map((device) => `${deviceLabel(device)} (${device.deviceKey})`).join(" -> ");
@@ -578,6 +587,15 @@ const isAcChargingAllowed = async (adapter: ZendureSolarflow, device: ZenIobDevi
   return state?.val === true;
 };
 
+// The state only exists for devices that can charge by AC (see ZenIobDevice).
+const isAcChargingDisabled = async (adapter: ZendureSolarflow, device: ZenIobDevice): Promise<boolean> => {
+  if (!device.canChargeByAc) {
+    return false;
+  }
+  const state = await adapter.getStateAsync(`${deviceId(device)}.adapterAutomation.disableAcCharging`);
+  return state?.val === true;
+};
+
 // The state only exists for devices that aren't AC-only (see ZenIobDevice).
 const isFeedInSolarOnly = async (adapter: ZendureSolarflow, device: ZenIobDevice): Promise<boolean> => {
   if (device.isAcOnly) {
@@ -597,8 +615,12 @@ const applyMaxLimit = (state: IAutomationDeviceState): void => {
   state.maxLimit = Math.min(state.configuredMaxLimit, Math.floor(state.solarInputPower));
 };
 
-// Whether the device may charge from grid surplus: always for AC-only devices, for others only if allowed.
-const canSurplusCharge = (device: ZenIobDevice): boolean => device.isAcOnly || getDeviceState(device).acChargingAllowed;
+// Whether the device may charge from grid surplus: always for AC-only devices, for others only if allowed -
+// never with 'adapterAutomation.disableAcCharging'.
+const canSurplusCharge = (device: ZenIobDevice): boolean => {
+  const state = getDeviceState(device);
+  return !state.disableAcCharging && (device.isAcOnly || state.acChargingAllowed);
+};
 
 /**
  * Publishes '<device>.adapterAutomation.status' for states the control cycle can't report itself: the cycle
@@ -719,6 +741,7 @@ export const sortAutomationDevices = async (adapter: ZendureSolarflow): Promise<
   // Refreshed here too, since the sort may run before the first control cycle (e.g. at adapter start).
   for (const device of devices) {
     getDeviceState(device).acChargingAllowed = await isAcChargingAllowed(adapter, device);
+    getDeviceState(device).disableAcCharging = await isAcChargingDisabled(adapter, device);
   }
 
   // Same devices as canSurplusCharge: AC-only, or allowed to charge from surplus.
@@ -1035,7 +1058,19 @@ export const runZeroFeedInAutomation = async (
       const state = getDeviceState(device);
 
       state.enabled = await isDeviceEnabled(adapter, device);
-      state.forceAcCharging = await isForceAcCharging(adapter, device);
+      state.disableAcCharging = await isAcChargingDisabled(adapter, device);
+      const isForceAcChargingSet = await isForceAcCharging(adapter, device);
+      state.forceAcCharging = isForceAcChargingSet && !state.disableAcCharging;
+      if (isForceAcChargingSet && state.disableAcCharging) {
+        if (!forceAcChargingConflicts.has(id)) {
+          forceAcChargingConflicts.add(id);
+          adapter.log.error(
+            `${LOG} 'forceAcCharging' is set for '${device.deviceKey}', but 'disableAcCharging' is on - not charging!`,
+          );
+        }
+      } else {
+        forceAcChargingConflicts.delete(id);
+      }
       state.acChargingAllowed = await isAcChargingAllowed(adapter, device);
       state.feedInSolarOnly = await isFeedInSolarOnly(adapter, device);
 

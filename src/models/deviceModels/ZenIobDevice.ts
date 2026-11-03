@@ -523,6 +523,32 @@ export class ZenIobDevice {
             await this.adapter?.setState(acChargingAllowedStateId, false, true);
           }
         }
+
+        // Blocks any AC charging by the automation (surplus and forced), e.g. for AC-only devices.
+        if (this.canChargeByAc) {
+          const disableAcChargingStateId = `${productKey}.${deviceKey}.adapterAutomation.disableAcCharging`;
+          await this.adapter?.extendObject(disableAcChargingStateId, {
+            type: "state",
+            common: {
+              name: {
+                de: "Laden über AC deaktivieren",
+                en: "Disable AC charging",
+              },
+              type: "boolean",
+              desc: "disableAcCharging",
+              role: "switch",
+              read: true,
+              write: true,
+              def: false,
+            },
+            native: {},
+          });
+
+          const currentDisableAcCharging = await this.adapter?.getStateAsync(disableAcChargingStateId);
+          if (currentDisableAcCharging?.val == null) {
+            await this.adapter?.setState(disableAcChargingStateId, false, true);
+          }
+        }
       }
     }
 

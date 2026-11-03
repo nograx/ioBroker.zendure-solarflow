@@ -220,7 +220,7 @@ class ZenIobDevice {
     }
   }
   async createSolarFlowStates() {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A;
     const productKey = this.productKey.replace(this.adapter.FORBIDDEN_CHARS, "");
     const deviceKey = this.deviceKey.replace(this.adapter.FORBIDDEN_CHARS, "");
     this.adapter.log.debug(
@@ -462,10 +462,33 @@ class ZenIobDevice {
             await ((_v = this.adapter) == null ? void 0 : _v.setState(acChargingAllowedStateId, false, true));
           }
         }
+        if (this.canChargeByAc) {
+          const disableAcChargingStateId = `${productKey}.${deviceKey}.adapterAutomation.disableAcCharging`;
+          await ((_w = this.adapter) == null ? void 0 : _w.extendObject(disableAcChargingStateId, {
+            type: "state",
+            common: {
+              name: {
+                de: "Laden \xFCber AC deaktivieren",
+                en: "Disable AC charging"
+              },
+              type: "boolean",
+              desc: "disableAcCharging",
+              role: "switch",
+              read: true,
+              write: true,
+              def: false
+            },
+            native: {}
+          }));
+          const currentDisableAcCharging = await ((_x = this.adapter) == null ? void 0 : _x.getStateAsync(disableAcChargingStateId));
+          if ((currentDisableAcCharging == null ? void 0 : currentDisableAcCharging.val) == null) {
+            await ((_y = this.adapter) == null ? void 0 : _y.setState(disableAcChargingStateId, false, true));
+          }
+        }
       }
     }
     if (this.isZenSdkSupported) {
-      await ((_w = this.adapter) == null ? void 0 : _w.extendObject(`${productKey}.${deviceKey}.settings`, {
+      await ((_z = this.adapter) == null ? void 0 : _z.extendObject(`${productKey}.${deviceKey}.settings`, {
         type: "channel",
         common: {
           name: {
@@ -508,7 +531,7 @@ class ZenIobDevice {
       await this.syncZenSdkPollingSchedule();
     }
     if (this.adapter.config.useCalculation) {
-      await ((_x = this.adapter) == null ? void 0 : _x.extendObject(`${productKey}.${deviceKey}.calculations`, {
+      await ((_A = this.adapter) == null ? void 0 : _A.extendObject(`${productKey}.${deviceKey}.calculations`, {
         type: "channel",
         common: {
           name: {

@@ -101,6 +101,7 @@ const getDeviceState = (device) => {
       enabled: false,
       forceAcCharging: false,
       acChargingAllowed: false,
+      disableAcCharging: false,
       feedInSolarOnly: false,
       name: "",
       soc: 0,
@@ -205,9 +206,10 @@ const releaseStaleKeepAlive = (device, state, keepAliveLimit, now, minStandbyMs)
   state.newLimit = 0;
   void sendDeviceLimit(device, state, 0);
 };
-const chargeKeepAliveOrZero = (device, state) => state.currentLimit < 0 ? -getMinLimit(device) : 0;
+const chargeKeepAliveOrZero = (device, state) => state.currentLimit < 0 && !state.disableAcCharging ? -getMinLimit(device) : 0;
 let lastDeviceOrderText;
 const lastDeviceStatusCodes = /* @__PURE__ */ new Map();
+const forceAcChargingConflicts = /* @__PURE__ */ new Set();
 const publishDeviceOrder = async (adapter, devices) => {
   const text = devices.map((device) => `${deviceLabel(device)} (${device.deviceKey})`).join(" -> ");
   if (text !== lastDeviceOrderText) {
@@ -252,6 +254,13 @@ const isAcChargingAllowed = async (adapter, device) => {
   const state = await adapter.getStateAsync(`${deviceId(device)}.adapterAutomation.acChargingAllowed`);
   return (state == null ? void 0 : state.val) === true;
 };
+const isAcChargingDisabled = async (adapter, device) => {
+  if (!device.canChargeByAc) {
+    return false;
+  }
+  const state = await adapter.getStateAsync(`${deviceId(device)}.adapterAutomation.disableAcCharging`);
+  return (state == null ? void 0 : state.val) === true;
+};
 const isFeedInSolarOnly = async (adapter, device) => {
   if (device.isAcOnly) {
     return false;
@@ -266,7 +275,10 @@ const applyMaxLimit = (state) => {
   }
   state.maxLimit = Math.min(state.configuredMaxLimit, Math.floor(state.solarInputPower));
 };
-const canSurplusCharge = (device) => device.isAcOnly || getDeviceState(device).acChargingAllowed;
+const canSurplusCharge = (device) => {
+  const state = getDeviceState(device);
+  return !state.disableAcCharging && (device.isAcOnly || state.acChargingAllowed);
+};
 const refreshAutomationStatuses = async (adapter) => {
   var _a;
   const automationEnabled = ((_a = await adapter.getStateAsync("adapterAutomation.automationEnabled")) == null ? void 0 : _a.val) === true;
@@ -325,6 +337,7 @@ const sortAutomationDevices = async (adapter) => {
   };
   for (const device of devices) {
     getDeviceState(device).acChargingAllowed = await isAcChargingAllowed(adapter, device);
+    getDeviceState(device).disableAcCharging = await isAcChargingDisabled(adapter, device);
   }
   const isPenalized = (device) => canSurplusCharge(device);
   const nonPenalized = devices.filter((device) => !isPenalized(device));
@@ -493,7 +506,19 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       const id = deviceId(device);
       const state = getDeviceState(device);
       state.enabled = await isDeviceEnabled(adapter, device);
-      state.forceAcCharging = await isForceAcCharging(adapter, device);
+      state.disableAcCharging = await isAcChargingDisabled(adapter, device);
+      const isForceAcChargingSet = await isForceAcCharging(adapter, device);
+      state.forceAcCharging = isForceAcChargingSet && !state.disableAcCharging;
+      if (isForceAcChargingSet && state.disableAcCharging) {
+        if (!forceAcChargingConflicts.has(id)) {
+          forceAcChargingConflicts.add(id);
+          adapter.log.error(
+            `${LOG} 'forceAcCharging' is set for '${device.deviceKey}', but 'disableAcCharging' is on - not charging!`
+          );
+        }
+      } else {
+        forceAcChargingConflicts.delete(id);
+      }
       state.acChargingAllowed = await isAcChargingAllowed(adapter, device);
       state.feedInSolarOnly = await isFeedInSolarOnly(adapter, device);
       const solarInputPowerState = await adapter.getStateAsync(`${id}.solarInputPower`);
