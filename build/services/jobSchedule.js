@@ -130,6 +130,11 @@ const startAdapterAutomationJob = (adapter) => {
     await (0, import_adapterAutomation.updateAutomationDeviceMetrics)(adapter);
     await (0, import_adapterAutomation.checkAutomationCurrentLimit)(adapter);
     await (0, import_adapterAutomation.refreshAutomationStatuses)(adapter);
+    for (const device of adapter.zenIobDeviceList) {
+      if (device.controlStates.length > 0) {
+        await device.updateTimeSinceLastCalibration();
+      }
+    }
   });
   adapter.adapterAutomationSortJob = (0, import_node_schedule.scheduleJob)("0 * * * *", async () => {
     adapter.log.debug("[adapterAutomation] Full hour reached, re-sorting devices!");

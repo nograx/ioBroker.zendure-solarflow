@@ -549,6 +549,41 @@ export class ZenIobDevice {
             await this.adapter?.setState(disableAcChargingStateId, false, true);
           }
         }
+
+        // Set when the device reaches 100% SOC (see processDeviceProperties), its SOC is calibrated then.
+        await this.adapter?.extendObject(`${productKey}.${deviceKey}.adapterAutomation.lastCalibration`, {
+          type: "state",
+          common: {
+            name: {
+              de: "Letzte Kalibrierung (100% SOC erreicht)",
+              en: "Last calibration (reached 100% SOC)",
+            },
+            type: "number",
+            desc: "lastCalibration",
+            role: "date",
+            read: true,
+            write: false,
+          },
+          native: {},
+        });
+
+        await this.adapter?.extendObject(`${productKey}.${deviceKey}.adapterAutomation.timeSinceLastCalibration`, {
+          type: "state",
+          common: {
+            name: {
+              de: "Zeit seit der letzten Kalibrierung",
+              en: "Time since last calibration",
+            },
+            type: "string",
+            desc: "Days and hours since lastCalibration, e.g. '3d 5h'",
+            role: "text",
+            read: true,
+            write: false,
+          },
+          native: {},
+        });
+
+        await this.updateTimeSinceLastCalibration();
       }
     }
 
@@ -1930,6 +1965,40 @@ export class ZenIobDevice {
     this.rampedInverseMaxPowerTimestamp = now;
 
     return { limit: Math.round(limit), reason };
+  }
+
+  /**
+   * Sets 'adapterAutomation.lastCalibration' to now, called when the device reaches 100% SOC.
+   */
+  public async setLastCalibration(): Promise<void> {
+    await this.adapter?.setState(
+      `${this.productKey}.${this.deviceKey}.adapterAutomation.lastCalibration`,
+      Date.now(),
+      true,
+    );
+    await this.updateTimeSinceLastCalibration();
+  }
+
+  /**
+   * Updates 'adapterAutomation.timeSinceLastCalibration' (days and hours since 'adapterAutomation.lastCalibration').
+   * Only written on a change, so the periodic refresh doesn't create a new state value every minute.
+   */
+  public async updateTimeSinceLastCalibration(): Promise<void> {
+    const lastCalibrationState = await this.adapter?.getStateAsync(
+      `${this.productKey}.${this.deviceKey}.adapterAutomation.lastCalibration`,
+    );
+    if (lastCalibrationState?.val == null) {
+      return;
+    }
+
+    const totalHours = Math.max(0, Math.floor((Date.now() - Number(lastCalibrationState.val)) / (60 * 60 * 1000)));
+    const text = `${Math.floor(totalHours / 24)}d ${totalHours % 24}h`;
+
+    const stateId = `${this.productKey}.${this.deviceKey}.adapterAutomation.timeSinceLastCalibration`;
+    const current = await this.adapter?.getStateAsync(stateId);
+    if (current?.val !== text) {
+      await this.adapter?.setState(stateId, text, true);
+    }
   }
 
   /**

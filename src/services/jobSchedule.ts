@@ -164,6 +164,12 @@ export const startAdapterAutomationJob = (adapter: ZendureSolarflow): void => {
     await updateAutomationDeviceMetrics(adapter);
     await checkAutomationCurrentLimit(adapter);
     await refreshAutomationStatuses(adapter);
+
+    for (const device of adapter.zenIobDeviceList) {
+      if (device.controlStates.length > 0) {
+        await device.updateTimeSinceLastCalibration();
+      }
+    }
   });
 
   adapter.adapterAutomationSortJob = scheduleJob("0 * * * *", async () => {

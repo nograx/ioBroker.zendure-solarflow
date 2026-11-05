@@ -127,6 +127,8 @@ Per device (`<productKey>.<deviceKey>.adapterAutomation.*`):
 | `suggestedInverseMaxPower`     | Read-only. Maximum output power the automation uses for this device, calculated from SOC and the lowest cell voltage to protect the battery.                                                                                                                                                                                                                                                                                                                    |
 | `suggestedInverseMaxPowerInfo` | Read-only. Reason for the current suggested value.                                                                                                                                                                                                                                                                                                                                                                                                              |
 | `status`                       | Read-only. Status code of what the automation currently wants this device to do, see table below.                                                                                                                                                                                                                                                                                                                                                               |
+| `lastCalibration`              | Read-only. Timestamp of the last time the device reached 100% SOC (its SOC is calibrated then).                                                                                                                                                                                                                                                                                                                                                                 |
+| `timeSinceLastCalibration`     | Read-only. Days and hours since `lastCalibration`, e.g. `3d 5h` (updated every minute).                                                                                                                                                                                                                                                                                                                                                                         |
 
 Status codes of `<device>.adapterAutomation.status`. The labels (`common.states`) are in the ioBroker system language (German or English). The lead device variant of a task is its code + 1 (`code % 10 === 1`).
 
@@ -178,7 +180,8 @@ For more details and for information on how to disable error reporting, see the 
 
 ### **WORK IN PROGRESS**
 
-- Adapter automation: A device running its SOC calibration (`socStatus` is 1) is removed from feed-in (new status code `120`); it may still be charged
+- Adapter automation: A device running its SOC calibration (`socStatus` is 1) is removed from feed-in (new status code `120`)
+- Adapter automation: New per-device states `lastCalibration` (set when the device reaches 100% SOC) and `timeSinceLastCalibration` (days and hours since then)
 
 ### 6.2.1 (2026-11-03)
 

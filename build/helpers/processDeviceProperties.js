@@ -142,7 +142,7 @@ const coerceToStateType = (stateTitle, value) => {
   return value;
 };
 const processDeviceProperties = async (device, properties, isSolarFlow) => {
-  var _a, _b, _c, _d;
+  var _a, _b, _c, _d, _e;
   const statesToSet = /* @__PURE__ */ new Map();
   const controlStatesToSet = /* @__PURE__ */ new Map();
   if ((properties == null ? void 0 : properties.autoModel) != null) {
@@ -164,9 +164,17 @@ const processDeviceProperties = async (device, properties, isSolarFlow) => {
       if ((fullChargeNeeded == null ? void 0 : fullChargeNeeded.val) == true) {
         await device.adapter.setState(`${device.productKey}.${device.deviceKey}.control.fullChargeNeeded`, false, true);
       }
+      if (((_b = device.adapter) == null ? void 0 : _b.config.enableAutomation) && device.controlStates.length > 0) {
+        const previousSoc = await device.adapter.getStateAsync(
+          `${device.productKey}.${device.deviceKey}.electricLevel`
+        );
+        if ((previousSoc == null ? void 0 : previousSoc.val) == null || Number(previousSoc.val) < 100) {
+          await device.setLastCalibration();
+        }
+      }
     }
     const minSoc = await device.adapter.getStateAsync(`${device.productKey}.${device.deviceKey}.minSoc`);
-    if (((_b = device.adapter) == null ? void 0 : _b.config.useCalculation) && (minSoc == null ? void 0 : minSoc.val) && properties.electricLevel == Number(minSoc.val) && isSolarFlow) {
+    if (((_c = device.adapter) == null ? void 0 : _c.config.useCalculation) && (minSoc == null ? void 0 : minSoc.val) && properties.electricLevel == Number(minSoc.val) && isSolarFlow) {
       device.setSocToZero();
     }
   }
@@ -340,8 +348,8 @@ const processDeviceProperties = async (device, properties, isSolarFlow) => {
     await device.addOrUpdatePackData(properties.packData, isSolarFlow);
   }
   if (statesToSet.has("outputPackPower") || statesToSet.has("packInputPower")) {
-    let outputPower = (_c = statesToSet.get("outputPackPower")) != null ? _c : 0;
-    let inputPower = (_d = statesToSet.get("packInputPower")) != null ? _d : 0;
+    let outputPower = (_d = statesToSet.get("outputPackPower")) != null ? _d : 0;
+    let inputPower = (_e = statesToSet.get("packInputPower")) != null ? _e : 0;
     if (!statesToSet.has("outputPackPower")) {
       const s = await device.adapter.getStateAsync(`${device.productKey}.${device.deviceKey}.outputPackPower`);
       outputPower = (s == null ? void 0 : s.val) || 0;

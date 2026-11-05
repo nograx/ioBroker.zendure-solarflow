@@ -173,6 +173,17 @@ export const processDeviceProperties = async (
       if (fullChargeNeeded?.val == true) {
         await device.adapter.setState(`${device.productKey}.${device.deviceKey}.control.fullChargeNeeded`, false, true);
       }
+
+      // Only when reaching 100% (the state still holds the previous value here), not on every report at 100%.
+      // The state only exists with automation enabled, for devices with control states (see ZenIobDevice).
+      if (device.adapter?.config.enableAutomation && device.controlStates.length > 0) {
+        const previousSoc = await device.adapter.getStateAsync(
+          `${device.productKey}.${device.deviceKey}.electricLevel`,
+        );
+        if (previousSoc?.val == null || Number(previousSoc.val) < 100) {
+          await device.setLastCalibration();
+        }
+      }
     }
 
     const minSoc = await device.adapter.getStateAsync(`${device.productKey}.${device.deviceKey}.minSoc`);

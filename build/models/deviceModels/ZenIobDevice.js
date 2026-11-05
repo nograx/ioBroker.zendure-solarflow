@@ -220,7 +220,7 @@ class ZenIobDevice {
     }
   }
   async createSolarFlowStates() {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C;
     const productKey = this.productKey.replace(this.adapter.FORBIDDEN_CHARS, "");
     const deviceKey = this.deviceKey.replace(this.adapter.FORBIDDEN_CHARS, "");
     this.adapter.log.debug(
@@ -485,10 +485,41 @@ class ZenIobDevice {
             await ((_y = this.adapter) == null ? void 0 : _y.setState(disableAcChargingStateId, false, true));
           }
         }
+        await ((_z = this.adapter) == null ? void 0 : _z.extendObject(`${productKey}.${deviceKey}.adapterAutomation.lastCalibration`, {
+          type: "state",
+          common: {
+            name: {
+              de: "Letzte Kalibrierung (100% SOC erreicht)",
+              en: "Last calibration (reached 100% SOC)"
+            },
+            type: "number",
+            desc: "lastCalibration",
+            role: "date",
+            read: true,
+            write: false
+          },
+          native: {}
+        }));
+        await ((_A = this.adapter) == null ? void 0 : _A.extendObject(`${productKey}.${deviceKey}.adapterAutomation.timeSinceLastCalibration`, {
+          type: "state",
+          common: {
+            name: {
+              de: "Zeit seit der letzten Kalibrierung",
+              en: "Time since last calibration"
+            },
+            type: "string",
+            desc: "Days and hours since lastCalibration, e.g. '3d 5h'",
+            role: "text",
+            read: true,
+            write: false
+          },
+          native: {}
+        }));
+        await this.updateTimeSinceLastCalibration();
       }
     }
     if (this.isZenSdkSupported) {
-      await ((_z = this.adapter) == null ? void 0 : _z.extendObject(`${productKey}.${deviceKey}.settings`, {
+      await ((_B = this.adapter) == null ? void 0 : _B.extendObject(`${productKey}.${deviceKey}.settings`, {
         type: "channel",
         common: {
           name: {
@@ -531,7 +562,7 @@ class ZenIobDevice {
       await this.syncZenSdkPollingSchedule();
     }
     if (this.adapter.config.useCalculation) {
-      await ((_A = this.adapter) == null ? void 0 : _A.extendObject(`${productKey}.${deviceKey}.calculations`, {
+      await ((_C = this.adapter) == null ? void 0 : _C.extendObject(`${productKey}.${deviceKey}.calculations`, {
         type: "channel",
         common: {
           name: {
@@ -1611,6 +1642,38 @@ class ZenIobDevice {
     this.rampedInverseMaxPower = limit;
     this.rampedInverseMaxPowerTimestamp = now;
     return { limit: Math.round(limit), reason };
+  }
+  /**
+   * Sets 'adapterAutomation.lastCalibration' to now, called when the device reaches 100% SOC.
+   */
+  async setLastCalibration() {
+    var _a;
+    await ((_a = this.adapter) == null ? void 0 : _a.setState(
+      `${this.productKey}.${this.deviceKey}.adapterAutomation.lastCalibration`,
+      Date.now(),
+      true
+    ));
+    await this.updateTimeSinceLastCalibration();
+  }
+  /**
+   * Updates 'adapterAutomation.timeSinceLastCalibration' (days and hours since 'adapterAutomation.lastCalibration').
+   * Only written on a change, so the periodic refresh doesn't create a new state value every minute.
+   */
+  async updateTimeSinceLastCalibration() {
+    var _a, _b, _c;
+    const lastCalibrationState = await ((_a = this.adapter) == null ? void 0 : _a.getStateAsync(
+      `${this.productKey}.${this.deviceKey}.adapterAutomation.lastCalibration`
+    ));
+    if ((lastCalibrationState == null ? void 0 : lastCalibrationState.val) == null) {
+      return;
+    }
+    const totalHours = Math.max(0, Math.floor((Date.now() - Number(lastCalibrationState.val)) / (60 * 60 * 1e3)));
+    const text = `${Math.floor(totalHours / 24)}d ${totalHours % 24}h`;
+    const stateId = `${this.productKey}.${this.deviceKey}.adapterAutomation.timeSinceLastCalibration`;
+    const current = await ((_b = this.adapter) == null ? void 0 : _b.getStateAsync(stateId));
+    if ((current == null ? void 0 : current.val) !== text) {
+      await ((_c = this.adapter) == null ? void 0 : _c.setState(stateId, text, true));
+    }
   }
   /**
    * Recalculates and persists 'adapterAutomation.suggestedInverseMaxPower' and
