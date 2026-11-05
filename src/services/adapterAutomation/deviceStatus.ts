@@ -11,7 +11,8 @@ export type DeviceTask =
   | "full"
   | "idle"
   | "atMinSoc"
-  | "noOutputHeadroom";
+  | "noOutputHeadroom"
+  | "calibrating";
 
 type StatusLanguage = "en" | "de";
 
@@ -33,6 +34,7 @@ const DEVICE_TASK_CODES: Record<DeviceTask, number> = {
   idle: 90,
   atMinSoc: 100,
   noOutputHeadroom: 110,
+  calibrating: 120,
 };
 
 // Labels for the status codes, in the ioBroker system language (English fallback). Deliberately without power
@@ -60,6 +62,7 @@ const DEVICE_STATUS_TEXTS: Record<
       idle: "Idle",
       atMinSoc: "Idle, battery at minimum SOC",
       noOutputHeadroom: "Idle, no output power available",
+      calibrating: "Idle, SOC calibration running",
     },
     leadSuffix: " (lead device)",
     automationDisabled: "Automation disabled globally",
@@ -79,6 +82,7 @@ const DEVICE_STATUS_TEXTS: Record<
       idle: "Inaktiv",
       atMinSoc: "Inaktiv, Akku auf minimalem SOC",
       noOutputHeadroom: "Inaktiv, keine Ausgangsleistung verfügbar",
+      calibrating: "Inaktiv, SOC-Kalibrierung läuft",
     },
     leadSuffix: " (führendes Gerät)",
     automationDisabled: "Automatisierung global deaktiviert",

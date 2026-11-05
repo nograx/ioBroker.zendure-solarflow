@@ -146,6 +146,7 @@ Status codes of `<device>.adapterAutomation.status`. The labels (`common.states`
 | `90`/`91`   | Idle                                                                                   |
 | `100`/`101` | Idle, battery at minimum SOC (`minSoc`)                                                |
 | `110`/`111` | Idle, no output power available (`suggestedInverseMaxPower` or `inverseMaxPower` is 0) |
+| `120`/`121` | Idle, SOC calibration running (`socStatus` is 1)                                       |
 
 ### How it works
 
@@ -174,6 +175,11 @@ For more details and for information on how to disable error reporting, see the 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+
+### **WORK IN PROGRESS**
+
+- Adapter automation: A device running its SOC calibration (`socStatus` is 1) is removed from feed-in (new status code `120`); it may still be charged
+
 ### 6.2.1 (2026-11-03)
 
 - `disableAcCharging` should only be created on AC only devices (like SF 2400AC)

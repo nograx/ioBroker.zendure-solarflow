@@ -39,7 +39,8 @@ const DEVICE_TASK_CODES = {
   full: 80,
   idle: 90,
   atMinSoc: 100,
-  noOutputHeadroom: 110
+  noOutputHeadroom: 110,
+  calibrating: 120
 };
 const DEVICE_STATUS_TEXTS = {
   en: {
@@ -54,7 +55,8 @@ const DEVICE_STATUS_TEXTS = {
       full: "Fully charged, idle",
       idle: "Idle",
       atMinSoc: "Idle, battery at minimum SOC",
-      noOutputHeadroom: "Idle, no output power available"
+      noOutputHeadroom: "Idle, no output power available",
+      calibrating: "Idle, SOC calibration running"
     },
     leadSuffix: " (lead device)",
     automationDisabled: "Automation disabled globally",
@@ -73,7 +75,8 @@ const DEVICE_STATUS_TEXTS = {
       full: "Voll geladen, inaktiv",
       idle: "Inaktiv",
       atMinSoc: "Inaktiv, Akku auf minimalem SOC",
-      noOutputHeadroom: "Inaktiv, keine Ausgangsleistung verf\xFCgbar"
+      noOutputHeadroom: "Inaktiv, keine Ausgangsleistung verf\xFCgbar",
+      calibrating: "Inaktiv, SOC-Kalibrierung l\xE4uft"
     },
     leadSuffix: " (f\xFChrendes Ger\xE4t)",
     automationDisabled: "Automatisierung global deaktiviert",

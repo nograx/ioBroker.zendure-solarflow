@@ -197,6 +197,8 @@ interface IAutomationDeviceState {
   name: string;
   soc: number;
   minSoc: number;
+  /** Whether the device runs its SOC calibration ('socStatus' == 1), refreshed by updateAutomationDeviceMetrics. */
+  isCalibrating: boolean;
   /** Max output limit from (suggested) inverseMaxPower, refreshed by updateAutomationDeviceMetrics. */
   configuredMaxLimit: number;
   /**
@@ -301,6 +303,7 @@ const getDeviceState = (device: ZenIobDevice): IAutomationDeviceState => {
       name: "",
       soc: 0,
       minSoc: 0,
+      isCalibrating: false,
       configuredMaxLimit: 0,
       maxLimit: 0,
       chargeMaxLimit: 0,
@@ -355,9 +358,14 @@ const isWaking = (state: IAutomationDeviceState, now: number): boolean => state.
  */
 const isAtMinSoc = (state: IAutomationDeviceState): boolean => state.soc <= state.minSoc;
 
-// Whether the device can feed in at all: it has output headroom (maxLimit, e.g. 0 from suggestedInverseMaxPower)
-// and its battery is above its minSoc. A device that can't must not get a share, nor stay lead device.
-const canFeedIn = (state: IAutomationDeviceState): boolean => state.maxLimit > 0 && !isAtMinSoc(state);
+// Whether the device must not feed in at all (not even its feed-in standby): at its minSoc, or while its SOC
+// calibration runs. It may still be charged.
+const isFeedInBlocked = (state: IAutomationDeviceState): boolean => isAtMinSoc(state) || state.isCalibrating;
+
+// Whether the device can feed in at all: it has output headroom (maxLimit, e.g. 0 from suggestedInverseMaxPower),
+// its battery is above its minSoc and no SOC calibration runs. A device that can't must not get a share, nor
+// stay lead device.
+const canFeedIn = (state: IAutomationDeviceState): boolean => state.maxLimit > 0 && !isFeedInBlocked(state);
 
 // Charge power (W, >= 0) the device actually draws: its commanded charge limit, or less once settled if its
 // measured AC input is lower (see CHARGE_SETTLE_MS).
@@ -835,6 +843,9 @@ export const updateAutomationDeviceMetrics = async (adapter: ZendureSolarflow): 
     const minSocState = await adapter.getStateAsync(`${id}.minSoc`);
     state.minSoc = minSocState?.val != null ? Number(minSocState.val) : 0;
 
+    const socStatusState = await adapter.getStateAsync(`${id}.socStatus`);
+    state.isCalibrating = socStatusState?.val != null && Number(socStatusState.val) === 1;
+
     // chargeMaxLimit is reported by the device itself via MQTT/zenSDK when available; fall back to the
     // device class's hardware maxInputLimit otherwise.
     const chargeMaxLimitState = await adapter.getStateAsync(`${id}.chargeMaxLimit`);
@@ -844,11 +855,11 @@ export const updateAutomationDeviceMetrics = async (adapter: ZendureSolarflow): 
     applyMaxLimit(state);
 
     if (canFeedIn(state) !== couldFeedIn) {
-      // Reached (or left) its minSoc, or its maxLimit dropped to 0 (or recovered) - another device may have to
-      // take over as lead device (see sortAutomationDevices).
+      // Reached (or left) its minSoc, started (or finished) its SOC calibration, or its maxLimit dropped to 0
+      // (or recovered) - another device may have to take over as lead device (see sortAutomationDevices).
       adapter.log.debug(
         `${LOG} '${deviceLabel(device)}' ${canFeedIn(state) ? "can feed in again" : "can't feed in anymore"} ` +
-          `(soc=${state.soc} minSoc=${state.minSoc} maxLimit=${state.maxLimit})`,
+          `(soc=${state.soc} minSoc=${state.minSoc} calibrating=${state.isCalibrating} maxLimit=${state.maxLimit})`,
       );
       needsResort = true;
     }
@@ -1607,9 +1618,9 @@ export const runZeroFeedInAutomation = async (
         // No share (e.g. below minSoc, or no output headroom): without this, newLimit would still hold the value
         // from the previous cycle and be sent again unchanged, although this cycle never assigned it. Park the
         // device at its base limit instead, so its limit is always the result of the current calculation.
-        // A device at its minSoc must not feed in at all - not even its feed-in standby - but may keep its
-        // charge keep-alive.
-        state.newLimit = isAtMinSoc(state) ? Math.min(baseLimit, 0) : baseLimit;
+        // A device at its minSoc or calibrating must not feed in at all - not even its feed-in standby - but
+        // may keep its charge keep-alive.
+        state.newLimit = isFeedInBlocked(state) ? Math.min(baseLimit, 0) : baseLimit;
         return;
       }
 
@@ -1670,11 +1681,11 @@ export const runZeroFeedInAutomation = async (
 
     // Redistribute unmet demand (devices that were asked for more than their own maxLimit allows) across
     // devices that still have headroom.
-    // Devices at their minSoc or without headroom can't take any of it - they must not count when splitting it
-    // either, otherwise their part of the unmet demand would be lost.
+    // Devices at their minSoc, calibrating or without headroom can't take any of it - they must not count when
+    // splitting it either, otherwise their part of the unmet demand would be lost.
     const availableDevices = adjustableInputDevices.filter((device) => {
       const state = getDeviceState(device);
-      return !state.isAtCapacity && !isAtMinSoc(state) && state.newLimit < state.maxLimit;
+      return !state.isAtCapacity && !isFeedInBlocked(state) && state.newLimit < state.maxLimit;
     });
 
     if (availableDevices.length > 0 && unmetDemand > 0) {
@@ -1767,6 +1778,9 @@ export const runZeroFeedInAutomation = async (
           return "forceCharging";
         }
         return state.newLimit === -minLimit ? "chargeKeepAlive" : "surplusCharging";
+      }
+      if (state.isCalibrating) {
+        return "calibrating";
       }
       if (state.soc >= 100) {
         return "full";

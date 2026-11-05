@@ -106,6 +106,7 @@ const getDeviceState = (device) => {
       name: "",
       soc: 0,
       minSoc: 0,
+      isCalibrating: false,
       configuredMaxLimit: 0,
       maxLimit: 0,
       chargeMaxLimit: 0,
@@ -135,7 +136,8 @@ const sendDeviceLimit = async (device, state, limit) => {
 const isLimitCommandPending = (state) => state.pendingTimeout !== void 0 || state.limitCommandsInFlight > 0;
 const isWaking = (state, now) => state.enabled && state.wakingUntilMs > now;
 const isAtMinSoc = (state) => state.soc <= state.minSoc;
-const canFeedIn = (state) => state.maxLimit > 0 && !isAtMinSoc(state);
+const isFeedInBlocked = (state) => isAtMinSoc(state) || state.isCalibrating;
+const canFeedIn = (state) => state.maxLimit > 0 && !isFeedInBlocked(state);
 const getEffectiveChargePower = (state) => {
   const commanded = Math.max(0, -state.currentLimit);
   if (commanded === 0 || state.measuredChargePower == null || state.lastChangeMs < CHARGE_SETTLE_MS || isLimitCommandPending(state)) {
@@ -392,13 +394,15 @@ const updateAutomationDeviceMetrics = async (adapter) => {
     state.soc = (socState == null ? void 0 : socState.val) != null ? Number(socState.val) : 0;
     const minSocState = await adapter.getStateAsync(`${id}.minSoc`);
     state.minSoc = (minSocState == null ? void 0 : minSocState.val) != null ? Number(minSocState.val) : 0;
+    const socStatusState = await adapter.getStateAsync(`${id}.socStatus`);
+    state.isCalibrating = (socStatusState == null ? void 0 : socStatusState.val) != null && Number(socStatusState.val) === 1;
     const chargeMaxLimitState = await adapter.getStateAsync(`${id}.chargeMaxLimit`);
     state.chargeMaxLimit = (chargeMaxLimitState == null ? void 0 : chargeMaxLimitState.val) != null ? Number(chargeMaxLimitState.val) : device.maxInputLimit;
     state.feedInSolarOnly = await isFeedInSolarOnly(adapter, device);
     applyMaxLimit(state);
     if (canFeedIn(state) !== couldFeedIn) {
       adapter.log.debug(
-        `${LOG} '${deviceLabel(device)}' ${canFeedIn(state) ? "can feed in again" : "can't feed in anymore"} (soc=${state.soc} minSoc=${state.minSoc} maxLimit=${state.maxLimit})`
+        `${LOG} '${deviceLabel(device)}' ${canFeedIn(state) ? "can feed in again" : "can't feed in anymore"} (soc=${state.soc} minSoc=${state.minSoc} calibrating=${state.isCalibrating} maxLimit=${state.maxLimit})`
       );
       needsResort = true;
     }
@@ -847,7 +851,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
         baseLimit = 0;
       }
       if (state.maxLimit <= 0 || !state.share) {
-        state.newLimit = isAtMinSoc(state) ? Math.min(baseLimit, 0) : baseLimit;
+        state.newLimit = isFeedInBlocked(state) ? Math.min(baseLimit, 0) : baseLimit;
         return;
       }
       const solar = state.solarInputPower;
@@ -892,7 +896,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
     }
     const availableDevices = adjustableInputDevices.filter((device) => {
       const state = getDeviceState(device);
-      return !state.isAtCapacity && !isAtMinSoc(state) && state.newLimit < state.maxLimit;
+      return !state.isAtCapacity && !isFeedInBlocked(state) && state.newLimit < state.maxLimit;
     });
     if (availableDevices.length > 0 && unmetDemand > 0) {
       availableDevices.forEach((device) => {
@@ -952,6 +956,9 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
           return "forceCharging";
         }
         return state.newLimit === -minLimit ? "chargeKeepAlive" : "surplusCharging";
+      }
+      if (state.isCalibrating) {
+        return "calibrating";
       }
       if (state.soc >= 100) {
         return "full";
