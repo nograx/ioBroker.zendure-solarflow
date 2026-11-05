@@ -1,4 +1,9 @@
 # Older changes
+## 6.1.3 (2026-10-16)
+
+- Adapter automation: `feedInSolarOnly` now only limits feed-in to the solar input while it is above 50 W; at or below 50 W the battery may be used for feed-in (replaces the previous low solar input warning)
+- Fixed adapter crash (`Converting circular structure to JSON`) when the Zendure cloud API does not respond
+
 ## 6.1.2 (2026-10-16)
 
 - Adapter automation: `suggestedInverseMaxPower` changes are now ramped instead of a fixed value (should avoid rapid jumps between values)

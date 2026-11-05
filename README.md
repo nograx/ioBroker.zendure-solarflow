@@ -177,8 +177,7 @@ For more details and for information on how to disable error reporting, see the 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
-
-### **WORK IN PROGRESS**
+### 6.3.0 (2026-11-05)
 
 - Adapter automation: A device running its SOC calibration (`socStatus` is 1) is removed from feed-in (new status code `120`)
 - Adapter automation: New per-device states `lastCalibration` (set when the device reaches 100% SOC) and `timeSinceLastCalibration` (days and hours since then)
@@ -202,11 +201,6 @@ For more details and for information on how to disable error reporting, see the 
 - Adapter automation: New status codes `100` (idle, battery at minimum SOC) and `110` (idle, no output power available) instead of the generic `90` (idle)
 - Add productKey 'g0wyvD' for Solarflow 3000 Mix AC+ (now also created from the cloud device list, not only via mDNS discovery)
 - Devices found via mDNS or a configured IP now keep their existing states (matched by serial number), e.g. after switching from the cloud key to 'zenSDK only' mode
-
-### 6.1.3 (2026-10-16)
-
-- Adapter automation: `feedInSolarOnly` now only limits feed-in to the solar input while it is above 50 W; at or below 50 W the battery may be used for feed-in (replaces the previous low solar input warning)
-- Fixed adapter crash (`Converting circular structure to JSON`) when the Zendure cloud API does not respond
 
 For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 

@@ -9,8 +9,21 @@
         ]
       }
     },
-    "version": "6.2.1",
+    "version": "6.3.0",
     "news": {
+      "6.3.0": {
+        "en": "Adapter automation: A device running its SOC calibration (`socStatus` is 1) is removed from feed-in (new status code `120`)\nAdapter automation: New per-device states `lastCalibration` (set when the device reaches 100% SOC) and `timeSinceLastCalibration` (days and hours since then)",
+        "de": "Adapterautomatik: Ein Gerät mit SOC-Kalibrierung (`SOCStatus` ist 1) wird aus der Einspeisung entfernt (neuer Statuscode `120`)\nAdapterautomatisierung: Neue Gerätestatus „LastCalibration“ (wenn das Gerät 100% SOC erreicht) und „TimeSinceLastCalibration“ (seither Tage und Stunden)",
+        "ru": "Автоматизация адаптера: устройство, на котором выполняется калибровка SOC («SocStatus» равно 1), удаляется из системы подачи (новый код состояния «120»)\nАвтоматизация адаптера: новые состояния для каждого устройства: «LastCalibration» (устанавливается, когда устройство достигает 100% SOC) и «TimeSinceLastCalibration» (с тех пор прошло несколько дней и часов)",
+        "pt": "Automação do adaptador: um dispositivo calibrado SOC (`socStatus` é 1) é removido do feed (novo código `120`)\nAutomação do adaptador: novos estados por dispositivo `LastCalibration` (quando atinge 100% SOC) e `TimesInceLastCalibration` (dias e horas desde então)",
+        "nl": "Automatisering van de adapter: een apparaat waarop de SOC-kalibratie wordt uitgevoerd (`SocStatus` is 1) wordt niet meer ingevoerd (nieuwe statuscode `120`)\nAutomatisering van de adapter: nieuwe statussen per apparaat: `LastCalibration` (ingesteld wanneer het apparaat 100% SOC bereikt) en `TimeSincLastCalibration` (dagen en uren sindsdien)",
+        "fr": "Automatisation de l'adaptateur : un appareil calibré SOC (« SocStatus » vaut 1) est retiré de l'alimentation (nouveau code d'état « 120 »)\nAdaptation automatique : nouveaux états par appareil « LastCalibration » (défini lorsque l'appareil atteint 100 % SOC) et « TimeSinceLastCalibration » (jours et heures depuis)",
+        "it": "Automazione adattatore: un dispositivo con calibrazione SOC (`SOCStatus` è 1) è rimosso dal feed-in (nuovo codice `120`)\nAutomazione dell'adattatore: nuovi stati per dispositivo LastCalibration (impostato al 100% SOC) e TimeSinceLastCalibration (giorni e ore da allora)",
+        "es": "Automatización del adaptador: un dispositivo con su calibración SOC (`socStatus` es 1) se retira de la alimentación (nuevo código de estado 120)\nAutomatización del adaptador: los nuevos estados por dispositivo son «LastCalibration» (se establece cuando el dispositivo alcanza el 100% de SOC) y «TimeSincelastCalibration» (días y horas desde entonces)",
+        "pl": "Automatyzacja adaptera: Urządzenie z kalibracją SOC („SocStatus” to 1) jest usuwane z zasilania (nowy kod stanu „120”)\nAutomatyzacja adaptera: nowe stany dla każdego urządzenia „LastCalibration” (ustawiane, gdy urządzenie osiągnie 100% SOC) i „TimesInCelastCalibration” (dni i godziny od tego czasu)",
+        "uk": "Автоматизація адаптера: пристрій, який виконує калібрування SOC (`SocStatus` дорівнює 1), видаляється з подачі (новий код стану `120`)\nАвтоматизація адаптера: нові для кожного пристрою стану `LastCalibration` (встановлюється, коли пристрій досягає 100% SOC) та `TimesInceLastCalibration` (дні та години з того часу)",
+        "zh-cn": "适配器自动化：运行其 SOC 校准（`socStatus` 为 1）的设备已从馈电中移除（新状态码 `120`）\n适配器自动化：新的每台设备状态 “LastCalibration”（在设备达到 100% SOC 时设置）和 “timeIncelastCalibration”（自那以后的天数和小时数）"
+      },
       "6.2.1": {
         "en": "`disableAcCharging` should only be created on AC only devices (like SF 2400AC)",
         "de": "`DisableACCharging` sollte nur auf AC-Geräten (wie SF 2400AC) erstellt werden",
@@ -88,19 +101,6 @@
         "pl": "Automatyzacja adaptera: zmiany `SuggestedInverseMaxPower „są teraz zwiększane zamiast stałej wartości (należy unikać szybkich skoków między wartościami)\nAutomatyzacja adaptera: ulepszenia w obsłudze ładunku utrzymują przy życiu, co może prowadzić do niewielkiego importu sieci\nHyper 2000: `SetDeviceAutomationInOutLimit` ponownie wyśle aktualny MinSoC, SocSet i InverseMaxPower po 10 sekundach, aby upewnić się, że jest poprawnie ustawiony w tym trybie",
         "uk": "Автоматизація адаптера: зміни `SuggestedInverseMaxPower` тепер посилюються замість фіксованого значення (слід уникати швидких стрибків між значеннями)\nАвтоматизація адаптера: покращення обробки заряду зберігають життя, що може призвести до невеликого імпорту електромережі\nHyper 2000: `SetDeviceAutomationInOutLimit` тепер знову надсилатиме поточні MinSoC, SocSet та InverseMaxPower через 10 секунд, щоб переконатися, що він правильно встановлений у цьому режимі",
         "zh-cn": "适配器自动化：`SuggedInverseMaxPower`更改现在是递增的，而不是固定值（应避免值之间快速跳动）\n适配器自动化：电荷处理方面的改进保持活力，这可能会导致小型电网导入\nHyper 2000：`setDeviceAutomationInOutlimit` 现在将在 10 秒钟后再次重新发送当前 minSoC、socSet 和 inverseMaxPower，以确保在此模式下设置正确"
-      },
-      "6.1.1": {
-        "en": "SF 800 Pro 2 is now detected via mDNS / zenSDK (was reported as unknown model `solarFlow800Pro2`)",
-        "de": "SF 800 Pro 2 wird jetzt über mDNS/ZenSDK erkannt (unbekanntes Modell SolarFlow800Pro 2)",
-        "ru": "SF 800 Pro 2 теперь обнаруживается с помощью mDNS/ZenSDK (сообщалось, что это неизвестная модель SolarFlow800Pro2)",
-        "pt": "O SF 800 Pro 2 agora é detectado via mDNS/ZenSDK (modelo desconhecido `SolarFlow800Pro2`)",
-        "nl": "SF 800 Pro 2 wordt nu gedetecteerd via mDNS/ZenSDK (werd gerapporteerd als onbekend model `SolarFlow800Pro2`)",
-        "fr": "Le SF 800 Pro 2 est désormais détecté via mDNS/ZenSDK (modèle inconnu « SolarFlow800Pro2 »)",
-        "it": "SF 800 Pro 2 è ora rilevato tramite mDNS/ZenSDK (modello sconosciuto `SolarFlow800Pro2`)",
-        "es": "La SF 800 Pro 2 se detecta ahora por mDNS/ZenSDK (se informó como modelo desconocido `SolarFlow800Pro2`)",
-        "pl": "SF 800 Pro 2 jest teraz wykrywany przez mDNS/ZenSDK (zgłoszono jako nieznany model `Solarflow800Pro2`)",
-        "uk": "SF 800 Pro 2 тепер виявляється через mDNS /ZenSDK (повідомлялося як невідома модель `SolarFlow800pro2`)",
-        "zh-cn": "现在可通过 mDNS/ZenSDK 检测到 SF 800 Pro 2（据报告为未知型号 `SolarFlow800pro2`）"
       }
     },
     "titleLang": {
