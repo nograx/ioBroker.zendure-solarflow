@@ -177,8 +177,7 @@ For more details and for information on how to disable error reporting, see the 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
-
-### **WORK IN PROGRESS**
+### 6.3.2 (2026-11-09)
 
 - Adapter automation: Fixed energy being moved from one battery into another - battery feed-in of a device was counted as surplus, so AC-only devices charged from it
 - Adapter automation: A charge keep-alive alone no longer keeps surplus charging running without a confirmed surplus, so it is released after 3 minutes as intended
@@ -202,10 +201,6 @@ For more details and for information on how to disable error reporting, see the 
 
 - Adapter automation: New per-device state `disableAcCharging` to disable AC charging (surplus and forced) for AC-only devices
 - Added Smart Meter 1CT (`smartMeter1CT-S`), auto-created via mDNS discovery
-
-### 6.1.5 (2026-10-27)
-
-- Adapter automation: A lead device that reached its minSoc or has no output power available (e.g. `suggestedInverseMaxPower` is 0) is now released from feed-in and another device takes over as lead device
 
 For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 
