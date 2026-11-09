@@ -1,4 +1,11 @@
 # Older changes
+## 6.1.4 (2026-10-27)
+
+- Adapter automation: Fixed feed-in being too low when a device in the feed-in group is at its minSoc or has no output power available (its share was not given to the other devices)
+- Adapter automation: New status codes `100` (idle, battery at minimum SOC) and `110` (idle, no output power available) instead of the generic `90` (idle)
+- Add productKey 'g0wyvD' for Solarflow 3000 Mix AC+ (now also created from the cloud device list, not only via mDNS discovery)
+- Devices found via mDNS or a configured IP now keep their existing states (matched by serial number), e.g. after switching from the cloud key to 'zenSDK only' mode
+
 ## 6.1.3 (2026-10-16)
 
 - Adapter automation: `feedInSolarOnly` now only limits feed-in to the solar input while it is above 50 W; at or below 50 W the battery may be used for feed-in (replaces the previous low solar input warning)

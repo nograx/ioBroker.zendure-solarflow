@@ -177,8 +177,7 @@ For more details and for information on how to disable error reporting, see the 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
-
-### **WORK IN PROGRESS**
+### 6.3.1 (2026-11-09)
 
 - Smart Meter 3CT announced via mDNS as `smartMeter3CT-S` is now auto-created
 - Solarflow 3000 Mix AC+, 4000 Mix AC+ and 4000 Mix Pro: `acMode` is no longer reset to 0 by the device automation (standby via zenSDK, and HEMS initialization)
@@ -201,13 +200,6 @@ For more details and for information on how to disable error reporting, see the 
 ### 6.1.5 (2026-10-27)
 
 - Adapter automation: A lead device that reached its minSoc or has no output power available (e.g. `suggestedInverseMaxPower` is 0) is now released from feed-in and another device takes over as lead device
-
-### 6.1.4 (2026-10-27)
-
-- Adapter automation: Fixed feed-in being too low when a device in the feed-in group is at its minSoc or has no output power available (its share was not given to the other devices)
-- Adapter automation: New status codes `100` (idle, battery at minimum SOC) and `110` (idle, no output power available) instead of the generic `90` (idle)
-- Add productKey 'g0wyvD' for Solarflow 3000 Mix AC+ (now also created from the cloud device list, not only via mDNS discovery)
-- Devices found via mDNS or a configured IP now keep their existing states (matched by serial number), e.g. after switching from the cloud key to 'zenSDK only' mode
 
 For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 
