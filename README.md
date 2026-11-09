@@ -177,6 +177,13 @@ For more details and for information on how to disable error reporting, see the 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+
+### **WORK IN PROGRESS**
+
+- Smart Meter 3CT announced via mDNS as `smartMeter3CT-S` is now auto-created
+- Solarflow 3000 Mix AC+, 4000 Mix AC+ and 4000 Mix Pro: `acMode` is no longer reset to 0 by the device automation (standby via zenSDK, and HEMS initialization)
+- zenSDK devices: New control state `control.chargeMaxLimit` to set the highest acceptable charge power (100 W up to the device's maximum input power)
+
 ### 6.3.0 (2026-11-05)
 
 - Adapter automation: A device running its SOC calibration (`socStatus` is 1) is removed from feed-in (new status code `120`)

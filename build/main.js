@@ -57,6 +57,7 @@ const CONTROL_STATE_HANDLERS = {
   autoModel: (device, value) => device.setAutoModel(Number(value)),
   autoRecover: (device, value) => device.setAutoRecover(Boolean(value)),
   inverseMaxPower: (device, value) => device.setInverseMaxPower(Number(value)),
+  chargeMaxLimit: (device, value) => device.setChargeMaxLimit(Number(value)),
   buzzerSwitch: (device, value) => device.setBuzzerSwitch(Boolean(value)),
   smartMode: (device, value) => device.setSmartMode(Boolean(value)),
   setDeviceAutomationInOutLimit: (device, value) => device.setDeviceAutomationInOutLimit(Number(value)),

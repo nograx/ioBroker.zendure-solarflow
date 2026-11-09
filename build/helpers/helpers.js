@@ -146,10 +146,11 @@ const deviceDefinitions = [
   },
   {
     // No cloud productKey known for this accessory - it's only ever created via mDNS auto-discovery.
+    // Announced via mDNS as "smartMeter3CT" or "smartMeter3CT-S".
     productKeys: ["smartmeter3ct"],
     productModel: "Smart Meter 3CT",
     ctor: import_SmartMeter3Ct.SmartMeter3Ct,
-    mdnsModelNames: ["smartmeter3ct"]
+    mdnsModelNames: ["smartmeter3cts", "smartmeter3ct"]
   },
   {
     // No cloud productKey known for this accessory - it's only ever created via mDNS auto-discovery.

@@ -14,6 +14,9 @@ export class Sf4000MixPro extends ZenSdkIobDevice {
   lowVoltageThreshold = 23.05;
   lowVoltageRecoveryThreshold = 23.75;
 
+  // acMode must not be reset to 0 on this device (neither in standby nor on HEMS init).
+  protected readonly resetAcModeToZero = false;
+
   controlStates = [...sharedControlStates, ...solarflow4000MixProControlStates];
 
   public constructor(

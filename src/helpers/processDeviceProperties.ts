@@ -36,6 +36,7 @@ const handledMqttKeys = new Set<string>([
   "inputLimit",
   "gridInputPower",
   "acMode",
+  "chargeMaxLimit",
   "hyperTmp",
   "acOutputPower",
   "gridPower",
@@ -379,6 +380,12 @@ export const processDeviceProperties = async (
   if (properties?.inverseMaxPower != null) {
     statesToSet.set("inverseMaxPower", properties.inverseMaxPower);
     controlStatesToSet.set("inverseMaxPower", properties.inverseMaxPower);
+  }
+
+  if (properties?.chargeMaxLimit != null) {
+    statesToSet.set("chargeMaxLimit", properties.chargeMaxLimit);
+    // Only exists on zenSDK devices (see ZenIobDevice), otherwise skipped by updateSolarFlowControlState.
+    controlStatesToSet.set("chargeMaxLimit", properties.chargeMaxLimit);
   }
 
   if (properties?.wifiState != null) {

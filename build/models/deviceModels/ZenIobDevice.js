@@ -107,9 +107,16 @@ class ZenIobDevice {
   canChargeByAc = false;
   /** Whether minSoc, socSet and inverseMaxPower are sent again ~10s after HEMS mode was initialized. */
   resendSettingsAfterHemsInit = false;
+  /**
+   * Whether acMode may be reset to 0 by the device automation: in standby (limit 0) via zenSDK, and when HEMS
+   * control is initialized (see sendHemsEpSetpoint).
+   */
+  resetAcModeToZero = true;
   zenSdkErrorCount = 0;
   zenSdkPausedUntil = 0;
   static ZEN_SDK_MAX_ERROR_LOGS = 5;
+  /** Lowest value the 'control.chargeMaxLimit' state accepts (W), capped at the device's maxInputLimit. */
+  static CHARGE_MAX_LIMIT_MIN_W = 100;
   static ZEN_SDK_PAUSE_DURATION_MS = 10 * 60 * 1e3;
   /** State of the zenSDK connect attempts triggered by mDNS discovery (see connectViaMdns). */
   mdnsConnectInProgress = false;
@@ -286,7 +293,7 @@ class ZenIobDevice {
         },
         native: {}
       }));
-      this.controlStates.forEach(async (state) => {
+      this.getAllControlStates().forEach(async (state) => {
         var _a2, _b2, _c2, _d2;
         const stateId = `${productKey}.${deviceKey}.control.${state.title}`;
         await ((_a2 = this.adapter) == null ? void 0 : _a2.extendObject(stateId, {
@@ -989,7 +996,7 @@ class ZenIobDevice {
         this.setAutoModel(0);
       }
       const acMode = (_b = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.acMode`)) == null ? void 0 : _b.val;
-      if (acMode != 0) {
+      if (this.resetAcModeToZero && acMode != 0) {
         this.adapter.log.warn(
           `[sendHemsEpSetpoint] acMode is not set to '0' (current value: ${acMode}), setting it to '0' before sending the HEMS setpoint!`
         );
@@ -1133,6 +1140,47 @@ class ZenIobDevice {
   setAutoRecover(autoRecover) {
     if (this.productKey && this.deviceKey) {
       this.updateProperty("autoRecover", autoRecover ? 1 : 0);
+    }
+  }
+  /**
+   * Control states of this device: its class' controlStates, plus states that depend on device properties
+   * (e.g. chargeMaxLimit on zenSDK devices, whose maximum is the class' maxInputLimit).
+   */
+  getAllControlStates() {
+    if (!this.isZenSdkSupported) {
+      return this.controlStates;
+    }
+    return [
+      ...this.controlStates,
+      {
+        nameDe: "Maximal akzeptable Ladeleistung",
+        nameEn: "Highest acceptable charge power",
+        type: "number",
+        title: "chargeMaxLimit",
+        role: "value.power",
+        read: true,
+        write: true,
+        min: Math.min(ZenIobDevice.CHARGE_MAX_LIMIT_MIN_W, this.maxInputLimit),
+        max: this.maxInputLimit,
+        unit: "W"
+      }
+    ];
+  }
+  /**
+   * Sets the highest acceptable charge power (zenSDK devices only), limited to 100 W ... maxInputLimit.
+   *
+   * @param chargeMaxLimit the desired charge power limit in W
+   */
+  setChargeMaxLimit(chargeMaxLimit) {
+    if (this.productKey && this.deviceKey) {
+      const min = Math.min(ZenIobDevice.CHARGE_MAX_LIMIT_MIN_W, this.maxInputLimit);
+      const limit = Math.min(Math.max(Math.round(chargeMaxLimit), min), this.maxInputLimit);
+      if (limit !== chargeMaxLimit) {
+        this.adapter.log.debug(
+          `[setChargeMaxLimit] chargeMaxLimit ${chargeMaxLimit} is outside ${min}-${this.maxInputLimit} W, using ${limit}!`
+        );
+      }
+      this.updateProperty("chargeMaxLimit", limit);
     }
   }
   setInverseMaxPower(inverseMaxPower) {

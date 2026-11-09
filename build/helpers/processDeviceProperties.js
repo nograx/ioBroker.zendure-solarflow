@@ -54,6 +54,7 @@ const handledMqttKeys = /* @__PURE__ */ new Set([
   "inputLimit",
   "gridInputPower",
   "acMode",
+  "chargeMaxLimit",
   "hyperTmp",
   "acOutputPower",
   "gridPower",
@@ -308,6 +309,10 @@ const processDeviceProperties = async (device, properties, isSolarFlow) => {
   if ((properties == null ? void 0 : properties.inverseMaxPower) != null) {
     statesToSet.set("inverseMaxPower", properties.inverseMaxPower);
     controlStatesToSet.set("inverseMaxPower", properties.inverseMaxPower);
+  }
+  if ((properties == null ? void 0 : properties.chargeMaxLimit) != null) {
+    statesToSet.set("chargeMaxLimit", properties.chargeMaxLimit);
+    controlStatesToSet.set("chargeMaxLimit", properties.chargeMaxLimit);
   }
   if ((properties == null ? void 0 : properties.wifiState) != null) {
     statesToSet.set("wifiState", properties.wifiState);

@@ -33,6 +33,8 @@ class Sf4000MixAcPlus extends import_ZenSdkIobDevice.ZenSdkIobDevice {
   // This device uses a 24V battery pack, half the 48V systems the base thresholds are tuned for.
   lowVoltageThreshold = 23.05;
   lowVoltageRecoveryThreshold = 23.75;
+  // acMode must not be reset to 0 on this device (neither in standby nor on HEMS init).
+  resetAcModeToZero = false;
   controlStates = [...import_sharedControlStates.sharedControlStates, ...import_solarflow4000MixAcPlusControlStates.solarflow4000MixAcPlusControlStates];
   constructor(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails) {
     super(_adapter, _productKey, _deviceKey, _productName, _deviceName, _zenHaDeviceDetails);

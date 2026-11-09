@@ -159,12 +159,14 @@ export abstract class ZenSdkIobDevice extends ZenIobDevice {
             results.push(await this.updateProperty("inputLimit", 0));
           }
 
-          this.resetAcModeTimeout = this.adapter.setTimeout(async () => {
-            this.resetAcModeTimeout = undefined;
-            if (currentAcMode && currentAcMode.val != 0) {
-              results.push(await this.updateProperty("acMode", 0));
-            }
-          }, 2000);
+          if (this.resetAcModeToZero) {
+            this.resetAcModeTimeout = this.adapter.setTimeout(async () => {
+              this.resetAcModeTimeout = undefined;
+              if (currentAcMode && currentAcMode.val != 0) {
+                results.push(await this.updateProperty("acMode", 0));
+              }
+            }, 2000);
+          }
 
           // smartMode is deliberately left on in standby (no longer reset to 0).
           // // Keep smartMode on for a while after idling, so a brief standby doesn't immediately turn it off again

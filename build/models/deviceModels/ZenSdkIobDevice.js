@@ -136,12 +136,14 @@ class ZenSdkIobDevice extends import_ZenIobDevice.ZenIobDevice {
           if (currentInputLimit && currentInputLimit.val != 0) {
             results.push(await this.updateProperty("inputLimit", 0));
           }
-          this.resetAcModeTimeout = this.adapter.setTimeout(async () => {
-            this.resetAcModeTimeout = void 0;
-            if (currentAcMode && currentAcMode.val != 0) {
-              results.push(await this.updateProperty("acMode", 0));
-            }
-          }, 2e3);
+          if (this.resetAcModeToZero) {
+            this.resetAcModeTimeout = this.adapter.setTimeout(async () => {
+              this.resetAcModeTimeout = void 0;
+              if (currentAcMode && currentAcMode.val != 0) {
+                results.push(await this.updateProperty("acMode", 0));
+              }
+            }, 2e3);
+          }
         }
         const success = results.every((result) => result === true);
         if (success) {

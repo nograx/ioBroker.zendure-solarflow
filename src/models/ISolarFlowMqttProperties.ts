@@ -37,6 +37,7 @@ export interface ISolarFlowMqttProperties {
   minSoc?: number;
   pvBrand?: number;
   inverseMaxPower?: number;
+  chargeMaxLimit?: number;
   wifiState?: number;
   hubState?: number;
   sn?: string;
