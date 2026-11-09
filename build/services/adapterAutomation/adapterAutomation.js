@@ -570,10 +570,11 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       (sum, device) => sum + Math.max(getDeviceState(device).currentLimit, 0),
       0
     );
-    const actualFeedIn = enabledDevices.reduce((sum, device) => {
+    const getActualFeedIn = (state) => Math.max(isWaking(state, now) ? Math.min(state.measuredOutputPower, state.currentLimit) : state.currentLimit, 0);
+    const actualFeedIn = enabledDevices.reduce((sum, device) => sum + getActualFeedIn(getDeviceState(device)), 0);
+    const batteryFeedIn = enabledDevices.reduce((sum, device) => {
       const state = getDeviceState(device);
-      const feedIn = isWaking(state, now) ? Math.min(state.measuredOutputPower, state.currentLimit) : state.currentLimit;
-      return sum + Math.max(feedIn, 0);
+      return sum + Math.max(getActualFeedIn(state) - state.solarInputPower, 0);
     }, 0);
     const currentTotalChargePowerAll = enabledDevices.reduce(
       (sum, device) => sum + getEffectiveChargePower(getDeviceState(device)),
@@ -713,10 +714,6 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       (device) => isSurplusChargeCandidate(device) && getDeviceState(device).soc < 100 && getDeviceState(device).currentLimit <= 0
     );
     const surplusChargeCandidates = otherDevices.filter(isSurplusChargeCandidate);
-    const currentTotalChargePower = surplusChargeCandidates.reduce(
-      (sum, device) => sum + getEffectiveChargePower(getDeviceState(device)),
-      0
-    );
     const commandedChargePower = surplusChargeCandidates.reduce(
       (sum, device) => sum + Math.max(0, -getDeviceState(device).currentLimit),
       0
@@ -745,7 +742,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
     });
     let isGridWithoutChargeStep = false;
     if (!isChargeHeld || shortTermGridWithoutChargeW == null) {
-      const rawGridWithoutCharge = currentGridMeterValue - measuredTotalChargePower;
+      const rawGridWithoutCharge = currentGridMeterValue - measuredTotalChargePower + batteryFeedIn;
       if (shortTermGridWithoutChargeW == null) {
         shortTermGridWithoutChargeW = rawGridWithoutCharge;
         pendingGridWithoutChargeStepSign = 0;
@@ -769,8 +766,11 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       return sum + Math.max(0, getReportedChargePower(state) - Math.max(0, -state.currentLimit));
     }, 0);
     const heldGridW = currentGridMeterValue - chargeLagW;
+    const isChargeOngoing = surplusChargeCandidates.some(
+      (device) => getDeviceState(device).currentLimit < -getMinLimit(device)
+    );
     let chargeBudgetTotal = 0;
-    if (hasGridSurplus || currentTotalChargePower > 0) {
+    if (hasGridSurplus || isChargeOngoing) {
       const chargePiCorrection = chargePid.calculate(
         chargeError,
         now,
@@ -804,7 +804,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
     const chargeBudgets = getChargeBudgets(activeChargeDevices, chargeBudgetTotal);
     if (chargeEligibleDevices.length > 0) {
       adapter.log.debug(
-        `${LOG} AC charge: shortTermGridAvgW=${shortTermGridAvgW.toFixed(1)} surplusFor=${Math.round(surplusDurationMs / 1e3)}s hasGridSurplus=${hasGridSurplus} measuredChargePower=${measuredTotalChargePower} commandedChargePower=${commandedChargePower} gridWithoutChargeAvg=${shortTermGridWithoutChargeW.toFixed(1)} step=${isGridWithoutChargeStep} held=${isChargeHeld} feedForward=${chargeFeedForward.toFixed(1)} chargeError=${chargeError.toFixed(1)} chargeBudgetTotal=${chargeBudgetTotal.toFixed(1)} activeChargeDevices=${activeChargeDevices.map((device) => {
+        `${LOG} AC charge: shortTermGridAvgW=${shortTermGridAvgW.toFixed(1)} surplusFor=${Math.round(surplusDurationMs / 1e3)}s hasGridSurplus=${hasGridSurplus} chargeOngoing=${isChargeOngoing} batteryFeedIn=${batteryFeedIn} measuredChargePower=${measuredTotalChargePower} commandedChargePower=${commandedChargePower} gridWithoutChargeAvg=${shortTermGridWithoutChargeW.toFixed(1)} step=${isGridWithoutChargeStep} held=${isChargeHeld} feedForward=${chargeFeedForward.toFixed(1)} chargeError=${chargeError.toFixed(1)} chargeBudgetTotal=${chargeBudgetTotal.toFixed(1)} activeChargeDevices=${activeChargeDevices.map((device) => {
           var _a2;
           return `${deviceLabel(device)}:${Math.round((_a2 = chargeBudgets.get(deviceId(device))) != null ? _a2 : 0)}W`;
         }).join(",") || "-"}`

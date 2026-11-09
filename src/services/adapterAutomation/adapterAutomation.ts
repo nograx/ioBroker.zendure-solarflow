@@ -1160,12 +1160,14 @@ export const runZeroFeedInAutomation = async (
     // Feed-in actually delivered right now: a device still waking up doesn't deliver its limit yet, so its
     // measured output counts instead - otherwise the missing power would be mistaken for extra home usage, and
     // the other devices would cover it as well (overshooting once the waking device delivers).
-    const actualFeedIn = enabledDevices.reduce((sum, device) => {
+    const getActualFeedIn = (state: IAutomationDeviceState): number =>
+      Math.max(isWaking(state, now) ? Math.min(state.measuredOutputPower, state.currentLimit) : state.currentLimit, 0);
+    const actualFeedIn = enabledDevices.reduce((sum, device) => sum + getActualFeedIn(getDeviceState(device)), 0);
+    // Part of the feed-in that comes from the devices' batteries rather than their own solar input. It lowers the
+    // grid value just like a real surplus, but must never be charged into another device (see the charge budget).
+    const batteryFeedIn = enabledDevices.reduce((sum, device) => {
       const state = getDeviceState(device);
-      const feedIn = isWaking(state, now)
-        ? Math.min(state.measuredOutputPower, state.currentLimit)
-        : state.currentLimit;
-      return sum + Math.max(feedIn, 0);
+      return sum + Math.max(getActualFeedIn(state) - state.solarInputPower, 0);
     }, 0);
     // Power currently being charged from AC (all enabled devices) - subtracted from the home usage below, so
     // the feed-in controller doesn't mistake the devices' own charging for home consumption and feed in even
@@ -1405,12 +1407,6 @@ export const runZeroFeedInAutomation = async (
 
     const surplusChargeCandidates = otherDevices.filter(isSurplusChargeCandidate);
 
-    // Charge power the surplus charging devices are currently drawing (see CHARGE_SETTLE_MS) - decides whether
-    // a charge is ongoing, so the budget is still calculated without a confirmed surplus.
-    const currentTotalChargePower = surplusChargeCandidates.reduce(
-      (sum, device) => sum + getEffectiveChargePower(getDeviceState(device)),
-      0,
-    );
     // Commanded charge power of the surplus charging devices - the budget is held there while a device is still
     // ramping up (see CHARGE_HOLD_MS).
     const commandedChargePower = surplusChargeCandidates.reduce(
@@ -1450,9 +1446,12 @@ export const runZeroFeedInAutomation = async (
     // load step detection, see HOME_USAGE_STEP_W). The charge power that brings the grid to surplusSetPoint
     // follows directly from it, so the budget can jump close to its target instead of creeping up. Not updated
     // while the budget is held, since the grid value and the reported charge power don't match then.
+    // The battery feed-in of the other devices is added back: otherwise it would count as surplus, and energy
+    // would be moved from one battery into another - the feed-in device then covers that charge power, which
+    // raises the "surplus" further (a loop only limited by the integrals).
     let isGridWithoutChargeStep = false;
     if (!isChargeHeld || shortTermGridWithoutChargeW == null) {
-      const rawGridWithoutCharge = currentGridMeterValue - measuredTotalChargePower;
+      const rawGridWithoutCharge = currentGridMeterValue - measuredTotalChargePower + batteryFeedIn;
       if (shortTermGridWithoutChargeW == null) {
         shortTermGridWithoutChargeW = rawGridWithoutCharge;
         pendingGridWithoutChargeStepSign = 0;
@@ -1483,11 +1482,18 @@ export const runZeroFeedInAutomation = async (
     }, 0);
     const heldGridW = currentGridMeterValue - chargeLagW;
 
+    // A charge counts as ongoing only while a device charges beyond its charge keep-alive: the keep-alive alone
+    // must not keep the budget calculation running without a confirmed surplus, otherwise a small apparent
+    // surplus restarts the charge again and again, and the keep-alive is never released (see MIN_STANDBY_TIME_MS).
+    const isChargeOngoing = surplusChargeCandidates.some(
+      (device) => getDeviceState(device).currentLimit < -getMinLimit(device),
+    );
+
     // Total charge budget for the whole GROUP (not per device): feed-forward plus integral correction.
     // hasGridSurplus uses a stricter threshold than surplusSetPoint (see SURPLUS_CONFIRM_MS), so a new charge only
     // starts on a clear surplus, while an ongoing charge is regulated towards surplusSetPoint.
     let chargeBudgetTotal = 0;
-    if (hasGridSurplus || currentTotalChargePower > 0) {
+    if (hasGridSurplus || isChargeOngoing) {
       const chargePiCorrection = chargePid.calculate(
         chargeError,
         now,
@@ -1535,7 +1541,8 @@ export const runZeroFeedInAutomation = async (
     if (chargeEligibleDevices.length > 0) {
       adapter.log.debug(
         `${LOG} AC charge: shortTermGridAvgW=${shortTermGridAvgW.toFixed(1)} surplusFor=${Math.round(surplusDurationMs / 1000)}s ` +
-          `hasGridSurplus=${hasGridSurplus} measuredChargePower=${measuredTotalChargePower} commandedChargePower=${commandedChargePower} ` +
+          `hasGridSurplus=${hasGridSurplus} chargeOngoing=${isChargeOngoing} batteryFeedIn=${batteryFeedIn} ` +
+          `measuredChargePower=${measuredTotalChargePower} commandedChargePower=${commandedChargePower} ` +
           `gridWithoutChargeAvg=${shortTermGridWithoutChargeW.toFixed(1)} step=${isGridWithoutChargeStep} held=${isChargeHeld} ` +
           `feedForward=${chargeFeedForward.toFixed(1)} chargeError=${chargeError.toFixed(1)} ` +
           `chargeBudgetTotal=${chargeBudgetTotal.toFixed(1)} activeChargeDevices=${

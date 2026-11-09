@@ -177,6 +177,12 @@ For more details and for information on how to disable error reporting, see the 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+
+### **WORK IN PROGRESS**
+
+- Adapter automation: Fixed energy being moved from one battery into another - battery feed-in of a device was counted as surplus, so AC-only devices charged from it
+- Adapter automation: A charge keep-alive alone no longer keeps surplus charging running without a confirmed surplus, so it is released after 3 minutes as intended
+
 ### 6.3.1 (2026-11-09)
 
 - Smart Meter 3CT announced via mDNS as `smartMeter3CT-S` is now auto-created
