@@ -182,7 +182,7 @@ For more details and for information on how to disable error reporting, see the 
 ### **WORK IN PROGRESS**
 
 - suggestedInverseMaxPower: The reason now states when the value is held at the minSoc hysteresis and at which SOC it is released
-- Values sent to the device (zenSDK, MQTT and HEMS) are always rounded to integers, e.g. minSoc/socSet or decimal values written to control states
+- Adapter automation: Fixed AC surplus charging with several devices staying "held" and never ramping up (#325) - while the charge budget is held, the devices keep their limits instead of re-splitting it every cycle, the hold is released after 30 s at the latest, and charge limit changes below 10 W / 5% are no longer sent
 - Adapter automation: New global setting `suggestedInverseMaxPowerPerPack` (default `false`) - if enabled, the fixed power tiers of suggestedInverseMaxPower (60-500 W) are multiplied by the device's `packNum`
 
 ### 6.3.2 (2026-11-09)

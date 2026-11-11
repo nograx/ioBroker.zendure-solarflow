@@ -84,6 +84,17 @@ const CHARGE_SETTLED_TOLERANCE_W = 50;
 // that reduces the charge budget right away, even while it's held (e.g. a cloud ends the surplus).
 const CHARGE_HOLD_IMPORT_W = 300;
 
+// Safety net: the charge budget is never held longer than this in one go. Should a device's limit keep changing
+// for whatever reason (each change restarts CHARGE_HOLD_MS), the budget would otherwise stay frozen forever and
+// a surplus could never be absorbed. After this time the hold is skipped for one cycle.
+const CHARGE_HOLD_MAX_MS = 30 * 1000;
+
+// A charge limit change smaller than this (W) - or CHARGE_LIMIT_DEADBAND_RATIO of the current charge limit,
+// whichever is larger - is not sent: it hardly changes the charge power, but each change restarts the charge
+// hold (see CHARGE_HOLD_MS) and costs a device write. Starting/stopping a charge and the keep-alive always apply.
+const CHARGE_LIMIT_DEADBAND_W = 10;
+const CHARGE_LIMIT_DEADBAND_RATIO = 0.05;
+
 // The charge integral only builds up while the error is at most this large (W), see FEED_IN_INTEGRAL_BAND_W.
 const CHARGE_INTEGRAL_BAND_W = 100;
 
@@ -278,6 +289,8 @@ let stabilizedUntilMs = 0;
 // jumping between 1 and 2 devices when the charge budget hovers around CHARGE_MIN_PER_DEVICE_W.
 let stabilizedChargeDeviceCount = 0;
 let stabilizedChargeUntilMs = 0;
+// Since when the charge budget has been held without interruption (see CHARGE_HOLD_MAX_MS).
+let chargeHeldSinceMs: number | undefined;
 // Guards against overlapping cycles: runZeroFeedInAutomation does many sequential awaits, so a fast
 // series of trigger updates could otherwise start a second cycle before the first one finishes.
 let isRunning = false;
@@ -461,6 +474,7 @@ export const resetAdapterAutomationController = (adapter: ZendureSolarflow): voi
   pendingGridWithoutChargeStepSign = 0;
   surplusSinceMs = undefined;
   isSurplusConfirmed = false;
+  chargeHeldSinceMs = undefined;
   adapter.log.debug(`${LOG} PID controllers reset`);
 };
 
@@ -1423,7 +1437,7 @@ export const runZeroFeedInAutomation = async (
     );
 
     // Whether a charging device may not draw (or report) its new limit yet, see CHARGE_HOLD_MS.
-    const isChargeHeld = surplusChargeCandidates.some((device) => {
+    const isChargeHeldRaw = surplusChargeCandidates.some((device) => {
       const state = getDeviceState(device);
       if (isLimitCommandPending(state)) {
         return true;
@@ -1441,6 +1455,20 @@ export const runZeroFeedInAutomation = async (
         Math.abs(state.measuredChargePower - commanded) > Math.max(CHARGE_SETTLED_TOLERANCE_W, commanded * 0.1)
       );
     });
+
+    // Never hold longer than CHARGE_HOLD_MAX_MS in one go: then skip the hold for one cycle and start over.
+    let isChargeHeld = isChargeHeldRaw;
+    if (!isChargeHeldRaw) {
+      chargeHeldSinceMs = undefined;
+    } else if (chargeHeldSinceMs == null) {
+      chargeHeldSinceMs = now;
+    } else if (now - chargeHeldSinceMs >= CHARGE_HOLD_MAX_MS) {
+      adapter.log.debug(
+        `${LOG} AC charge: budget held for ${Math.round((now - chargeHeldSinceMs) / 1000)}s - releasing the hold for one cycle`,
+      );
+      isChargeHeld = false;
+      chargeHeldSinceMs = undefined;
+    }
 
     // Feed-forward: grid value without the devices' own charge power, smoothed like the home usage (incl. the
     // load step detection, see HOME_USAGE_STEP_W). The charge power that brings the grid to surplusSetPoint
@@ -1493,6 +1521,8 @@ export const runZeroFeedInAutomation = async (
     // hasGridSurplus uses a stricter threshold than surplusSetPoint (see SURPLUS_CONFIRM_MS), so a new charge only
     // starts on a clear surplus, while an ongoing charge is regulated towards surplusSetPoint.
     let chargeBudgetTotal = 0;
+    // While the budget is held unchanged, every device keeps its current charge limit (see below).
+    let isChargeBudgetFrozen = false;
     if (hasGridSurplus || isChargeOngoing) {
       const chargePiCorrection = chargePid.calculate(
         chargeError,
@@ -1506,6 +1536,7 @@ export const runZeroFeedInAutomation = async (
         chargeBudgetTotal = Math.max(0, commandedChargePower - (heldGridW - surplusSetPoint));
       } else {
         chargeBudgetTotal = commandedChargePower;
+        isChargeBudgetFrozen = true;
       }
     }
 
@@ -1545,7 +1576,7 @@ export const runZeroFeedInAutomation = async (
           `measuredChargePower=${measuredTotalChargePower} commandedChargePower=${commandedChargePower} ` +
           `gridWithoutChargeAvg=${shortTermGridWithoutChargeW.toFixed(1)} step=${isGridWithoutChargeStep} held=${isChargeHeld} ` +
           `feedForward=${chargeFeedForward.toFixed(1)} chargeError=${chargeError.toFixed(1)} ` +
-          `chargeBudgetTotal=${chargeBudgetTotal.toFixed(1)} activeChargeDevices=${
+          `chargeBudgetTotal=${chargeBudgetTotal.toFixed(1)} frozen=${isChargeBudgetFrozen} activeChargeDevices=${
             activeChargeDevices
               .map((device) => `${deviceLabel(device)}:${Math.round(chargeBudgets.get(deviceId(device)) ?? 0)}W`)
               .join(",") || "-"
@@ -1567,7 +1598,12 @@ export const runZeroFeedInAutomation = async (
         // Manual override: charge at the device's full chargeMaxLimit, ignoring solar surplus/SOC heuristics.
         state.newLimit = -state.chargeMaxLimit;
       } else if (canSurplusCharge(device) && state.soc < 100) {
-        let perDeviceBudget = Math.round(chargeBudgets.get(deviceId(device)) ?? 0);
+        // A held (frozen) budget must not be split again: the split depends on each device's solar input and
+        // SOC, so it shifts by a few watts every cycle - each such change restarts the hold (CHARGE_HOLD_MS),
+        // and with several charging devices the budget would stay frozen forever. Keep the current limits.
+        let perDeviceBudget = isChargeBudgetFrozen
+          ? Math.max(0, -state.currentLimit)
+          : Math.round(chargeBudgets.get(deviceId(device)) ?? 0);
 
         // Also below the device's own minimum limit, which it can't be set to anyway.
         if (perDeviceBudget <= CHARGE_DEAD_ZONE_MAX_W || perDeviceBudget < getMinLimit(device)) {
@@ -1868,6 +1904,20 @@ export const runZeroFeedInAutomation = async (
           state.newLimit = 0;
           isChargeBlocked = true;
         }
+      }
+
+      // Don't send tiny changes of an ongoing charge (see CHARGE_LIMIT_DEADBAND_W). Not for the charge keep-alive
+      // (its release depends on reaching it exactly) and not for forceAcCharging (charges at exactly chargeMaxLimit).
+      if (
+        state.currentLimit < 0 &&
+        state.newLimit < 0 &&
+        state.newLimit !== -minLimit &&
+        state.currentLimit !== -minLimit &&
+        !state.forceAcCharging &&
+        Math.abs(state.newLimit - state.currentLimit) <
+          Math.max(CHARGE_LIMIT_DEADBAND_W, -state.currentLimit * CHARGE_LIMIT_DEADBAND_RATIO)
+      ) {
+        state.newLimit = state.currentLimit;
       }
 
       await publishDeviceTask(adapter, device, getDeviceTask(device, state, isChargeBlocked), device === leadDevice);

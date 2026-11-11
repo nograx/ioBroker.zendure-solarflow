@@ -49,6 +49,9 @@ const SURPLUS_CONFIRM_MS = 30 * 1e3;
 const CHARGE_HOLD_MS = 10 * 1e3;
 const CHARGE_SETTLED_TOLERANCE_W = 50;
 const CHARGE_HOLD_IMPORT_W = 300;
+const CHARGE_HOLD_MAX_MS = 30 * 1e3;
+const CHARGE_LIMIT_DEADBAND_W = 10;
+const CHARGE_LIMIT_DEADBAND_RATIO = 0.05;
 const CHARGE_INTEGRAL_BAND_W = 100;
 const CHARGE_DEAD_ZONE_MAX_W = 20;
 const CHARGE_MIN_PER_DEVICE_W = 100;
@@ -89,6 +92,7 @@ let stabilizedInverterCount = 0;
 let stabilizedUntilMs = 0;
 let stabilizedChargeDeviceCount = 0;
 let stabilizedChargeUntilMs = 0;
+let chargeHeldSinceMs;
 let isRunning = false;
 let automationGeneration = 0;
 let deviceOrder = [];
@@ -186,6 +190,7 @@ const resetAdapterAutomationController = (adapter) => {
   pendingGridWithoutChargeStepSign = 0;
   surplusSinceMs = void 0;
   isSurplusConfirmed = false;
+  chargeHeldSinceMs = void 0;
   adapter.log.debug(`${LOG} PID controllers reset`);
 };
 const trackLimitTransition = (state, previousLimit, nextLimit, now) => {
@@ -726,7 +731,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       (sum, device) => sum + getReportedChargePower(getDeviceState(device)),
       0
     );
-    const isChargeHeld = surplusChargeCandidates.some((device) => {
+    const isChargeHeldRaw = surplusChargeCandidates.some((device) => {
       const state = getDeviceState(device);
       if (isLimitCommandPending(state)) {
         return true;
@@ -740,6 +745,18 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       const commanded = -state.currentLimit;
       return state.lastChangeMs < CHARGE_SETTLE_MS && state.measuredChargePower != null && Math.abs(state.measuredChargePower - commanded) > Math.max(CHARGE_SETTLED_TOLERANCE_W, commanded * 0.1);
     });
+    let isChargeHeld = isChargeHeldRaw;
+    if (!isChargeHeldRaw) {
+      chargeHeldSinceMs = void 0;
+    } else if (chargeHeldSinceMs == null) {
+      chargeHeldSinceMs = now;
+    } else if (now - chargeHeldSinceMs >= CHARGE_HOLD_MAX_MS) {
+      adapter.log.debug(
+        `${LOG} AC charge: budget held for ${Math.round((now - chargeHeldSinceMs) / 1e3)}s - releasing the hold for one cycle`
+      );
+      isChargeHeld = false;
+      chargeHeldSinceMs = void 0;
+    }
     let isGridWithoutChargeStep = false;
     if (!isChargeHeld || shortTermGridWithoutChargeW == null) {
       const rawGridWithoutCharge = currentGridMeterValue - measuredTotalChargePower + batteryFeedIn;
@@ -770,6 +787,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       (device) => getDeviceState(device).currentLimit < -getMinLimit(device)
     );
     let chargeBudgetTotal = 0;
+    let isChargeBudgetFrozen = false;
     if (hasGridSurplus || isChargeOngoing) {
       const chargePiCorrection = chargePid.calculate(
         chargeError,
@@ -782,6 +800,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
         chargeBudgetTotal = Math.max(0, commandedChargePower - (heldGridW - surplusSetPoint));
       } else {
         chargeBudgetTotal = commandedChargePower;
+        isChargeBudgetFrozen = true;
       }
     }
     const orderedChargeEligible = [...chargeEligibleDevices].sort((a, b) => devices.indexOf(b) - devices.indexOf(a));
@@ -804,7 +823,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
     const chargeBudgets = getChargeBudgets(activeChargeDevices, chargeBudgetTotal);
     if (chargeEligibleDevices.length > 0) {
       adapter.log.debug(
-        `${LOG} AC charge: shortTermGridAvgW=${shortTermGridAvgW.toFixed(1)} surplusFor=${Math.round(surplusDurationMs / 1e3)}s hasGridSurplus=${hasGridSurplus} chargeOngoing=${isChargeOngoing} batteryFeedIn=${batteryFeedIn} measuredChargePower=${measuredTotalChargePower} commandedChargePower=${commandedChargePower} gridWithoutChargeAvg=${shortTermGridWithoutChargeW.toFixed(1)} step=${isGridWithoutChargeStep} held=${isChargeHeld} feedForward=${chargeFeedForward.toFixed(1)} chargeError=${chargeError.toFixed(1)} chargeBudgetTotal=${chargeBudgetTotal.toFixed(1)} activeChargeDevices=${activeChargeDevices.map((device) => {
+        `${LOG} AC charge: shortTermGridAvgW=${shortTermGridAvgW.toFixed(1)} surplusFor=${Math.round(surplusDurationMs / 1e3)}s hasGridSurplus=${hasGridSurplus} chargeOngoing=${isChargeOngoing} batteryFeedIn=${batteryFeedIn} measuredChargePower=${measuredTotalChargePower} commandedChargePower=${commandedChargePower} gridWithoutChargeAvg=${shortTermGridWithoutChargeW.toFixed(1)} step=${isGridWithoutChargeStep} held=${isChargeHeld} feedForward=${chargeFeedForward.toFixed(1)} chargeError=${chargeError.toFixed(1)} chargeBudgetTotal=${chargeBudgetTotal.toFixed(1)} frozen=${isChargeBudgetFrozen} activeChargeDevices=${activeChargeDevices.map((device) => {
           var _a2;
           return `${deviceLabel(device)}:${Math.round((_a2 = chargeBudgets.get(deviceId(device))) != null ? _a2 : 0)}W`;
         }).join(",") || "-"}`
@@ -818,7 +837,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       if (state.forceAcCharging && state.soc < 100) {
         state.newLimit = -state.chargeMaxLimit;
       } else if (canSurplusCharge(device) && state.soc < 100) {
-        let perDeviceBudget = Math.round((_b = chargeBudgets.get(deviceId(device))) != null ? _b : 0);
+        let perDeviceBudget = isChargeBudgetFrozen ? Math.max(0, -state.currentLimit) : Math.round((_b = chargeBudgets.get(deviceId(device))) != null ? _b : 0);
         if (perDeviceBudget <= CHARGE_DEAD_ZONE_MAX_W || perDeviceBudget < getMinLimit(device)) {
           perDeviceBudget = 0;
         }
@@ -1012,6 +1031,9 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
           state.newLimit = 0;
           isChargeBlocked = true;
         }
+      }
+      if (state.currentLimit < 0 && state.newLimit < 0 && state.newLimit !== -minLimit && state.currentLimit !== -minLimit && !state.forceAcCharging && Math.abs(state.newLimit - state.currentLimit) < Math.max(CHARGE_LIMIT_DEADBAND_W, -state.currentLimit * CHARGE_LIMIT_DEADBAND_RATIO)) {
+        state.newLimit = state.currentLimit;
       }
       await publishDeviceTask(adapter, device, getDeviceTask(device, state, isChargeBlocked), device === leadDevice);
       if (state.newLimit === state.currentLimit) {
