@@ -942,6 +942,13 @@ class ZenIobDevice {
     }
   }
   async updateProperty(property, value) {
+    if (!Number.isInteger(value)) {
+      const rounded = Math.round(value);
+      this.adapter.log.debug(
+        `[updateProperty] Value ${value} for property ${property} of device ${this.deviceKey} is not an integer, sending ${rounded}!`
+      );
+      value = rounded;
+    }
     if (this.isZenSdkSupported && this.adapter.config.useZenSDK) {
       const setPropertyContent2 = { [property]: value };
       this.adapter.log.debug(
@@ -981,6 +988,7 @@ class ZenIobDevice {
   releaseHemsControlTimeout;
   async sendHemsEpSetpoint(limit) {
     var _a, _b;
+    limit = Math.round(limit);
     if (this.releaseHemsControlTimeout) {
       this.adapter.clearTimeout(this.releaseHemsControlTimeout);
       this.releaseHemsControlTimeout = void 0;
@@ -1011,7 +1019,7 @@ class ZenIobDevice {
     const inverseMaxPowerState = await this.adapter.getStateAsync(
       `${this.productKey}.${this.deviceKey}.inverseMaxPower`
     );
-    const inverseMaxPower = (inverseMaxPowerState == null ? void 0 : inverseMaxPowerState.val) ? Number(inverseMaxPowerState.val) : 0;
+    const inverseMaxPower = (inverseMaxPowerState == null ? void 0 : inverseMaxPowerState.val) ? Math.round(Number(inverseMaxPowerState.val)) : 0;
     if (limit > inverseMaxPower) {
       this.adapter.log.error(
         `[sendHemsEpSetpoint] Requested output limit (${limit}W) exceeds inverseMaxPower (${inverseMaxPower}W) - actual output will be ignored by the device!`
@@ -1021,9 +1029,9 @@ class ZenIobDevice {
     let socSet;
     if (isFirstPayload) {
       const minSocState = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.minSoc`);
-      minSoc = ((minSocState == null ? void 0 : minSocState.val) ? Number(minSocState.val) : 1) * 10;
+      minSoc = Math.round(((minSocState == null ? void 0 : minSocState.val) ? Number(minSocState.val) : 1) * 10);
       const socSetState = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.socSet`);
-      socSet = ((socSetState == null ? void 0 : socSetState.val) ? Number(socSetState.val) : 100) * 10;
+      socSet = Math.round(((socSetState == null ? void 0 : socSetState.val) ? Number(socSetState.val) : 100) * 10);
     }
     const _arguments = limit < 0 ? { outputPower: 0, chargePower: -limit, freq: 0, mode: 9, chargeMode: 3 } : {
       outputPower: limit,
@@ -1071,11 +1079,11 @@ class ZenIobDevice {
     const properties = {};
     const minSocState = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.minSoc`);
     if ((minSocState == null ? void 0 : minSocState.val) != null) {
-      properties.minSoc = Number(minSocState.val) * 10;
+      properties.minSoc = Math.round(Number(minSocState.val) * 10);
     }
     const socSetState = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.socSet`);
     if ((socSetState == null ? void 0 : socSetState.val) != null) {
-      properties.socSet = Number(socSetState.val) * 10;
+      properties.socSet = Math.round(Number(socSetState.val) * 10);
     }
     const inverseMaxPowerState = await this.adapter.getStateAsync(
       `${this.productKey}.${this.deviceKey}.inverseMaxPower`
@@ -1597,11 +1605,15 @@ class ZenIobDevice {
    * @param soc device state of charge (%)
    * @param maxLimit the device's currently configured inverseMaxPower (W), used as the upper bound
    * @param minSoc the device's configured discharge limit (%); at or below it the suggestion is 0W
+   * @param packNum number of battery packs; the fixed power tiers are per pack, so they are multiplied by it
    */
-  getSuggestedInverseMaxPower(minVoltage, soc, maxLimit, minSoc) {
+  getSuggestedInverseMaxPower(minVoltage, soc, maxLimit, minSoc, packNum = 1) {
     const HIGH_VOLTAGE = 3.23;
     const MID_VOLTAGE = 3.2;
     const LOW_VOLTAGE = ZenIobDevice.SUGGESTED_CRITICAL_VOLTAGE;
+    const packs = Number.isFinite(packNum) && packNum >= 1 ? Math.floor(packNum) : 1;
+    const perPack = (watts) => watts * packs;
+    const perPackText = (watts) => packs > 1 ? `${perPack(watts)}W (${watts}W x ${packs} packs)` : `${watts}W`;
     let newLimit = 0;
     let reason = "";
     if (minSoc != null && soc <= minSoc) {
@@ -1614,23 +1626,23 @@ class ZenIobDevice {
       newLimit = maxLimit;
       reason = `Cell voltage (${minVoltage}V) > ${HIGH_VOLTAGE}V and SOC (${soc}%) > 15% - full power`;
     } else if (minVoltage > HIGH_VOLTAGE && soc <= 15) {
-      newLimit = 200;
-      reason = `Cell voltage (${minVoltage}V) > ${HIGH_VOLTAGE}V but SOC (${soc}%) <= 15% - limited to 200W`;
+      newLimit = perPack(200);
+      reason = `Cell voltage (${minVoltage}V) > ${HIGH_VOLTAGE}V but SOC (${soc}%) <= 15% - limited to ${perPackText(200)}`;
     } else if (minVoltage > MID_VOLTAGE && soc > 15) {
-      newLimit = 500;
-      reason = `Cell voltage (${minVoltage}V) > ${MID_VOLTAGE}V and SOC (${soc}%) > 15% - limited to 500W`;
+      newLimit = perPack(500);
+      reason = `Cell voltage (${minVoltage}V) > ${MID_VOLTAGE}V and SOC (${soc}%) > 15% - limited to ${perPackText(500)}`;
     } else if (minVoltage > MID_VOLTAGE && soc <= 15) {
-      newLimit = 150;
-      reason = `Cell voltage (${minVoltage}V) > ${MID_VOLTAGE}V but SOC (${soc}%) <= 15% - limited to 150W`;
+      newLimit = perPack(150);
+      reason = `Cell voltage (${minVoltage}V) > ${MID_VOLTAGE}V but SOC (${soc}%) <= 15% - limited to ${perPackText(150)}`;
     } else if (minVoltage > LOW_VOLTAGE && soc > 10) {
-      newLimit = 130;
-      reason = `Cell voltage (${minVoltage}V) > ${LOW_VOLTAGE}V and SOC (${soc}%) > 10% - limited to 130W`;
+      newLimit = perPack(130);
+      reason = `Cell voltage (${minVoltage}V) > ${LOW_VOLTAGE}V and SOC (${soc}%) > 10% - limited to ${perPackText(130)}`;
     } else if (minVoltage > LOW_VOLTAGE && soc <= 10) {
-      newLimit = 100;
-      reason = `Cell voltage (${minVoltage}V) > ${LOW_VOLTAGE}V but SOC (${soc}%) <= 10% - limited to 100W`;
+      newLimit = perPack(100);
+      reason = `Cell voltage (${minVoltage}V) > ${LOW_VOLTAGE}V but SOC (${soc}%) <= 10% - limited to ${perPackText(100)}`;
     } else {
-      newLimit = 60;
-      reason = `Cell voltage (${minVoltage}V) <= ${LOW_VOLTAGE}V - critical, limited to 60W`;
+      newLimit = perPack(60);
+      reason = `Cell voltage (${minVoltage}V) <= ${LOW_VOLTAGE}V - critical, limited to ${perPackText(60)}`;
     }
     if (newLimit > maxLimit) {
       reason += ` (capped to configured inverseMaxPower of ${maxLimit}W)`;
@@ -1650,9 +1662,10 @@ class ZenIobDevice {
    * @param soc device state of charge (%)
    * @param maxLimit the device's currently configured inverseMaxPower (W)
    * @param minSoc the device's configured discharge limit (%)
+   * @param packNum number of battery packs (multiplier for the fixed power tiers)
    */
-  getRampedSuggestedInverseMaxPower(minVoltage, soc, maxLimit, minSoc) {
-    const raw = this.getSuggestedInverseMaxPower(minVoltage, soc, maxLimit, minSoc);
+  getRampedSuggestedInverseMaxPower(minVoltage, soc, maxLimit, minSoc, packNum = 1) {
+    const raw = this.getSuggestedInverseMaxPower(minVoltage, soc, maxLimit, minSoc, packNum);
     const now = Date.now();
     const previous = this.rampedInverseMaxPower;
     const elapsedSeconds = this.rampedInverseMaxPowerTimestamp != null ? Math.min((now - this.rampedInverseMaxPowerTimestamp) / 1e3, ZenIobDevice.SUGGESTED_RAMP_MAX_STEP_SECONDS) : 0;
@@ -1672,7 +1685,8 @@ class ZenIobDevice {
         minVoltage - ZenIobDevice.SUGGESTED_VOLTAGE_HYSTERESIS,
         soc - ZenIobDevice.SUGGESTED_SOC_HYSTERESIS,
         maxLimit,
-        minSoc
+        minSoc,
+        packNum
       ).limit;
       if (upTarget > previous) {
         limit = Math.min(upTarget, previous + elapsedSeconds * ZenIobDevice.SUGGESTED_RAMP_UP_W_PER_S);
@@ -1682,7 +1696,8 @@ class ZenIobDevice {
       } else {
         limit = previous;
         if (limit < raw.limit) {
-          reason += ` - holding ${limit}W (hysteresis)`;
+          const isMinSocHysteresis = minSoc != null && soc - ZenIobDevice.SUGGESTED_SOC_HYSTERESIS <= minSoc;
+          reason += isMinSocHysteresis ? ` - holding ${Math.round(limit)}W until SOC > ${minSoc + ZenIobDevice.SUGGESTED_SOC_HYSTERESIS}% (minSoc hysteresis)` : ` - holding ${Math.round(limit)}W (hysteresis)`;
         }
       }
     }
@@ -1746,7 +1761,13 @@ class ZenIobDevice {
     const soc = Number(electricLevelState.val);
     const maxLimit = Number(inverseMaxPowerState.val);
     const minSoc = (minSocState == null ? void 0 : minSocState.val) != null ? Number(minSocState.val) : void 0;
-    const { limit, reason } = this.getRampedSuggestedInverseMaxPower(minVoltage, soc, maxLimit, minSoc);
+    let packNum = 1;
+    const perPackState = await this.adapter.getStateAsync("adapterAutomation.suggestedInverseMaxPowerPerPack");
+    if ((perPackState == null ? void 0 : perPackState.val) === true) {
+      const packNumState = await this.adapter.getStateAsync(`${this.productKey}.${this.deviceKey}.packNum`);
+      packNum = (packNumState == null ? void 0 : packNumState.val) != null ? Number(packNumState.val) : 1;
+    }
+    const { limit, reason } = this.getRampedSuggestedInverseMaxPower(minVoltage, soc, maxLimit, minSoc, packNum);
     await ((_a = this.adapter) == null ? void 0 : _a.setState(
       `${this.productKey}.${this.deviceKey}.adapterAutomation.suggestedInverseMaxPower`,
       limit,

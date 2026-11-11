@@ -187,6 +187,22 @@ class ZendureSolarflow extends utils.Adapter {
         },
         native: {}
       });
+      await this.extendObject("adapterAutomation.suggestedInverseMaxPowerPerPack", {
+        type: "state",
+        common: {
+          name: {
+            de: "Empfohlene maximale Ausgangsleistung mit Anzahl der Batteriepacks multiplizieren",
+            en: "Multiply suggested maximum inverter output power by the number of battery packs"
+          },
+          type: "boolean",
+          desc: "suggestedInverseMaxPowerPerPack",
+          role: "switch.enable",
+          read: true,
+          write: true,
+          def: false
+        },
+        native: {}
+      });
       await this.extendObject("adapterAutomation.setPoint", {
         type: "state",
         common: {
@@ -298,6 +314,7 @@ class ZendureSolarflow extends utils.Adapter {
       };
       await ensureDefaultValue("adapterAutomation.automationEnabled", false);
       await ensureDefaultValue("adapterAutomation.ignoreSuggestedInverseMaxPower", false);
+      await ensureDefaultValue("adapterAutomation.suggestedInverseMaxPowerPerPack", false);
       await ensureDefaultValue("adapterAutomation.setPoint", 10);
       await ensureDefaultValue("adapterAutomation.setPointNearlyFull", -100);
       await ensureDefaultValue("adapterAutomation.acOnlyPenalty", 50);
