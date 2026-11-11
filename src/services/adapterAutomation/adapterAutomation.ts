@@ -81,8 +81,10 @@ const SURPLUS_CONFIRM_MS = 30 * 1000;
 const CHARGE_HOLD_MS = 10 * 1000;
 const CHARGE_SETTLED_TOLERANCE_W = 50;
 // Grid import (W) beyond setPoint - not explained by a device still drawing more than its new, lower limit -
-// that reduces the charge budget right away, even while it's held (e.g. a cloud ends the surplus).
-const CHARGE_HOLD_IMPORT_W = 300;
+// that cuts the charge budget right away, held or not (e.g. a cloud ends the surplus, or a load switches on):
+// the smoothed feed-forward would otherwise take several cycles to follow, charging from the grid meanwhile.
+// Kept well below typical charge powers - a few hundred watts of import would be most of the charge power.
+const CHARGE_HOLD_IMPORT_W = 100;
 
 // Safety net: the charge budget is never held longer than this in one go. Should a device's limit keep changing
 // for whatever reason (each change restarts CHARGE_HOLD_MS), the budget would otherwise stay frozen forever and
@@ -1076,8 +1078,23 @@ export const runZeroFeedInAutomation = async (
         ? Math.max(minIdleBeforeChargeState.val * 1000, MIN_IDLE_BEFORE_CHARGE_MIN_MS)
         : DEFAULT_MIN_IDLE_BEFORE_CHARGE_MS;
 
+    // Whether another device is charging from surplus (beyond its keep-alive, as of the last cycle). The lead
+    // device's feed-in standby is then pointless: it feeds battery power into a grid that has a surplus anyway,
+    // and the charge budget leaves that power out on purpose (see batteryFeedIn), so it's simply exported.
+    const isOtherDeviceSurplusCharging = devices.some((device, index) => {
+      const state = getDeviceState(device);
+      return (
+        index !== 0 &&
+        state.enabled &&
+        !state.forceAcCharging &&
+        canSurplusCharge(device) &&
+        state.currentLimit < -getMinLimit(device)
+      );
+    });
+
     // Refresh enabled status, solar input and current limit for every device; release stale keep-alive
-    // limits of enabled devices to 0 (the lead device only from feed-in standby to 0 if it may charge from surplus).
+    // limits of enabled devices to 0 (the lead device only from feed-in standby to 0 if it may charge from
+    // surplus, or while another device charges from surplus).
     for (const [index, device] of devices.entries()) {
       const id = deviceId(device);
       const state = getDeviceState(device);
@@ -1136,7 +1153,7 @@ export const runZeroFeedInAutomation = async (
         const feedInStandbyMs = isWaitingForSurplusCharge
           ? Math.min(minIdleBeforeChargeMs, MIN_STANDBY_TIME_MS)
           : MIN_STANDBY_TIME_MS;
-        if (index !== 0 || canSurplusCharge(device)) {
+        if (index !== 0 || canSurplusCharge(device) || isOtherDeviceSurplusCharging) {
           releaseStaleKeepAlive(device, state, getMinLimit(device), now, feedInStandbyMs);
         }
         releaseStaleKeepAlive(device, state, -getMinLimit(device), now, MIN_STANDBY_TIME_MS);
@@ -1477,9 +1494,18 @@ export const runZeroFeedInAutomation = async (
     // The battery feed-in of the other devices is added back: otherwise it would count as surplus, and energy
     // would be moved from one battery into another - the feed-in device then covers that charge power, which
     // raises the "surplus" further (a loop only limited by the integrals).
+    // Grid import while held, minus the part caused by devices still drawing more than their new, lower limit.
+    const chargeLagW = surplusChargeCandidates.reduce((sum, device) => {
+      const state = getDeviceState(device);
+      return sum + Math.max(0, getReportedChargePower(state) - Math.max(0, -state.currentLimit));
+    }, 0);
+    const heldGridW = currentGridMeterValue - chargeLagW;
+    // Clear grid import while charging (see CHARGE_HOLD_IMPORT_W): react to it right away, not smoothed.
+    const isChargeImport = commandedChargePower > 0 && heldGridW > setPoint + CHARGE_HOLD_IMPORT_W;
+
+    const rawGridWithoutCharge = currentGridMeterValue - measuredTotalChargePower + batteryFeedIn;
     let isGridWithoutChargeStep = false;
     if (!isChargeHeld || shortTermGridWithoutChargeW == null) {
-      const rawGridWithoutCharge = currentGridMeterValue - measuredTotalChargePower + batteryFeedIn;
       if (shortTermGridWithoutChargeW == null) {
         shortTermGridWithoutChargeW = rawGridWithoutCharge;
         pendingGridWithoutChargeStepSign = 0;
@@ -1497,18 +1523,25 @@ export const runZeroFeedInAutomation = async (
         }
       }
     }
+    // Fast down, slow up: on a clear import, move the average straight up to the current value (even while held),
+    // so the feed-forward cuts the charge now and doesn't raise it back to the old level once the hold ends.
+    // While held, the reported charge power may lag - the commanded one is what the devices are heading to.
+    if (isChargeImport) {
+      const importGridWithoutCharge = isChargeHeld
+        ? heldGridW - commandedChargePower + batteryFeedIn
+        : rawGridWithoutCharge;
+      if (importGridWithoutCharge > shortTermGridWithoutChargeW) {
+        shortTermGridWithoutChargeW = importGridWithoutCharge;
+        pendingGridWithoutChargeStepSign = 0;
+      }
+    }
     const chargeFeedForward = surplusSetPoint - shortTermGridWithoutChargeW;
 
-    // Error of the grid value expected with the commanded charge power - at steady state (devices draw their
-    // limit) that's the actual grid error, which the integral removes.
-    const chargeError = surplusSetPoint - (shortTermGridWithoutChargeW + commandedChargePower);
-
-    // Grid import while held, minus the part caused by devices still drawing more than their new, lower limit.
-    const chargeLagW = surplusChargeCandidates.reduce((sum, device) => {
-      const state = getDeviceState(device);
-      return sum + Math.max(0, getReportedChargePower(state) - Math.max(0, -state.currentLimit));
-    }, 0);
-    const heldGridW = currentGridMeterValue - chargeLagW;
+    // Error of the actual (smoothed) grid value, the battery feed-in added back like in the feed-forward. The
+    // integral removes what the feed-forward misses, e.g. its lag behind a steadily changing solar surplus, or
+    // devices drawing less than their limit. It must not be based on the commanded charge power: that is the
+    // last budget (feed-forward + integral) itself, so the integral would only ever decay back to 0.
+    const chargeError = surplusSetPoint - (shortTermGridAvgW + batteryFeedIn);
 
     // A charge counts as ongoing only while a device charges beyond its charge keep-alive: the keep-alive alone
     // must not keep the budget calculation running without a confirmed surplus, otherwise a small apparent
@@ -1532,7 +1565,7 @@ export const runZeroFeedInAutomation = async (
 
       if (!isChargeHeld) {
         chargeBudgetTotal = Math.max(0, chargeFeedForward + chargePiCorrection);
-      } else if (heldGridW > setPoint + CHARGE_HOLD_IMPORT_W) {
+      } else if (isChargeImport) {
         chargeBudgetTotal = Math.max(0, commandedChargePower - (heldGridW - surplusSetPoint));
       } else {
         chargeBudgetTotal = commandedChargePower;
@@ -1648,12 +1681,13 @@ export const runZeroFeedInAutomation = async (
       // A device that just rejoined feed-in from charging gets its charge keep-alive instead (AC-only devices,
       // and other devices that charge from surplus via 'adapterAutomation.acChargingAllowed'). An AC-only or
       // non-lead device that isn't feeding in yet stays at 0W, so a tiny share doesn't pull it out of idle -
-      // only the lead device is kept at its feed-in standby.
+      // only the lead device is kept at its feed-in standby - and not even that while other devices charge from
+      // surplus (see isOtherDeviceSurplusCharging).
       const minLimit = getMinLimit(device);
       let baseLimit = minLimit;
       if ((device.isAcOnly || state.acChargingAllowed) && state.currentLimit < 0) {
         baseLimit = chargeKeepAliveOrZero(device, state);
-      } else if ((device.isAcOnly || device !== devices[0]) && state.currentLimit < minLimit) {
+      } else if ((device.isAcOnly || device !== devices[0] || isChargeOngoing) && state.currentLimit < minLimit) {
         baseLimit = 0;
       }
 

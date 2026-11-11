@@ -178,6 +178,10 @@ For more details and for information on how to disable error reporting, see the 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+### **WORK IN PROGRESS**
+
+- Adapter automation: Improved AC surplus charge control - grid import while charging (> 100 W) now cuts the charge budget right away, a lasting grid export during charging is corrected, and the lead device no longer feeds battery power into the grid at its standby while other devices charge from surplus
+
 ### 6.4.0 (2026-11-11)
 
 - suggestedInverseMaxPower: The reason now states when the value is held at the minSoc hysteresis and at which SOC it is released
