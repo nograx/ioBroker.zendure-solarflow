@@ -178,7 +178,7 @@ For more details and for information on how to disable error reporting, see the 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
-### **WORK IN PROGRESS**
+### 6.4.1 (2026-11-11)
 
 - Adapter automation: Improved AC surplus charge control - grid import while charging (> 100 W) now cuts the charge budget right away, a lasting grid export during charging is corrected, and the lead device no longer feeds battery power into the grid at its standby while other devices charge from surplus
 
@@ -203,10 +203,6 @@ For more details and for information on how to disable error reporting, see the 
 
 - Adapter automation: A device running its SOC calibration (`socStatus` is 1) is removed from feed-in (new status code `120`)
 - Adapter automation: New per-device states `lastCalibration` (set when the device reaches 100% SOC) and `timeSinceLastCalibration` (days and hours since then)
-
-### 6.2.1 (2026-11-03)
-
-- `disableAcCharging` should only be created on AC only devices (like SF 2400AC)
 
 For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 

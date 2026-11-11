@@ -9,8 +9,21 @@
         ]
       }
     },
-    "version": "6.4.0",
+    "version": "6.4.1",
     "news": {
+      "6.4.1": {
+        "en": "Adapter automation: Improved AC surplus charge control - grid import while charging (> 100 W) now cuts the charge budget right away, a lasting grid export during charging is corrected, and the lead device no longer feeds battery power into the grid at its standby while other devices charge from surplus",
+        "de": "Adapterautomatisierung: Verbesserte AC-Überladungskontrolle — Netzimport beim Laden (> 100 W) senkt jetzt sofort das Ladebudget, ein dauerhafter Netzexport beim Laden wurde korrigiert und das Hauptgerät speist den Akku nicht mehr im Standby-Modus ein, während andere Geräte aus Überschüssen laden",
+        "ru": "Автоматизация адаптера: улучшенный контроль избыточного заряда переменного тока: импорт сети во время зарядки (> 100 Вт) теперь позволяет сразу же сократить расходы на зарядку, исправлен длительный экспорт электроэнергии во время зарядки, и ведущее устройство больше не подает энергию батареи в сеть в режиме ожидания, в то время как другие устройства заряжаются от избыточного заряда",
+        "pt": "Automação de adaptadores: melhor controle de carga AC - a importação da rede (> 100 W) agora reduz o orçamento de carga, a exportação duradoura da rede é corrigida e o dispositivo principal não alimenta mais a bateria enquanto outros dispositivos carregam do excedente",
+        "nl": "Automatisering van de adapter: Verbeterde controle van het wisselstroomoverschot - import van het elektriciteitsnet tijdens het opladen (> 100 W) verlaagt nu meteen het laadbudget, een blijvende export van het elektriciteitsnet tijdens het opladen wordt gecorrigeerd, en het hoofdapparaat voert niet langer batterijvermogen naar het net in stand-by, terwijl andere apparaten worden opgeladen met een overschot",
+        "fr": "Automatisation de l'adaptateur : meilleur contrôle de la surcharge du courant alternatif : l'importation sur le réseau pendant la charge (> 100 W) réduit le budget de charge, l'exportation durable pendant la charge est corrigée, et l'appareil en plomb n'alimente plus le réseau en veille alors que les autres appareils se rechargent",
+        "it": "Adattatore automatico: migliore controllo del surplus di carica AC: l'importazione dalla rete durante la ricarica (> 100 W) ora riduce subito il budget di ricarica, e il dispositivo principale non alimenta più la batteria in standby mentre gli altri si caricano in eccesso",
+        "es": "Automatización del adaptador: control mejorado de sobrecarga de aire acondicionado: importar a la red mientras se carga (> 100 W) ahora reduce el presupuesto de carga de inmediato, se corrige la exportación duradera a la red durante la carga y el dispositivo principal ya no alimenta la batería a la red en espera mientras otros dispositivos se cargan por el excedente",
+        "pl": "Automatyzacja adaptera: Ulepszona kontrola nadmiaru ładowania prądu przemiennego - import sieci podczas ładowania (> 100 W) od razu obniża budżet ładowania, korygowany jest trwały eksport sieci podczas ładowania, a urządzenie wiodące nie dostarcza energii z baterii do sieci w trybie gotowości, podczas gdy inne urządzenia ładują się z nadwyżki",
+        "uk": "Автоматизація адаптера: Покращений контроль надлишку заряду змінного струму - імпорт мережі під час зарядки (> 100 Вт) тепер негайно скорочує бюджет заряду, виправляється тривалий експорт мережі під час зарядки, і провідний пристрій більше не подає енергію акумулятора в мережу в режимі очікування, тоді як інші пристрої заряджаються від надлишку",
+        "zh-cn": "适配器自动化：改进了交流电剩余电荷控制-充电时导入电网（> 100 W）现在可以立即削减充电预算，充电期间的持续电网输出得到纠正，主设备在待机状态下不再向电网提供电池电量，而其他设备则从剩余设备中充电"
+      },
       "6.4.0": {
         "en": "suggestedInverseMaxPower: The reason now states when the value is held at the minSoc hysteresis and at which SOC it is released\nAdapter automation: Fixed AC surplus charging with several devices staying \"held\" and never ramping up (#325) - while the charge budget is held, the devices keep their limits instead of re-splitting it every cycle, the hold is released after 30 s at the latest, and charge limit changes below 10 W / 5% are no longer sent\nAdapter automation: New global setting `suggestedInverseMaxPowerPerPack` (default `false`) - if enabled, the fixed power tiers of suggestedInverseMaxPower (60-500 W) are multiplied by the device's `packNum`",
         "de": "suggestedInverseMaxPower: Der Grund gibt nun an, wann der Wert bei MinSOC-Hysterese gehalten wird und bei welchem SOC\nAdapterautomatisierung: Überschüssiges Laden mehrerer Geräte „gedrückt“ und nie hochgefahren (#325) — bei gleichbleibendem Ladebudget behalten die Geräte ihre Limits, statt sie bei jedem Zyklus neu aufzuteilen, spätestens nach 30 s aufgehoben und Ladelimitänderungen unter 10 W/5% werden nicht mehr gesendet\nAdapterautomatisierung: Neue globale Einstellung `SuggestedInverseMaxPowerPerPack` (default `false`) — wenn aktiviert, werden die festen Leistungsstufen von SuggestedInverseMaxPower (60-500 W) mit der `PackNum` des Geräts multipliziert",
@@ -88,19 +101,6 @@
         "pl": "Automatyzacja adaptera: Nowy stan na urządzenie „DisableAccharging” w celu wyłączenia ładowania AC (nadmiarowego i wymuszonego) urządzenia\nDodano Smart Meter 1CT (`SmartMeter1CT-S`), automatycznie utworzony za pomocą wykrywania mDNS",
         "uk": "Автоматизація адаптера: новий стан для кожного пристрою `DisableAcharging` для відключення зарядки змінного струму (надлишкової та примусової) для пристрою\nДодано смарт-вимірювач 1CT (`SmartMeter1CT-S`), автоматично створений за допомогою виявлення mDNS",
         "zh-cn": "适配器自动化：新的每台设备状态 “disableAcCharging” 可禁用设备的交流电充电（剩余和强制充电）\n添加了通过 mDNS 发现自动创建的 Smart Meter 1CT（`smartMeter1CT-S`）"
-      },
-      "6.1.5": {
-        "en": "Adapter automation: A lead device that reached its minSoc or has no output power available (e.g. `suggestedInverseMaxPower` is 0) is now released from feed-in and another device takes over as lead device",
-        "de": "Adapterautomatisierung: Ein Lead-Gerät, das seinen MinSOC erreicht hat oder keine Ausgangsleistung hat (z. B. `SuggestedInverseMaxPower` ist 0), wird nun aus dem Netz genommen und ein anderes Gerät",
-        "ru": "Автоматизация адаптера: ведущее устройство, вышедшее на уровень minSoC или не имеющее выходной мощности (например, значение «SuggestedInverseMaxPower» равно 0), теперь отключается от питания, а другое устройство становится ведущим устройством",
-        "pt": "Automação do adaptador: um dispositivo líder que atingiu seu MinSoC ou não tem potência de saída disponível (por exemplo, `sugestedInverseMaxPower` é 0) agora é liberado e outro assume o controle",
-        "nl": "Automatisering van de adapter: Een hoofdapparaat dat zijn MinSoC heeft bereikt of geen uitgangsvermogen beschikbaar heeft (bijv. `SuggestedInverseMaxPower` is 0) wordt nu niet meer ingevoerd en een ander apparaat neemt het over als hoofdapparaat",
-        "fr": "Automatisation de l'adaptateur : un appareil qui a atteint son MinSoC ou qui n'a pas de puissance de sortie (par exemple, « SuggestedInverseMaxPower » vaut 0) est maintenant retiré de l'alimentation et un autre prend la relève",
-        "it": "Automazione dell'adattatore: un dispositivo lead che ha raggiunto il suo MinSoC o non ha potenza di uscita (ad esempio `SuggestedInverseMaxPower` è 0) e un altro dispositivo lo sostituisce",
-        "es": "Automatización del adaptador: un dispositivo principal que llegó a su minSoC o no tiene potencia de salida disponible (por ejemplo, `SuggesterseMaxPower` es 0) ahora se libera de la alimentación y otro dispositivo pasa a ser",
-        "pl": "Automatyzacja adaptera: urządzenie ołowiające, które osiągnęło swój MinSoC lub nie ma dostępnej mocy wyjściowej (np. „SuggestedInverseMaxPower” wynosi 0), jest teraz uwalniane z zasilania, a inne urządzenie przejmuje kontrolę jako urządzenie ołowiające",
-        "uk": "Автоматизація адаптера: провідний пристрій, який досяг свого MinSoC або не має доступної вихідної потужності (наприклад, `SuggestedInverseMaxPower` дорівнює 0) тепер звільняється від подачі, а інший пристрій бере на себе провідний пристрій",
-        "zh-cn": "适配器自动化：达到其 minSoC 或没有可用输出功率（例如 “SuggedInverseMaxPower” 为 0）的主导设备现已从馈电中释放，另一个设备接管为主设备"
       }
     },
     "titleLang": {

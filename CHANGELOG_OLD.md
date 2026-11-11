@@ -1,4 +1,8 @@
 # Older changes
+## 6.2.1 (2026-11-03)
+
+- `disableAcCharging` should only be created on AC only devices (like SF 2400AC)
+
 ## 6.2.0 (2026-11-03)
 
 - Adapter automation: New per-device state `disableAcCharging` to disable AC charging (surplus and forced) for AC-only devices

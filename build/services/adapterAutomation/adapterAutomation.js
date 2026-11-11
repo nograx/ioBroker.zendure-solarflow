@@ -48,7 +48,7 @@ const HOME_USAGE_STEP_W = 300;
 const SURPLUS_CONFIRM_MS = 30 * 1e3;
 const CHARGE_HOLD_MS = 10 * 1e3;
 const CHARGE_SETTLED_TOLERANCE_W = 50;
-const CHARGE_HOLD_IMPORT_W = 300;
+const CHARGE_HOLD_IMPORT_W = 100;
 const CHARGE_HOLD_MAX_MS = 30 * 1e3;
 const CHARGE_LIMIT_DEADBAND_W = 10;
 const CHARGE_LIMIT_DEADBAND_RATIO = 0.05;
@@ -511,6 +511,10 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
     const now = Date.now();
     const minIdleBeforeChargeState = await adapter.getStateAsync("adapterAutomation.minIdleBeforeCharge");
     const minIdleBeforeChargeMs = typeof (minIdleBeforeChargeState == null ? void 0 : minIdleBeforeChargeState.val) === "number" ? Math.max(minIdleBeforeChargeState.val * 1e3, MIN_IDLE_BEFORE_CHARGE_MIN_MS) : DEFAULT_MIN_IDLE_BEFORE_CHARGE_MS;
+    const isOtherDeviceSurplusCharging = devices.some((device, index) => {
+      const state = getDeviceState(device);
+      return index !== 0 && state.enabled && !state.forceAcCharging && canSurplusCharge(device) && state.currentLimit < -getMinLimit(device);
+    });
     for (const [index, device] of devices.entries()) {
       const id = deviceId(device);
       const state = getDeviceState(device);
@@ -551,7 +555,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       if (state.enabled) {
         const isWaitingForSurplusCharge = isSurplusConfirmed && canSurplusCharge(device) && !state.forceAcCharging && state.soc < 100;
         const feedInStandbyMs = isWaitingForSurplusCharge ? Math.min(minIdleBeforeChargeMs, MIN_STANDBY_TIME_MS) : MIN_STANDBY_TIME_MS;
-        if (index !== 0 || canSurplusCharge(device)) {
+        if (index !== 0 || canSurplusCharge(device) || isOtherDeviceSurplusCharging) {
           releaseStaleKeepAlive(device, state, getMinLimit(device), now, feedInStandbyMs);
         }
         releaseStaleKeepAlive(device, state, -getMinLimit(device), now, MIN_STANDBY_TIME_MS);
@@ -757,9 +761,15 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       isChargeHeld = false;
       chargeHeldSinceMs = void 0;
     }
+    const chargeLagW = surplusChargeCandidates.reduce((sum, device) => {
+      const state = getDeviceState(device);
+      return sum + Math.max(0, getReportedChargePower(state) - Math.max(0, -state.currentLimit));
+    }, 0);
+    const heldGridW = currentGridMeterValue - chargeLagW;
+    const isChargeImport = commandedChargePower > 0 && heldGridW > setPoint + CHARGE_HOLD_IMPORT_W;
+    const rawGridWithoutCharge = currentGridMeterValue - measuredTotalChargePower + batteryFeedIn;
     let isGridWithoutChargeStep = false;
     if (!isChargeHeld || shortTermGridWithoutChargeW == null) {
-      const rawGridWithoutCharge = currentGridMeterValue - measuredTotalChargePower + batteryFeedIn;
       if (shortTermGridWithoutChargeW == null) {
         shortTermGridWithoutChargeW = rawGridWithoutCharge;
         pendingGridWithoutChargeStepSign = 0;
@@ -776,13 +786,15 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
         }
       }
     }
+    if (isChargeImport) {
+      const importGridWithoutCharge = isChargeHeld ? heldGridW - commandedChargePower + batteryFeedIn : rawGridWithoutCharge;
+      if (importGridWithoutCharge > shortTermGridWithoutChargeW) {
+        shortTermGridWithoutChargeW = importGridWithoutCharge;
+        pendingGridWithoutChargeStepSign = 0;
+      }
+    }
     const chargeFeedForward = surplusSetPoint - shortTermGridWithoutChargeW;
-    const chargeError = surplusSetPoint - (shortTermGridWithoutChargeW + commandedChargePower);
-    const chargeLagW = surplusChargeCandidates.reduce((sum, device) => {
-      const state = getDeviceState(device);
-      return sum + Math.max(0, getReportedChargePower(state) - Math.max(0, -state.currentLimit));
-    }, 0);
-    const heldGridW = currentGridMeterValue - chargeLagW;
+    const chargeError = surplusSetPoint - (shortTermGridAvgW + batteryFeedIn);
     const isChargeOngoing = surplusChargeCandidates.some(
       (device) => getDeviceState(device).currentLimit < -getMinLimit(device)
     );
@@ -796,7 +808,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       );
       if (!isChargeHeld) {
         chargeBudgetTotal = Math.max(0, chargeFeedForward + chargePiCorrection);
-      } else if (heldGridW > setPoint + CHARGE_HOLD_IMPORT_W) {
+      } else if (isChargeImport) {
         chargeBudgetTotal = Math.max(0, commandedChargePower - (heldGridW - surplusSetPoint));
       } else {
         chargeBudgetTotal = commandedChargePower;
@@ -866,7 +878,7 @@ const runZeroFeedInAutomation = async (adapter, currentGridMeterValue) => {
       let baseLimit = minLimit;
       if ((device.isAcOnly || state.acChargingAllowed) && state.currentLimit < 0) {
         baseLimit = chargeKeepAliveOrZero(device, state);
-      } else if ((device.isAcOnly || device !== devices[0]) && state.currentLimit < minLimit) {
+      } else if ((device.isAcOnly || device !== devices[0] || isChargeOngoing) && state.currentLimit < minLimit) {
         baseLimit = 0;
       }
       if (state.maxLimit <= 0 || !state.share) {
