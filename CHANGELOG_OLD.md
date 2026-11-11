@@ -1,4 +1,9 @@
 # Older changes
+## 6.2.0 (2026-11-03)
+
+- Adapter automation: New per-device state `disableAcCharging` to disable AC charging (surplus and forced) for AC-only devices
+- Added Smart Meter 1CT (`smartMeter1CT-S`), auto-created via mDNS discovery
+
 ## 6.1.5 (2026-10-27)
 
 - Adapter automation: A lead device that reached its minSoc or has no output power available (e.g. `suggestedInverseMaxPower` is 0) is now released from feed-in and another device takes over as lead device

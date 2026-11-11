@@ -178,8 +178,7 @@ For more details and for information on how to disable error reporting, see the 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
-
-### **WORK IN PROGRESS**
+### 6.4.0 (2026-11-11)
 
 - suggestedInverseMaxPower: The reason now states when the value is held at the minSoc hysteresis and at which SOC it is released
 - Adapter automation: Fixed AC surplus charging with several devices staying "held" and never ramping up (#325) - while the charge budget is held, the devices keep their limits instead of re-splitting it every cycle, the hold is released after 30 s at the latest, and charge limit changes below 10 W / 5% are no longer sent
@@ -204,11 +203,6 @@ For more details and for information on how to disable error reporting, see the 
 ### 6.2.1 (2026-11-03)
 
 - `disableAcCharging` should only be created on AC only devices (like SF 2400AC)
-
-### 6.2.0 (2026-11-03)
-
-- Adapter automation: New per-device state `disableAcCharging` to disable AC charging (surplus and forced) for AC-only devices
-- Added Smart Meter 1CT (`smartMeter1CT-S`), auto-created via mDNS discovery
 
 For older changes see [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 
