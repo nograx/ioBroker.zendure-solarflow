@@ -35,6 +35,7 @@ __export(manualZenSdkDeviceService_exports, {
 module.exports = __toCommonJS(manualZenSdkDeviceService_exports);
 var import_axios = __toESM(require("axios"));
 var import_mdnsHelper = require("../helpers/mdnsHelper");
+var import_zenSdkHttp = require("./zenSdkHttp");
 const CHECK_INTERVAL_MS = 5 * 60 * 1e3;
 const REQUEST_TIMEOUT_MS = 4e3;
 function normalizeDeviceAddress(entry) {
@@ -97,7 +98,8 @@ class ManualZenSdkDeviceService {
     try {
       const response = await import_axios.default.get(`http://${address}/properties/report`, {
         headers: { "Content-Type": "application/json" },
-        timeout: REQUEST_TIMEOUT_MS
+        timeout: REQUEST_TIMEOUT_MS,
+        httpAgent: import_zenSdkHttp.zenSdkHttpAgent
       });
       const data = response.data;
       const snNumber = typeof (data == null ? void 0 : data.sn) === "string" ? data.sn.trim() : "";

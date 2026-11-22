@@ -1,6 +1,7 @@
 import axios from "axios";
 import type { ZendureSolarflow } from "../main";
 import { createZenSdkDevice } from "../helpers/mdnsHelper";
+import { zenSdkHttpAgent } from "./zenSdkHttp";
 
 // Devices are checked right after start, then again periodically, so a device that was offline at adapter start
 // (or got a new firmware / was reset) is still added, and a paused zenSDK polling is resumed as soon as it answers.
@@ -106,6 +107,7 @@ export class ManualZenSdkDeviceService {
       const response = await axios.get(`http://${address}/properties/report`, {
         headers: { "Content-Type": "application/json" },
         timeout: REQUEST_TIMEOUT_MS,
+        httpAgent: zenSdkHttpAgent,
       });
 
       const data = response.data;

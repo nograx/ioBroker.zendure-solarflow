@@ -36,9 +36,11 @@ describe("manualZenSdkDeviceService => getConfiguredDeviceAddresses", () => {
 describe("manualZenSdkDeviceService => ManualZenSdkDeviceService", () => {
   let server: http.Server;
   let address: string;
+  const connectionHeaders: string[] = [];
 
   before((done) => {
     server = http.createServer((req, res) => {
+      connectionHeaders.push(req.headers.connection ?? "");
       if (req.url === "/properties/report") {
         res.setHeader("Content-Type", "application/json");
         res.end(
@@ -89,6 +91,7 @@ describe("manualZenSdkDeviceService => ManualZenSdkDeviceService", () => {
     expect(calls).to.have.length(1);
     expect(calls[0].ip).to.equal(address);
     expect(calls[0].source).to.contain(address);
+    expect(connectionHeaders).to.include("close");
   });
 
   it("should warn only once for an unreachable address", async () => {

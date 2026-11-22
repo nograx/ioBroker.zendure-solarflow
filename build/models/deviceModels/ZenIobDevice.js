@@ -42,6 +42,7 @@ var import_processDeviceProperties = require("../../helpers/processDevicePropert
 var import_allStates = require("../../constants/sensorStates/allStates");
 var import_node_schedule = require("node-schedule");
 var import_deviceStatus = require("../../services/adapterAutomation/deviceStatus");
+var import_zenSdkHttp = require("../../services/zenSdkHttp");
 const zenSdkPollingSettingsStates = [
   {
     title: "zenSDKPollingEnabled",
@@ -597,7 +598,8 @@ class ZenIobDevice {
       };
       const config = {
         headers,
-        timeout: 4e3
+        timeout: 4e3,
+        httpAgent: import_zenSdkHttp.zenSdkHttpAgent
       };
       return import_axios.default.get(`http://${this.ipAddress}/properties/report`, config).then(async (response) => {
         var _a;
@@ -830,7 +832,8 @@ class ZenIobDevice {
       };
       const config = {
         headers,
-        timeout: 4e3
+        timeout: 4e3,
+        httpAgent: import_zenSdkHttp.zenSdkHttpAgent
       };
       return this.axiosPostWithRetry(
         `http://${this.ipAddress}/properties/write`,

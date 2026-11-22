@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/services/zenSdkHttp.ts"],
+  "sourcesContent": ["import { Agent } from \"node:http\";\n\nexport const zenSdkHttpAgent = new Agent({ keepAlive: false });\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,uBAAsB;AAEf,MAAM,kBAAkB,IAAI,uBAAM,EAAE,WAAW,MAAM,CAAC;",
+  "names": []
+}

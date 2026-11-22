@@ -19,6 +19,7 @@ import { ensureState, processDeviceProperties } from "../../helpers/processDevic
 import { allStates } from "../../constants/sensorStates/allStates";
 import { scheduleJob, type Job } from "node-schedule";
 import { getDeviceStatusStates } from "../../services/adapterAutomation/deviceStatus";
+import { zenSdkHttpAgent } from "../../services/zenSdkHttp";
 
 // Settings that control the per-device zenSDK polling schedule, exposed as writable states
 // in the '<productKey>.<deviceKey>.settings' folder.
@@ -681,6 +682,7 @@ export class ZenIobDevice {
       const config = {
         headers: headers,
         timeout: 4000,
+        httpAgent: zenSdkHttpAgent,
       };
 
       return axios
@@ -975,6 +977,7 @@ export class ZenIobDevice {
       const config = {
         headers: headers,
         timeout: 4000,
+        httpAgent: zenSdkHttpAgent,
       };
 
       return this.axiosPostWithRetry(
