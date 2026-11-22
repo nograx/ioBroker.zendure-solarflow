@@ -1,4 +1,9 @@
 # Older changes
+## 6.3.0 (2026-11-05)
+
+- Adapter automation: A device running its SOC calibration (`socStatus` is 1) is removed from feed-in (new status code `120`)
+- Adapter automation: New per-device states `lastCalibration` (set when the device reaches 100% SOC) and `timeSinceLastCalibration` (days and hours since then)
+
 ## 6.2.1 (2026-11-03)
 
 - `disableAcCharging` should only be created on AC only devices (like SF 2400AC)

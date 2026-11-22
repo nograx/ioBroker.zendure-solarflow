@@ -9,8 +9,21 @@
         ]
       }
     },
-    "version": "6.4.1",
+    "version": "6.4.2",
     "news": {
+      "6.4.2": {
+        "en": "zenSDK: Disable HTTP keep-alive for local requests to avoid reusing connections closed by the device. Requests can still time out if a device is unavailable or responds too slowly.",
+        "de": "ZenSDK: Deaktivieren Sie HTTP-Keep-Alive für lokale Anfragen. Auch wenn ein Gerät nicht verfügbar ist oder zu langsam reagiert.",
+        "ru": "ZenSDK: отключите HTTP keep-alive для локальных запросов, чтобы избежать повторного использования соединений, закрытых устройством. Время ожидания запросов все равно может истечь, если устройство недоступно или отвечает слишком медленно.",
+        "pt": "ZenSDK: Desative o HTTP keep-alive para evitar a reutilização de conexões fechadas. Se o dispositivo não funcionar ou responder muito lentamente.",
+        "nl": "ZenSDK: Schakel HTTP keep-alive uit voor lokale verzoeken om te voorkomen dat verbindingen die door het apparaat zijn gesloten opnieuw worden gebruikt. Verzoeken kunnen nog steeds verlopen als een apparaat niet beschikbaar is of te langzaam reageert.",
+        "fr": "ZenSDK : désactivez le HTTP pour les requêtes locales afin de ne pas réutiliser les connexions fermées. Les demandes peuvent expirer si un appareil n'est pas disponible ou répond trop lentement.",
+        "it": "ZenSDK: disabilita HTTP keep-alive per le richieste locali per non riusare le connessioni chiuse. Le richieste possono scadere se un dispositivo non è attivo o è lento.",
+        "es": "ZenSDK: Desactive HTTP keep-alive en las solicitudes locales para evitar reutilizar las conexiones del dispositivo. Las solicitudes aún se agotan si el dispositivo no está disponible o responde muy lento.",
+        "pl": "ZenSDK: Wyłącz utrzymywanie żywotności protokołu HTTP dla żądań lokalnych, aby uniknąć ponownego wykorzystania połączeń zamkniętych przez urządzenie. Żądania mogą nadal upłynąć, jeśli urządzenie jest niedostępne lub odpowiada zbyt wolno.",
+        "uk": "ZenSDK: Вимкніть HTTP keep-alive для локальних запитів, щоб уникнути повторного використання з'єднань, закритих пристроєм. Запити все ще можуть закінчитися, якщо пристрій недоступний або реагує занадто повільно.",
+        "zh-cn": "ZenSDK：对本地请求禁用 HTTP 保持活动状态，以避免重复使用设备关闭的连接。如果设备不可用或响应速度太慢，请求仍然会超时。"
+      },
       "6.4.1": {
         "en": "Adapter automation: Improved AC surplus charge control - grid import while charging (> 100 W) now cuts the charge budget right away, a lasting grid export during charging is corrected, and the lead device no longer feeds battery power into the grid at its standby while other devices charge from surplus",
         "de": "Adapterautomatisierung: Verbesserte AC-Überladungskontrolle — Netzimport beim Laden (> 100 W) senkt jetzt sofort das Ladebudget, ein dauerhafter Netzexport beim Laden wurde korrigiert und das Hauptgerät speist den Akku nicht mehr im Standby-Modus ein, während andere Geräte aus Überschüssen laden",
@@ -88,19 +101,6 @@
         "pl": "`DisableAccharging` powinno być tworzone tylko na urządzeniach AC (takich jak SF 2400AC)",
         "uk": "`DisableAcharging` слід створювати лише на пристроях змінного струму (наприклад, SF 2400AC)",
         "zh-cn": "`disableAcCharging`只能在仅限交流电的设备上创建（比如 SF 2400AC）"
-      },
-      "6.2.0": {
-        "en": "Adapter automation: New per-device state `disableAcCharging` to disable AC charging (surplus and forced) for a device\nAdded Smart Meter 1CT (`smartMeter1CT-S`), auto-created via mDNS discovery",
-        "de": "Adapterautomatisierung: Neuer Gerätestatus `DisableACCharging` für Geräte\nSmart Meter 1CT (`SmartMeter1CT-S`) hinzugefügt, automatisch per mDNS",
-        "ru": "Автоматизация адаптера: новое состояние для каждого устройства «DisableAcCharging» для отключения зарядки устройства от сети переменного тока (избыточной и принудительной)\nДобавлен интеллектуальный измеритель 1CT (`SmartMeter1CT-S`), автоматически создаваемый с помощью обнаружения mDNS",
-        "pt": "Automação do adaptador: novo estado “DisableACCharging” para desativar o carregamento AC (excedente e forçado)\nAdicionado Smart Meter 1CT (`SmartMeter1CT-S`), criado automaticamente via mDNS",
-        "nl": "Automatisering van de adapter: nieuwe status `DisableACCharging` per apparaat om opladen op wisselstroom (overtollig en gedwongen) voor een apparaat uit te schakelen\nSmart Meter 1CT (`SmartMeter1CT-S`) toegevoegd, automatisch aangemaakt via mDNS-detectie",
-        "fr": "Automatisation de l'adaptateur : nouvel état « DisableAcCharging » pour désactiver la recharge AC (excédentaire et forcée)\nSmart Meter 1CT (« SmartMeter1CT-S »), créé automatiquement via mDNS Discovery",
-        "it": "Automazione adattatore: nuovo stato «DisableAccharging» per disattivare la ricarica AC (eccedente e forzata)\nAggiunto Smart Meter 1CT (`SmartMeter1CT-S`), creato automaticamente tramite mDNS",
-        "es": "Automatización del adaptador: nuevo estado por dispositivo, «DisableAcCharging», para desactivar la carga AC (excedente y forzada)\nSe ha añadido Smart Meter 1CT (`SmartMeter1CT-S`), creado automáticamente mediante mDNS",
-        "pl": "Automatyzacja adaptera: Nowy stan na urządzenie „DisableAccharging” w celu wyłączenia ładowania AC (nadmiarowego i wymuszonego) urządzenia\nDodano Smart Meter 1CT (`SmartMeter1CT-S`), automatycznie utworzony za pomocą wykrywania mDNS",
-        "uk": "Автоматизація адаптера: новий стан для кожного пристрою `DisableAcharging` для відключення зарядки змінного струму (надлишкової та примусової) для пристрою\nДодано смарт-вимірювач 1CT (`SmartMeter1CT-S`), автоматично створений за допомогою виявлення mDNS",
-        "zh-cn": "适配器自动化：新的每台设备状态 “disableAcCharging” 可禁用设备的交流电充电（剩余和强制充电）\n添加了通过 mDNS 发现自动创建的 Smart Meter 1CT（`smartMeter1CT-S`）"
       }
     },
     "titleLang": {
